@@ -30,6 +30,7 @@ libtest_utils_SOURCES = \
 	TestPylithVersion.cc \
 	TestPetscVersion.cc \
 	TestDependenciesVersion.cc \
+	TestPetscStack.cc \
 	$(top_srcdir)/tests/src/driver_catch2.cc
 
 
