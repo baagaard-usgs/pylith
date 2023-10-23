@@ -331,25 +331,17 @@ pylith::faults::FaultCohesiveImpulses::_setKernelsResidual(pylith::feassemble::I
     std::vector<ResidualKernels> kernels;
     switch (_formulation) {
     case pylith::problems::Physics::QUASISTATIC: {
-        // Elasticity equation (displacement) for negative side of the fault.
-        const PetscBdPointFunc f0u_neg = pylith::fekernels::FaultCohesiveKin::f0u_neg;
-        const PetscBdPointFunc f1u_neg = NULL;
-
-        // Elasticity equation (displacement) for positive side of the fault.
-        const PetscBdPointFunc f0u_pos = pylith::fekernels::FaultCohesiveKin::f0u_pos;
-        const PetscBdPointFunc f1u_pos = NULL;
+        // Elasticity equation (displacement) for both sides of the fault.
+        const PetscBdPointFunc f0u = pylith::fekernels::FaultCohesiveKin::f0u;
+        const PetscBdPointFunc f1u = NULL;
 
         // Fault slip constraint equation.
         const PetscBdPointFunc f0l = pylith::fekernels::FaultCohesiveKin::f0l_slip;
         const PetscBdPointFunc f1l = NULL;
 
-        kernels.resize(3);
-        kernels[0] = ResidualKernels("displacement", integrator_t::LHS, integrator_t::NEGATIVE_FACE,
-                                     f0u_neg, f1u_neg);
-        kernels[1] = ResidualKernels("displacement", integrator_t::LHS, integrator_t::POSITIVE_FACE,
-                                     f0u_pos, f1u_pos);
-        kernels[2] = ResidualKernels("lagrange_multiplier_fault", integrator_t::LHS, integrator_t::FAULT_FACE,
-                                     f0l, f1l);
+        kernels.resize(2);
+        kernels[0] = ResidualKernels("displacement", integrator_t::LHS, integrator_t::FAULT_FACE, f0u, f1u);
+        kernels[1] = ResidualKernels("lagrange_multiplier_fault", integrator_t::LHS, integrator_t::FAULT_FACE, f0l, f1l);
 
         break;
     } // QUASISTATIC
@@ -380,29 +372,22 @@ pylith::faults::FaultCohesiveImpulses::_setKernelsJacobian(pylith::feassemble::I
     std::vector<JacobianKernels> kernels;
     switch (_formulation) {
     case QUASISTATIC: {
-        const PetscBdPointJac Jf0ul_neg = pylith::fekernels::FaultCohesiveKin::Jf0ul_neg;
-        const PetscBdPointJac Jf1ul_neg = NULL;
-        const PetscBdPointJac Jf2ul_neg = NULL;
-        const PetscBdPointJac Jf3ul_neg = NULL;
-
-        const PetscBdPointJac Jf0ul_pos = pylith::fekernels::FaultCohesiveKin::Jf0ul_pos;
-        const PetscBdPointJac Jf1ul_pos = NULL;
-        const PetscBdPointJac Jf2ul_pos = NULL;
-        const PetscBdPointJac Jf3ul_pos = NULL;
+        const PetscBdPointJac Jf0ul = pylith::fekernels::FaultCohesiveKin::Jf0ul;
+        const PetscBdPointJac Jf1ul = NULL;
+        const PetscBdPointJac Jf2ul = NULL;
+        const PetscBdPointJac Jf3ul = NULL;
 
         const PetscBdPointJac Jf0lu = pylith::fekernels::FaultCohesiveKin::Jf0lu;
         const PetscBdPointJac Jf1lu = NULL;
         const PetscBdPointJac Jf2lu = NULL;
         const PetscBdPointJac Jf3lu = NULL;
 
-        kernels.resize(3);
+        kernels.resize(2);
         const char* nameDisplacement = "displacement";
         const char* nameLagrangeMultiplier = "lagrange_multiplier_fault";
         kernels[0] = JacobianKernels(nameDisplacement, nameLagrangeMultiplier, integrator_t::LHS,
-                                     integrator_t::NEGATIVE_FACE, Jf0ul_neg, Jf1ul_neg, Jf2ul_neg, Jf3ul_neg);
-        kernels[1] = JacobianKernels(nameDisplacement, nameLagrangeMultiplier, integrator_t::LHS,
-                                     integrator_t::POSITIVE_FACE, Jf0ul_pos, Jf1ul_pos, Jf2ul_pos, Jf3ul_pos);
-        kernels[2] = JacobianKernels(nameLagrangeMultiplier, nameDisplacement, integrator_t::LHS,
+                                     integrator_t::FAULT_FACE, Jf0ul, Jf1ul, Jf2ul, Jf3ul);
+        kernels[1] = JacobianKernels(nameLagrangeMultiplier, nameDisplacement, integrator_t::LHS,
                                      integrator_t::FAULT_FACE, Jf0lu, Jf1lu, Jf2lu, Jf3lu);
         break;
     } // QUASISTATIC
