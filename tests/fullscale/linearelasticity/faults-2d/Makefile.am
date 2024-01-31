@@ -19,7 +19,11 @@ dist_noinst_PYTHON = \
 	threeblocks_soln.py \
 	TestShearNoSlip.py \
 	shearnoslip_soln.py \
-	shearnoslip_gendb.py
+	shearnoslip_gendb.py \
+	TestMinMeshBlocks.py \
+	minmesh_blocks_soln.py \
+	TestMinMeshNoSlip.py \
+	minmesh_noslip_soln.py
 
 dist_noinst_DATA = \
 	mesh_tri.msh \
@@ -30,7 +34,7 @@ dist_noinst_DATA = \
 	mesh_tri.exo \
 	mesh_quad.jou \
 	mesh_quad.exo \
-	pylithapp.cfg \
+	pylithapp_twofaults.cfg \
 	output_points.txt \
 	threeblocks.cfg \
 	threeblocks_quad.cfg \
@@ -43,7 +47,16 @@ dist_noinst_DATA = \
 	shearnoslip.cfg \
 	shearnoslip_quad.cfg \
 	shearnoslip_tri.cfg \
-	zeroslipfn.timedb
+	zeroslipfn.timedb \
+	minmesh_quad.txt \
+	minmesh_tri.txt \
+	pylithapp_minmesh.cfg \
+	minmesh_blocks.cfg \
+	minmesh_blocks_quad.cfg \
+	minmesh_blocks_tri.cfg \
+	minmesh_noslip.cfg \
+	minmesh_noslip_quad.cfg \
+	minmesh_noslip_tri.cfg
 
 
 noinst_TMP =

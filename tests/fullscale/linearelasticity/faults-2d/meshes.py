@@ -115,4 +115,51 @@ class QuadCubit(object):
     }
 
 
+class MinMeshTri(object):
+    """Mesh information for minimal tri mesh.
+    """
+    ENTITIES = {
+        "domain": MeshEntity(ncells=16*4, ncorners=3, nvertices=50),
+        "points": MeshEntity(ncells=3, ncorners=1, nvertices=3),
+
+        # Materials
+        "mat_xneg": MeshEntity(ncells=16*1, ncorners=3, nvertices=25),
+        "mat_xpos": MeshEntity(ncells=16*1, ncorners=3, nvertices=25),
+
+        # Faults
+        "fault": MeshEntity(ncells=4, ncorners=2, nvertices=5),
+
+        # Boundaries
+        "bc_xneg": MeshEntity(ncells=4, ncorners=2, nvertices=5),
+        "bc_xpos": MeshEntity(ncells=4, ncorners=2, nvertices=5),
+        "bc_yneg": MeshEntity(ncells=8, ncorners=2, nvertices=9+1),
+        "bc_ypos": MeshEntity(ncells=8, ncorners=2, nvertices=9+1),
+        "boundary_ypos": MeshEntity(ncells=8, ncorners=2, nvertices=9+1),
+    }
+
+
+class MinMeshQuad(object):
+    """Mesh information for minimal quad mesh.
+    """
+    ENTITIES = {
+        "domain": MeshEntity(ncells=16*2, ncorners=4, nvertices=50),
+        "points": MeshEntity(ncells=3, ncorners=1, nvertices=3),
+
+        # Materials
+        "mat_xneg": MeshEntity(ncells=16, ncorners=4, nvertices=25),
+        "mat_xpos": MeshEntity(ncells=16, ncorners=4, nvertices=25),
+
+        # Faults
+        "fault": MeshEntity(ncells=4, ncorners=2, nvertices=5),
+
+        # Boundaries
+        "bc_xneg": MeshEntity(ncells=4, ncorners=2, nvertices=5),
+        "bc_xpos": MeshEntity(ncells=4, ncorners=2, nvertices=5),
+        "bc_yneg": MeshEntity(ncells=8, ncorners=2, nvertices=9+1),
+        "bc_ypos": MeshEntity(ncells=8, ncorners=2, nvertices=9+1),
+        "boundary_ypos": MeshEntity(ncells=8, ncorners=2, nvertices=9+1),
+    }
+
+
+
 # End of file

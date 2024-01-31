@@ -69,8 +69,14 @@ class TestCase(FullTestCase):
             ),
             Check(
                 mesh_entities=["fault_xneg", "fault_xmid"],
-                vertex_fields=["slip", "traction_change"],
+                vertex_fields=["slip"],
                 defaults=defaults,
+            ),
+            Check(
+                mesh_entities=["fault_xneg", "fault_xmid"],
+                vertex_fields=["traction_change"],
+                defaults=defaults,
+                scale = 1.0e+6
             ),
         ]
 
@@ -86,7 +92,7 @@ class TestQuadGmsh(TestCase):
         self.mesh = meshes.QuadGmsh()
         super().setUp()
 
-        TestCase.run_pylith(self, self.name, ["threeblocks.cfg", "threeblocks_quad.cfg"])
+        TestCase.run_pylith(self, self.name, ["pylithapp_twofaults.cfg", "threeblocks.cfg", "threeblocks_quad.cfg"])
         return
 
 
@@ -98,7 +104,7 @@ class TestTriGmsh(TestCase):
         self.mesh = meshes.TriGmsh()
         super().setUp()
 
-        TestCase.run_pylith(self, self.name, ["threeblocks.cfg", "threeblocks_tri.cfg"])
+        TestCase.run_pylith(self, self.name, ["pylithapp_twofaults.cfg", "threeblocks.cfg", "threeblocks_tri.cfg"])
         return
 
 
@@ -110,7 +116,7 @@ class TestQuadCubit(TestCase):
         self.mesh = meshes.QuadCubit()
         super().setUp()
 
-        TestCase.run_pylith(self, self.name, ["threeblocks.cfg", "threeblocks_cubit_quad.cfg"])
+        TestCase.run_pylith(self, self.name, ["pylithapp_twofaults.cfg", "threeblocks.cfg", "threeblocks_cubit_quad.cfg"])
         return
 
 
@@ -122,7 +128,7 @@ class TestTriCubit(TestCase):
         self.mesh = meshes.TriCubit()
         super().setUp()
 
-        TestCase.run_pylith(self, self.name, ["threeblocks.cfg", "threeblocks_cubit_tri.cfg"])
+        TestCase.run_pylith(self, self.name, ["pylithapp_twofaults.cfg", "threeblocks.cfg", "threeblocks_cubit_tri.cfg"])
         return
 
 
@@ -134,7 +140,7 @@ class TestQuadGmshIC(TestCase):
         self.mesh = meshes.QuadGmsh()
         super().setUp()
 
-        TestCase.run_pylith(self, self.name, ["threeblocks_ic.cfg", "threeblocks_ic_quad.cfg"])
+        TestCase.run_pylith(self, self.name, ["pylithapp_twofaults.cfg", "threeblocks_ic.cfg", "threeblocks_ic_quad.cfg"])
         return
 
 
@@ -146,7 +152,7 @@ class TestTriGmshIC(TestCase):
         self.mesh = meshes.TriGmsh()
         super().setUp()
 
-        TestCase.run_pylith(self, self.name, ["threeblocks_ic.cfg", "threeblocks_ic_tri.cfg"])
+        TestCase.run_pylith(self, self.name, ["pylithapp_twofaults.cfg", "threeblocks_ic.cfg", "threeblocks_ic_tri.cfg"])
         return
 
 

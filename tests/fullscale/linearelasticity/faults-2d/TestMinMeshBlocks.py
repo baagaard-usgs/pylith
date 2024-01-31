@@ -14,8 +14,7 @@ import unittest
 from pylith.testing.FullTestApp import (FullTestCase, Check)
 
 import meshes
-import shearnoslip_soln
-import shearnoslip_gendb
+import minmesh_blocks_soln
 
 
 # -------------------------------------------------------------------------------------------------
@@ -24,90 +23,96 @@ class TestCase(FullTestCase):
     def setUp(self):
         defaults = {
             "filename": "output/{name}-{mesh_entity}.h5",
-            "exact_soln": shearnoslip_soln.AnalyticalSoln(),
+            "exact_soln": minmesh_blocks_soln.AnalyticalSoln(),
             "mesh": self.mesh,
         }
         self.checks = [
             Check(
-                mesh_entities=["domain", "boundary_ypos", "points"],
+                mesh_entities=["domain", "boundary_ypos"],
                 vertex_fields=["displacement"],
                 defaults=defaults,
             ),
             Check(
-                mesh_entities=["mat_xneg", "mat_xmid", "mat_xposypos", "mat_xposyneg"],
+                mesh_entities=["mat_xneg", "mat_xpos"],
                 filename="output/{name}-{mesh_entity}_info.h5",
                 cell_fields = ["density", "bulk_modulus", "shear_modulus"],
                 defaults=defaults,
             ),
             Check(
-                mesh_entities=["mat_xneg", "mat_xmid", "mat_xposypos", "mat_xposyneg"],
+                mesh_entities=["mat_xneg", "mat_xpos"],
                 vertex_fields = ["displacement"],
                 cell_fields = ["cauchy_strain"],
                 defaults=defaults,
             ),
             Check(
-                mesh_entities=["mat_xneg", "mat_xmid", "mat_xposypos", "mat_xposyneg"],
+                mesh_entities=["mat_xneg", "mat_xpos"],
                 cell_fields = ["cauchy_stress"],
                 scale = 1.0e+6,
                 defaults=defaults,
             ),
             Check(
-                mesh_entities=["bc_xneg", "bc_xpos", "bc_yneg", "bc_ypos"],
+                mesh_entities=["bc_xneg", "bc_xpos"],
                 filename="output/{name}-{mesh_entity}_info.h5",
-                vertex_fields=["initial_amplitude", "normal_dir", "tangential_dir"],
+                vertex_fields=["initial_amplitude"],
                 defaults=defaults,
             ),
             Check(
-                mesh_entities=["bc_xneg", "bc_xpos", "bc_yneg", "bc_ypos"],
+                mesh_entities=["bc_xneg", "bc_xpos"],
                 vertex_fields=["displacement"],
                 defaults=defaults,
             ),
             Check(
-                mesh_entities=["fault_xneg", "fault_xmid"],
+                mesh_entities=["fault"],
                 filename="output/{name}-{mesh_entity}_info.h5",
                 vertex_fields = ["normal_dir", "strike_dir"],
                 defaults=defaults,
             ),
             Check(
-                mesh_entities=["fault_xneg", "fault_xmid"],
-                vertex_fields=["slip", "traction_change"],
+                mesh_entities=["fault"],
+                vertex_fields=["slip"],
                 defaults=defaults,
+            ),
+            Check(
+                mesh_entities=["fault"],
+                vertex_fields=["traction_change"],
+                defaults=defaults,
+                scale = 1.0e+6
             ),
         ]
 
     def run_pylith(self, testName, args):
-        FullTestCase.run_pylith(self, testName, args, shearnoslip_gendb.GenerateDB)
+        FullTestCase.run_pylith(self, testName, args)
 
 
 # -------------------------------------------------------------------------------------------------
-class TestQuadGmsh(TestCase):
+class TestMinMeshQuad(TestCase):
 
     def setUp(self):
-        self.name = "shearnoslip_quad"
-        self.mesh = meshes.QuadGmsh()
+        self.name = "minmesh_blocks_quad"
+        self.mesh = meshes.MinMeshQuad()
         super().setUp()
 
-        TestCase.run_pylith(self, self.name, ["pylithapp_twofaults.cfg", "shearnoslip.cfg", "shearnoslip_quad.cfg"])
+        TestCase.run_pylith(self, self.name, ["pylithapp_minmesh.cfg", "minmesh_blocks.cfg", "minmesh_blocks_quad.cfg"])
         return
 
 
 # -------------------------------------------------------------------------------------------------
-class TestTriGmsh(TestCase):
+class TestMinMeshTri(TestCase):
 
     def setUp(self):
-        self.name = "shearnoslip_tri"
-        self.mesh = meshes.TriGmsh()
+        self.name = "minmesh_blocks_tri"
+        self.mesh = meshes.MinMeshTri()
         super().setUp()
 
-        TestCase.run_pylith(self, self.name, ["pylithapp_twofaults.cfg", "shearnoslip.cfg", "shearnoslip_tri.cfg"])
+        TestCase.run_pylith(self, self.name, ["pylithapp_minmesh.cfg", "minmesh_blocks.cfg", "minmesh_blocks_tri.cfg"])
         return
 
 
 # -------------------------------------------------------------------------------------------------
 def test_cases():
     return [
-        TestQuadGmsh,
-        TestTriGmsh,
+        TestMinMeshQuad,
+        TestMinMeshTri,
     ]
 
 
