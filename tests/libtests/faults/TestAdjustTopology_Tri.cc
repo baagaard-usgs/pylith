@@ -75,6 +75,9 @@ TEST_CASE("TestAdjustTopology_TriH", "[TestAdjustTopology][Tri]") {
 TEST_CASE("TestAdjustTopology_TriI", "[TestAdjustTopology][Tri]") {
     pylith::faults::TestAdjustTopology(pylith::faults::TestAdjustTopology_Tri::caseI()).run();
 }
+TEST_CASE("TestTransform_TriA", "[TestTransform][Tri]") {
+    pylith::faults::TestAdjustTopology(pylith::faults::TestAdjustTopology_Tri::caseA()).run_transform();
+}
 
 // ------------------------------------------------------------------------------------------------
 pylith::faults::TestAdjustTopology_Data*

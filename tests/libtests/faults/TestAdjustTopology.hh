@@ -35,6 +35,9 @@ public:
     /// Test adjustTopology().
     void run(void);
 
+    /// Test new fault creation.
+    void run_transform(void);
+  
     // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
 protected:
 
