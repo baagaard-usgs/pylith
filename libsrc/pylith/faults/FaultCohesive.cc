@@ -284,6 +284,70 @@ pylith::faults::FaultCohesive::adjustTopology(topology::Mesh* const mesh) {
 
 
 // ------------------------------------------------------------------------------------------------
+// Transform mesh topology for fault implementation.
+void
+pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
+    PYLITH_METHOD_BEGIN;
+
+    assert(mesh);
+    assert(_surfaceLabelName.length() > 0);
+
+    try {
+        pylith::topology::Mesh faultMesh;
+
+        PetscDMLabel surfaceLabel = NULL;
+        PetscBool hasLabel = PETSC_FALSE;
+        PetscInt depth, gdepth, dim;
+        PetscMPIInt rank;
+        PetscErrorCode err = PETSC_SUCCESS;
+        PetscDM dmMesh = mesh->getDM();assert(dmMesh);
+        err = MPI_Comm_rank(PetscObjectComm((PetscObject) dmMesh), &rank);PYLITH_CHECK_ERROR(err);
+        err = DMHasLabel(dmMesh, _surfaceLabelName.c_str(), &hasLabel);PYLITH_CHECK_ERROR(err);
+        if (!hasLabel && !rank) {
+            std::ostringstream msg;
+            msg << "Mesh missing group of vertices '" << _surfaceLabelName
+                << "' for fault interface condition.";
+            throw std::runtime_error(msg.str());
+        } // if
+
+        PetscDMLabel dmLabel = PETSC_NULLPTR;
+        err = DMGetLabel(dmMesh, _surfaceLabelName.c_str(), &dmLabel);PYLITH_CHECK_ERROR(err);
+
+        DMPlexTransform transform = PETSC_NULLPTR;
+        err = DMPlexTransformCreate(mesh->getComm(), &transform);PYLITH_CHECK_ERROR(err);
+        err = DMPlexTransformSetType(transform, DMPLEXCOHESIVEEXTRUDE);PYLITH_CHECK_ERROR(err);
+        err = DMPlexTransformSetDM(transform, dmMesh);PYLITH_CHECK_ERROR(err);
+        err = DMPlexTransformSetActive(transform, dmLabel);PYLITH_CHECK_ERROR(err);
+        // :TODO: Need to set label value
+
+        err = DMPlexTransformSetUp(transform);PYLITH_CHECK_ERROR(err);
+
+        PetscDM dmMeshNew = PETSC_NULLPTR;
+        err = DMPlexTransformApply(transform, dmMesh, &dmMeshNew);PYLITH_CHECK_ERROR(err);assert(dmMeshNew);
+
+        // Check consistency of mesh.
+        pylith::topology::MeshOps::checkTopology(*mesh);
+#if 0 // :TODO: Create fault mesh
+        pylith::topology::MeshOps::checkTopology(faultMesh);
+#endif
+
+        pythia::journal::debug_t debug(PyreComponent::getName());
+        if (debug.state()) {
+            mesh->view("::ascii_info_detail");
+        } // if
+
+    } catch (const std::exception& err) {
+        std::ostringstream msg;
+        msg << "Error occurred while transforming topology to create cohesive cells for fault '" << _surfaceLabelName << "'.\n"
+            << err.what();
+        throw std::runtime_error(msg.str());
+    } // try/catch
+
+    PYLITH_METHOD_END;
+} // adjustTopology
+
+
+// ------------------------------------------------------------------------------------------------
 // Create diagnostic field.
 pylith::topology::Field*
 pylith::faults::FaultCohesive::createDiagnosticField(const pylith::topology::Field& solution,
