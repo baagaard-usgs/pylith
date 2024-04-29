@@ -316,10 +316,13 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
         DMPlexTransform transform = PETSC_NULLPTR;
         err = DMPlexTransformCreate(mesh->getComm(), &transform);PYLITH_CHECK_ERROR(err);
         err = DMPlexTransformSetType(transform, DMPLEXCOHESIVEEXTRUDE);PYLITH_CHECK_ERROR(err);
-        err = DMPlexTransformSetDM(transform, dmMesh);PYLITH_CHECK_ERROR(err);
         err = DMPlexTransformSetActive(transform, dmLabel);PYLITH_CHECK_ERROR(err);
-        // :TODO: Need to set label value
 
+        // Labels stuff on fault by dimension (vertices=0, edges=1, faces=2)
+        // plexcreate,c lines 4154-4194 -- create label
+        //
+
+        // :TODO: Need to set label value
         err = DMPlexTransformSetUp(transform);PYLITH_CHECK_ERROR(err);
 
         PetscDM dmMeshNew = PETSC_NULLPTR;
