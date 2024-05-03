@@ -78,6 +78,13 @@ public:
                          PointSet& noReplaceCells,
                          const int debug);
 
+    /** Complete labels and change value to match dimension of point.
+     */
+    static
+    void updateCohesiveLabel(const pylith::topology::Mesh* mesh,
+                             const char* labelName,
+                             const int labelValue);
+
     /** Get name of PETSc DM label for interfaces.
      *
      * @returns PETSc Label name.

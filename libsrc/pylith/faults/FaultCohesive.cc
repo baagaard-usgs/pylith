@@ -303,7 +303,7 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
     try {
         pylith::topology::Mesh faultMesh;
 
-        PetscDMLabel surfaceLabel = NULL;
+        PetscDMLabel surfaceLabel = PETSC_NULLPTR;
         PetscBool hasLabel = PETSC_FALSE;
         PetscInt depth, gdepth, dim;
         PetscMPIInt rank;
@@ -317,20 +317,13 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
                 << "' for fault interface condition.";
             throw std::runtime_error(msg.str());
         } // if
-
-        PetscDMLabel dmLabel = PETSC_NULLPTR;
-        err = DMGetLabel(dmMesh, _surfaceLabelName.c_str(), &dmLabel);PYLITH_CHECK_ERROR(err);
+        err = DMGetLabel(dmMesh, _surfaceLabelName.c_str(), &surfaceLabel);PYLITH_CHECK_ERROR(err);
 
         DMPlexTransform transform = PETSC_NULLPTR;
         err = DMPlexTransformCreate(mesh->getComm(), &transform);PYLITH_CHECK_ERROR(err);
         err = DMPlexTransformSetType(transform, DMPLEXCOHESIVEEXTRUDE);PYLITH_CHECK_ERROR(err);
-        err = DMPlexTransformSetActive(transform, dmLabel);PYLITH_CHECK_ERROR(err);
+        err = DMPlexTransformSetActive(transform, surfaceLabel);PYLITH_CHECK_ERROR(err);
 
-        // Labels stuff on fault by dimension (vertices=0, edges=1, faces=2)
-        // plexcreate,c lines 4154-4194 -- create label
-        //
-
-        // :TODO: Need to set label value
         err = DMPlexTransformSetUp(transform);PYLITH_CHECK_ERROR(err);
 
         PetscDM dmMeshNew = PETSC_NULLPTR;

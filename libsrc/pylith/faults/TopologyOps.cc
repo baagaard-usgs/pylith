@@ -428,6 +428,50 @@ pylith::faults::TopologyOps::classifyCellsDM(PetscDM dmDomain,
 
 
 // ------------------------------------------------------------------------------------------------
+void
+pylith::faults::TopologyOps::updateCohesiveLabel(const pylith::topology::Mesh* mesh,
+                                                 const char* labelName,
+                                                 const int labelValue) {
+    assert(mesh);
+
+    PetscErrorCode err = PETSC_SUCCESS;
+    const PetscDM dmMesh = mesh->getDM();
+    PetscDMLabel dmLabel = nullptr;
+    err = DMGetLabel(dmMesh, labelName, &dmLabel);PYLITH_CHECK_ERROR(err);
+    err = DMPlexLabelComplete(dmMesh, dmLabel);
+
+    // Set label value of points to dimension (vertices=0, edges=1, faces=2)
+    PetscIS pointIS = nullptr;
+    const PetscInt* points = nullptr;
+    PetscInt numPoints = 0;
+    err = DMLabelGetStratumIS(dmLabel, labelValue, &pointIS);PYLITH_CHECK_ERROR(err);
+    if (pointIS) {
+        err = ISGetIndices(pointIS, &points);PYLITH_CHECK_ERROR(err);
+        err = ISGetSize(pointIS, &numPoints);PYLITH_CHECK_ERROR(err);
+    } // if
+    for (PetscInt iPoint = 0; iPoint < numPoints; ++iPoint) {
+        const PetscInt point = points[iPoint];
+        PetscInt *closure = nullptr;
+        PetscInt closureSize = 0, pointDepth = 0;
+
+        err = DMPlexGetPointDepth(dmMesh, point, &pointDepth);PYLITH_CHECK_ERROR(err);
+        err = DMLabelSetValue(dmLabel, point, pointDepth);PYLITH_CHECK_ERROR(err);
+        err = DMPlexGetTransitiveClosure(dmMesh, point, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
+        for (PetscInt cl = 0; cl < closureSize * 2; cl += 2) {
+            err = DMPlexGetPointDepth(dmMesh, closure[cl], &pointDepth);PYLITH_CHECK_ERROR(err);
+            err = DMLabelSetValue(dmLabel, closure[cl], pointDepth);PYLITH_CHECK_ERROR(err);
+        } // for
+        err = DMPlexRestoreTransitiveClosure(dmMesh, point, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
+    } // for
+    err = ISRestoreIndices(pointIS, &points);PYLITH_CHECK_ERROR(err);
+    err = ISDestroy(&pointIS);PYLITH_CHECK_ERROR(err);
+
+    err = DMPlexOrientLabel(dmMesh, dmLabel);PYLITH_CHECK_ERROR(err);
+    err = DMPlexLabelCohesiveComplete(dmMesh, dmLabel, nullptr, 0, PETSC_FALSE, PETSC_FALSE, NULL);PYLITH_CHECK_ERROR(err);
+} // updateCohesiveLabel
+
+
+// ------------------------------------------------------------------------------------------------
 // Get name of PETSc DM label for interfaces.
 const char*
 pylith::faults::TopologyOps::getInterfacesLabelName(void) {
