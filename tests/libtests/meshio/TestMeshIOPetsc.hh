@@ -33,6 +33,9 @@ public:
     /// Test read().
     void testRead(void);
 
+    /// Test write() and read().
+    void testWriteRead(void);
+
     // PROTECTED METHODS ////////////////////////////////////////////////
 protected:
 

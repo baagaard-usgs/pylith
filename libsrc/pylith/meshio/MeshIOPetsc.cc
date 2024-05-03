@@ -113,6 +113,7 @@ pylith::meshio::MeshIOPetsc::_read(void) {
     PetscDM dmMesh = NULL;
     err = DMCreate(_mesh->getComm(), &dmMesh);PYLITH_CHECK_ERROR(err);
     err = DMSetType(dmMesh, DMPLEX);PYLITH_CHECK_ERROR(err);
+    err = PetscObjectSetName((PetscObject) dmMesh, "domain");
     if (!_prefix.empty()) {
         err = PetscObjectSetOptionsPrefix((PetscObject) dmMesh, _prefix.c_str());PYLITH_CHECK_ERROR(err);
     } // if
