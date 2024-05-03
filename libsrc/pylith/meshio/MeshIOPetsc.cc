@@ -21,6 +21,9 @@
 #include "pylith/utils/error.hh" // USES PYLITH_METHOD_*
 #include "pylith/utils/journals.hh" // USES PYLITH_COMPONENT_*
 
+#include "petscviewerhdf5.h"
+#include "petscdmplex.h"
+
 #include <set> // USES std::set
 #include <cassert> // USES assert()
 #include <stdexcept> // USES std::runtime_error
@@ -59,7 +62,8 @@ public:
 // Constructor
 pylith::meshio::MeshIOPetsc::MeshIOPetsc(void) :
     _filename(""),
-    _prefix("") {
+    _prefix(""),
+    _format(HDF5) {
     PyreComponent::setName("meshiopetsc");
 } // constructor
 
@@ -95,8 +99,8 @@ pylith::meshio::MeshIOPetsc::_read(void) {
     const size_t noptions = 3;
     std::string options[noptions*2] = {
         "-" + _prefix + "dm_plex_filename", _filename,
-        "-" + _prefix + "dm_plex_gmsh_use_regions", "",
-        "-" + _prefix + "dm_plex_gmsh_mark_vertices", "",
+        "-" + _prefix + "dm_plex_gmsh_use_regions", "", // :KLUDGE: Only for Gmsh
+        "-" + _prefix + "dm_plex_gmsh_mark_vertices", "", // :KLUDGE: Only for Gmsh
     };
 
     PetscErrorCode err;
@@ -126,7 +130,30 @@ pylith::meshio::MeshIOPetsc::_read(void) {
 // Write mesh to file.
 void
 pylith::meshio::MeshIOPetsc::_write(void) const {
-}
+    PYLITH_METHOD_BEGIN;
+    PYLITH_COMPONENT_DEBUG("_write()");
+    assert(_mesh);
+
+    PetscErrorCode err = PETSC_SUCCESS;
+    PetscViewer viewer = PETSC_NULLPTR;
+    if (_format == HDF5) {
+        err = PetscViewerHDF5Open(PETSC_COMM_WORLD, _filename.c_str(), FILE_MODE_WRITE, &viewer);
+
+        DMPlexStorageVersion storageVersion = PETSC_NULLPTR;
+        err = PetscNew(&storageVersion);PYLITH_CHECK_ERROR(err);assert(storageVersion);
+        storageVersion->major = 3;
+        storageVersion->minor = 0;
+        storageVersion->subminor = 0;
+        err = PetscViewerHDF5SetDMPlexStorageVersionWriting(viewer, storageVersion);PYLITH_CHECK_ERROR(err);
+        err = PetscFree(storageVersion);PYLITH_CHECK_ERROR(err);
+    } else {
+        PYLITH_JOURNAL_LOGICERROR("Unknown mesh format " << _format << ".");
+    } // if/else
+    err = DMView(_mesh->getDM(), viewer);PYLITH_CHECK_ERROR(err);
+    err = PetscViewerDestroy(&viewer);PYLITH_CHECK_ERROR(err);
+
+    PYLITH_METHOD_END;
+} // _write
 
 
 // ------------------------------------------------------------------------------------------------
@@ -164,9 +191,9 @@ pylith::meshio::_MeshIOPetsc::fixMaterialLabel(PetscDM* dmMesh) {
     const PetscInt* valuesIndices = PETSC_NULLPTR;
     err = ISGetIndices(valuesIS, &valuesIndices);
     for (PetscInt point = pStart; point < pEnd; ++point) {
-      for (PetscInt iValue=0; iValue < numValues; ++iValue) {
-	err = DMLabelClearValue(dmLabel, point, valuesIndices[iValue]);PYLITH_CHECK_ERROR(err);
-      } // for
+        for (PetscInt iValue = 0; iValue < numValues; ++iValue) {
+            err = DMLabelClearValue(dmLabel, point, valuesIndices[iValue]);PYLITH_CHECK_ERROR(err);
+        } // for
     } // for
     err = ISRestoreIndices(valuesIS, &valuesIndices);
     err = ISDestroy(&valuesIS);
