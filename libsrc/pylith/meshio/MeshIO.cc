@@ -41,8 +41,7 @@ pylith::meshio::MeshIO::~MeshIO(void) {
 // ----------------------------------------------------------------------
 // Deallocate PETSc and local data structures.
 void
-pylith::meshio::MeshIO::deallocate(void) {
-} // deallocate
+pylith::meshio::MeshIO::deallocate(void) {} // deallocate
 
 
 // ----------------------------------------------------------------------
@@ -114,7 +113,7 @@ pylith::meshio::MeshIO::read(pylith::topology::Mesh* mesh,
 // ----------------------------------------------------------------------
 // Write mesh to file.
 void
-pylith::meshio::MeshIO::write(pylith::topology::Mesh* const mesh) { // write
+pylith::meshio::MeshIO::write(pylith::topology::Mesh* const mesh) {
     PYLITH_METHOD_BEGIN;
 
     assert(mesh);
