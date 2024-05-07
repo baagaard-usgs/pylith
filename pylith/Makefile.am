@@ -26,6 +26,7 @@ EXTRA_DIST = \
 	apps/PetscApplication.py \
 	apps/PyLithApp.py \
 	apps/RunnerApp.py \
+	apps/ConvertMeshApp.py \
 	apps/__init__.py \
 	bc/AbsorbingDampers.py \
 	bc/AuxSubfieldsAbsorbingDampers.py \

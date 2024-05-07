@@ -35,7 +35,8 @@ dist_noinst_PYTHON = \
 	applications/pylith_eqinfo \
 	applications/pylith_genxdmf \
 	applications/pylith_runner \
-	applications/pylith_powerlaw_gendb
+	applications/pylith_powerlaw_gendb \
+	applications/pylith_convertmesh
 
 
 EXTRA_DIST = \
