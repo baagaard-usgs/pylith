@@ -19,7 +19,7 @@
 #include "pylith/topology/Mesh.hh" // USES Mesh
 
 /// Helper class for constructing PETSc mesh data structures.
-class pylith::meshio::MeshBuilder { // MeshBuilder
+class pylith::meshio::MeshBuilder {
     // PUBLIC ENUMS /////////////////////////////////////////////////////
 public:
 
