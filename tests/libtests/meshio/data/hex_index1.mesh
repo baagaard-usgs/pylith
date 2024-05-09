@@ -47,6 +47,15 @@ mesh = {
   }
   group = {
     name = group B
+    type = faces
+    count = 2
+    indices = {
+      1  1
+      2  6
+    }
+  }
+  group = {
+    name = group C
     type = cells
     count = 2
     indices = {

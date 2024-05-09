@@ -67,6 +67,27 @@ mesh = { // begin mesh
       4
       7
     }
+  group = {
+    name = group A faces
+    type = faces
+    count = 2
+    indices = {
+// comment here again
+      0 1    // and here
+      0 2
+  // and here
+    }
+  }
+  group = { // begin group
+    name = group B faces
+    type = faces
+    count = 3
+  // comment here
+    indices = {
+      0  1
+      1  0
+      1  2
+    }
   // comment there
   }
   group = {
