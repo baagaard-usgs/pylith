@@ -101,7 +101,7 @@ pylith::meshio::MeshBuilder::buildMesh(topology::Mesh* mesh,
         default: continue;
         }
         err = DMPlexInvertCell(ct, (int *) &cells[coff]);PYLITH_CHECK_ERROR(err);
-    }
+    } // for
     err = DMPlexCreateFromCellListPetsc(comm, dim, numCells, numVertices, numCorners, interpolate, &cells[0], spaceDim, &(*coordinates)[0], &dmMesh);PYLITH_CHECK_ERROR(err);
     mesh->setDM(dmMesh);
 
