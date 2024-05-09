@@ -5,7 +5,7 @@
 // Copyright (c) 2010-2023, University of California, Davis and the PyLith Development Team.
 // All rights reserved.
 //
-// See https://mit-license.org/ and LICENSE.md and for license information. 
+// See https://mit-license.org/ and LICENSE.md and for license information.
 // =================================================================================================
 
 /**
@@ -41,12 +41,6 @@ public:
              * @returns Name of file
              */
             const char* getFilename(void) const;
-
-            /** Set flag on whether to use nodeset ids or names.
-             *
-             * @param flag True to use node set names.
-             */
-            void setUseNodesetNames(const bool flag);
 
             // PROTECTED METHODS ////////////////////////////////////////////////////
 protected:
