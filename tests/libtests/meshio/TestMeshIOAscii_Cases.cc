@@ -59,7 +59,7 @@ pylith::meshio::TestMeshIO_Data*
 pylith::meshio::TestMeshIOAscii_Cases::Quad2D(void) {
     TestMeshIO_Data* data = new TestMeshIO_Data();assert(data);
 
-    data->filename = "mesh2D.txt";
+    data->filename = "quad.mesh";
     data->numVertices = 9;
     data->spaceDim = 2;
     data->numCells = 3;
@@ -121,7 +121,7 @@ pylith::meshio::TestMeshIO_Data*
 pylith::meshio::TestMeshIOAscii_Cases::Quad2D_Comments(void) {
     TestMeshIO_Data* data = new TestMeshIO_Data();assert(data);
 
-    data->filename = "data/mesh2D_comments.txt";
+    data->filename = "data/quad_comments.mesh";
     data->numVertices = 9;
     data->spaceDim = 2;
     data->numCells = 3;
@@ -183,7 +183,7 @@ pylith::meshio::TestMeshIO_Data*
 pylith::meshio::TestMeshIOAscii_Cases::Hex3D(void) {
     TestMeshIO_Data* data = new TestMeshIO_Data();assert(data);
 
-    data->filename = "mesh3D.txt";
+    data->filename = "hex.mesh";
     data->numVertices = 14;
     data->spaceDim = 3;
     data->numCells = 2;
@@ -249,7 +249,7 @@ pylith::meshio::TestMeshIO_Data*
 pylith::meshio::TestMeshIOAscii_Cases::Hex3D_Index1(void) {
     TestMeshIO_Data* data = new TestMeshIO_Data();assert(data);
 
-    data->filename = "data/mesh3D_index1.txt";
+    data->filename = "data/hex_index1.mesh";
     data->numVertices = 14;
     data->spaceDim = 3;
     data->numCells = 2;

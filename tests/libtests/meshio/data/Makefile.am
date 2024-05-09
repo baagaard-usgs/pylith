@@ -35,8 +35,8 @@ dist_noinst_HEADERS = \
 	OutputSolnPointsDataTri3.hh
 
 dist_noinst_DATA = \
-	mesh2D_comments.txt \
-	mesh3D_index1.txt \
+	quad_comments.mesh \
+	hex_index1.mesh \
 	twotri3_12.2.exo \
 	twotri3_13.0.exo \
 	twoquad4_12.2.exo \
