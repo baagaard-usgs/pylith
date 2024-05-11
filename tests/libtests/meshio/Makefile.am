@@ -23,19 +23,13 @@ libtest_meshio_SOURCES = \
 	TestMeshIOAscii_Cases.cc \
 	TestMeshIOPetsc.cc \
 	TestMeshIOPetsc_Cases.cc \
+	TestMeshIOPetsc_ErrorCases.cc \
 	TestOutputTriggerStep.cc \
 	TestOutputTriggerTime.cc \
 	$(top_srcdir)/tests/src/FaultCohesiveStub.cc \
 	$(top_srcdir)/tests/src/StubMethodTracker.cc \
 	$(top_srcdir)/tests/src/driver_catch2.cc
 
-libtest_meshio_errors_SOURCES = \
-	TestMeshIO.cc \
-	TestMeshIOPetsc.cc \
-	TestMeshIOPetsc_ErrorCases.cc \
-	$(top_srcdir)/tests/src/FaultCohesiveStub.cc \
-	$(top_srcdir)/tests/src/StubMethodTracker.cc \
-	$(top_srcdir)/tests/src/driver_catch2.cc
 
 libtest_meshio_errors_CPPFLAGS = $(AM_CPPFLAGS) -DMALLOC_DEBUG_OFF
 
@@ -148,13 +142,13 @@ dist_noinst_HEADERS = \
 if ENABLE_CUBIT
   libtest_meshio_SOURCES += \
 	TestExodusII.cc \
-	TestMeshIOCubit.cc \
-	TestMeshIOCubit_Cases.cc
+	TestMeshIOCubit.cc
   dist_noinst_HEADERS += \
 	TestExodusII.hh \
 	TestMeshIOCubit.hh
 endif
 
+#	TestMeshIOCubit_Cases.cc
 
 noinst_TMP = 
 
