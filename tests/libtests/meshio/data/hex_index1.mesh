@@ -33,34 +33,19 @@ mesh = {
              2   1
     }
   }
-  group = {
+  vertex-group = {
     name = group A
-    type = vertices
-    count = 5
+    count = 4
     indices = {
-      1
-      5
-      7
-      8
-      11
+      1  2  3  4
     }
   }
-  group = {
+  face-group = {
     name = group B
-    type = faces
     count = 2
     indices = {
-      1  1
-      2  6
-    }
-  }
-  group = {
-    name = group C
-    type = cells
-    count = 2
-    indices = {
-      1
-      2
+      1  7 12 13 14
+      2  1  3  6  7
     }
   }
 }
