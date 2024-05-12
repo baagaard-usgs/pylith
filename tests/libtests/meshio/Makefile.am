@@ -139,13 +139,13 @@ dist_noinst_HEADERS = \
 if ENABLE_CUBIT
   libtest_meshio_SOURCES += \
 	TestExodusII.cc \
-	TestMeshIOCubit.cc
+	TestMeshIOCubit.cc \
+	TestMeshIOCubit_Cases.cc
   dist_noinst_HEADERS += \
 	TestExodusII.hh \
-	TestMeshIOCubit.hh
+	TestMeshIOCubit.hh 
 endif
 
-#	TestMeshIOCubit_Cases.cc
 
 noinst_TMP = 
 
