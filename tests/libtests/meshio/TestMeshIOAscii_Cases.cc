@@ -80,14 +80,14 @@ pylith::meshio::TestMeshIOAscii_Cases::Quad2D(void) {
         +0.1, -1.1,
         +2.9, -3.1,
     };
-    data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
+    delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
     static const PylithInt cells[numCells*numCorners] = {
         0,  2,  3,  1,
         4,  3,  6,  5,
         3,  7,  8,  6,
     };
-    data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
+    delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
     static const PylithInt materialIds[numCells] = {
         1, 0, 1,
     };
@@ -113,11 +113,11 @@ pylith::meshio::TestMeshIOAscii_Cases::Quad2D(void) {
     data->faceGroupSizes = const_cast<PylithInt*>(faceGroupSizes);
     static const PylithInt faceGroups[3*(1+2)+2*(1+2)] = {
         0,  0, 2,
-        1,  4, 5,
-        1,  5, 6,
+        1,  6, 5,
+        1,  5, 4,
 
-        0,  0, 1,
         0,  0, 2,
+        0,  1, 0,
     };
     data->faceGroups = const_cast<PylithInt*>(faceGroups);
     static const char* faceGroupNames[2] = {
@@ -133,53 +133,9 @@ pylith::meshio::TestMeshIOAscii_Cases::Quad2D(void) {
 // ------------------------------------------------------------------------------------------------
 pylith::meshio::TestMeshIO_Data*
 pylith::meshio::TestMeshIOAscii_Cases::Quad2D_Comments(void) {
-    TestMeshIO_Data* data = new TestMeshIO_Data();assert(data);
+    TestMeshIO_Data* data = Quad2D();assert(data);
 
     data->filename = "data/quad_comments.mesh";
-    const size_t numVertices = 9;
-    const size_t spaceDim = 2;
-    const size_t cellDim = 2;
-    const size_t numCells = 3;
-    const size_t numCorners = 4;
-    const pylith::meshio::MeshBuilder::shape_t cellShape = pylith::meshio::MeshBuilder::QUADRILATERAL;
-
-    static const PylithScalar vertices[numVertices*spaceDim] = {
-        -1.0, +3.0,
-        +1.0, +3.3,
-        -1.2, +0.9,
-        +0.9, +1.0,
-        +3.0, +2.9,
-        +6.0, +1.2,
-        +3.4, -0.2,
-        +0.1, -1.1,
-        +2.9, -3.1,
-    };
-    data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
-
-    static const PylithInt cells[numCells*numCorners] = {
-        0,  2,  3,  1,
-        4,  3,  6,  5,
-        3,  7,  8,  6,
-    };
-    data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
-    static const PylithInt materialIds[numCells] = {
-        1, 0, 1,
-    };
-    data->materialIds = const_cast<PylithInt*>(materialIds);
-
-    data->numVertexGroups = 2;
-    static const PylithInt vertexGroupSizes[2] = { 5, 3, };
-    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
-    static const PylithInt vertexGroups[5+3] = {
-        0, 2, 4, 5, 6,
-        0, 1, 2,
-    };
-    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
-    static const char* vertexGroupNames[2] = {
-        "group A",
-        "group B",
-    };
-    data->vertexGroupNames = const_cast<char**>(vertexGroupNames);
 
     return data;
 } // Quad2D_Comments
@@ -214,33 +170,53 @@ pylith::meshio::TestMeshIOAscii_Cases::Hex3D(void) {
         +1.0, +3.0, -0.2,
         +3.0, +4.2, +0.1
     };
-    data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
+    delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
     static const PylithInt cells[numCells*numCorners] = {
         6, 12, 13, 11,  7,  9, 10,  8,
         0,  2,  6,  5,  1,  3,  7,  4
     };
-    data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
+    delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
     static const PylithInt materialIds[numCells] = {
         1, 0,
     };
     data->materialIds = const_cast<PylithInt*>(materialIds);
 
     data->numVertexGroups = 3;
-    static const PylithInt vertexGroupSizes[3] = { 4, 2, 7,};
+    static const PylithInt vertexGroupSizes[3] = { 4, 4, 7,};
     data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
-    static const PylithInt vertexGroups[4+2+7] = {
-        6, 7, 9, 12,
-        0, 1,
-        0, 2, 5, 6, 11, 12, 13
+    static const PylithInt vertexGroups[4+4+7] = {
+        0,  1,  2,  3,
+        4,  5,  6,  7,
+        1,  3,  4,  7,  8,  9, 10,
     };
     data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
     static const char* vertexGroupNames[3] = {
-        "group A",
-        "group B",
-        "group C",
+        "vertex-group A",
+        "vertex-group B",
+        "vertex-group C",
     };
     data->vertexGroupNames = const_cast<char**>(vertexGroupNames);
+
+    data->numFaceGroups = 3;
+    data->numFaceVertices = 4;
+    static const PylithInt faceGroupSizes[3] = { 1, 1, 2,};
+    data->faceGroupSizes = const_cast<PylithInt*>(faceGroupSizes);
+    static const PylithInt faceGroups[(1+1+2)*(1+4)] = {
+        1,   0,  2,  3,  1,
+
+        1,   6,  5,  4,  7,
+
+        0,   7,  9, 10,  8,
+        1,   1,  3,  7,  4,
+    };
+    data->faceGroups = const_cast<PylithInt*>(faceGroups);
+    static const char* faceGroupNames[3] = {
+        "face-group A",
+        "face-group B",
+        "face-group C",
+    };
+    data->faceGroupNames = const_cast<char**>(faceGroupNames);
 
     return data;
 } // Hex3D
@@ -249,57 +225,9 @@ pylith::meshio::TestMeshIOAscii_Cases::Hex3D(void) {
 // ------------------------------------------------------------------------------------------------
 pylith::meshio::TestMeshIO_Data*
 pylith::meshio::TestMeshIOAscii_Cases::Hex3D_Index1(void) {
-    TestMeshIO_Data* data = new TestMeshIO_Data();assert(data);
+    TestMeshIO_Data* data = Hex3D();assert(data);
 
     data->filename = "data/hex_index1.mesh";
-    const size_t numVertices = 14;
-    const size_t spaceDim = 3;
-    const size_t numCells = 2;
-    const size_t cellDim = 3;
-    const size_t numCorners = 8;
-    const pylith::meshio::MeshBuilder::shape_t cellShape = pylith::meshio::MeshBuilder::HEXAHEDRON;
-
-    static const PylithScalar vertices[numVertices*spaceDim] = {
-        -3.0, -1.0, +0.2,
-        -3.0, -1.0, +1.3,
-        -1.0, -1.2, +0.1,
-        -1.0, -1.2, +1.2,
-        -3.0, +5.0, +1.3,
-        -3.0, +5.0, +0.1,
-        -0.5, +4.8, +0.2,
-        -0.5, +4.8, +1.4,
-        +0.5, +7.0, +1.2,
-        +1.0, +3.1, +1.3,
-        +3.0, +4.1, +1.4,
-        +0.5, +7.0, -0.1,
-        +1.0, +3.0, -0.2,
-        +3.0, +4.2, +0.1
-    };
-    data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
-
-    static const PylithInt cells[numCells*numCorners] = {
-        6, 12, 13, 11,  7,  9, 10,  8,
-        0,  2,  6,  5,  1,  3,  7,  4
-    };
-    data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
-    static const PylithInt materialIds[numCells] = {
-        2, 1,
-    };
-    data->materialIds = const_cast<PylithInt*>(materialIds);
-
-    data->numVertexGroups = 2;
-    static const PylithInt vertexGroupSizes[2] = { 5, 2, };
-    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
-    static const PylithInt vertexGroups[5+2] = {
-        0, 4, 6, 7, 10,
-        0, 1,
-    };
-    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
-    static const char* vertexGroupNames[3] = {
-        "group A",
-        "group B",
-    };
-    data->vertexGroupNames = const_cast<char**>(vertexGroupNames);
 
     return data;
 } // Hex3D_Index1

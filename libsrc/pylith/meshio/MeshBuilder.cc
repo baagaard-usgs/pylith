@@ -92,6 +92,7 @@ pylith::meshio::MeshBuilder::buildMesh(topology::Mesh* mesh,
 
     err = MPI_Bcast(&dim, 1, MPIU_INT, 0, comm);PYLITH_CHECK_ERROR(err);
     const PetscInt bound = topology.numCells * topology.numCorners;
+    int_array cellsCopy(topology.cells); // Use copy because we reuse in testing.
     if (3 == topology.dimension) {
         DMPolytopeType ct;
         switch (topology.cellShape) {
@@ -101,13 +102,13 @@ pylith::meshio::MeshBuilder::buildMesh(topology::Mesh* mesh,
             PYLITH_JOURNAL_LOGICERROR("Unknown cell shape.");
         }
         for (PetscInt coff = 0; coff < bound; coff += topology.numCorners) {
-            err = DMPlexInvertCell(ct, (int *) &topology.cells[coff]);PYLITH_CHECK_ERROR(err);
+            err = DMPlexInvertCell(ct, (int *) &cellsCopy[coff]);PYLITH_CHECK_ERROR(err);
         } // for
     } // if
 
     PetscDM dmMesh = NULL;
     PetscBool interpolate = PETSC_TRUE;
-    err = DMPlexCreateFromCellListPetsc(comm, dim, topology.numCells, geometry.numVertices, topology.numCorners, interpolate, &topology.cells[0], dim, &geometry.vertices[0], &dmMesh);PYLITH_CHECK_ERROR(err);
+    err = DMPlexCreateFromCellListPetsc(comm, dim, topology.numCells, geometry.numVertices, topology.numCorners, interpolate, &cellsCopy[0], dim, &geometry.vertices[0], &dmMesh);PYLITH_CHECK_ERROR(err);
     mesh->setDM(dmMesh);
 
     PYLITH_METHOD_END;
@@ -746,11 +747,22 @@ pylith::meshio::_MeshBuilder::cellVerticesFromFace(PetscInt* cell,
     } // if
     *cell = support[0];
 
-    const PetscInt* buffer = PETSC_NULLPTR;
-    PetscInt numFaceVertices = 0;
-    err = DMPlexGetMeet(dmMesh, 1, &face, &numFaceVertices, &buffer);PYLITH_CHECK_ERROR(err);
-    *faceVertices = pylith::int_array(&buffer[0], numFaceVertices);
-    err = DMPlexRestoreMeet(dmMesh, 1, &face, &numFaceVertices, &buffer);PYLITH_CHECK_ERROR(err);
+    pylith::topology::Stratum verticesStratum(dmMesh, pylith::topology::Stratum::DEPTH, 0);
+    const PetscInt vBegin = verticesStratum.begin();
+    const PetscInt vEnd = verticesStratum.end();
+
+    PetscInt closureSize = 0;
+    PetscInt* closure = PETSC_NULLPTR;
+    err = DMPlexGetTransitiveClosure(dmMesh, face, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
+    int_array buffer(closureSize);
+    size_t numFaceVertices = 0;
+    for (PetscInt iClosure = 0; iClosure < closureSize*2; iClosure += 2) {
+        if ((closure[iClosure] >= vBegin) && (closure[iClosure] < vEnd)) {
+            buffer[numFaceVertices++] = closure[iClosure];
+        } // if
+    } // for
+    err = DMPlexRestoreTransitiveClosure(dmMesh, face, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
+    *faceVertices = int_array(&buffer[0], numFaceVertices);
 
     PYLITH_METHOD_END;
 } // cellVerticesFromFace

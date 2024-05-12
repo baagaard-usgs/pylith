@@ -104,7 +104,9 @@ pylith::meshio::TestMeshIO::_createMesh(void) {
 
     delete _mesh;_mesh = new topology::Mesh();assert(_mesh);
 
+    int_array cellsCopy(_data->topology->cells); // Create copy because building mesh may change cells (invert)
     pylith::meshio::MeshBuilder::buildMesh(_mesh, *_data->topology, *_data->geometry);
+    _data->topology->cells = cellsCopy;
     const size_t numCells = _data->topology->numCells;
 
     { // material ids
@@ -212,8 +214,8 @@ pylith::meshio::TestMeshIO::_checkVals(void) {
         } // for
         err = DMPlexInvertCell_Private(_data->topology->dimension, numCorners, closure);PYLITH_CHECK_ERROR(err);
         REQUIRE(_data->topology->numCorners == numCorners);
-        for (PylithInt p = 0; p < numCorners; ++p, ++index) {
-            CHECK(_data->topology->cells[index] == closure[p]-offset);
+        for (PylithInt p = 0; p < numCorners; ++p) {
+            CHECK(_data->topology->cells[index++] == closure[p]-offset);
         } // for
         err = DMPlexRestoreTransitiveClosure(dmMesh, c, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
     } // for
@@ -271,7 +273,7 @@ pylith::meshio::TestMeshIO::_checkVals(void) {
         const size_t numFaces = _data->faceGroupSizes[iGroup];
         const size_t totalSize = numFaces*(1+_data->numFaceVertices);
         REQUIRE(totalSize == faceValues.size() );
-        for (size_t i = 0; i < totalSize; ++i, ++index) {
+        for (size_t i = 0; i < totalSize; ++i) {
             CHECK(_data->faceGroups[index++] == faceValues[i]);
         } // for
     } // for
