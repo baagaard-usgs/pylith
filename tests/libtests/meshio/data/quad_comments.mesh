@@ -45,7 +45,7 @@ mesh = { // begin mesh
   }
  // comment before group
   vertex-group = {
-    name = group A
+    name = vertex-group A
     count = 5
     indices = {
       0 // comment here
@@ -57,13 +57,34 @@ mesh = { // begin mesh
     }
   }
   vertex-group = { // begin group
-    name = group B
+    name = vertex-group B
     count = 3
   // comment here
     indices = {
       0
       1
       2
+    }
+  }
+ // comment before group
+  face-group = {
+    name =face-group A
+    count = 3
+    indices = {
+      0   0  2 // comment here
+// comment here again
+      1   6  5 // and here
+      1   5  4
+  // and here
+    }
+  }
+  face-group = { // begin group
+    name = face-group B
+    count = 2
+  // comment here
+    indices = {
+      0   0  2
+      0   1  0
     }
   }
 }
