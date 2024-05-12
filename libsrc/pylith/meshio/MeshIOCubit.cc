@@ -185,6 +185,7 @@ pylith::meshio::MeshIOCubit::_read(void) {
             PYLITH_COMPONENT_INFO_ROOT("Read " << geometry.numVertices << " vertices.");
 
             _MeshIOCubit::readCells(&topology, &materialIds, exoFile);
+            topology.cellShape = pylith::meshio::MeshBuilder::cellShapeFromCorners(topology.dimension, topology.numCorners);
             PYLITH_COMPONENT_INFO_ROOT("Read " << topology.numCells << " cells.");
 
             _MeshIOCubit::orientCells(&topology);

@@ -83,11 +83,12 @@ pylith::meshio::TestMeshIOCubit_Cases::Tri_v12(void) {
 
     data->filename = "data/twotri3_12.2.exo";
 
-    data->numVertices = 4;
-    data->spaceDim = 2;
-    data->numCells = 2;
-    data->cellDim = 2;
-    data->numCorners = 3;
+    const size_t numVertices = 4;
+    const size_t spaceDim = 2;
+    const size_t cellDim = 2;
+    const size_t numCells = 2;
+    const size_t numCorners = 3;
+    const pylith::meshio::MeshBuilder::shape_t cellShape = pylith::meshio::MeshBuilder::TRIANGLE;
 
     static const PylithScalar vertices[4*2] = {
         -1.0,  +0.0,
@@ -95,36 +96,31 @@ pylith::meshio::TestMeshIOCubit_Cases::Tri_v12(void) {
         +0.0,  +1.0,
         +1.0,  +0.0
     };
-    data->vertices = const_cast<PylithScalar*>(vertices);
+    delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
     static const PylithInt cells[2*3] = {
         0,  1,  2,
         2,  1,  3,
     };
-    data->cells = const_cast<PylithInt*>(cells);
+    delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
     static const PylithInt materialIds[2] = {
         2, 3,
     };
     data->materialIds = const_cast<PylithInt*>(materialIds);
 
-    data->numGroups = 2;
-    static const PylithInt groupSizes[2] = { 1,  2, };
-    data->groupSizes = const_cast<PylithInt*>(groupSizes);
-    static const PylithInt groups[1+2] = {
+    data->numVertexGroups = 2;
+    static const PylithInt vertexGroupSizes[2] = { 1,  2, };
+    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
+    static const PylithInt vertexGroups[1+2] = {
         0,
         2, 3,
     };
-    data->groups = const_cast<PylithInt*>(groups);
-    static const char* groupNames[2] = {
+    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
+    static const char* vertexGroupNames[2] = {
         "left_vertex",
         "right_vertex",
     };
-    data->groupNames = const_cast<char**>(groupNames);
-    static const char* groupTypes[2] = {
-        "vertex",
-        "vertex",
-    };
-    data->groupTypes = const_cast<char**>(groupTypes);
+    data->vertexGroupNames = const_cast<char**>(vertexGroupNames);
 
     return data;
 } // Tri
@@ -148,11 +144,12 @@ pylith::meshio::TestMeshIOCubit_Cases::Quad_v12(void) {
 
     data->filename = "data/twoquad4_12.2.exo";
 
-    data->numVertices = 6;
-    data->spaceDim = 2;
-    data->numCells = 2;
-    data->cellDim = 2;
-    data->numCorners = 4;
+    const size_t numVertices = 6;
+    const size_t spaceDim = 2;
+    const size_t cellDim = 2;
+    const size_t numCells = 2;
+    const size_t numCorners = 4;
+    const pylith::meshio::MeshBuilder::shape_t cellShape = pylith::meshio::MeshBuilder::QUADRILATERAL;
 
     static const PylithScalar vertices[6*2] = {
         0.0,  0.0,
@@ -162,36 +159,31 @@ pylith::meshio::TestMeshIOCubit_Cases::Quad_v12(void) {
         2.0,  0.0,
         2.0,  1.0,
     };
-    data->vertices = const_cast<PylithScalar*>(vertices);
+    delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
     static const PylithInt cells[2*4] = {
         0,  1,  2,  3,
         1,  4,  5,  2,
     };
-    data->cells = const_cast<PylithInt*>(cells);
+    delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
     static const PylithInt materialIds[2] = {
         10, 11,
     };
     data->materialIds = const_cast<PylithInt*>(materialIds);
 
-    data->numGroups = 2;
-    static const PylithInt groupSizes[2] = { 2,  3, };
-    data->groupSizes = const_cast<PylithInt*>(groupSizes);
-    static const PylithInt groups[2+3] = {
+    data->numVertexGroups = 2;
+    static const PylithInt vertexGroupSizes[2] = { 2,  3, };
+    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
+    static const PylithInt vertexGroups[2+3] = {
         0, 3,
         2, 3, 5,
     };
-    data->groups = const_cast<PylithInt*>(groups);
-    static const char* groupNames[2] = {
+    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
+    static const char* vertexGroupNames[2] = {
         "left_edge",
         "top_edge",
     };
-    data->groupNames = const_cast<char**>(groupNames);
-    static const char* groupTypes[2] = {
-        "vertex",
-        "vertex",
-    };
-    data->groupTypes = const_cast<char**>(groupTypes);
+    data->vertexGroupNames = const_cast<char**>(vertexGroupNames);
 
     return data;
 } // Quad
@@ -215,11 +207,12 @@ pylith::meshio::TestMeshIOCubit_Cases::Tet_v12(void) {
 
     data->filename = "data/twotet4_12.2.exo";
 
-    data->numVertices = 5;
-    data->spaceDim = 3;
-    data->numCells = 2;
-    data->cellDim = 3;
-    data->numCorners = 4;
+    const size_t numVertices = 5;
+    const size_t spaceDim = 3;
+    const size_t cellDim = 3;
+    const size_t numCells = 2;
+    const size_t numCorners = 4;
+    const pylith::meshio::MeshBuilder::shape_t cellShape = pylith::meshio::MeshBuilder::TETRAHEDRON;
 
     static const PylithScalar vertices[5*3] = {
         -2.0,  0.0,  0.0,
@@ -228,36 +221,31 @@ pylith::meshio::TestMeshIOCubit_Cases::Tet_v12(void) {
         +0.0,  0.0,  2.0,
         +2.0,  0.0,  0.0
     };
-    data->vertices = const_cast<PylithScalar*>(vertices);
+    delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
     static const PylithInt cells[2*4] = {
         0,  1,  2,  3,
         1,  4,  2,  3,
     };
-    data->cells = const_cast<PylithInt*>(cells);
+    delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
     static const PylithInt materialIds[2] = {
         7, 8,
     };
     data->materialIds = const_cast<PylithInt*>(materialIds);
 
-    data->numGroups = 2;
-    static const PylithInt groupSizes[2] = { 3,  4, };
-    data->groupSizes = const_cast<PylithInt*>(groupSizes);
-    static const PylithInt groups[3+4] = {
+    data->numVertexGroups = 2;
+    static const PylithInt vertexGroupSizes[2] = { 3,  4, };
+    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
+    static const PylithInt vertexGroups[3+4] = {
         1, 2, 3,
         0, 1, 2, 3,
     };
-    data->groups = const_cast<PylithInt*>(groups);
-    static const char* groupNames[2] = {
+    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
+    static const char* vertexGroupNames[2] = {
         "mid_face",
         "bottom_face",
     };
-    data->groupNames = const_cast<char**>(groupNames);
-    static const char* groupTypes[2] = {
-        "vertex",
-        "vertex",
-    };
-    data->groupTypes = const_cast<char**>(groupTypes);
+    data->vertexGroupNames = const_cast<char**>(vertexGroupNames);
 
     return data;
 } // Tet_v12
@@ -281,11 +269,12 @@ pylith::meshio::TestMeshIOCubit_Cases::Hex_v12(void) {
 
     data->filename = "data/twohex8_12.2.exo";
 
-    data->numVertices = 12;
-    data->spaceDim = 3;
-    data->numCells = 2;
-    data->cellDim = 3;
-    data->numCorners = 8;
+    const size_t numVertices = 12;
+    const size_t spaceDim = 3;
+    const size_t cellDim = 3;
+    const size_t numCells = 2;
+    const size_t numCorners = 8;
+    const pylith::meshio::MeshBuilder::shape_t cellShape = pylith::meshio::MeshBuilder::HEXAHEDRON;
 
     static const PylithScalar vertices[12*3] = {
         -2.0, -1.0,  1.0,
@@ -301,36 +290,31 @@ pylith::meshio::TestMeshIOCubit_Cases::Hex_v12(void) {
         +2.0,  1.0, -1.0,
         +2.0,  1.0,  1.0,
     };
-    data->vertices = const_cast<PylithScalar*>(vertices);
+    delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
     static const PylithInt cells[2*8] = {
         0,  1,  2,  3,  4,  5,  6,  7,
         4,  5,  6,  7,  8,  9, 10, 11
     };
-    data->cells = const_cast<PylithInt*>(cells);
+    delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
     static const PylithInt materialIds[2] = {
         7, 8,
     };
     data->materialIds = const_cast<PylithInt*>(materialIds);
 
-    data->numGroups = 2;
-    static const PylithInt groupSizes[2] = { 4,  6, };
-    data->groupSizes = const_cast<PylithInt*>(groupSizes);
-    static const PylithInt groups[4+6] = {
+    data->numVertexGroups = 2;
+    static const PylithInt vertexGroupSizes[2] = { 4,  6, };
+    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
+    static const PylithInt vertexGroups[4+6] = {
         8,  9, 10, 11,
         0,  3,  4,  7,  8, 11
     };
-    data->groups = const_cast<PylithInt*>(groups);
-    static const char* groupNames[2] = {
+    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
+    static const char* vertexGroupNames[2] = {
         "right_face",
         "top_face",
     };
-    data->groupNames = const_cast<char**>(groupNames);
-    static const char* groupTypes[2] = {
-        "vertex",
-        "vertex",
-    };
-    data->groupTypes = const_cast<char**>(groupTypes);
+    data->vertexGroupNames = const_cast<char**>(vertexGroupNames);
 
     return data;
 } // Hex_v12
