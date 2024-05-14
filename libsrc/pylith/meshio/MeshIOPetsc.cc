@@ -177,17 +177,12 @@ pylith::meshio::MeshIOPetsc::_read(void) {
         options[0] = "-" + _prefix + "dm_plex_filename";
         options[1] = _filename;
         if (GMSH == _format) {
-            noptions += 1;
+            noptions += 2;
             options.resize(noptions*2);
             options[2] = "-" + _prefix + "dm_plex_gmsh_use_regions";
             options[3] = "";
-
-            if (_gmshMarkVertices) {
-                noptions += 1;
-                options.resize(noptions*2);
-                options[4] = "-" + _prefix + "dm_plex_gmsh_mark_vertices";
-                options[5] = "";
-            } // if
+            options[4] = "-" + _prefix + "dm_plex_gmsh_mark_vertices";
+            options[5] = (_gmshMarkVertices) ? "true" : "false";
         } // if
 
         for (size_t i = 0; i < noptions; ++i) {
