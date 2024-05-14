@@ -1015,8 +1015,8 @@ pylith::meshio::TestMeshIOPetsc_Cases::HDF5BoxTri(void) {
     TestMeshIO_Data* data = GmshBoxTriBoundaryBinary();assert(data);
 
     data->filename = "box_tri.h5";
-    static const PylithInt faceGroupTags[8] = {
-        1, 1, 1, 1, 1, 1, 1, 1,
+    static const PylithInt faceGroupTags[5] = {
+        1, 1, 1, 1, 1,
     };
     data->faceGroupTags = const_cast<PylithInt*>(faceGroupTags);
 
@@ -1030,10 +1030,10 @@ pylith::meshio::TestMeshIOPetsc_Cases::HDF5BoxQuad(void) {
     TestMeshIO_Data* data = GmshBoxQuadBoundaryBinary();assert(data);
 
     data->filename = "box_quad.h5";
-    static const PylithInt vertexGroupTags[8] = {
-        1, 1, 1, 1, 1, 1, 1, 1,
+    static const PylithInt faceGroupTags[5] = {
+        1, 1, 1, 1, 1,
     };
-    data->vertexGroupTags = const_cast<PylithInt*>(vertexGroupTags);
+    data->faceGroupTags = const_cast<PylithInt*>(faceGroupTags);
 
     return data;
 } // HDF5BoxQuad
@@ -1045,10 +1045,10 @@ pylith::meshio::TestMeshIOPetsc_Cases::HDF5BoxTet(void) {
     TestMeshIO_Data* data = GmshBoxTetBoundaryBinary();assert(data);
 
     data->filename = "box_tet.h5";
-    static const PylithInt vertexGroupTags[8] = {
-        1, 1, 1, 1, 1, 1, 1, 1,
+    static const PylithInt faceGroupTags[7] = {
+        1, 1, 1, 1, 1, 1, 1,
     };
-    data->vertexGroupTags = const_cast<PylithInt*>(vertexGroupTags);
+    data->faceGroupTags = const_cast<PylithInt*>(faceGroupTags);
 
     return data;
 } // HDF5BoxTet
@@ -1060,10 +1060,10 @@ pylith::meshio::TestMeshIOPetsc_Cases::HDF5BoxHex(void) {
     TestMeshIO_Data* data = GmshBoxHexBoundaryBinary();assert(data);
 
     data->filename = "box_hex.h5";
-    static const PylithInt vertexGroupTags[9] = {
-        1, 1, 1, 1, 1, 1, 1, 1, 1,
+    static const PylithInt faceGroupTags[7] = {
+        1, 1, 1, 1, 1, 1, 1,
     };
-    data->vertexGroupTags = const_cast<PylithInt*>(vertexGroupTags);
+    data->faceGroupTags = const_cast<PylithInt*>(faceGroupTags);
 
     return data;
 } // HDF5BoxHex
