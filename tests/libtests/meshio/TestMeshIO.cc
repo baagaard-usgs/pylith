@@ -38,12 +38,12 @@ DMPlexInvertCell_Private(PetscInt dim,
                          PetscInt numCorners,
                          PetscInt cone[]) {
 #define SWAPCONE(cone,i,j)  \
-        do {                      \
-            int _cone_tmp;          \
-            _cone_tmp = (cone)[i];  \
-            (cone)[i] = (cone)[j];  \
-            (cone)[j] = _cone_tmp;  \
-        } while (0)
+    do {                      \
+        int _cone_tmp;          \
+        _cone_tmp = (cone)[i];  \
+        (cone)[i] = (cone)[j];  \
+        (cone)[j] = _cone_tmp;  \
+    } while (0)
 
     PetscFunctionBegin;
     if (dim != 3) { PetscFunctionReturn(0);}
@@ -118,7 +118,7 @@ pylith::meshio::TestMeshIO::_createMesh(void) {
     } // material ids
 
     // Vertex groups
-    for (int iGroup = 0, index = 0; iGroup < _data->numVertexGroups; ++iGroup) {
+    for (size_t iGroup = 0, index = 0; iGroup < _data->numVertexGroups; ++iGroup) {
         const size_t groupSize = _data->vertexGroupSizes[iGroup];assert(groupSize > 0);
         int_array points(groupSize);
         for (size_t i = 0; i < groupSize; ++i, ++index) {
@@ -128,12 +128,12 @@ pylith::meshio::TestMeshIO::_createMesh(void) {
     } // for
 
     // Face groups
-    for (int iGroup = 0, index = 0; iGroup < _data->numFaceGroups; ++iGroup) {
+    for (size_t iGroup = 0, index = 0; iGroup < _data->numFaceGroups; ++iGroup) {
         const size_t numFaceVertices = _data->numFaceVertices;assert(numFaceVertices > 0);
         const size_t numFaces = _data->faceGroupSizes[iGroup];assert(numFaces > 0);
         const size_t totalSize = numFaces * (1 + numFaceVertices); // cell + vertices
         int_array faceValues(totalSize);
-        for (int i = 0; i < totalSize; ++i, ++index) {
+        for (size_t i = 0; i < totalSize; ++i, ++index) {
             faceValues[i] = _data->faceGroups[index];
         } // for
         pylith::meshio::MeshBuilder::setFaceGroupFromCellVertices(_mesh, _data->faceGroupNames[iGroup], faceValues, numFaceVertices);
@@ -167,7 +167,7 @@ pylith::meshio::TestMeshIO::_checkVals(void) {
     assert(_data);
 
     // Check mesh dimension
-    CHECK(_data->topology->dimension == _mesh->getDimension());
+    CHECK(_data->topology->dimension == size_t(_mesh->getDimension()));
     const int spaceDim = _data->geometry->spaceDim;
 
     PetscDM dmMesh = _mesh->getDM();assert(dmMesh);
@@ -177,7 +177,7 @@ pylith::meshio::TestMeshIO::_checkVals(void) {
     const PylithInt vStart = verticesStratum.begin();
     const PylithInt vEnd = verticesStratum.end();
 
-    REQUIRE(_data->geometry->numVertices == verticesStratum.size());
+    REQUIRE(_data->geometry->numVertices == size_t(verticesStratum.size()));
 
     topology::CoordsVisitor coordsVisitor(dmMesh);
     const PetscScalar* coordsArray = coordsVisitor.localArray();
@@ -196,14 +196,15 @@ pylith::meshio::TestMeshIO::_checkVals(void) {
     topology::Stratum cellsStratum(dmMesh, topology::Stratum::HEIGHT, 0);
     const PylithInt cStart = cellsStratum.begin();
     const PylithInt cEnd = cellsStratum.end();
-    const PylithInt numCells = cellsStratum.size();
+    const size_t numCells = cellsStratum.size();
 
     REQUIRE(_data->topology->numCells == numCells);
     const int offset = numCells;
     PetscErrorCode err = 0;
     for (PylithInt c = cStart, index = 0; c < cEnd; ++c) {
         PylithInt *closure = NULL;
-        PylithInt closureSize, numCorners = 0;
+        PylithInt closureSize;
+        size_t numCorners = 0;
 
         err = DMPlexGetTransitiveClosure(dmMesh, c, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
         for (PylithInt p = 0; p < closureSize*2; p += 2) {
@@ -214,7 +215,7 @@ pylith::meshio::TestMeshIO::_checkVals(void) {
         } // for
         err = DMPlexInvertCell_Private(_data->topology->dimension, numCorners, closure);PYLITH_CHECK_ERROR(err);
         REQUIRE(_data->topology->numCorners == numCorners);
-        for (PylithInt p = 0; p < numCorners; ++p) {
+        for (size_t p = 0; p < numCorners; ++p) {
             CHECK(_data->topology->cells[index++] == closure[p]-offset);
         } // for
         err = DMPlexRestoreTransitiveClosure(dmMesh, c, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
@@ -232,7 +233,7 @@ pylith::meshio::TestMeshIO::_checkVals(void) {
     pylith::meshio::MeshBuilder::getVertexGroupNames(&vertexGroupNames, *_mesh);
     const size_t numVertexGroups = vertexGroupNames.size();
     REQUIRE(_data->numVertexGroups == numVertexGroups);
-    for (PylithInt index = 0, iGroup = 0; iGroup < numVertexGroups; ++iGroup) {
+    for (size_t index = 0, iGroup = 0; iGroup < numVertexGroups; ++iGroup) {
         const char* groupName = _data->vertexGroupNames[iGroup];
         INFO("Checking " << groupName);
 
@@ -247,7 +248,7 @@ pylith::meshio::TestMeshIO::_checkVals(void) {
         pylith::meshio::MeshBuilder::getVertexGroup(&points, *_mesh, groupName, labelValue);
         const size_t numPoints = _data->vertexGroupSizes[iGroup];
         REQUIRE(numPoints == points.size());
-        for (PylithInt p = 0; p < numPoints; ++p) {
+        for (size_t p = 0; p < numPoints; ++p) {
             CHECK(_data->vertexGroups[index++] == points[p]);
         } // for
     } // for
@@ -260,7 +261,7 @@ pylith::meshio::TestMeshIO::_checkVals(void) {
     if (_data->numFaceGroups > 0) {
         REQUIRE(_data->numFaceVertices > 0);
     } // if
-    for (PylithInt index = 0, iGroup = 0; iGroup < numFaceGroups; ++iGroup) {
+    for (size_t index = 0, iGroup = 0; iGroup < numFaceGroups; ++iGroup) {
         const char* groupName = _data->faceGroupNames[iGroup];
         INFO("Checking " << groupName);
 

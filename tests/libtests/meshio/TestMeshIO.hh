@@ -71,14 +71,14 @@ public:
     PylithInt* vertexGroupSizes; ///< Array of sizes of each vertex group
     PylithInt* vertexGroupTags; ///< Array of label values (tags) for each vertex group.
     char** vertexGroupNames; ///< Array of vertex group names
-    PylithInt numVertexGroups; ///< Number of vertex groups
+    size_t numVertexGroups; ///< Number of vertex groups
 
     PylithInt* faceGroups; ///< Array of pointers to indices of points in face groups
     PylithInt* faceGroupSizes; ///< Array of sizes of each face group
     PylithInt* faceGroupTags; ///< Array of label values (tags) for each face group.
     char** faceGroupNames; ///< Array of face group names
-    PylithInt numFaceGroups; ///< Number of face groups
-    PylithInt numFaceVertices; ///< Number of vertices on a cell face.
+    size_t numFaceGroups; ///< Number of face groups
+    size_t numFaceVertices; ///< Number of vertices on a cell face.
 
     bool useIndexZero; ///< Indices start with 0 if true, 1 if false
 
