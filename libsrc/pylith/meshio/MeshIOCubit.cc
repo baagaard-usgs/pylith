@@ -247,8 +247,8 @@ pylith::meshio::_MeshIOCubit::readVertices(pylith::meshio::MeshBuilder::Geometry
         exoFile.getVar(&buffer[0], dims, ndims, "coord");
 
         geometry->vertices.resize(geometry->numVertices * geometry->spaceDim);
-        for (int iVertex = 0; iVertex < geometry->numVertices; ++iVertex) {
-            for (int iDim = 0; iDim < geometry->spaceDim; ++iDim) {
+        for (size_t iVertex = 0; iVertex < geometry->numVertices; ++iVertex) {
+            for (size_t iDim = 0; iDim < geometry->spaceDim; ++iDim) {
                 geometry->vertices[iVertex*(geometry->spaceDim)+iDim] =
                     buffer[iDim*geometry->numVertices+iVertex];
             } // for
@@ -264,10 +264,10 @@ pylith::meshio::_MeshIOCubit::readVertices(pylith::meshio::MeshBuilder::Geometry
         int dims[1];
         dims[0] = geometry->numVertices;
 
-        for (int i = 0; i < geometry->spaceDim; ++i) {
+        for (size_t i = 0; i < geometry->spaceDim; ++i) {
             exoFile.getVar(&buffer[0], dims, ndims, coordNames[i]);
 
-            for (int iVertex = 0; iVertex < geometry->numVertices; ++iVertex) {
+            for (size_t iVertex = 0; iVertex < geometry->numVertices; ++iVertex) {
                 geometry->vertices[iVertex*(geometry->spaceDim)+i] = buffer[iVertex];
             } // for
         } // for
@@ -307,7 +307,7 @@ pylith::meshio::_MeshIOCubit::readCells(pylith::meshio::MeshBuilder::Topology* t
             topology->numCorners = exoFile.getDim(varname.str().c_str());
             const int size = (topology->numCells) * (topology->numCorners);
             topology->cells.resize(size);
-        } else if (exoFile.getDim(varname.str().c_str()) != topology->numCorners) {
+        } else if (size_t(exoFile.getDim(varname.str().c_str())) != topology->numCorners) {
             std::ostringstream msg;
             msg << "All materials must have the same number of vertices per cell.\n"
                 << "Expected " << topology->numCorners << " vertices per cell, but block "
@@ -476,8 +476,8 @@ pylith::meshio::_MeshIOCubit::orientCells(pylith::meshio::MeshBuilder::Topology*
 
         // Permutation: 3, 4, 5, 0, 1, 2
         int tmp = 0;
-        for (int iCell = 0; iCell < topology->numCells; ++iCell) {
-            const int ii = iCell*numCorners;
+        for (size_t iCell = 0; iCell < topology->numCells; ++iCell) {
+            const size_t ii = iCell*numCorners;
             tmp = (topology->cells)[ii+0];
             (topology->cells)[ii+0] = (topology->cells)[ii+3];
             (topology->cells)[ii+3] = tmp;
@@ -504,7 +504,7 @@ pylith::meshio::_MeshIOCubit::orientCells(pylith::meshio::MeshBuilder::Topology*
         // left/right, front/back, bottom/top
         // interior
         int tmp = 0;
-        for (int iCell = 0; iCell < topology->numCells; ++iCell) {
+        for (size_t iCell = 0; iCell < topology->numCells; ++iCell) {
             const int i12 = iCell*numCorners+12;
             const int i13 = iCell*numCorners+13;
             const int i14 = iCell*numCorners+14;
