@@ -257,6 +257,9 @@ pylith::meshio::TestMeshIO::_checkVals(void) {
     pylith::meshio::MeshBuilder::getFaceGroupNames(&faceGroupNames, *_mesh);
     const size_t numFaceGroups = faceGroupNames.size();
     REQUIRE(_data->numFaceGroups == numFaceGroups);
+    if (_data->numFaceGroups > 0) {
+        REQUIRE(_data->numFaceVertices > 0);
+    } // if
     for (PylithInt index = 0, iGroup = 0; iGroup < numFaceGroups; ++iGroup) {
         const char* groupName = _data->faceGroupNames[iGroup];
         INFO("Checking " << groupName);
