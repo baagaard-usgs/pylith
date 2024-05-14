@@ -63,7 +63,8 @@ public:
 pylith::meshio::MeshIOPetsc::MeshIOPetsc(void) :
     _filename(""),
     _prefix(""),
-    _format(HDF5) {
+    _format(HDF5),
+    _gmshMarkVertices(false) {
     PyreComponent::setName("meshiopetsc");
 } // constructor
 
@@ -146,6 +147,22 @@ pylith::meshio::MeshIOPetsc::getFormat(void) const {
 
 
 // ------------------------------------------------------------------------------------------------
+// Set flag for marking Gmsh vertices.
+void
+pylith::meshio::MeshIOPetsc::setGmshMarkVertices(const bool value) {
+    _gmshMarkVertices = value;
+}
+
+
+// ------------------------------------------------------------------------------------------------
+// Returns true if marking Gmsh vertices, otherwise false.
+bool
+pylith::meshio::MeshIOPetsc::getGmshMarkVertices(void) const {
+    return _gmshMarkVertices;
+}
+
+
+// ------------------------------------------------------------------------------------------------
 // Read mesh.
 void
 pylith::meshio::MeshIOPetsc::_read(void) {
@@ -160,13 +177,17 @@ pylith::meshio::MeshIOPetsc::_read(void) {
         options[0] = "-" + _prefix + "dm_plex_filename";
         options[1] = _filename;
         if (GMSH == _format) {
-            noptions += 2;
+            noptions += 1;
             options.resize(noptions*2);
             options[2] = "-" + _prefix + "dm_plex_gmsh_use_regions";
             options[3] = "";
 
-            options[4] = "-" + _prefix + "dm_plex_gmsh_mark_vertices";
-            options[5] = "";
+            if (_gmshMarkVertices) {
+                noptions += 1;
+                options.resize(noptions*2);
+                options[4] = "-" + _prefix + "dm_plex_gmsh_mark_vertices";
+                options[5] = "";
+            } // if
         } // if
 
         for (size_t i = 0; i < noptions; ++i) {
@@ -184,7 +205,7 @@ pylith::meshio::MeshIOPetsc::_read(void) {
     err = DMPlexDistributeSetDefault(dmMesh, PETSC_FALSE);PYLITH_CHECK_ERROR(err);
     err = DMSetFromOptions(dmMesh);PYLITH_CHECK_ERROR(err);
     _MeshIOPetsc::fixMaterialLabel(&dmMesh);
-    _MeshIOPetsc::fixBoundaryLabels(&dmMesh);
+    // _MeshIOPetsc::fixBoundaryLabels(&dmMesh);
     _mesh->setDM(dmMesh);
 
     PYLITH_METHOD_END;

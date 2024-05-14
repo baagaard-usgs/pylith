@@ -577,7 +577,6 @@ pylith::meshio::_MeshBuilder::getGroupNames(string_vector* names,
     err = DMGetNumLabels(dmMesh, &numLabels);PYLITH_CHECK_ERROR(err);
 
     const std::string& materialLabelName = pylith::topology::Mesh::cells_label_name;
-    const PetscInt labelValue = 1; // :TODO: FIX THIS
 
     size_t numNames = 0;
     names->resize(numLabels);
@@ -585,9 +584,23 @@ pylith::meshio::_MeshBuilder::getGroupNames(string_vector* names,
         const char* labelStr = NULL;
         err = DMGetLabelName(dmMesh, iLabel, &labelStr);PYLITH_CHECK_ERROR(err);
         const std::string labelName = std::string(labelStr);
+
         if ((labelName != std::string("depth"))
             && (labelName != std::string("celltype"))
             && (labelName != materialLabelName)) {
+            PetscDMLabel dmLabel = PETSC_NULLPTR;
+            err = DMGetLabel(dmMesh, labelStr, &dmLabel);PYLITH_CHECK_ERROR(err);
+            PetscInt numLabelValues;
+            PetscIS labelValuesIS = PETSC_NULLPTR;
+            const PetscInt* labelValues = PETSC_NULLPTR;
+            err = DMLabelGetNumValues(dmLabel, &numLabelValues);PYLITH_CHECK_ERROR(err);// assert(1 == numLabelValues);
+            err = DMLabelGetValueIS(dmLabel, &labelValuesIS);PYLITH_CHECK_ERROR(err);assert(labelValuesIS);
+            err = ISGetIndices(labelValuesIS, &labelValues);PYLITH_CHECK_ERROR(err);assert(labelValues);
+            const PetscInt labelValue = labelValues[0];
+
+            err = ISRestoreIndices(labelValuesIS, &labelValues);PYLITH_CHECK_ERROR(err);
+            err = ISDestroy(&labelValuesIS);PYLITH_CHECK_ERROR(err);
+
             pylith::topology::StratumIS pointIS(dmMesh, labelStr, labelValue);
             const PetscInt* points = pointIS.points();
             const PetscInt numPoints = pointIS.size();
@@ -651,17 +664,18 @@ pylith::meshio::_MeshBuilder::faceFromCellSide(PetscInt* face,
         break;
     } // triangle
     case DM_POLYTOPE_QUADRILATERAL: {
-        // side: 0=bottom, 1=right, 2=top, 3=left
+        // Cubit uses shell sides, not quad sides.
+        // side: 2=bottom, 3=right, 4=top, 5=left
         // face: 0=bottom, 1=right, 2=top, 3=left
         const int faceMapping[4] = { 0, 1, 2, 3 };
         assert(coneSize == 4);
-        coneIndex = faceMapping[side];
+        coneIndex = faceMapping[side-2];
         break;
     } // quadrilateral
     case DM_POLYTOPE_TETRAHEDRON: {
         // side:  0  1  2  3
-        // face:  1  3  2  0
-        const int faceMapping[4] = { 1, 3, 2, 0 };
+        // face:  1  2  3  0
+        const int faceMapping[4] = { 1, 2, 3, 0 };
         assert(coneSize == 4);
         coneIndex = faceMapping[side];
         break;

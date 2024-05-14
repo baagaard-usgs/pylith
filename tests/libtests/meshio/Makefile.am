@@ -22,14 +22,13 @@ libtest_meshio_SOURCES = \
 	TestMeshIOAscii.cc \
 	TestMeshIOAscii_Cases.cc \
 	TestMeshIOPetsc.cc \
+	TestMeshIOPetsc_Cases.cc \
 	TestOutputTriggerStep.cc \
 	TestOutputTriggerTime.cc \
 	$(top_srcdir)/tests/src/FaultCohesiveStub.cc \
 	$(top_srcdir)/tests/src/StubMethodTracker.cc \
 	$(top_srcdir)/tests/src/driver_catch2.cc
 
-#	TestMeshIOPetsc_Cases.cc \
-#
 
 # VTK data writer
 libtest_vtk_SOURCES = \

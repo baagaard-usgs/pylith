@@ -30,8 +30,11 @@ public:
     /// Test filename()
     void testFilename(void);
 
-    /// Test read().
-    void testRead(void);
+    /** Test read().
+     *
+     * @param[in] gmshMarkVertices If true, mark Gmsh vertices.
+     */
+    void testRead(const bool gmshMarkVertices=false);
 
     /// Test write() and read().
     void testWriteRead(void);
