@@ -213,11 +213,12 @@ void
 pylith::meshio::MeshBuilder::setFaceGroupFromCellVertices(pylith::topology::Mesh* mesh,
                                                           const char* name,
                                                           const int_array& faceValues,
-                                                          const size_t numFaceVertices,
+                                                          const shape_t faceShape,
                                                           const int labelValue) {
     PYLITH_METHOD_BEGIN;
     assert(mesh);
 
+    const size_t numFaceVertices = getNumVerticesFace(faceShape);
     size_t numFaceValues = 1 + numFaceVertices;
     assert(0 == faceValues.size() % numFaceValues);
     const size_t numFaces = faceValues.size() / numFaceValues;
@@ -560,6 +561,24 @@ pylith::meshio::MeshBuilder::faceShapeFromCellShape(const shape_t cellShape) {
 } // faceShapeFromCellShape
 
 
+// ------------------------------------------------------------------------------------------------
+// Get number of face vertices given face shape.
+size_t
+pylith::meshio::MeshBuilder::getNumVerticesFace(const shape_t faceShape) {
+    size_t numVertices = 0;
+    switch (faceShape) {
+    case POINT: numVertices = 1;break;
+    case LINE: numVertices = 2;break;
+    case TRIANGLE: numVertices = 3;break;
+    case QUADRILATERAL: numVertices = 4;break;
+    default:
+        PYLITH_JOURNAL_LOGICERROR("Unknown face shape '" << faceShape << "'.");
+    } // switch
+
+    return numVertices;
+}
+
+
 // ----------------------------------------------------------------------
 // Get names of groups in mesh with points in given range.
 void
@@ -593,7 +612,7 @@ pylith::meshio::_MeshBuilder::getGroupNames(string_vector* names,
             PetscInt numLabelValues;
             PetscIS labelValuesIS = PETSC_NULLPTR;
             const PetscInt* labelValues = PETSC_NULLPTR;
-            err = DMLabelGetNumValues(dmLabel, &numLabelValues);PYLITH_CHECK_ERROR(err);// assert(1 == numLabelValues);
+            err = DMLabelGetNumValues(dmLabel, &numLabelValues);PYLITH_CHECK_ERROR(err); // assert(1 == numLabelValues);
             err = DMLabelGetValueIS(dmLabel, &labelValuesIS);PYLITH_CHECK_ERROR(err);assert(labelValuesIS);
             err = ISGetIndices(labelValuesIS, &labelValues);PYLITH_CHECK_ERROR(err);assert(labelValues);
             const PetscInt labelValue = labelValues[0];
