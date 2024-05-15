@@ -83,6 +83,7 @@ pylith::faults::TestAdjustTopology::run(void) {
 
     pythia::journal::debug_t debug(GenericComponent::getName());
     if (debug.state()) {
+        _mesh->view("::ascii_info");
         _mesh->view("::ascii_info_detail");
         _mesh->view(":mesh_adjusttopology.tex:ascii_latex");
         _mesh->view("vtk:mesh_adjusttopology.vtu");

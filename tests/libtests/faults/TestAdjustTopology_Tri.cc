@@ -397,13 +397,13 @@ pylith::faults::TestAdjustTopology_Tri::caseH(void) {
     };
     data->materialIds = const_cast<int*>(materialIds);
 
-    static const size_t numGroups = 3;
+    static const size_t numGroups = 5;
     data->numGroups = numGroups;
-    static const int groupSizes[numGroups] = { 3+2, 2, 4+4, }; // vertices + edges
+    static const int groupSizes[numGroups] = { 3+2, 2, 4+4, 2, 4 }; // vertices + edges
     data->groupSizes = const_cast<int*>(groupSizes);
-    static const char* groupNames[numGroups] = { "output", "edge", "fault" };
+    static const char* groupNames[numGroups] = { "output_vertices", "edge", "fault", "output", "fault_faces" };
     data->groupNames = const_cast<char**>(groupNames);
-    static const char* groupTypes[numGroups] = { "vertex", "vertex", "vertex" };
+    static const char* groupTypes[numGroups] = { "vertex", "vertex", "vertex", "face", "face" };
     data->groupTypes = const_cast<char**>(groupTypes);
 
     return data;
