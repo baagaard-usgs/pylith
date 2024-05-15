@@ -200,7 +200,9 @@ pylith::meshio::MeshIOPetsc::_read(void) {
     err = DMPlexDistributeSetDefault(dmMesh, PETSC_FALSE);PYLITH_CHECK_ERROR(err);
     err = DMSetFromOptions(dmMesh);PYLITH_CHECK_ERROR(err);
     _MeshIOPetsc::fixMaterialLabel(&dmMesh);
-    // _MeshIOPetsc::fixBoundaryLabels(&dmMesh);
+    if (_gmshMarkVertices) {
+        _MeshIOPetsc::fixBoundaryLabels(&dmMesh);
+    } // if
     _mesh->setDM(dmMesh);
 
     PYLITH_METHOD_END;
@@ -290,7 +292,7 @@ void
 pylith::meshio::_MeshIOPetsc::fixBoundaryLabels(PetscDM* dmMesh) {
     PYLITH_METHOD_BEGIN;
     assert(dmMesh);
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     // Create set with labels to ignore.
     std::set<std::string> labelsIgnore;
