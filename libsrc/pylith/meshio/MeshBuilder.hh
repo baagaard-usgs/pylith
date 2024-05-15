@@ -131,14 +131,14 @@ public:
      * @param[inout] mesh PyLith finite-element mesh.
      * @param[in] name The group name
      * @param[in] points An array of the points in the group.
-     * @param[in] numFaceVertices Number of vertices on each cell face.
+     * @param[in] faceShape Shape of face.
      * @param[in] labelValue Value of group label in mesh.
      */
     static
     void setFaceGroupFromCellVertices(pylith::topology::Mesh* mesh,
                                       const char* name,
                                       const int_array& points,
-                                      const size_t numFaceVertices,
+                                      const shape_t faceShape,
                                       const int labelValue=1);
 
     /** Build a point group of faces from cell+side.
@@ -208,8 +208,8 @@ public:
 
     /** Get a point group of vertices.
      *
-     * The indices in the points array must use zero based indices. In
-     * other words, the lowest index MUST be 0 not 1.
+     * The indices in the points array use zero based indices and have the
+     * offset removed, so the first vertex is the mesh is 0.
      *
      * @param[in] points An array of the points in the group.
      * @param[inout] mesh PyLith finite-element mesh.
@@ -224,8 +224,8 @@ public:
 
     /** Get a point group of faces.
      *
-     * The indices in the points array must use zero based indices. In
-     * other words, the lowest index MUST be 0 not 1.
+     * The indices in the points array use zero based indices and have the
+     * offset removed, so the first vertex is the mesh is 0.
      *
      * @param[in] points An array of the points in the group.
      * @param[inout] mesh PyLith finite-element mesh.
@@ -255,6 +255,14 @@ public:
      */
     static
     shape_t faceShapeFromCellShape(const shape_t cellShape);
+
+    /** Get number of face vertices given face shape.
+     *
+     * @returns Number of face vertices.
+     * @param[in] faceShape Face shape.
+     */
+    static
+    size_t getNumVerticesFace(const pylith::meshio::MeshBuilder::shape_t faceShape);
 
 }; // MeshBuilder
 
