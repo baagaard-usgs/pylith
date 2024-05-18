@@ -137,7 +137,6 @@ pylith::topology::MeshOps::createLowerDimMesh(const pylith::topology::Mesh& mesh
         throw std::runtime_error(msg.str());
     } // if
 
-    PetscInt labelHasVertices = 0;
     { // TEMPORARY: Continue to support creating lower dimension meshes using labels with vertices.
         PetscIS labelIS = NULL;
         const PetscInt* labelPoints = NULL;
@@ -146,6 +145,7 @@ pylith::topology::MeshOps::createLowerDimMesh(const pylith::topology::Mesh& mesh
         err = ISGetIndices(labelIS, &labelPoints);PYLITH_CHECK_ERROR(err);
         err = DMGetStratumSize(dmDomain, labelName, labelValue, &numPoints);PYLITH_CHECK_ERROR(err);
 
+        PetscInt labelHasVertices = 0;
         topology::Stratum verticesStratum(dmDomain, topology::Stratum::DEPTH, 0);
         const PetscInt vStart = verticesStratum.begin();
         const PetscInt vEnd = verticesStratum.end();
@@ -161,20 +161,22 @@ pylith::topology::MeshOps::createLowerDimMesh(const pylith::topology::Mesh& mesh
 
         err = MPI_Allreduce(&labelHasVerticesLocal, &labelHasVertices, 1, MPI_INT, MPI_MAX,
                             PetscObjectComm((PetscObject) dmDomain));PYLITH_CHECK_ERROR(err);
+
+        if (labelHasVertices) {
+            pythia::journal::warning_t warning("deprecated");
+            warning << pythia::journal::at(__HERE__)
+                    << "DEPRECATION: Creating lower dimension mesh from label with vertices. "
+                    << "This feature will be removed in v6.0. "
+                    << "In the future, you will need to mark boundaries not vertices for boundary conditions."
+                    << pythia::journal::endl; \
+        } // if
     } // TEMPORARY
 
+    // We use DMPlexCreateSubmesh() instead of DMPlexFilter, because we want the submesh to have
+    // domain cells hanging off of it, which allows us to project from the submesh to the domain mesh
+    // to set boundary conditions using the auxiliary fields defined over the submesh.
     PetscDM dmSubmesh = NULL;
-    if (!labelHasVertices) {
-        err = DMPlexFilter(dmDomain, dmLabel, labelValue, PETSC_FALSE, PETSC_FALSE, NULL, &dmSubmesh);PYLITH_CHECK_ERROR(err);
-    } else {
-        pythia::journal::warning_t warning("deprecated");
-        warning << pythia::journal::at(__HERE__)
-                << "DEPRECATION: Creating lower dimension mesh from label with vertices. "
-                << "This feature will be removed in v6.0. "
-                << "In the future, you will need to mark boundaries not vertices for boundary conditions."
-                << pythia::journal::endl; \
-        err = DMPlexCreateSubmesh(dmDomain, dmLabel, labelValue, PETSC_FALSE, &dmSubmesh);PYLITH_CHECK_ERROR(err);
-    }
+    err = DMPlexCreateSubmesh(dmDomain, dmLabel, labelValue, PETSC_FALSE, &dmSubmesh);PYLITH_CHECK_ERROR(err);
 
     PetscInt maxConeSizeLocal = 0, maxConeSize = 0;
     err = DMPlexGetMaxSizes(dmSubmesh, &maxConeSizeLocal, NULL);PYLITH_CHECK_ERROR(err);
