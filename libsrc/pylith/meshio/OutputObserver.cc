@@ -153,6 +153,26 @@ pylith::meshio::OutputObserver::setOutputBasisOrder(const int value) {
 
 
 // ------------------------------------------------------------------------------------------------
+
+// Set number of refinement levels for output.
+void
+pylith::meshio::OutputObserver::setRefineLevels(const int value) {
+    PYLITH_METHOD_BEGIN;
+    PYLITH_COMPONENT_DEBUG("OutputObserver::setRefineLevels(value="<<value<<")");
+
+    if (value < 0) {
+        std::ostringstream msg;
+        msg << "Number of refinement levels for output (" << value << ") must be nonnegative.";
+        throw std::out_of_range(msg.str());
+    } // if
+
+    _refineLevels = value;
+
+    PYLITH_METHOD_END;
+} // setRefineLevels
+
+
+// ------------------------------------------------------------------------------------------------
 // Set time scale.
 void
 pylith::meshio::OutputObserver::setTimeScale(const PylithReal value) {
@@ -176,7 +196,7 @@ pylith::meshio::OutputObserver::_getSubfield(const pylith::topology::Field& fiel
     _OutputObserver::Events::logger.eventBegin(_OutputObserver::Events::getSubfield);
 
     if (0 == _subfields.count(name) ) {
-        _subfields[name] = OutputSubfield::create(field, submesh, name, _outputBasisOrder);
+        _subfields[name] = OutputSubfield::create(field, submesh, name, _outputBasisOrder, _refineLevels);
     } // if
 
     _OutputObserver::Events::logger.eventEnd(_OutputObserver::Events::getSubfield);

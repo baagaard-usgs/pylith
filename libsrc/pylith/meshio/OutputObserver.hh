@@ -57,6 +57,12 @@ public:
      */
     void setOutputBasisOrder(const int value);
 
+    /** Set number of mesh refinement levels for output.
+     *
+     * @param[in] value Number of mesh refinement levels for output.
+     */
+    void setRefineLevels(const int value);
+
     /** Set time scale.
      *
      * @param[in] value Time scale for dimensionalizing time.
@@ -100,6 +106,7 @@ protected:
     DataWriter* _writer; ///< Writer for data.
     OutputTrigger* _trigger; ///< Trigger for deciding how often to write output.
     int _outputBasisOrder; ///< Basis order for output.
+    int _refineLevels; ///< Number of mesh refinement levels for output.
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
