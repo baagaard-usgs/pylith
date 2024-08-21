@@ -16,6 +16,7 @@
 #include "pylith/topology/Mesh.hh" // USES Mesh
 #include "pylith/topology/FieldOps.hh" // USES FieldOps
 #include "pylith/topology/VisitorMesh.hh" // USES VecVisitorMesh
+#include "pylith/topology/RefineInterpolator.hh" // USES RefineInterpolator
 #include "pylith/fekernels/Solution.hh" // USES Solution::passThruSubfield
 
 #include "pylith/utils/error.hh" // USES PYLITH_CHECK_ERROR
@@ -78,6 +79,7 @@ pylith::meshio::OutputSubfield::OutputSubfield(void) :
     _dm(NULL),
     _vector(NULL),
     _fn(pylith::fekernels::Solution::passThruSubfield),
+    _interpolator(NULL),
     _label(NULL),
     _labelValue(0) {
     _OutputSubfield::Events::init();
@@ -95,6 +97,8 @@ pylith::meshio::OutputSubfield::~OutputSubfield(void) {
 // Deallocate PETSc and local data structures.
 void
 pylith::meshio::OutputSubfield::deallocate(void) {
+    delete _interpolator;_interpolator = NULL;
+
     PetscErrorCode err;
     err = DMDestroy(&_dm);PYLITH_CHECK_ERROR(err);
     err = VecDestroy(&_vector);PYLITH_CHECK_ERROR(err);
@@ -109,7 +113,8 @@ pylith::meshio::OutputSubfield*
 pylith::meshio::OutputSubfield::create(const pylith::topology::Field& field,
                                        const pylith::topology::Mesh& mesh,
                                        const char* name,
-                                       const int basisOrder) {
+                                       const int basisOrder,
+                                       const int refineLevels) {
     PYLITH_METHOD_BEGIN;
     // _OutputSubfield::Events::logger.eventBegin(_OutputSubfield::Events::create);
 
@@ -124,7 +129,14 @@ pylith::meshio::OutputSubfield::create(const pylith::topology::Field& field,
     subfield->_discretization.basisOrder = std::min(basisOrder, info.fe.basisOrder);
 
     PetscErrorCode err = PETSC_SUCCESS;
-    err = DMClone(mesh.getDM(), &subfield->_dm);PYLITH_CHECK_ERROR(err);
+    if (!refineLevels) {
+        err = DMClone(mesh.getDM(), &subfield->_dm);PYLITH_CHECK_ERROR(err);
+    } else {
+        delete subfield->_interpolator;subfield->_interpolator = new pylith::topology::RefineInterpolator();
+        assert(subfield->_interpolator);
+        subfield->_interpolator->initialize(mesh, refineLevels);
+        err = DMClone(subfield->_interpolator->getOutputDM(), &subfield->_dm);
+    }
     err = DMReorderSectionSetDefault(subfield->_dm, DM_REORDER_DEFAULT_FALSE);PYLITH_CHECK_ERROR(err);
     err = DMReorderSectionSetType(subfield->_dm, NULL);PYLITH_CHECK_ERROR(err);
     err = PetscObjectSetName((PetscObject)subfield->_dm, name);PYLITH_CHECK_ERROR(err);
@@ -132,9 +144,11 @@ pylith::meshio::OutputSubfield::create(const pylith::topology::Field& field,
     PetscFE fe = pylith::topology::FieldOps::createFE(subfield->_discretization, subfield->_dm,
                                                       info.description.numComponents);assert(fe);
     err = PetscFESetName(fe, info.description.label.c_str());PYLITH_CHECK_ERROR(err);
+
     err = DMSetField(subfield->_dm, 0, NULL, (PetscObject)fe);PYLITH_CHECK_ERROR(err);
-    err = DMSetFieldAvoidTensor(subfield->_dm, 0, PETSC_TRUE);PYLITH_CHECK_ERROR(err);
     err = PetscFEDestroy(&fe);PYLITH_CHECK_ERROR(err);
+
+    err = DMSetFieldAvoidTensor(subfield->_dm, 0, PETSC_TRUE);PYLITH_CHECK_ERROR(err);
     err = DMCreateDS(subfield->_dm);PYLITH_CHECK_ERROR(err);
 
     err = DMCreateGlobalVector(subfield->_dm, &subfield->_vector);PYLITH_CHECK_ERROR(err);
@@ -252,7 +266,8 @@ pylith::meshio::OutputSubfield::project(const PetscVec& fieldVector) {
     assert(_vector);
 
     PetscErrorCode err;
-    const PetscReal t = PetscReal(_subfieldIndex) + 0.01; // :KLUDGE: Easiest way to get subfield to extract into fn.
+    const PetscReal t = PetscReal(_subfieldIndex) + 0.01; // :KLUDGE: Easiest way to get subfield to extract into
+                                                          // fn.
 
     err = DMProjectField(_dm, t, fieldVector, &_fn, INSERT_VALUES, _vector);PYLITH_CHECK_ERROR(err);
     err = VecScale(_vector, _description.scale);PYLITH_CHECK_ERROR(err);
@@ -273,7 +288,8 @@ pylith::meshio::OutputSubfield::projectWithLabel(const PetscVec& fieldVector) {
     assert(_label);
 
     PetscErrorCode err;
-    const PetscReal t = PetscReal(_subfieldIndex) + 0.01; // :KLUDGE: Easiest way to get subfield to extract into fn.
+    const PetscReal t = PetscReal(_subfieldIndex) + 0.01; // :KLUDGE: Easiest way to get subfield to extract into
+                                                          // fn.
 
     err = DMProjectFieldLabel(_dm, t, _label, 1, &_labelValue, PETSC_DETERMINE, NULL, fieldVector, &_fn, INSERT_VALUES, _vector);PYLITH_CHECK_ERROR(err);
     err = VecScale(_vector, _description.scale);PYLITH_CHECK_ERROR(err);
