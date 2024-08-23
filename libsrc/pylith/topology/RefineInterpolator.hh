@@ -37,10 +37,10 @@ public:
 
     /** Initialize interpolation to refined mesh.
      *
-     * @param[in] mesh Finite-element mesh for starting point of refinement.
+     * @param[in] dmMesh PETSc DM for starting point of refinement.
      * @param[in] refineLevels Number of levels of mesh refinement.
      */
-    void initialize(const pylith::topology::Mesh& mesh,
+    void initialize(const PetscDM& dmMesh,
                     const int refineLevels);
 
     /** Interpolate field to fine mesh level.
@@ -61,7 +61,6 @@ private:
     };
 
     std::vector<Level> _levels; ///< Information at each refinement level.
-    size_t _numLevels; ///< Number of levels of mesh refinement.
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:

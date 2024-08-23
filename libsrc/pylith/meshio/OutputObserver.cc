@@ -67,6 +67,7 @@ pylith::meshio::_OutputObserver::Events::init(void) {
 // Constructor
 pylith::meshio::OutputObserver::OutputObserver(void) :
     _timeScale(1.0),
+    _outputMesh(NULL),
     _writer(NULL),
     _trigger(NULL),
     _outputBasisOrder(1) {
@@ -95,6 +96,7 @@ pylith::meshio::OutputObserver::deallocate(void) {
         delete iter->second;iter->second = NULL;
     } // for
     _subfields.clear();
+    delete _outputMesh;_outputMesh = NULL;
 
     _writer = NULL; // :TODO: Use shared pointer
     _trigger = NULL; // :TODO: Use shared pointer
@@ -183,6 +185,23 @@ pylith::meshio::OutputObserver::setTimeScale(const PylithReal value) {
     } // if
     _timeScale = value;
 } // setTimeScale
+
+
+// ------------------------------------------------------------------------------------------------
+// Get mesh associated with subfield output.
+pylith::topology::Mesh*
+pylith::meshio::OutputObserver::_getOutputMesh(const pylith::meshio::OutputSubfield& subfield) {
+    PYLITH_METHOD_BEGIN;
+
+    if (!_outputMesh) {
+        _outputMesh = new pylith::topology::Mesh();
+        PetscDM dmOutput = subfield.getOutputDM();
+        PetscObjectReference((PetscObject) dmOutput);
+        _outputMesh->setDM(dmOutput);
+    } // if
+
+    PYLITH_METHOD_RETURN(_outputMesh);
+} // _getOutputMesh
 
 
 // ------------------------------------------------------------------------------------------------

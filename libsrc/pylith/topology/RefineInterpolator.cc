@@ -13,6 +13,7 @@
 #include "pylith/topology/RefineInterpolator.hh" // implementation of class methods
 
 #include "pylith/topology/Mesh.hh" // USES Mesh
+#include "pylith/topology/MeshOps.hh" // USES MeshOps
 #include "pylith/topology/Field.hh" // USES Field
 
 #include "pylith/utils/error.hh" // USES PYLITH_METHOD_*
@@ -57,8 +58,7 @@ pylith::topology::_RefineInterpolator::Events::init(void) {
 
 // ------------------------------------------------------------------------------------------------
 // Constructor
-pylith::topology::RefineInterpolator::RefineInterpolator(void) :
-    _numLevels(0) {
+pylith::topology::RefineInterpolator::RefineInterpolator(void) {
     _RefineInterpolator::Events::init();
 }
 
@@ -79,6 +79,7 @@ pylith::topology::RefineInterpolator::deallocate(void) {
         MatDestroy(&level.interpolateMatrix);
         VecDestroy(&level.vector);
     } // for
+    _levels.resize(0);
 } // deallocate
 
 
@@ -93,37 +94,46 @@ pylith::topology::RefineInterpolator::getOutputDM(void) {
 // ------------------------------------------------------------------------------------------------
 // Initialize interpolation to refined mesh.
 void
-pylith::topology::RefineInterpolator::initialize(const pylith::topology::Mesh& mesh,
+pylith::topology::RefineInterpolator::initialize(const PetscDM& dmMesh,
                                                  const int refineLevels) {
     PYLITH_METHOD_BEGIN;
     _RefineInterpolator::Events::logger.eventBegin(_RefineInterpolator::Events::initialize);
 
     _levels.resize(refineLevels);
     PetscErrorCode err = PETSC_SUCCESS;
-    PetscDM dmPrev = mesh.getDM();
-    for (auto level : _levels) {
-        level.dm = PETSC_NULLPTR;
-        level.interpolateMatrix = PETSC_NULLPTR;
-        level.vector = PETSC_NULLPTR;
+
+    PetscDM dmStart = pylith::topology::MeshOps::removeHangingCells(dmMesh);
+    err = DMCopyDisc(dmMesh, dmStart);PYLITH_CHECK_ERROR(err);
+
+    PetscDM dmPrev = dmStart;
+    PetscReal lengthScale = 1.0;
+    for (size_t iLevel = 0; iLevel < _levels.size(); ++iLevel) {
+        _levels[iLevel].dm = PETSC_NULLPTR;
+        _levels[iLevel].interpolateMatrix = PETSC_NULLPTR;
+        _levels[iLevel].vector = PETSC_NULLPTR;
 
         err = DMPlexSetRefinementUniform(dmPrev, PETSC_TRUE);PYLITH_CHECK_ERROR(err);
-        err = DMRefine(dmPrev, mesh.getComm(), &level.dm);PYLITH_CHECK_ERROR(err);
+        err = DMRefine(dmPrev, PetscObjectComm((PetscObject) dmMesh), &_levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
+        err = DMSetCoarseDM(_levels[iLevel].dm, dmPrev);PYLITH_CHECK_ERROR(err);
+        err = DMPlexGetScale(dmPrev, PETSC_UNIT_LENGTH, &lengthScale);PYLITH_CHECK_ERROR(err);
+        err = DMPlexSetScale(_levels[iLevel].dm, PETSC_UNIT_LENGTH, lengthScale);PYLITH_CHECK_ERROR(err);
 
-#if 0
+#if 0 // needed for higher order coordinates (not needed for affine coordinates)
         PetscCall(DMPlexCreateCoordinateSpace(rdm, rd, PETSC_FALSE, NULL));
         PetscCall(PetscObjectSetName((PetscObject)rdm, "Refined Mesh with Linear Coordinates"));
         PetscCall(DMGetCoordinateDM(odm, &cdm));
         PetscCall(DMGetCoordinateDM(rdm, &rcdm));
         PetscCall(DMGetCoordinatesLocal(odm, &cl));
         PetscCall(DMGetCoordinatesLocal(rdm, &rcl));
-        PetscCall(DMSetCoarseDM(rcdm, cdm));
+
 #endif
-        err = DMGetLocalVector(level.dm, &level.vector);PYLITH_CHECK_ERROR(err);
-        err = DMCreateInterpolation(dmPrev, level.dm, &level.interpolateMatrix, NULL);PYLITH_CHECK_ERROR(err);
+        err = DMCopyDisc(dmPrev, _levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
+        err = DMGetGlobalVector(_levels[iLevel].dm, &_levels[iLevel].vector);PYLITH_CHECK_ERROR(err);
+        err = PetscObjectReference((PetscObject) _levels[iLevel].vector);PYLITH_CHECK_ERROR(err);
 
-        err = DMPlexReorderCohesiveSupports(level.dm);PYLITH_CHECK_ERROR(err);
+        err = DMCreateInterpolation(dmPrev, _levels[iLevel].dm, &_levels[iLevel].interpolateMatrix, NULL);PYLITH_CHECK_ERROR(err);
 
-        dmPrev = level.dm;
+        dmPrev = _levels[iLevel].dm;
     } // for
 
     _RefineInterpolator::Events::logger.eventEnd(_RefineInterpolator::Events::initialize);
@@ -139,6 +149,8 @@ pylith::topology::RefineInterpolator::interpolate(const PetscVec* vectorOut,
     PYLITH_METHOD_BEGIN;
     _RefineInterpolator::Events::logger.eventBegin(_RefineInterpolator::Events::interpolate);
     assert(vectorOut);
+
+    // Should be global vectors
 
     PetscVec vectorPrev = vectorIn;
     PetscErrorCode err = PETSC_SUCCESS;

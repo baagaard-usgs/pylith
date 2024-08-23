@@ -79,6 +79,13 @@ protected:
      */
     void _setContext(const pylith::topology::Mesh & mesh);
 
+    /** Get mesh associated with subfield output.
+     *
+     * @param[in] subfield Subfield for output.
+     * @returns Mesh associated with output.
+     */
+    pylith::topology::Mesh* _getOutputMesh(const pylith::meshio::OutputSubfield& subfield);
+
     /** Get output subfield, creating if necessary.
      *
      * @param[in] field Field containing subfields.
@@ -103,6 +110,7 @@ protected:
 
     PylithReal _timeScale; ///< Time scale for dimentionalizing time.
     std::map<std::string, OutputSubfield*> _subfields; ///< Subfields extracted for output.
+    pylith::topology::Mesh* _outputMesh; ///< Mesh associated with output.ß
     DataWriter* _writer; ///< Writer for data.
     OutputTrigger* _trigger; ///< Trigger for deciding how often to write output.
     int _outputBasisOrder; ///< Basis order for output.
