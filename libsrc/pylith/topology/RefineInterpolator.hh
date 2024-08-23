@@ -39,9 +39,11 @@ public:
      *
      * @param[in] dmMesh PETSc DM for starting point of refinement.
      * @param[in] refineLevels Number of levels of mesh refinement.
+     * @param[in] outputBasisOrder Basis order for output.
      */
     void initialize(const PetscDM& dmMesh,
-                    const int refineLevels);
+                    const int refineLevels,
+                    const int outputBasisOrder);
 
     /** Interpolate field to fine mesh level.
      *

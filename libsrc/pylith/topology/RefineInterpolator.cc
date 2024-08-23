@@ -95,7 +95,8 @@ pylith::topology::RefineInterpolator::getOutputDM(void) {
 // Initialize interpolation to refined mesh.
 void
 pylith::topology::RefineInterpolator::initialize(const PetscDM& dmMesh,
-                                                 const int refineLevels) {
+                                                 const int refineLevels,
+                                                 const int outputBasisOrder) {
     PYLITH_METHOD_BEGIN;
     _RefineInterpolator::Events::logger.eventBegin(_RefineInterpolator::Events::initialize);
 
@@ -127,7 +128,17 @@ pylith::topology::RefineInterpolator::initialize(const PetscDM& dmMesh,
         PetscCall(DMGetCoordinatesLocal(rdm, &rcl));
 
 #endif
+
+#if 1
         err = DMCopyDisc(dmPrev, _levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
+#else
+        if (iLevel < _levels.size()-1) {
+            err = DMCopyDisc(dmPrev, _levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
+        } else {
+            err = DMCopyFields(dmPrev, _levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
+            err = DMCopyDS(dmPrev, _levels[iLevel].dm, outputBasisOrder);PYLITH_CHECK_ERROR(err);
+        } // else
+#endif
         err = DMGetGlobalVector(_levels[iLevel].dm, &_levels[iLevel].vector);PYLITH_CHECK_ERROR(err);
         err = PetscObjectReference((PetscObject) _levels[iLevel].vector);PYLITH_CHECK_ERROR(err);
 
