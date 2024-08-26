@@ -85,6 +85,19 @@ pylith::topology::RefineInterpolator::deallocate(void) {
 
 
 // ------------------------------------------------------------------------------------------------
+// Get PETSc DM for input (coarsest level)
+PetscDM
+pylith::topology::RefineInterpolator::getInputDM(void) {
+    PetscDM dmStart = PETSC_NULLPTR;
+    if (_levels.size() > 0) {
+        PetscErrorCode err = PETSC_SUCCESS;
+        err = DMGetCoarseDM(_levels[0].dm, &dmStart);PYLITH_CHECK_ERROR(err);
+    } // if
+    return dmStart;
+}
+
+
+// ------------------------------------------------------------------------------------------------
 // Get PETSc DM for output (finest level)
 PetscDM
 pylith::topology::RefineInterpolator::getOutputDM(void) {
@@ -121,6 +134,7 @@ pylith::topology::RefineInterpolator::initialize(const PetscDM& dmMesh,
         err = DMSetCoarseDM(_levels[iLevel].dm, dmPrev);PYLITH_CHECK_ERROR(err);
         err = DMPlexGetScale(dmPrev, PETSC_UNIT_LENGTH, &lengthScale);PYLITH_CHECK_ERROR(err);
         err = DMPlexSetScale(_levels[iLevel].dm, PETSC_UNIT_LENGTH, lengthScale);PYLITH_CHECK_ERROR(err);
+        err = DMPlexReorderSetDefault(_levels[iLevel].dm, DM_REORDER_DEFAULT_FALSE);
 
 #if 0 // needed for higher order coordinates (not needed for affine coordinates)
         PetscCall(DMPlexCreateCoordinateSpace(rdm, rd, PETSC_FALSE, NULL));
@@ -129,26 +143,15 @@ pylith::topology::RefineInterpolator::initialize(const PetscDM& dmMesh,
         PetscCall(DMGetCoordinateDM(rdm, &rcdm));
         PetscCall(DMGetCoordinatesLocal(odm, &cl));
         PetscCall(DMGetCoordinatesLocal(rdm, &rcl));
-
 #endif
 
         if (iLevel < _levels.size()-1) {
             err = DMCopyDisc(dmPrev, _levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
         } else {
-#if 1
-            PetscFE outputFE = pylith::topology::FieldOps::createFE(discretization, _levels[iLevel].dm,
-                                                                    description.numComponents);assert(outputFE);
-            err = PetscFESetName(outputFE, description.label.c_str());PYLITH_CHECK_ERROR(err);
-            err = DMSetField(_levels[iLevel].dm, 0, NULL, (PetscObject)outputFE);PYLITH_CHECK_ERROR(err);
-            err = DMSetFieldAvoidTensor(_levels[iLevel].dm, 0, PETSC_TRUE);PYLITH_CHECK_ERROR(err);
-            err = PetscFEDestroy(&outputFE);PYLITH_CHECK_ERROR(err);
-            err = DMCreateDS(_levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
-#else
-            err = DMCopyFields(dmPrev, _levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
             const PetscInt minBasisOrder = PETSC_DETERMINE;
             const PetscInt maxBasisOrder = outputBasisOrder;
+            err = DMCopyFields(dmPrev, minBasisOrder, maxBasisOrder, _levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
             err = DMCopyDS(dmPrev, minBasisOrder, maxBasisOrder, _levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
-#endif
         } // else
         err = DMGetGlobalVector(_levels[iLevel].dm, &_levels[iLevel].vector);PYLITH_CHECK_ERROR(err);
         err = PetscObjectReference((PetscObject) _levels[iLevel].vector);PYLITH_CHECK_ERROR(err);
@@ -171,8 +174,6 @@ pylith::topology::RefineInterpolator::interpolate(const PetscVec* vectorOut,
     PYLITH_METHOD_BEGIN;
     _RefineInterpolator::Events::logger.eventBegin(_RefineInterpolator::Events::interpolate);
     assert(vectorOut);
-
-    // Should be global vectors
 
     PetscVec vectorPrev = vectorIn;
     PetscErrorCode err = PETSC_SUCCESS;
