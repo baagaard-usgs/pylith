@@ -162,7 +162,7 @@ pylith::meshio::OutputSubfield::create(const pylith::topology::Field& field,
     } else {
         delete subfield->_interpolator;subfield->_interpolator = new pylith::topology::RefineInterpolator();
         assert(subfield->_interpolator);
-        subfield->_interpolator->initialize(subfield->_projectDM, refineLevels, outputBasisOrder);
+        subfield->_interpolator->initialize(subfield->_projectDM, refineLevels, outputBasisOrder, info.description, subfield->_discretization);
         subfield->_outputDM = subfield->_interpolator->getOutputDM();
         err = PetscObjectReference((PetscObject)subfield->_outputDM);PYLITH_CHECK_ERROR(err);
     } // if/else

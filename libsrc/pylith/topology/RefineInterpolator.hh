@@ -12,6 +12,8 @@
 #include "pylith/topology/topologyfwd.hh" // forward declarations
 #include "pylith/utils/petscfwd.h" // USES PetscDM
 
+#include "pylith/topology/FieldBase.hh" // USES FieldBase
+
 #include <vector> // HASA std::vector
 
 /// @brief  Interpolate fields to uniformly refined mesh.
@@ -43,7 +45,9 @@ public:
      */
     void initialize(const PetscDM& dmMesh,
                     const int refineLevels,
-                    const int outputBasisOrder);
+                    const int outputBasisOrder,
+                    const pylith::topology::FieldBase::Description& description,
+                    const pylith::topology::FieldBase::Discretization& discretization);
 
     /** Interpolate field to fine mesh level.
      *
