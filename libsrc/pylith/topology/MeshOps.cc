@@ -369,6 +369,17 @@ pylith::topology::MeshOps::removeHangingCells(const PetscDM& dmMesh) {
         } // for
 
         err = DMPlexFilter(dmMesh, labelInclude, labelValue, PETSC_FALSE, PETSC_FALSE, PETSC_NULLPTR, &dmClean);PYLITH_CHECK_ERROR(err);
+
+        // Create section using subpoint map to ensure sections are consistent.
+        PetscIS subpointIS = PETSC_NULLPTR, subpointISSorted = PETSC_NULLPTR;
+        PetscSection sectionOld = PETSC_NULLPTR, sectionNew = PETSC_NULLPTR;
+        err = DMPlexGetSubpointIS(dmClean, &subpointIS);PYLITH_CHECK_ERROR(err);
+        err = ISDuplicate(subpointIS, &subpointISSorted);
+        err = ISSort(subpointISSorted);PYLITH_CHECK_ERROR(err);
+        err = DMGetLocalSection(dmMesh, &sectionOld);PYLITH_CHECK_ERROR(err);
+        err = PetscSectionCreateSubmeshSection(sectionOld, subpointISSorted, &sectionNew);PYLITH_CHECK_ERROR(err);
+        err = ISDestroy(&subpointISSorted);PYLITH_CHECK_ERROR(err);
+        err = DMSetLocalSection(dmClean, sectionNew);PYLITH_CHECK_ERROR(err);
     } else {
         dmClean = dmMesh;
         err = PetscObjectReference((PetscObject) dmClean);
