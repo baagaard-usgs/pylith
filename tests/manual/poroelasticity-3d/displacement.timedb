@@ -1,0 +1,15 @@
+// This temporal database specifies the time history of loading.
+// The units are nondimensional corresponding to just
+// a scaled version of the spatial variation. 
+#TIME HISTORY ascii
+TimeHistory {
+  num-points = 7 // number of points in time history
+  time-units = year // units for time
+}
+  0.0   0.0
+  1.0   0.5
+  2.0   1.0
+  3.0   1.0
+  4.0   0.5
+  5.0   0.0
+  9.9   0.0
