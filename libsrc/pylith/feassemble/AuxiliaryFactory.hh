@@ -21,7 +21,17 @@
 class pylith::feassemble::AuxiliaryFactory : public pylith::topology::FieldFactory {
     friend class TestAuxiliaryFactory; // unit testing
 
-    // PUBLIC METHODS //////////////////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC CONTS ///////////////////////////////////////////////////////////////////////////////
+public:
+
+    static const PylithReal SCALE_TOLERANCE; ///< Tolerance for validating nondimensionalized values.
+
+    // PUBLIC TYPEDEGS ////////////////////////////////////////////////////////////////////////////
+public:
+
+    typedef void (*validatorfn_type)(const pylith::topology::Field* /* field */);
+
+    // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 
     /// Default constructor.
@@ -54,8 +64,11 @@ public:
                     const int spaceDim,
                     const pylith::topology::FieldBase::Description* defaultDescription=NULL);
 
-    /// Set subfield values using spatial database.
-    void setValuesFromDB(void);
+    /** Set subfield values using spatial database.
+     *
+     * @param[in] validateFn Function for validating auxiliary field.
+     */
+    void setValuesFromDB(validatorfn_type valifateFn=NULL);
 
     /** Set query function for subfield.
      *

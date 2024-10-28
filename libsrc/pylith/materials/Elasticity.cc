@@ -246,7 +246,7 @@ pylith::materials::Elasticity::createAuxiliaryField(const pylith::topology::Fiel
     auxiliaryField->createOutputVector();
 
     assert(auxiliaryFactory);
-    auxiliaryFactory->setValuesFromDB();
+    auxiliaryFactory->setValuesFromDB(_rheology->getAuxiliaryValidator());
 
     _Elasticity::Events::logger.eventEnd(_Elasticity::Events::createAuxiliaryField);
     PYLITH_METHOD_RETURN(auxiliaryField);

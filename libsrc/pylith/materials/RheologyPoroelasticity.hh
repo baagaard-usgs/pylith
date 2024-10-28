@@ -14,6 +14,7 @@
 
 #include "pylith/topology/topologyfwd.hh" // USES Field
 #include "pylith/utils/arrayfwd.hh" // USES std::vector
+#include "pylith/feassemble/AuxiliaryFactory.hh" // USES AuxiliaryFactory::validatorfn_type
 #include "pylith/feassemble/IntegratorDomain.hh" // USES IntegratorDomain::ProjectKernels
 
 #include "spatialdata/geocoords/geocoordsfwd.hh" // USES Coordsys

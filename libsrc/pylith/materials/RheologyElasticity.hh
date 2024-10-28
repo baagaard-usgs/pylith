@@ -14,6 +14,7 @@
 
 #include "pylith/topology/topologyfwd.hh" // USES Field
 #include "pylith/utils/arrayfwd.hh" // USES std::vector
+#include "pylith/feassemble/AuxiliaryFactory.hh" // USES AuxiliaryFactory::validatorfn_type
 #include "pylith/feassemble/IntegratorDomain.hh" // USES IntegratorDomain::ProjectKernels
 
 #include "spatialdata/geocoords/geocoordsfwd.hh" // USES Coordsys
@@ -41,6 +42,13 @@ public:
      */
     virtual
     pylith::materials::AuxiliaryFactoryElasticity* getAuxiliaryFactory(void) = 0;
+
+    /** Get validator for auxiliary field.
+     *
+     * @return Validator function for auxiliary field.
+     */
+    virtual
+    pylith::feassemble::AuxiliaryFactory::validatorfn_type getAuxiliaryValidator(void) = 0;
 
     /// Add rheology subfields to auxiliary field.
     virtual

@@ -48,6 +48,12 @@ public:
      */
     pylith::materials::AuxiliaryFactoryElasticity* getAuxiliaryFactory(void);
 
+    /** Get validator for auxiliary field.
+     *
+     * @return Validator function for auxiliary field.
+     */
+    pylith::feassemble::AuxiliaryFactory::validatorfn_type getAuxiliaryValidator(void);
+
     /** Add rheology subfields to auxiliary field.
      *
      * @param[inout] auxiliaryField Auxiliary field.

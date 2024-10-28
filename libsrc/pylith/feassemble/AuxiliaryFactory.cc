@@ -22,6 +22,8 @@
 
 #include <cassert>
 
+const PylithReal pylith::feassemble::AuxiliaryFactory::SCALE_TOLERANCE = 25.0;
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Default constructor.
 pylith::feassemble::AuxiliaryFactory::AuxiliaryFactory(void) :
@@ -76,7 +78,7 @@ pylith::feassemble::AuxiliaryFactory::initialize(pylith::topology::Field* field,
 // ---------------------------------------------------------------------------------------------------------------------
 // Initialize subfields.
 void
-pylith::feassemble::AuxiliaryFactory::setValuesFromDB(void) {
+pylith::feassemble::AuxiliaryFactory::setValuesFromDB(validatorfn_type validateFn) {
     PYLITH_METHOD_BEGIN;
     PYLITH_JOURNAL_DEBUG("setValuesFromDB()");
 
@@ -93,6 +95,10 @@ pylith::feassemble::AuxiliaryFactory::setValuesFromDB(void) {
     } // if/else
 
     delete _fieldQuery;_fieldQuery = NULL;
+
+    if (validateFn) {
+        validateFn(_field);
+    }// if
     _field = NULL;
 
     // this->view("AUXILIARY FIELDS"); // :DEBUGGING: TEMPORARY

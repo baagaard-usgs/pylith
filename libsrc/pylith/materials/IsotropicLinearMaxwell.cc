@@ -15,12 +15,29 @@
 #include "pylith/materials/AuxiliaryFactoryViscoelastic.hh" // USES AuxiliaryFactoryViscoelastic
 #include "pylith/fekernels/IsotropicLinearMaxwell.hh" // USES IsotropicLinearMaxwell kernels
 #include "pylith/feassemble/Integrator.hh" // USES Integrator
+#include "pylith/topology/Field.hh" // USES Field
+#include "pylith/topology/VisitorMesh.hh" // USES VisitorMesh
 #include "pylith/utils/journals.hh" // USES PYLITH_COMPONENT_*
 #include "pylith/utils/error.hh" // USES PYLITH_METHOD_BEGIN/END
 
 #include "spatialdata/geocoords/CoordSys.hh" // USES CoordSys
 
 #include <typeinfo> // USES typeid()
+
+namespace pylith {
+    namespace materials {
+        class _IsotropicLinearMaxwell {
+public:
+
+            /** Validate auxiliary field.
+             *
+             * @param[in] auxiliaryField Auxiliary field to validate.
+             */
+            static void validateAuxiliaryField(const pylith::topology::Field* auxiliaryField);
+
+        };
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 typedef pylith::feassemble::IntegratorDomain::ProjectKernels ProjectKernels;
@@ -78,6 +95,14 @@ pylith::materials::AuxiliaryFactoryElasticity*
 pylith::materials::IsotropicLinearMaxwell::getAuxiliaryFactory(void) {
     return _auxiliaryFactory;
 } // getAuxiliaryFactory
+
+
+// ------------------------------------------------------------------------------------------------
+// Get validator for auxiliary field.
+pylith::feassemble::AuxiliaryFactory::validatorfn_type
+pylith::materials::IsotropicLinearMaxwell::getAuxiliaryValidator(void) {
+    return _IsotropicLinearMaxwell::validateAuxiliaryField;
+}
 
 
 // ------------------------------------------------------------------------------------------------
@@ -240,6 +265,81 @@ pylith::materials::IsotropicLinearMaxwell::addKernelsUpdateStateVars(std::vector
 
     PYLITH_METHOD_END;
 } // addKernelsUpdateStateVars
+
+
+// ------------------------------------------------------------------------------------------------
+// Validate auxiliary field.
+void
+pylith::materials::_IsotropicLinearMaxwell::validateAuxiliaryField(const pylith::topology::Field* auxiliaryField) {
+    assert(auxiliaryField);
+    const PylithReal tolerance = pylith::feassemble::AuxiliaryFactory::SCALE_TOLERANCE;
+
+    const PylithReal minValue = 1.0 / tolerance;
+    const PylithReal maxValue = tolerance;
+
+    const PetscInt i_shearModulus = auxiliaryField->getSubfieldInfo("shear_modulus").index;
+    const PetscInt i_bulkModulus = auxiliaryField->getSubfieldInfo("bulk_modulus").index;
+    const PetscInt i_maxwellTime = auxiliaryField->getSubfieldInfo("maxwell_time").index;
+    pylith::topology::VecVisitorMesh auxiliaryVisitor(*auxiliaryField);
+    const PetscScalar* auxiliaryArray = auxiliaryVisitor.localArray();
+
+    PetscInt pStart = 0, pEnd = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
+    err = PetscSectionGetChart(auxiliaryField->getLocalSection(), &pStart, &pEnd);PYLITH_CHECK_ERROR(err);
+
+    PetscReal minShearModulus = std::numeric_limits<float>::max();
+    PetscReal maxShearModulus = std::numeric_limits<float>::min();
+    PetscReal minBulkModulus = std::numeric_limits<float>::max();
+    PetscReal maxBulkModulus = std::numeric_limits<float>::min();
+    PetscReal minMaxwellTime = std::numeric_limits<float>::max();
+    PetscReal maxMaxwellTime = std::numeric_limits<float>::min();
+    for (PetscInt point = pStart; point < pEnd; ++point) {
+        PetscInt dof = auxiliaryVisitor.sectionSubfieldDof(i_shearModulus, point);
+        if (dof) {
+            const PetscInt offset = auxiliaryVisitor.sectionSubfieldOffset(i_shearModulus, point);
+            const PetscScalar shearModulus = auxiliaryArray[offset];
+            minShearModulus = std::min(minShearModulus, shearModulus);
+            maxShearModulus = std::max(maxShearModulus, shearModulus);
+        } // if
+
+        dof = auxiliaryVisitor.sectionSubfieldDof(i_bulkModulus, point);
+        if (dof) {
+            const PetscInt offset = auxiliaryVisitor.sectionSubfieldOffset(i_bulkModulus, point);
+            const PetscScalar bulkModulus = auxiliaryArray[offset];
+            minBulkModulus = std::min(minBulkModulus, bulkModulus);
+            maxBulkModulus = std::max(maxBulkModulus, bulkModulus);
+        } // if
+
+        dof = auxiliaryVisitor.sectionSubfieldDof(i_maxwellTime, point);
+        if (dof) {
+            const PetscInt offset = auxiliaryVisitor.sectionSubfieldOffset(i_maxwellTime, point);
+            const PetscScalar maxwellTime = auxiliaryArray[offset];
+            minMaxwellTime = std::min(minMaxwellTime, maxwellTime);
+            maxMaxwellTime = std::max(maxMaxwellTime, maxwellTime);
+        } // if
+    } // for
+
+    const bool shearModulusFailures = minShearModulus < minValue || maxShearModulus > maxValue;
+    const bool bulkModulusFailures = minBulkModulus < minValue || maxBulkModulus > maxValue;
+    const bool maxwellTimeFailures = minMaxwellTime < minValue || maxMaxwellTime > maxValue;
+    if (shearModulusFailures || bulkModulusFailures || maxwellTimeFailures) {
+        std::ostringstream msg;
+        msg << "Auxiliary field '" << auxiliaryField->getLabel() << "' failed nondimensioanlization check.\n";
+        if (shearModulusFailures) {
+            msg << "Found nondimensional shear modulus value(s) outside of range ["<<minValue<<", "<<maxValue<<"]. "
+                << "Minimum value: " << minShearModulus << ", maximum value: " << maxShearModulus << "\n";
+        } // if
+        if (bulkModulusFailures) {
+            msg << "Found nondimensional bulk modulus value(s) outside of range ["<<minValue<<", "<<maxValue<<"]. "
+                << "Minimum value: " << minBulkModulus << ", maximum value: " << maxBulkModulus << "\n";
+        } // if
+        if (maxwellTimeFailures) {
+            msg << "Found nondimensional Maxwell time value(s) outside of range ["<<minValue<<", "<<maxValue<<"]. "
+                << "Minimum value: " << minMaxwellTime << ", maximum value: " << maxMaxwellTime << "\n";
+        } // if
+        throw std::runtime_error(msg.str());
+    } // if
+}
 
 
 // End of file
