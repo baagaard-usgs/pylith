@@ -178,7 +178,7 @@ pylith::materials::AuxiliaryFactoryPoroelastic::addBiotModulus(void) { // biotCo
     description.validator = pylith::topology::FieldQuery::validatorPositive;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(subfieldName));
-    pylith::materials::Query::biotModulusFromInput(subfieldName, this);
+    pylith::materials::Query::biotModulusFromDB(subfieldName, this);
 
     PYLITH_METHOD_END;
 } // addBiotModulus

@@ -75,10 +75,10 @@ public:
                                          const pylith::int_array dbIndices);
 
             static
-            std::string inputToBiotModulus(PylithScalar valueSubfield[],
-                                           const PylithInt numComponents,
-                                           const pylith::scalar_array dbValues,
-                                           const pylith::int_array dbIndices);
+            std::string dbToBiotModulus(PylithScalar valueSubfield[],
+                                        const PylithInt numComponents,
+                                        const pylith::scalar_array dbValues,
+                                        const pylith::int_array dbIndices);
 
         }; // _Query
     } // materials
@@ -184,8 +184,8 @@ pylith::materials::Query::gravityFieldFromDB(const char* subfieldName,
 // ------------------------------------------------------------------------------------------------
 // Setup subfield query in auxiliary factory for bulk modulus from density, Vs, and Vp.
 void
-pylith::materials::Query::biotModulusFromInput(const char* subfieldName,
-                                               pylith::feassemble::AuxiliaryFactory* factory) {
+pylith::materials::Query::biotModulusFromDB(const char* subfieldName,
+                                            pylith::feassemble::AuxiliaryFactory* factory) {
     const size_t numDBValues = 4;
     const char* dbValues[numDBValues] = {
         "fluid_bulk_modulus",
@@ -195,8 +195,8 @@ pylith::materials::Query::biotModulusFromInput(const char* subfieldName,
     };
 
     assert(factory);
-    factory->setSubfieldQuery(subfieldName, dbValues, numDBValues, _Query::inputToBiotModulus);
-} // biotModulusFromInput
+    factory->setSubfieldQuery(subfieldName, dbValues, numDBValues, _Query::dbToBiotModulus);
+} // biotModulusFromDB
 
 
 // ------------------------------------------------------------------------------------------------
@@ -469,10 +469,10 @@ pylith::materials::_Query::dbToGravityField(PylithScalar valueSubfield[],
 // Compute Biot's modulus from Biot's coefficient, solid grain bulk moduls,
 // fluid bulk modulus, and porosity
 std::string
-pylith::materials::_Query::inputToBiotModulus(PylithScalar valueSubfield[],
-                                              const PylithInt numComponents,
-                                              const pylith::scalar_array dbValues,
-                                              const pylith::int_array dbIndices) {
+pylith::materials::_Query::dbToBiotModulus(PylithScalar valueSubfield[],
+                                           const PylithInt numComponents,
+                                           const pylith::scalar_array dbValues,
+                                           const pylith::int_array dbIndices) {
     PYLITH_METHOD_BEGIN;
 
     const size_t _numComponents = 1;
@@ -508,7 +508,7 @@ pylith::materials::_Query::inputToBiotModulus(PylithScalar valueSubfield[],
     } // if
 
     PYLITH_METHOD_RETURN(msg.str());
-} // inputToBiotModulus
+} // dbToBiotModulus
 
 
 // End of file

@@ -86,8 +86,8 @@ public:
      * @param[inout] factory Auxiliary factory associated with shear modulus subfield.
      */
     static
-    void biotModulusFromInput(const char* subfieldName,
-                              pylith::feassemble::AuxiliaryFactory* factory);
+    void biotModulusFromDB(const char* subfieldName,
+                           pylith::feassemble::AuxiliaryFactory* factory);
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
