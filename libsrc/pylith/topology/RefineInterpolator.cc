@@ -124,13 +124,14 @@ pylith::topology::RefineInterpolator::initialize(const PetscDM& dmMesh,
 
     PetscDM dmPrev = dmStart;
     PetscReal lengthScale = 1.0;
+    MPI_Comm comm = PetscObjectComm((PetscObject) dmMesh);
     for (size_t iLevel = 0; iLevel < _levels.size(); ++iLevel) {
         _levels[iLevel].dm = PETSC_NULLPTR;
         _levels[iLevel].interpolateMatrix = PETSC_NULLPTR;
         _levels[iLevel].vector = PETSC_NULLPTR;
 
         err = DMPlexSetRefinementUniform(dmPrev, PETSC_TRUE);PYLITH_CHECK_ERROR(err);
-        err = DMRefine(dmPrev, PetscObjectComm((PetscObject) dmMesh), &_levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
+        err = DMRefine(dmPrev, comm, &_levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
         err = DMSetCoarseDM(_levels[iLevel].dm, dmPrev);PYLITH_CHECK_ERROR(err);
         err = DMPlexGetScale(dmPrev, PETSC_UNIT_LENGTH, &lengthScale);PYLITH_CHECK_ERROR(err);
         err = DMPlexSetScale(_levels[iLevel].dm, PETSC_UNIT_LENGTH, lengthScale);PYLITH_CHECK_ERROR(err);
@@ -153,13 +154,12 @@ pylith::topology::RefineInterpolator::initialize(const PetscDM& dmMesh,
             err = DMCopyFields(dmPrev, minBasisOrder, maxBasisOrder, _levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
             err = DMCopyDS(dmPrev, minBasisOrder, maxBasisOrder, _levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
         } // else
-        err = DMGetGlobalVector(_levels[iLevel].dm, &_levels[iLevel].vector);PYLITH_CHECK_ERROR(err);
-        err = PetscObjectReference((PetscObject) _levels[iLevel].vector);PYLITH_CHECK_ERROR(err);
-
+        err = DMCreateGlobalVector(_levels[iLevel].dm, &_levels[iLevel].vector);PYLITH_CHECK_ERROR(err);
         err = DMCreateInterpolation(dmPrev, _levels[iLevel].dm, &_levels[iLevel].interpolateMatrix, NULL);PYLITH_CHECK_ERROR(err);
 
         dmPrev = _levels[iLevel].dm;
     } // for
+    err = DMDestroy(&dmStart);PYLITH_CHECK_ERROR(err);
 
     _RefineInterpolator::Events::logger.eventEnd(_RefineInterpolator::Events::initialize);
     PYLITH_METHOD_END;
