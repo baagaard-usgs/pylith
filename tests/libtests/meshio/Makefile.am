@@ -153,7 +153,6 @@ if ENABLE_CUBIT
 	TestMeshIOCubit.cc \
 	TestMeshIOCubit_Cases.cc
   dist_noinst_HEADERS += \
-	TestExodusII.hh \
 	TestMeshIOCubit.hh 
 endif
 
