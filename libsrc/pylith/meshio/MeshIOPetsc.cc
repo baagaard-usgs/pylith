@@ -225,7 +225,7 @@ pylith::meshio::MeshIOPetsc::_read(void) {
     try {
         err = DMCreate(_mesh->getComm(), &dmMesh);PYLITH_CHECK_ERROR(err);
         err = DMSetType(dmMesh, DMPLEX);PYLITH_CHECK_ERROR(err);
-        err = PetscObjectSetName((PetscObject) dmMesh, "domain");
+        err = PetscObjectSetName((PetscObject) dmMesh, "domain"); // Needed for reading PETSc HDF5
         if (!_prefix.empty()) {
             err = PetscObjectSetOptionsPrefix((PetscObject) dmMesh, _prefix.c_str());PYLITH_CHECK_ERROR(err);
         } // if
@@ -235,7 +235,7 @@ pylith::meshio::MeshIOPetsc::_read(void) {
         if (_gmshMarkVertices) {
             _MeshIOPetsc::fixBoundaryLabels(&dmMesh);
         } // if
-        _mesh->setDM(dmMesh, "domain");
+        _mesh->setDM(dmMesh);
     } catch (...) {
         DMDestroy(&dmMesh);
         throw;
