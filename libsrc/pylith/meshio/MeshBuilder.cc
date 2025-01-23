@@ -157,7 +157,7 @@ pylith::meshio::MeshBuilder::buildMesh(topology::Mesh* mesh,
     PetscDM dmMesh = NULL;
     PetscBool interpolate = PETSC_TRUE;
     err = DMPlexCreateFromCellListPetsc(comm, dim, topology.numCells, geometry.numVertices, topology.numCorners, interpolate, &cellsCopy[0], dim, &geometry.vertices[0], &dmMesh);PYLITH_CHECK_ERROR(err);
-    mesh->setDM(dmMesh);
+    mesh->setDM(dmMesh, "domain");
 
     _MeshBuilder::Events::logger.eventEnd(_MeshBuilder::Events::buildMesh);
     PYLITH_METHOD_END;
@@ -735,12 +735,11 @@ pylith::meshio::_MeshBuilder::faceFromCellSide(PetscInt* face,
         break;
     } // triangle
     case DM_POLYTOPE_QUADRILATERAL: {
-        // Cubit uses shell sides, not quad sides.
-        // side: 2=bottom, 3=right, 4=top, 5=left
+        // side: 0=bottom, 1=right, 2=top, 3=left
         // face: 0=bottom, 1=right, 2=top, 3=left
         const int faceMapping[4] = { 0, 1, 2, 3 };
         assert(coneSize == 4);
-        coneIndex = faceMapping[side-2];
+        coneIndex = faceMapping[side];
         break;
     } // quadrilateral
     case DM_POLYTOPE_TETRAHEDRON: {

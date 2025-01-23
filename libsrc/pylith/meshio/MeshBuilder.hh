@@ -28,6 +28,7 @@ public:
         QUADRILATERAL=3,
         TETRAHEDRON=4,
         HEXAHEDRON=5,
+        SHELL4=6, // Exodus-II
     };
 
     struct Topology {
