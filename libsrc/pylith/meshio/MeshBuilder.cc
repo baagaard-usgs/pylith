@@ -414,6 +414,7 @@ pylith::meshio::MeshBuilder::getCells(Topology* topology,
         err = DMPlexInvertCell(ct, &topology->cells[index-numCorners]);PYLITH_CHECK_ERROR(err);
         assert(numCorners == topology->numCorners);
     } // for
+    err = ISRestoreIndices(globalVertexNumbers, &gvertex);PYLITH_CHECK_ERROR(err);
 
     PYLITH_METHOD_END;
 } // getCells
