@@ -10,6 +10,9 @@ The version numbers are in the form `MAJOR.MINOR.PATCH`, where major releases in
 * **Changed**
   * ASCII mesh format
     * Changed `group` to `vertex-group`; remove `group` `type`.
+  * Renamed `VertexGroup` to `BoundaryGroup` in `meshio.gmsh_utils` and changed default behavior to not be recursive (generate "face" groups, not "vertex" groups).
+  * Material `description` property is no longer used; a deprecation warning is printed to stdout if it is specified. This feature will be removed in v6.0.
+  * Internal labels for meshes and fields are now derived from the Pyre component name and identifier.
 * **Added**
   * Add support for specifying boundary conditions using marked boundaries rather than vertices.
     * `MeshIOAscii`: Use `face-group` for specifying boundary conditions via cell and `face` vertices.
