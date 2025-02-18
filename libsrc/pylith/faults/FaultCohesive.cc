@@ -348,7 +348,7 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
     } // try/catch
 
     PYLITH_METHOD_END;
-} // adjustTopology
+} // transformTopology
 
 
 // ------------------------------------------------------------------------------------------------
