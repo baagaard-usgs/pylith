@@ -241,10 +241,7 @@ pylith::faults::TopologyOps::create(pylith::topology::Mesh* mesh,
         err = ISDestroy(&bdIS);PYLITH_CHECK_ERROR(err);
     }
     // Completes the set of cells scheduled to be replaced
-<<<<<<< HEAD
     err = DMPlexOrientLabel(dm, label);PYLITH_CHECK_ERROR(err);
-=======
->>>>>>> ded9cff76 (FIX: Update for changes to PETSc interface.)
     err = DMPlexLabelCohesiveComplete(dm, label, faultBdLabel, faultBdLabelValue, PETSC_FALSE, PETSC_FALSE, faultMesh.getDM());PYLITH_CHECK_ERROR(err);
     err = DMPlexConstructCohesiveCells(dm, label, NULL, &sdm);PYLITH_CHECK_ERROR(err);
 
