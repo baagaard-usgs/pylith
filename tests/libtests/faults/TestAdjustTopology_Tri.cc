@@ -88,7 +88,7 @@ pylith::faults::TestAdjustTopology_Tri::caseA(void) {
     data->filename = "data/tri_a.mesh";
 
     data->numFaults = 1;
-    static const char* const faultSurfaceLabels[1] = { "fault" };
+    static const char* const faultSurfaceLabels[1] = { "fault_faces" };
     data->faultSurfaceLabels = const_cast<const char**>(faultSurfaceLabels);
     static const char* const faultEdgeLabels[1] = { NULL };
     data->faultEdgeLabels = const_cast<const char**>(faultEdgeLabels);
@@ -111,7 +111,7 @@ pylith::faults::TestAdjustTopology_Tri::caseA(void) {
     data->numGroups = numGroups;
     static const int groupSizes[numGroups] = { 5+4, 4+2, 2, 2 }; // vertices + edges
     data->groupSizes = const_cast<int*>(groupSizes);
-    static const char* groupNames[numGroups] = { "output_vertices", "fault", "output", "fault_faces" };
+    static const char* groupNames[numGroups] = { "output_vertices", "fault_vertices", "output_faces", "fault_faces" };
     data->groupNames = const_cast<char**>(groupNames);
     static const char* groupTypes[numGroups] = { "vertex", "vertex", "face", "face" };
     data->groupTypes = const_cast<char**>(groupTypes);

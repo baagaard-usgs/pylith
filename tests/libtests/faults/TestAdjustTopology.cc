@@ -18,6 +18,7 @@
 #include "pylith/topology/MeshOps.hh" // USES MeshOps::nondimensionalize()
 #include "pylith/topology/Stratum.hh" // USES Stratum
 #include "pylith/topology/CoordsVisitor.hh" // USES CoordsVisitor
+#include "pylith/faults/TopologyOps.hh" // USES TopologyOps
 
 #include "pylith/utils/array.hh" // USES int_array, scalar_array
 #include "pylith/utils/journals.hh" // USES journals
@@ -208,6 +209,7 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
             fault.setBuriedEdgesLabelName(_data->faultEdgeLabels[i]);
             fault.setBuriedEdgesLabelValue(1);
         } // if
+        pylith::faults::TopologyOps::updateCohesiveLabel(_mesh, _data->faultSurfaceLabels[i], 1);
         if (!_data->failureExpected) {
             fault.transformTopology(_mesh);
         } else {
@@ -216,11 +218,7 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
         } // if/else
     } // for
 
-#if 0 // DEBUGGING
-    PetscViewerPushFormat(PETSC_VIEWER_STDOUT_WORLD, PETSC_VIEWER_ASCII_INFO_DETAIL);
-    DMView(_mesh->getDM(), PETSC_VIEWER_STDOUT_WORLD);
-    PetscViewerPopFormat(PETSC_VIEWER_STDOUT_WORLD);
-#endif
+    _mesh->view();
 
     REQUIRE(_data->cellDim == size_t(_mesh->getDimension()));
     PetscDM dmMesh = _mesh->getDM();assert(dmMesh);
@@ -295,7 +293,7 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
         err = ISGetLocalSize(pointIS, &numPoints);PYLITH_CHECK_ERROR(err);
         err = ISGetIndices(pointIS, &points);PYLITH_CHECK_ERROR(err);
         err = DMGetLabelValue(dmMesh, "depth", points[0], &depth);PYLITH_CHECK_ERROR(err);
-        std::string groupType = depth ? "cell" : "vertex";
+        std::string groupType = depth ? "face" : "vertex";
 
         bool foundGroup = false;
         for (size_t i = 0; i < _data->numGroups; ++i) {
@@ -315,7 +313,7 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
         assert(foundGroup);
     } // for
 
-} // run
+} // run_transform
 
 
 // ------------------------------------------------------------------------------------------------
