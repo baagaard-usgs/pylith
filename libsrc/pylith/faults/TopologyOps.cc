@@ -435,7 +435,6 @@ pylith::faults::TopologyOps::updateCohesiveLabel(const pylith::topology::Mesh* m
     const PetscDM dmMesh = mesh->getDM();
     PetscDMLabel dmLabel = nullptr;
     err = DMGetLabel(dmMesh, labelName, &dmLabel);PYLITH_CHECK_ERROR(err);
-    err = DMPlexLabelComplete(dmMesh, dmLabel);
 
     // Set label value of points to dimension (vertices=0, edges=1, faces=2)
     PetscIS pointIS = nullptr;
@@ -466,6 +465,48 @@ pylith::faults::TopologyOps::updateCohesiveLabel(const pylith::topology::Mesh* m
     err = DMPlexOrientLabel(dmMesh, dmLabel);PYLITH_CHECK_ERROR(err);
     err = DMPlexLabelCohesiveComplete(dmMesh, dmLabel, nullptr, 0, PETSC_FALSE, PETSC_FALSE, NULL);PYLITH_CHECK_ERROR(err);
 } // updateCohesiveLabel
+
+
+// ------------------------------------------------------------------------------------------------
+// Create fault mesh from cohesive cells.
+void
+pylith::faults::TopologyOps::createFaultFromCohesiveCells(pylith::topology::Mesh* faultMesh,
+                                                          const pylith::topology::Mesh& mesh,
+                                                          const char* labelName,
+                                                          const int labelValue,
+                                                          const char* surfaceLabel) {
+    PYLITH_METHOD_BEGIN;
+
+    assert(faultMesh);
+    PetscErrorCode err = PETSC_SUCCESS;
+
+    faultMesh->setCoordSys(mesh.getCoordSys());
+
+    PetscDM dmDomain = mesh.getDM();assert(dmDomain);
+    PetscDM dmFaultMesh = NULL;
+
+#if 0
+    const PetscBool hasLagrangeConstraints = PETSC_TRUE;
+    err = DMPlexCreateCohesiveSubmesh(dmDomain, hasLagrangeConstraints, labelName, labelValue, &dmFaultMesh);PYLITH_CHECK_ERROR(err);
+#else
+    PetscDMLabel dmLabel = nullptr;
+    err = DMGetLabel(dmDomain, labelName, &dmLabel);PYLITH_CHECK_ERROR(err);
+    const PetscBool markedFaces = PETSC_TRUE;
+    err = DMPlexCreateSubmesh(dmDomain, dmLabel, labelValue, markedFaces, &dmFaultMesh);PYLITH_CHECK_ERROR(err);
+#endif
+    err = DMViewFromOptions(dmFaultMesh, NULL, "-pylith_fault_dm_view");PYLITH_CHECK_ERROR(err);
+    err = DMPlexOrient(dmFaultMesh);PYLITH_CHECK_ERROR(err); // :TODO: Is this necessary?
+
+    PetscReal lengthScale = 1.0;
+    err = DMPlexGetScale(dmDomain, PETSC_UNIT_LENGTH, &lengthScale);PYLITH_CHECK_ERROR(err);
+    err = DMPlexSetScale(dmFaultMesh, PETSC_UNIT_LENGTH, lengthScale);PYLITH_CHECK_ERROR(err);
+
+    std::string meshLabel = std::string("fault_") + std::string(surfaceLabel);
+    faultMesh->setDM(dmFaultMesh, meshLabel.c_str());
+    pylith::topology::MeshOps::checkTopology(*faultMesh);
+
+    PYLITH_METHOD_END;
+} // createFaultFromCohesiveCells
 
 
 // ------------------------------------------------------------------------------------------------

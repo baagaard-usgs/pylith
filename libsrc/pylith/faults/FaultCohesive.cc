@@ -305,7 +305,6 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
 
         PetscDMLabel surfaceLabel = PETSC_NULLPTR;
         PetscBool hasLabel = PETSC_FALSE;
-        PetscInt depth, gdepth, dim;
         PetscMPIInt rank;
         PetscErrorCode err = PETSC_SUCCESS;
         PetscDM dmMesh = mesh->getDM();assert(dmMesh);
@@ -313,27 +312,94 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
         err = DMHasLabel(dmMesh, _surfaceLabelName.c_str(), &hasLabel);PYLITH_CHECK_ERROR(err);
         if (!hasLabel && !rank) {
             std::ostringstream msg;
-            msg << "Mesh missing group of vertices '" << _surfaceLabelName
-                << "' for fault interface condition.";
+            msg << "Mesh missing group '" << _surfaceLabelName << "' for fault interface condition.";
             throw std::runtime_error(msg.str());
         } // if
+        pylith::faults::TopologyOps::updateCohesiveLabel(mesh, _surfaceLabelName.c_str(), _surfaceLabelValue);
+
         err = DMGetLabel(dmMesh, _surfaceLabelName.c_str(), &surfaceLabel);PYLITH_CHECK_ERROR(err);
 
         DMPlexTransform transform = PETSC_NULLPTR;
         err = DMPlexTransformCreate(mesh->getComm(), &transform);PYLITH_CHECK_ERROR(err);
+        err = DMPlexTransformSetDM(transform, dmMesh);PYLITH_CHECK_ERROR(err);
         err = DMPlexTransformSetType(transform, DMPLEXCOHESIVEEXTRUDE);PYLITH_CHECK_ERROR(err);
         err = DMPlexTransformSetActive(transform, surfaceLabel);PYLITH_CHECK_ERROR(err);
-
+        DMPlexTransformCohesiveExtrudeSetWidth(transform, 0.5); // TEMPORARY
         err = DMPlexTransformSetUp(transform);PYLITH_CHECK_ERROR(err);
+
+        { // TEMPORARY}
+            mesh->view(":mesh_orig.txt:ascii_info_detail");
+            mesh->view(":mesh_orig.tex:ascii_latex");
+        } // TEMPORARY
 
         PetscDM dmMeshNew = PETSC_NULLPTR;
         err = DMPlexTransformApply(transform, dmMesh, &dmMeshNew);PYLITH_CHECK_ERROR(err);assert(dmMeshNew);
 
+        { // setCohesiveCellLabel
+            // Set label and label value for newly created cohesive cells.
+            pylith::topology::Stratum oldStratum(dmMesh, pylith::topology::Stratum::HEIGHT, 0);
+            const PetscInt pStart = oldStratum.end();
+            pylith::topology::Stratum newStratum(dmMeshNew, pylith::topology::Stratum::HEIGHT, 0);
+            const PetscInt pEnd = newStratum.end();
+            const PetscInt cohesiveLabelValue = getLabelValue();
+            PetscDMLabel dmLabel = NULL;
+            err = DMGetLabel(dmMeshNew, getLabelName(), &dmLabel);PYLITH_CHECK_ERROR(err);
+            for (PetscInt point = pStart; point < pEnd; ++point) {
+                DMLabelSetValue(dmLabel, point, cohesiveLabelValue);
+            } // for
+        } // setCohesiveCellLabel
+
+        { // labelsRemoveCohesivePoints
+            PetscInt numLabels = 0;
+            err = DMGetNumLabels(dmMeshNew, &numLabels);PYLITH_CHECK_ERROR(err);
+
+            const std::string& materialLabelName = pylith::topology::Mesh::cells_label_name;
+
+            for (int iLabel = 0; iLabel < numLabels; ++iLabel) {
+                const char* labelStr = NULL;
+                err = DMGetLabelName(dmMeshNew, iLabel, &labelStr);PYLITH_CHECK_ERROR(err);
+                const std::string labelName = std::string(labelStr);
+
+                if ((labelName != std::string("depth"))
+                    && (labelName != std::string("celltype"))
+                    && (labelName != materialLabelName)) {
+                    PetscDMLabel dmLabel = PETSC_NULLPTR;
+                    PetscInt pStart = -1, pEnd = -1;
+                    err = DMGetLabel(dmMeshNew, labelStr, &dmLabel);PYLITH_CHECK_ERROR(err);
+                    err = DMLabelGetBounds(dmLabel, &pStart, &pEnd);PYLITH_CHECK_ERROR(err);
+
+                    PetscIS valuesIS = PETSC_NULLPTR;
+                    err = DMLabelGetNonEmptyStratumValuesIS(dmLabel, &valuesIS);PYLITH_CHECK_ERROR(err);
+                    PetscInt numValues = 0;
+                    err = ISGetLocalSize(valuesIS, &numValues);PYLITH_CHECK_ERROR(err);
+                    const PetscInt* valuesIndices = PETSC_NULLPTR;
+                    err = ISGetIndices(valuesIS, &valuesIndices);
+                    for (PetscInt point = pStart; point < pEnd; ++point) {
+                        DMPolytopeType ct;
+                        err = DMPlexGetCellType(dmMeshNew, point, &ct);PYLITH_CHECK_ERROR(err);
+                        if ((ct == DM_POLYTOPE_SEG_PRISM_TENSOR) || (ct == DM_POLYTOPE_POINT_PRISM_TENSOR)) {
+                            for (PetscInt iValue = 0; iValue < numValues; ++iValue) {
+                                err = DMLabelClearValue(dmLabel, point, valuesIndices[iValue]);PYLITH_CHECK_ERROR(err);
+                            } // for
+                        } // if
+                    } // for
+                    err = ISRestoreIndices(valuesIS, &valuesIndices);
+                    err = ISDestroy(&valuesIS);
+                } // if
+            } // for
+
+        } // labelsRemoveCohesivePoints
+
+        mesh->setDM(dmMeshNew);
+        err = DMPlexTransformDestroy(&transform);PYLITH_CHECK_ERROR(err);
+
+        { // TEMPORARY}
+            mesh->view(":mesh_new.txt:ascii_info_detail");
+            mesh->view(":mesh_new.tex:ascii_latex");
+        } // TEMPORARY
+
         // Check consistency of mesh.
         pylith::topology::MeshOps::checkTopology(*mesh);
-#if 0 // :TODO: Create fault mesh
-        pylith::topology::MeshOps::checkTopology(faultMesh);
-#endif
 
         pythia::journal::debug_t debug(PyreComponent::getName());
         if (debug.state()) {

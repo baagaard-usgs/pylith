@@ -85,6 +85,21 @@ public:
                              const char* labelName,
                              const int labelValue);
 
+    /** Create (distributed) fault mesh from cohesive cells.
+     *
+     * @param faultMesh Finite-element mesh of fault (output).
+     * @param mesh Finite-element mesh.
+     * @param labelValue Value of label associated with integration domain.
+     * @param labelName Name of label associated with integration domain.
+     * @param surfaceLabel Name of label for interface surface.
+     */
+    static
+    void createFaultFromCohesiveCells(topology::Mesh* faultMesh,
+                                      const topology::Mesh& mesh,
+                                      const char* labelName,
+                                      const int labelValue,
+                                      const char* surfaceLabel);
+
     /** Get name of PETSc DM label for interfaces.
      *
      * @returns PETSc Label name.
