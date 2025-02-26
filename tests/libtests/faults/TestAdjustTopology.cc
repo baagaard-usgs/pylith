@@ -186,7 +186,7 @@ pylith::faults::TestAdjustTopology::run(void) {
 
 
 // ------------------------------------------------------------------------------------------------
-// Test creation of cohesive cells using transform.
+// Test creation of cohesive cells using TransformApply().
 void
 pylith::faults::TestAdjustTopology::run_transform(void) {
     _initialize();
@@ -208,7 +208,6 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
             fault.setBuriedEdgesLabelName(_data->faultEdgeLabels[i]);
             fault.setBuriedEdgesLabelValue(1);
         } // if
-        pylith::faults::TopologyOps::updateCohesiveLabel(_mesh, _data->faultSurfaceLabels[i], 1);
         if (!_data->failureExpected) {
             fault.transformTopology(_mesh);
         } else {
@@ -216,8 +215,6 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
             return;
         } // if/else
     } // for
-
-    _mesh->view();
 
     REQUIRE(_data->cellDim == size_t(_mesh->getDimension()));
     PetscDM dmMesh = _mesh->getDM();assert(dmMesh);
