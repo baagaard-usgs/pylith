@@ -376,7 +376,10 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
                     for (PetscInt point = pStart; point < pEnd; ++point) {
                         DMPolytopeType ct;
                         err = DMPlexGetCellType(dmMeshNew, point, &ct);PYLITH_CHECK_ERROR(err);
-                        if ((ct == DM_POLYTOPE_SEG_PRISM_TENSOR) || (ct == DM_POLYTOPE_POINT_PRISM_TENSOR)) {
+                        if ((ct == DM_POLYTOPE_POINT_PRISM_TENSOR) ||
+                            (ct == DM_POLYTOPE_SEG_PRISM_TENSOR) ||
+                            (ct == DM_POLYTOPE_TRI_PRISM_TENSOR) ||
+                            (ct == DM_POLYTOPE_QUAD_PRISM_TENSOR)) {
                             for (PetscInt iValue = 0; iValue < numValues; ++iValue) {
                                 err = DMLabelClearValue(dmLabel, point, valuesIndices[iValue]);PYLITH_CHECK_ERROR(err);
                             } // for
