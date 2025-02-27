@@ -326,11 +326,6 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
         DMPlexTransformCohesiveExtrudeSetWidth(transform, 0.5); // TEMPORARY
         err = DMPlexTransformSetUp(transform);PYLITH_CHECK_ERROR(err);
 
-        { // TEMPORARY}
-            mesh->view(":mesh_orig.txt:ascii_info_detail");
-            mesh->view(":mesh_orig.tex:ascii_latex");
-        } // TEMPORARY
-
         PetscDM dmMeshNew = PETSC_NULLPTR;
         err = DMPlexTransformApply(transform, dmMesh, &dmMeshNew);PYLITH_CHECK_ERROR(err);assert(dmMeshNew);
 
@@ -389,23 +384,30 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
                     err = ISDestroy(&valuesIS);
                 } // if
             } // for
-
         } // labelsRemoveCohesivePoints
+
+#if 0
+        { // Print transform type label
+            PetscDMLabel transformTypes = NULL;
+            err = DMPlexTransformGetTransformTypes(transform, &transformTypes);PYLITH_CHECK_ERROR(err);
+            err = DMLabelView(transformTypes, PETSC_VIEWER_STDOUT_SELF);PYLITH_CHECK_ERROR(err);
+            // the points are the ones in the origin mesh
+            DMPlexShiftLabels
+            // Update points to ones in new mesh
+            // Loop over points, check if value is
+        } // Print transform type label
+#endif
 
         mesh->setDM(dmMeshNew);
         err = DMPlexTransformDestroy(&transform);PYLITH_CHECK_ERROR(err);
-
-        { // TEMPORARY}
-            mesh->view(":mesh_new.txt:ascii_info_detail");
-            mesh->view(":mesh_new.tex:ascii_latex");
-        } // TEMPORARY
 
         // Check consistency of mesh.
         pylith::topology::MeshOps::checkTopology(*mesh);
 
         pythia::journal::debug_t debug(PyreComponent::getName());
         if (debug.state()) {
-            mesh->view("::ascii_info_detail");
+            mesh->view(":mesh_transformed.txt:ascii_info_detail");
+            mesh->view("vtk:mesh_transformed.vtu");
         } // if
 
     } catch (const std::exception& err) {
