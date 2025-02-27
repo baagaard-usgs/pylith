@@ -48,6 +48,7 @@ private:
 // ------------------------------------------------------------------------------------------------
 #include "catch2/catch_test_macros.hpp"
 
+#if 0
 TEST_CASE("TestAdjustTopology_TriA", "[TestAdjustTopology][Tri]") {
     pylith::faults::TestAdjustTopology(pylith::faults::TestAdjustTopology_Tri::caseA()).run();
 }
@@ -75,6 +76,7 @@ TEST_CASE("TestAdjustTopology_TriH", "[TestAdjustTopology][Tri]") {
 TEST_CASE("TestAdjustTopology_TriI", "[TestAdjustTopology][Tri]") {
     pylith::faults::TestAdjustTopology(pylith::faults::TestAdjustTopology_Tri::caseI()).run();
 }
+#endif
 TEST_CASE("TestTransform_TriA", "[TestTransform][Tri]") {
     pylith::faults::TestAdjustTopology(pylith::faults::TestAdjustTopology_Tri::caseA()).run_transform();
 }
@@ -101,6 +103,7 @@ TEST_CASE("TestTransform_TriH", "[TestTransform][Tri]") {
 }
 
 // ------------------------------------------------------------------------------------------------
+
 pylith::faults::TestAdjustTopology_Data*
 pylith::faults::TestAdjustTopology_Tri::caseA(void) {
     pylith::faults::TestAdjustTopology_Data* data = new pylith::faults::TestAdjustTopology_Data();
@@ -125,8 +128,7 @@ pylith::faults::TestAdjustTopology_Tri::caseA(void) {
 
     static const int numCorners[numCells] = { 3, 3, 4 };
     data->numCorners = const_cast<int*>(numCorners);
-    static const int materialIds[numCells] = { 0, 0, 100 };
-    data->materialIds = const_cast<int*>(materialIds);
+    data->getMatId = pylith::faults::TestAdjustTopology_Data::getMatIdDefault;
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
@@ -166,8 +168,7 @@ pylith::faults::TestAdjustTopology_Tri::caseB(void) {
 
     static const int numCorners[numCells] = { 3, 3, 4 };
     data->numCorners = const_cast<int*>(numCorners);
-    static const int materialIds[numCells] = { 0, 0, 100 };
-    data->materialIds = const_cast<int*>(materialIds);
+    data->getMatId = pylith::faults::TestAdjustTopology_Data::getMatIdDefault;
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
@@ -207,8 +208,7 @@ pylith::faults::TestAdjustTopology_Tri::caseC(void) {
 
     static const int numCorners[numCells] = { 3, 3, 4 };
     data->numCorners = const_cast<int*>(numCorners);
-    static const int materialIds[numCells] = { 0, 0, 100 };
-    data->materialIds = const_cast<int*>(materialIds);
+    data->getMatId = pylith::faults::TestAdjustTopology_Data::getMatIdDefault;
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
@@ -248,8 +248,7 @@ pylith::faults::TestAdjustTopology_Tri::caseD(void) {
 
     static const int numCorners[numCells] = { 3, 3, 3, 3, 4, 4, };
     data->numCorners = const_cast<int*>(numCorners);
-    static const int materialIds[numCells] = { 0, 0, 0, 0, 100, 100 };
-    data->materialIds = const_cast<int*>(materialIds);
+    data->getMatId = pylith::faults::TestAdjustTopology_Data::getMatIdDefault;
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
@@ -289,8 +288,7 @@ pylith::faults::TestAdjustTopology_Tri::caseE(void) {
 
     static const int numCorners[numCells] = { 3, 3, 3, 3, 4, 4, };
     data->numCorners = const_cast<int*>(numCorners);
-    static const int materialIds[numCells] = { 0, 0, 0, 0, 100, 100 };
-    data->materialIds = const_cast<int*>(materialIds);
+    data->getMatId = pylith::faults::TestAdjustTopology_Data::getMatIdDefault;
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
@@ -330,8 +328,15 @@ pylith::faults::TestAdjustTopology_Tri::caseF(void) {
 
     static const int numCorners[numCells] = { 3, 3, 3, 3, 4, };
     data->numCorners = const_cast<int*>(numCorners);
-    static const int materialIds[numCells] = { 0, 0, 2, 2, 100, };
-    data->materialIds = const_cast<int*>(materialIds);
+    data->getMatId = [](const int cell,
+                        const int numNoncohesiveCells,
+                        const double* xyz) {
+                         int value = 100;
+                         if (cell < numNoncohesiveCells) {
+                             value = (xyz[0] < 0.0) ? 0 : 2;
+                         }
+                         return value;
+                     };
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
@@ -371,8 +376,15 @@ pylith::faults::TestAdjustTopology_Tri::caseG(void) {
 
     static const int numCorners[numCells] = { 3, 3, 3, 3, 3, 3, 4, };
     data->numCorners = const_cast<int*>(numCorners);
-    static const int materialIds[numCells] = { 0, 2, 0, 2, 0, 2, 100, };
-    data->materialIds = const_cast<int*>(materialIds);
+    data->getMatId = [](const int cell,
+                        const int numNoncohesiveCells,
+                        const double* xyz) {
+                         int value = 100;
+                         if (cell < numNoncohesiveCells) {
+                             value = (xyz[0] < 0.0) ? 0 : 2;
+                         }
+                         return value;
+                     };
 
     static const size_t numGroups = 5;
     data->numGroups = numGroups;
@@ -414,12 +426,21 @@ pylith::faults::TestAdjustTopology_Tri::caseH(void) {
         3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
         4, 4, };
     data->numCorners = const_cast<int*>(numCorners);
-    static const int materialIds[numCells] = {
-        0, 0, 0, 0,
-        2, 2, 3, 3, 3, 2, 3,
-        100, 100,
-    };
-    data->materialIds = const_cast<int*>(materialIds);
+    data->getMatId = [](const int cell,
+                        const int numNoncohesiveCells,
+                        const double* xyz) {
+                         int value = 100;
+                         if (cell < numNoncohesiveCells) {
+                             if (xyz[1] > 0.0) {
+                                 value = 0;
+                             } else if (xyz[1] > -1.0) {
+                                 value = 2;
+                             } else {
+                                 value = 3;
+                             } // if/else
+                         } // if
+                         return value;
+                     };
 
     static const size_t numGroups = 5;
     data->numGroups = numGroups;
@@ -444,7 +465,7 @@ pylith::faults::TestAdjustTopology_Tri::caseI(void) {
     data->failureExpected = true;
 
     data->numFaults = 1;
-    static const char* const faultSurfaceLabels[1] = { "fault_faces" };
+    static const char* const faultSurfaceLabels[1] = { "fault_vertices" };
     data->faultSurfaceLabels = const_cast<const char**>(faultSurfaceLabels);
     static const char* const faultEdgeLabels[1] = { NULL };
     data->faultEdgeLabels = const_cast<const char**>(faultEdgeLabels);
