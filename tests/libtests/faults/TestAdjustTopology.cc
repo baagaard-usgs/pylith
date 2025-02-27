@@ -84,10 +84,9 @@ pylith::faults::TestAdjustTopology::run(void) {
 
     pythia::journal::debug_t debug(GenericComponent::getName());
     if (debug.state()) {
-        _mesh->view("::ascii_info");
-        _mesh->view("::ascii_info_detail");
-        _mesh->view(":mesh_adjusttopology.tex:ascii_latex");
-        _mesh->view("vtk:mesh_adjusttopology.vtu");
+        _mesh->view(":mesh_transformed.txt:ascii_info_detail");
+        _mesh->view(":mesh_transformed.tex:ascii_latex");
+        _mesh->view("vtk:mesh_transformed.vtu");
     } // if
 
     REQUIRE(_data->cellDim == size_t(_mesh->getDimension()));
@@ -126,13 +125,17 @@ pylith::faults::TestAdjustTopology::run(void) {
     REQUIRE(labelMaterials);
     const PetscInt idDefault = -999;
     for (PetscInt c = cStart, cell = 0; c < cEnd; ++c, ++cell) {
-        PetscInt value;
+        PetscInt labelValue;
 
-        PylithCallPetsc(DMLabelGetValue(labelMaterials, c, &value));
-        if (value == -1) {
-            value = idDefault;
+        PylithCallPetsc(DMLabelGetValue(labelMaterials, c, &labelValue));
+        if (labelValue == -1) {
+            labelValue = idDefault;
         } // if
-        REQUIRE(_data->materialIds[cell] == value);
+        double centroid[3] = {0.0, 0.0, 0.0};
+        err = DMPlexComputeCellGeometryFVM(dmMesh, c, NULL, centroid, NULL);PYLITH_CHECK_ERROR(err);
+        const PetscInt labelValueE = _data->getMatId(c, _data->numNoncohesiveCells, centroid);
+        INFO("cell="<<c<<" with centroid ("<<centroid[0]<<","<<centroid[1]<<","<<centroid[2]<<")");
+        CHECK(labelValueE == labelValue);
     } // for
 
     // Check groups
@@ -162,6 +165,8 @@ pylith::faults::TestAdjustTopology::run(void) {
         PylithCallPetsc(ISGetLocalSize(pointIS, &numPoints));
         PylithCallPetsc(ISGetIndices(pointIS, &points));
         PylithCallPetsc(DMGetLabelValue(dmMesh, "depth", points[0], &depth));
+        PylithCallPetsc(ISRestoreIndices(pointIS, &points));
+        PylithCallPetsc(ISDestroy(&pointIS));
         std::string groupType = depth ? "face" : "vertex";
 
         bool foundGroup = false;
@@ -176,10 +181,8 @@ pylith::faults::TestAdjustTopology::run(void) {
                 break;
             } // if
         } // for
-        PylithCallPetsc(ISRestoreIndices(pointIS, &points));
-        PylithCallPetsc(ISDestroy(&pointIS));
         INFO("Could not find mesh group '" << labelName << "' in test data.");
-        REQUIRE(foundGroup);
+        CHECK(foundGroup);
     } // for
 
 } // run
@@ -215,6 +218,12 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
             return;
         } // if/else
     } // for
+    pythia::journal::debug_t debug(GenericComponent::getName());
+    if (debug.state()) {
+        _mesh->view(":mesh_transformed.txt:ascii_info_detail");
+        _mesh->view(":mesh_transformed.tex:ascii_latex");
+        _mesh->view("vtk:mesh_transformed.vtu");
+    } // if
 
     REQUIRE(_data->cellDim == size_t(_mesh->getDimension()));
     PetscDM dmMesh = _mesh->getDM();assert(dmMesh);
@@ -229,7 +238,7 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
     const PetscInt spaceDim = _data->spaceDim;
 
     for (PetscInt v = vStart; v < vEnd; ++v) {
-        REQUIRE(spaceDim == coordsVisitor.sectionDof(v));
+        CHECK(spaceDim == coordsVisitor.sectionDof(v));
     } // for
 
     // check cells
@@ -242,24 +251,29 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
     for (PetscInt c = cStart, cell = 0; c < cEnd; ++c, ++cell) {
         PetscInt coneSize = 0;
         err = DMPlexGetConeSize(dmMesh, c, &coneSize);PYLITH_CHECK_ERROR(err);
-        REQUIRE(_data->numCorners[cell] == coneSize);
+        INFO("cell="<<cell);
+        CHECK(_data->numCorners[cell] == coneSize);
     } // for
 
     // check materials
-    assert(_data->materialIds);
+    assert(_data->getMatId);
     PetscDMLabel labelMaterials = NULL;
     const char* const cellsLabelName = pylith::topology::Mesh::cells_label_name;
     err = DMGetLabel(dmMesh, cellsLabelName, &labelMaterials);PYLITH_CHECK_ERROR(err);
     assert(labelMaterials);
     const PetscInt idDefault = -999;
     for (PetscInt c = cStart, cell = 0; c < cEnd; ++c, ++cell) {
-        PetscInt value;
+        PetscInt labelValue;
 
-        err = DMLabelGetValue(labelMaterials, c, &value);PYLITH_CHECK_ERROR(err);
-        if (value == -1) {
-            value = idDefault;
+        err = DMLabelGetValue(labelMaterials, c, &labelValue);PYLITH_CHECK_ERROR(err);
+        if (labelValue == -1) {
+            labelValue = idDefault;
         } // if
-        REQUIRE(_data->materialIds[cell] == value);
+        double centroid[3];
+        err = DMPlexComputeCellGeometryFVM(dmMesh, c, NULL, centroid, NULL);PYLITH_CHECK_ERROR(err);
+        const PetscInt labelValueE = _data->getMatId(c, _data->numNoncohesiveCells, centroid);
+        INFO("cell="<<c<<" with centroid ("<<centroid[0]<<","<<centroid[1]<<","<<centroid[2]<<")");
+        CHECK(labelValueE == labelValue);
     } // for
 
     // Check groups
@@ -289,24 +303,22 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
         err = ISGetLocalSize(pointIS, &numPoints);PYLITH_CHECK_ERROR(err);
         err = ISGetIndices(pointIS, &points);PYLITH_CHECK_ERROR(err);
         err = DMGetLabelValue(dmMesh, "depth", points[0], &depth);PYLITH_CHECK_ERROR(err);
+        err = ISRestoreIndices(pointIS, &points);PYLITH_CHECK_ERROR(err);
+        err = ISDestroy(&pointIS);PYLITH_CHECK_ERROR(err);
         std::string groupType = depth ? "face" : "vertex";
 
         bool foundGroup = false;
         for (size_t i = 0; i < _data->numGroups; ++i) {
             if (std::string(_data->groupNames[i]) == std::string(labelName)) {
-                std::ostringstream msg;
-                msg << "Checking group '" <<labelName<<"'.";
-                INFO(labelName);
+                INFO("group name="<<labelName);
                 CHECK(std::string(_data->groupTypes[i]) == groupType);
                 CHECK(_data->groupSizes[i] == numPoints);
                 foundGroup = true;
                 break;
             } // if
         } // for
-        err = ISRestoreIndices(pointIS, &points);PYLITH_CHECK_ERROR(err);
-        err = ISDestroy(&pointIS);PYLITH_CHECK_ERROR(err);
-        INFO("Could not find group '" << labelName << "'.");
-        assert(foundGroup);
+        INFO("Could not find group '" << labelName << "' in test data.");
+        CHECK(foundGroup);
     } // for
 
 } // run_transform
@@ -326,6 +338,9 @@ pylith::faults::TestAdjustTopology::_initialize(void) {
     REQUIRE(pylith::topology::MeshOps::getNumCells(*_mesh) > 0);
     REQUIRE(pylith::topology::MeshOps::getNumVertices(*_mesh) > 0);
 
+    pylith::topology::Stratum cellsStratum(_mesh->getDM(), pylith::topology::Stratum::HEIGHT, 0);
+    _data->numNoncohesiveCells = cellsStratum.size(); // Number of cells in original mesh (no cohesive cells).
+
     PYLITH_METHOD_END;
 } // _initialize
 
@@ -342,8 +357,9 @@ pylith::faults::TestAdjustTopology_Data::TestAdjustTopology_Data(void) :
     spaceDim(0),
     numVertices(0),
     numCells(0),
+    numNoncohesiveCells(0),
     numCorners(NULL),
-    materialIds(NULL),
+    getMatId(NULL),
     numGroups(0),
     groupSizes(NULL),
     groupNames(NULL),

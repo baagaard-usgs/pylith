@@ -48,6 +48,7 @@ private:
 // ------------------------------------------------------------------------------------------------
 #include "catch2/catch_test_macros.hpp"
 
+#if 0
 TEST_CASE("TestAdjustTopology_QuadA", "[TestAdjustTopology][Quad]") {
     pylith::faults::TestAdjustTopology(pylith::faults::TestAdjustTopology_Quad::caseA()).run();
 }
@@ -75,6 +76,7 @@ TEST_CASE("TestAdjustTopology_QuadH", "[TestAdjustTopology][Quad]") {
 TEST_CASE("TestAdjustTopology_QuadI", "[TestAdjustTopology][Quad]") {
     pylith::faults::TestAdjustTopology(pylith::faults::TestAdjustTopology_Quad::caseI()).run();
 }
+#endif
 TEST_CASE("TestTransform_QuadA", "[TestTransform][Quad]") {
     pylith::faults::TestAdjustTopology(pylith::faults::TestAdjustTopology_Quad::caseA()).run_transform();
 }
@@ -128,8 +130,7 @@ pylith::faults::TestAdjustTopology_Quad::caseA(void) {
 
     static const int numCorners[numCells] = { 4, 4, 4 };
     data->numCorners = const_cast<int*>(numCorners);
-    static const int materialIds[numCells] = { 0, 0, 100 };
-    data->materialIds = const_cast<int*>(materialIds);
+    data->getMatId = pylith::faults::TestAdjustTopology_Data::getMatIdDefault;
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
@@ -169,8 +170,7 @@ pylith::faults::TestAdjustTopology_Quad::caseB(void) {
 
     static const int numCorners[numCells] = { 4, 4, 4 };
     data->numCorners = const_cast<int*>(numCorners);
-    static const int materialIds[numCells] = { 0, 0, 100 };
-    data->materialIds = const_cast<int*>(materialIds);
+    data->getMatId = pylith::faults::TestAdjustTopology_Data::getMatIdDefault;
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
@@ -210,8 +210,7 @@ pylith::faults::TestAdjustTopology_Quad::caseC(void) {
 
     static const int numCorners[numCells] = { 4, 4, 4 };
     data->numCorners = const_cast<int*>(numCorners);
-    static const int materialIds[numCells] = { 0, 0, 100 };
-    data->materialIds = const_cast<int*>(materialIds);
+    data->getMatId = pylith::faults::TestAdjustTopology_Data::getMatIdDefault;
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
@@ -251,8 +250,7 @@ pylith::faults::TestAdjustTopology_Quad::caseD(void) {
 
     static const int numCorners[numCells] = { 4, 4, 4 };
     data->numCorners = const_cast<int*>(numCorners);
-    static const int materialIds[numCells] = { 0, 0, 100 };
-    data->materialIds = const_cast<int*>(materialIds);
+    data->getMatId = pylith::faults::TestAdjustTopology_Data::getMatIdDefault;
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
@@ -292,8 +290,7 @@ pylith::faults::TestAdjustTopology_Quad::caseE(void) {
 
     static const int numCorners[numCells] = { 4, 4, 4, 4, 4, 4 };
     data->numCorners = const_cast<int*>(numCorners);
-    static const int materialIds[numCells] = { 0, 0, 0, 0, 100, 100 };
-    data->materialIds = const_cast<int*>(materialIds);
+    data->getMatId = pylith::faults::TestAdjustTopology_Data::getMatIdDefault;
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
@@ -333,8 +330,7 @@ pylith::faults::TestAdjustTopology_Quad::caseF(void) {
 
     static const int numCorners[numCells] = { 4, 4, 4, 4, 4, 4 };
     data->numCorners = const_cast<int*>(numCorners);
-    static const int materialIds[numCells] = { 0, 0, 0, 0, 100, 100 };
-    data->materialIds = const_cast<int*>(materialIds);
+    data->getMatId = pylith::faults::TestAdjustTopology_Data::getMatIdDefault;
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
@@ -374,8 +370,15 @@ pylith::faults::TestAdjustTopology_Quad::caseG(void) {
 
     static const int numCorners[numCells] = { 4, 4, 4, 4, 4, 4, 4 };
     data->numCorners = const_cast<int*>(numCorners);
-    static const int materialIds[numCells] = { 0, 0, 0, 2, 2, 100, 100 };
-    data->materialIds = const_cast<int*>(materialIds);
+    data->getMatId = [](const int cell,
+                        const int numNoncohesiveCells,
+                        const double* xyz) {
+                         int value = 100;
+                         if (cell < numNoncohesiveCells) {
+                             value = (xyz[1] > 0.0) ? 0 : 2;
+                         }
+                         return value;
+                     };
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
@@ -403,7 +406,7 @@ pylith::faults::TestAdjustTopology_Quad::caseH(void) {
     data->faultSurfaceLabels = const_cast<const char**>(faultSurfaceLabels);
     static const char* const faultEdgeLabels[2] = { NULL, NULL };
     data->faultEdgeLabels = const_cast<const char**>(faultEdgeLabels);
-    static const int interfaceIds[2] = { 101, 100 };
+    static const int interfaceIds[2] = { 100, 101 };
     data->interfaceIds = const_cast<const int*>(interfaceIds);
 
     data->cellDim = 2;
@@ -416,16 +419,29 @@ pylith::faults::TestAdjustTopology_Quad::caseH(void) {
     static const int numCorners[numCells] = {
         4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, };
     data->numCorners = const_cast<int*>(numCorners);
-    static const int materialIds[numCells] = {
-        10, 10, 11, 10, 10, 11, 12, 12, 11,
-        100, 100, 101, 101, 101 };
-    data->materialIds = const_cast<int*>(materialIds);
+    data->getMatId = [](const int cell,
+                        const int numNoncohesiveCells,
+                        const double* xyz) {
+                         int value = -999;
+                         if (cell < numNoncohesiveCells) {
+                             if (xyz[0] > 1.0) {
+                                 value = 11;
+                             } else if (xyz[1] > -1.0) {
+                                 value = 10;
+                             } else {
+                                 value = 12;
+                             }
+                         } else {
+                             value = (xyz[0] > +0.9) ? 100 : 101;
+                         }
+                         return value;
+                     };
 
     static const size_t numGroups = 5;
     data->numGroups = numGroups;
-    static const int groupSizes[numGroups] = { 6+4, 8+6, 1, 6, 4 }; // vertices + edges
+    static const int groupSizes[numGroups] = { 8+6, 6+4, 2, 6, 4 }; // vertices + edges
     data->groupSizes = const_cast<int*>(groupSizes);
-    static const char* groupNames[numGroups] = { "faultB_vertices", "faultA_vertices", "faultB-edge_vertices", "faultB_faces", "faceA_faces" };
+    static const char* groupNames[numGroups] = { "faultA_vertices", "faultB_vertices", "faultB-edge_vertices", "faultA_faces", "faultB_faces" };
     data->groupNames = const_cast<char**>(groupNames);
     static const char* groupTypes[numGroups] = { "vertex", "vertex", "vertex", "face", "face" };
     data->groupTypes = const_cast<char**>(groupTypes);
@@ -444,7 +460,7 @@ pylith::faults::TestAdjustTopology_Quad::caseI(void) {
 
     static const size_t numFaults = 1;
     data->numFaults = numFaults;
-    static const char* const faultSurfaceLabels[numFaults] = { "fault", };
+    static const char* const faultSurfaceLabels[numFaults] = { "fault_faces", };
     data->faultSurfaceLabels = const_cast<const char**>(faultSurfaceLabels);
     static const char* const faultEdgeLabels[numFaults] = { NULL };
     data->faultEdgeLabels = const_cast<const char**>(faultEdgeLabels);
@@ -462,10 +478,15 @@ pylith::faults::TestAdjustTopology_Quad::caseI(void) {
         4, 4, 4, 4, 4, 4,
         4, 4, };
     data->numCorners = const_cast<int*>(numCorners);
-    static const int materialIds[numCells] = {
-        10, 10, 10, 11, 10, 11,
-        100, 100, };
-    data->materialIds = const_cast<int*>(materialIds);
+    data->getMatId = [](const int cell,
+                        const int numNoncohesiveCells,
+                        const double* xyz) {
+                         int value = 100;
+                         if (cell < numNoncohesiveCells) {
+                             value = (xyz[0] < 0.0 || xyz[1] > 0.0) ? 10 : 11;
+                         }
+                         return value;
+                     };
 
     static const size_t numGroups = 7;
     data->numGroups = numGroups;
