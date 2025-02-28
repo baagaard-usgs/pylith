@@ -84,7 +84,8 @@ pylith::testing::MMSTest::testDiscretization(void) {
                                     _solutionExactVec, tolerance, &error[0]);PYLITH_CHECK_ERROR(err);
 
     if (debug.state()) {
-        solution->view("Solution field");
+        debug << "Solution vector" << pythia::journal::endl;
+        VecView(_solutionExactVec, PETSC_VIEWER_STDOUT_SELF);
     } // if
 
     bool fail = false;
