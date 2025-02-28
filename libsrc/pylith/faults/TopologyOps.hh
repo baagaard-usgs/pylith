@@ -94,7 +94,7 @@ public:
      * @param surfaceLabel Name of label for interface surface.
      */
     static
-    void createFaultFromCohesiveCells(topology::Mesh* faultMesh,
+    void createFaultFromCohesiveCells(pylith::topology::Mesh* faultMesh,
                                       const topology::Mesh& mesh,
                                       const char* labelName,
                                       const int labelValue,

@@ -473,8 +473,8 @@ pylith::faults::TopologyOps::updateCohesiveLabel(const pylith::topology::Mesh* m
 void
 pylith::faults::TopologyOps::createFaultFromCohesiveCells(pylith::topology::Mesh* faultMesh,
                                                           const pylith::topology::Mesh& mesh,
-                                                          const char* labelName,
-                                                          const int labelValue,
+                                                          const char* cohesiveLabelName,
+                                                          const int cohesiveLabelValue,
                                                           const char* surfaceLabel) {
     PYLITH_METHOD_BEGIN;
 
@@ -490,21 +490,57 @@ pylith::faults::TopologyOps::createFaultFromCohesiveCells(pylith::topology::Mesh
     const PetscBool hasLagrangeConstraints = PETSC_TRUE;
     err = DMPlexCreateCohesiveSubmesh(dmDomain, hasLagrangeConstraints, labelName, labelValue, &dmFaultMesh);PYLITH_CHECK_ERROR(err);
 #else
-    PetscDMLabel dmLabel = nullptr;
-    err = DMGetLabel(dmDomain, labelName, &dmLabel);PYLITH_CHECK_ERROR(err);
+    mesh.view(":mesh_domain.tex:ascii_latex");
+    mesh.view(":mesh_domain.txt:ascii_info_detail");
+    mesh.view("vtk:mesh_domain.vtu:vtk_vtu");
+
+    const char* negativeLabelName = "fault_cohesive_negative_sides";
+    PetscDMLabel negativeLabel = nullptr;
+    const PetscInt negativeLabelValue = 1;
+    { // Create label over negative sides of cohesive cells
+        err = DMLabelCreate(mesh.getComm(), negativeLabelName, &negativeLabel);PYLITH_CHECK_ERROR(err);
+
+        PetscDMLabel cohesiveLabel = nullptr;
+        err = DMGetLabel(dmDomain, cohesiveLabelName, &cohesiveLabel);
+
+        PetscIS pointIS = nullptr;
+        const PetscInt* points = nullptr;
+        PetscInt numPoints = 0;
+        err = DMLabelGetStratumIS(cohesiveLabel, cohesiveLabelValue, &pointIS);PYLITH_CHECK_ERROR(err);
+        if (pointIS) {
+            err = ISGetIndices(pointIS, &points);PYLITH_CHECK_ERROR(err);
+            err = ISGetSize(pointIS, &numPoints);PYLITH_CHECK_ERROR(err);
+        } // if
+        for (PetscInt iPoint = 0; iPoint < numPoints; ++iPoint) {
+            const PetscInt point = points[iPoint];
+            const PetscInt *cone = nullptr;
+            PetscInt coneSize = 0;
+            err = DMPlexGetConeSize(dmDomain, point, &coneSize);PYLITH_CHECK_ERROR(err);assert(coneSize > 0);
+            err = DMPlexGetCone(dmDomain, point, &cone);PYLITH_CHECK_ERROR(err);
+            const PetscInt negativeFace = cone[0];
+            err = DMLabelSetValue(negativeLabel, negativeFace, negativeLabelValue);PYLITH_CHECK_ERROR(err);
+        } // for
+        err = ISRestoreIndices(pointIS, &points);PYLITH_CHECK_ERROR(err);
+        err = ISDestroy(&pointIS);PYLITH_CHECK_ERROR(err);
+        err = DMPlexLabelComplete(dmDomain, negativeLabel);PYLITH_CHECK_ERROR(err);
+    } // Create label over negative sides of cohesive cells
+
     const PetscBool markedFaces = PETSC_TRUE;
-    err = DMPlexCreateSubmesh(dmDomain, dmLabel, labelValue, markedFaces, &dmFaultMesh);PYLITH_CHECK_ERROR(err);
+    err = DMPlexCreateSubmesh(dmDomain, negativeLabel, negativeLabelValue, markedFaces, &dmFaultMesh);PYLITH_CHECK_ERROR(err);
+    err = DMLabelDestroy(&negativeLabel);PYLITH_CHECK_ERROR(err);
 #endif
-    err = DMViewFromOptions(dmFaultMesh, NULL, "-pylith_fault_dm_view");PYLITH_CHECK_ERROR(err);
     err = DMPlexOrient(dmFaultMesh);PYLITH_CHECK_ERROR(err); // :TODO: Is this necessary?
 
     PetscReal lengthScale = 1.0;
     err = DMPlexGetScale(dmDomain, PETSC_UNIT_LENGTH, &lengthScale);PYLITH_CHECK_ERROR(err);
     err = DMPlexSetScale(dmFaultMesh, PETSC_UNIT_LENGTH, lengthScale);PYLITH_CHECK_ERROR(err);
 
-    std::string meshLabel = std::string("fault_") + std::string(surfaceLabel);
-    faultMesh->setDM(dmFaultMesh, meshLabel.c_str());
+    faultMesh->setDM(dmFaultMesh, surfaceLabel);
     pylith::topology::MeshOps::checkTopology(*faultMesh);
+
+    faultMesh->view(":mesh_fault.tex:ascii_latex");
+    faultMesh->view(":mesh_fault.txt:ascii_info_detail");
+    faultMesh->view("vtk:mesh_fault.vtu:vtk_vtu");
 
     PYLITH_METHOD_END;
 } // createFaultFromCohesiveCells
