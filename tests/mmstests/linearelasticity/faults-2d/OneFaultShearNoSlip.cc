@@ -40,6 +40,8 @@ namespace pylith {
 
 // ------------------------------------------------------------------------------------------------
 class pylith::_OneFaultShearNoSlip {
+    static const double STRESS_SCALE;
+
     // Density
     static double density(const double x,
                           const double y) {
@@ -134,7 +136,7 @@ class pylith::_OneFaultShearNoSlip {
                                   const double y) {
         const double mu = density(x, y) * vs(x, y) * vs(x, y);
 
-        return strain_xy() * 2.0 * mu / 2.25e+10;
+        return strain_xy() * 2.0 * mu / STRESS_SCALE;
     } // faulttraction_y
 
     static
@@ -161,7 +163,7 @@ class pylith::_OneFaultShearNoSlip {
         const double mu = density(x[0], x[1]) * vs(x[0], x[1]) * vs(x[0], x[1]);
 
         const PylithScalar tanDir[2] = {-n[1], n[0] };
-        const PylithScalar tractionShear = -strain_xy() * 2.0 * mu / 2.25e+10;
+        const PylithScalar tractionShear = -strain_xy() * 2.0 * mu / STRESS_SCALE;
         const PylithScalar tractionNormal = 0.0;
         r0[0] += tractionShear*tanDir[0] + tractionNormal*n[0];
         r0[1] += tractionShear*tanDir[1] + tractionNormal*n[1];
@@ -215,7 +217,7 @@ public:
 
         data->normalizer.setLengthScale(1.0e+03);
         data->normalizer.setTimeScale(2.0);
-        data->normalizer.setPressureScale(2.25e+10);
+        data->normalizer.setPressureScale(STRESS_SCALE);
         data->normalizer.computeDensityScale();
 
         // solnDiscretizations set in derived class.
@@ -354,6 +356,7 @@ public:
     } // createData
 
 }; // TestFaultKin2D_OneFaultShearNoSlip
+const double pylith::_OneFaultShearNoSlip::STRESS_SCALE = 2.25e+10;
 
 // ------------------------------------------------------------------------------------------------
 pylith::TestFaultKin_Data*

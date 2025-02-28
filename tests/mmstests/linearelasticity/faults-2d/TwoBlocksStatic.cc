@@ -42,6 +42,9 @@ namespace pylith {
 class pylith::_TwoBlocksStatic {
 private:
 
+    static const double X_FAULT; // normalized
+    static const double Y_DISP; // normalized
+
     // Density
     static double density(const double x,
                           const double y) {
@@ -110,9 +113,9 @@ private:
     static double disp_y(const double x,
                          const double y,
                          PetscInt flag) {
-        const double disp = 0.75e-3;
+        const double disp = Y_DISP;
         if (!flag) {
-            return x < +2.0 ? +disp : -disp;
+            return x < X_FAULT ? +disp : -disp;
         } else {
             return flag < 0 ? +disp : -disp;
         } // if/else
@@ -142,22 +145,14 @@ private:
         s[0] = disp_x(x[0], x[1]);
         PetscInt flag = 0;
         if (context) {
+            PetscErrorCode err = PETSC_SUCCESS;
+            PetscDM dmMesh = PetscDM(context);
             PetscInt cell = 0;
-            DMPolytopeType cellType = DM_POLYTOPE_UNKNOWN;
-            DMPlexGetActivePoint((PetscDM) context, &cell);
-            DMPlexGetCellType((PetscDM) context, cell, &cellType);
-            PetscInt numCellsLeftFault = 0;
-            switch (cellType) {
-            case DM_POLYTOPE_TRIANGLE:
-                numCellsLeftFault = 12;
-                break;
-            case DM_POLYTOPE_QUADRILATERAL:
-                numCellsLeftFault = 6;
-                break;
-            default:
-                PYLITH_JOURNAL_LOGICERROR("Unknown cell type in solution displacement kernel.");
-            }
-            flag = cell < numCellsLeftFault ? -1 : +1;
+            err = DMPlexGetActivePoint(dmMesh, &cell);PYLITH_CHECK_ERROR(err);
+
+            double centroid[3] = {0.0, 0.0, 0.0};
+            err = DMPlexComputeCellGeometryFVM(dmMesh, cell, NULL, centroid, NULL);PYLITH_CHECK_ERROR(err);
+            flag = centroid[0] < X_FAULT ? -1 : +1;
         } // if
         s[1] = disp_y(x[0], x[1], flag);
 
@@ -317,6 +312,8 @@ public:
     } // createData
 
 }; // _TwoBlocksStatic
+const double pylith::_TwoBlocksStatic::X_FAULT = +2.0;
+const double pylith::_TwoBlocksStatic::Y_DISP = 0.75e-3;
 
 // ------------------------------------------------------------------------------------------------
 pylith::TestFaultKin_Data*
