@@ -324,7 +324,7 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
         err = DMPlexTransformSetDM(transform, dmMesh);PYLITH_CHECK_ERROR(err);
         err = DMPlexTransformSetType(transform, DMPLEXCOHESIVEEXTRUDE);PYLITH_CHECK_ERROR(err);
         err = DMPlexTransformSetActive(transform, surfaceLabel);PYLITH_CHECK_ERROR(err);
-        DMPlexTransformCohesiveExtrudeSetWidth(transform, 0.5); // TEMPORARY
+        // DMPlexTransformCohesiveExtrudeSetWidth(transform, 0.5); // TEMPORARY
         err = DMPlexTransformSetUp(transform);PYLITH_CHECK_ERROR(err);
 
         PetscDM dmMeshNew = PETSC_NULLPTR;
