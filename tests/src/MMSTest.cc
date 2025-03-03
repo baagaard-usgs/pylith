@@ -116,6 +116,7 @@ pylith::testing::MMSTest::testResidual(void) {
     pythia::journal::debug_t debug(GenericComponent::getName());
     if (debug.state()) {
         err = PetscOptionsSetValue(NULL, "-dm_plex_print_fem", "2");PYLITH_CHECK_ERROR(err);
+        err = PetscOptionsSetValue(NULL, "-petscds_print_integrate", "5");PYLITH_CHECK_ERROR(err);
         err = PetscOptionsSetValue(NULL, "-dm_plex_print_l2", "2");PYLITH_CHECK_ERROR(err);
     } // if
 
