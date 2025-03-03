@@ -209,7 +209,7 @@ public:
     TestFaultKin_Data* createData(void) {
         TestFaultKin_Data* data = new TestFaultKin_Data();assert(data);
 
-        data->journalName = "OneFaultShearNoSLip";
+        data->journalName = "OneFaultShearNoSlip";
 
         data->isJacobianLinear = true;
 
