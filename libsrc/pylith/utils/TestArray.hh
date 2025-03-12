@@ -33,7 +33,7 @@ public:
      * @param values Array of values to check.
      */
     static
-    bool check(const PylithScalar* valuesE,
+    bool check(const pylith::scalar* valuesE,
                const int nvalues,
                const scalar_array& values);
 

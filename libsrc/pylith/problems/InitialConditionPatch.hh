@@ -62,7 +62,7 @@ public:
      *
      * @param[in] db Spatial database holding initial conditions.
      */
-    void setDB(spatialdata::spatialdb::SpatialDB* db);
+    void setDB(std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db);
 
     /** Set solver type.
      *
@@ -78,7 +78,7 @@ private:
 
     std::string _labelName; ///< Name of label associated with patch.
     int _labelValue; ///< Value of label associated with patch.
-    spatialdata::spatialdb::SpatialDB* _db; ///< Spatial database with values for initial condition.
+    std::shared_ptr<spatialdata::spatialdb::SpatialDB> _db; ///< Spatial database with values for initial condition.
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:

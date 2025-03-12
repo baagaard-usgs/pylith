@@ -58,7 +58,7 @@ public:
      *
      * @param[in] monitor Progress monitor for Green's functions simulation.
      */
-    void setProgressMonitor(pylith::problems::ProgressMonitorStep* monitor);
+    void setProgressMonitor(std::shared_ptr<pylith::problems::ProgressMonitorStep>& monitor);
 
     /** Get Petsc DM for problem.
      *
@@ -140,12 +140,12 @@ public:
 private:
 
     std::string _faultLabelName; ///< Name of label for fault with impulses.
-    PylithInt _faultLabelValue; ///< Value of label for fault with impulses.
-    pylith::faults::FaultCohesiveImpulses* _faultImpulses; ///< Fault interface with Green's functions impulses.
-    pylith::feassemble::Integrator* _integratorImpulses; ///< Integrator for Green's functions impulses.
+    pylith::integer _faultLabelValue; ///< Value of label for fault with impulses.
+    std::shared_ptr<pylith::faults::FaultCohesiveImpulses> _faultImpulses; ///< Faults with Green's functions impulses.
+    std::unique_ptr<pylith::feassemble::Integrator> _integratorImpulses; ///< Integrator for Green's functions impulses.
 
     PetscSNES _snes; ///< PETSc SNES solver.
-    pylith::problems::ProgressMonitorStep* _monitor; ///< Monitor for simulation progress.
+    std::shared_ptr<pylith::problems::ProgressMonitorStep> _monitor; ///< Monitor for simulation progress.
 
 }; // GreensFns
 

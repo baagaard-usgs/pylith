@@ -11,9 +11,11 @@
 
 #include "petsc.h"
 
-typedef PetscScalar PylithScalar;
-typedef PetscReal PylithReal;
-typedef PetscInt PylithInt;
+namespace pylith {
+    typedef PetscScalar scalar;
+    typedef PetscReal real;
+    typedef PetscInt integer;
+} // namespace
 
 typedef PetscErrorCode (*PetscUserFieldFunc)(PetscInt,
                                              PetscReal,

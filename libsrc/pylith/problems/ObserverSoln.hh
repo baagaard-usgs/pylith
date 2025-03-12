@@ -38,7 +38,7 @@ public:
      * @param[in] value Time scale for dimensionalizing time.
      */
     virtual
-    void setTimeScale(const PylithReal value) = 0;
+    void setTimeScale(const pylith::real value) = 0;
 
     /** Verify observer is compatible with solution.
      *
@@ -55,8 +55,8 @@ public:
      * @param[in] notification Type of notification.
      */
     virtual
-    void update(const PylithReal t,
-                const PylithInt tindex,
+    void update(const pylith::real t,
+                const pylith::integer tindex,
                 const pylith::topology::Field& solution,
                 const NotificationType notification) = 0;
 

@@ -14,7 +14,7 @@
 // Version ----------------------------------------------------------
 /** @brief C++ object for getting version info.
  */
-class pylith::utils::DependenciesVersion { // DependenciesVersion
+class pylith::utils::DependenciesVersion {
     friend class TestDependenciesVersion; // unit testing
 
     // PUBLIC MEMBERS ///////////////////////////////////////////////////////

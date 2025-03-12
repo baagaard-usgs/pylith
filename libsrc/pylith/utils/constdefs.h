@@ -14,9 +14,9 @@
 namespace pylith {
     static const double PYLITH_MAXDOUBLE = 1.0e+99;
     static const float PYLITH_MAXFLOAT = 1.0e+30;
-    static const PylithInt PYLITH_MAXINT = PETSC_MAX_INT;
-    static const PylithInt PYLITH_MININT = PETSC_MIN_INT;
-    static const PylithScalar PYLITH_MAXSCALAR = (sizeof(PylithScalar) == sizeof(double)) ? PYLITH_MAXDOUBLE : PYLITH_MAXFLOAT;
+    static const pylith::integer PYLITH_MAXINT = PETSC_MAX_INT;
+    static const pylith::integer PYLITH_MININT = PETSC_MIN_INT;
+    static const pylith::scalar PYLITH_MAXSCALAR = (sizeof(pylith::scalar) == sizeof(double)) ? PYLITH_MAXDOUBLE : PYLITH_MAXFLOAT;
 }
 
 // End of file

@@ -41,13 +41,13 @@ public:
      *
      * @param[in] observer Observer to receive notifications.
      */
-    void registerObserver(pylith::problems::ObserverPhysics* observer);
+    void registerObserver(std::shared_ptr<pylith::problems::ObserverPhysics>& observer);
 
     /** Remove observer from receiving notifications.
      *
      * @param[in] observer Observer to remove.
      */
-    void removeObserver(pylith::problems::ObserverPhysics* observer);
+    void removeObserver(std::shared_ptr<pylith::problems::ObserverPhysics>& observer);
 
     /** Get number of observers.
      *
@@ -59,13 +59,13 @@ public:
      *
      * @param[in] physics Physics implementation being observed.
      */
-    void setPhysicsImplementation(const pylith::feassemble::PhysicsImplementation* const physics);
+    void setPhysicsImplementation(const std::shared_ptr<pylith::feassemble::PhysicsImplementation>& physics);
 
     /** Set time scale in observers.
      *
      * @param[in] value Time scale for dimensionalizing time.
      */
-    void setTimeScale(const PylithReal value);
+    void setTimeScale(const pylith::real value);
 
     /** Verify observers are compatible.
      *
@@ -80,8 +80,8 @@ public:
      * @param[in] solution Solution at time t.
      * @param[in] notification Type of notification.
      */
-    void notifyObservers(const PylithReal t,
-                         const PylithInt tindex,
+    void notifyObservers(const pylith::real t,
+                         const pylith::integer tindex,
                          const pylith::topology::Field& solution,
                          const pylith::problems::Observer::NotificationType notification);
 

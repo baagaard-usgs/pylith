@@ -23,11 +23,9 @@ subpkginclude_HEADERS = \
 	PetscVersion.hh \
 	DependenciesVersion.hh \
 	TestArray.hh \
-	array.hh \
 	mpi.hh \
 	arrayfwd.hh \
 	constdefs.h \
-	lapack.h \
 	macrodefs.h \
 	petscfwd.h \
 	error.h \

@@ -19,6 +19,8 @@
 #include "spatialdata/spatialdb/spatialdbfwd.hh" // USES SpatialDB
 #include "spatialdata/units/unitsfwd.hh" // HASA Nondimensional
 
+#include <memory> // HASA std::shared_ptr
+
 class pylith::problems::Physics : public pylith::utils::PyreComponent {
     friend class TestPhysics; // unit testing
 
@@ -72,7 +74,7 @@ public:
      *
      * @param dim Nondimensionalizer.
      */
-    void setNormalizer(const spatialdata::units::Nondimensional& dim);
+    void setNormalizer(std::shared_ptr<spatialdata::units::Nondimensional>& dim);
 
     /** Get manager of scales used to nondimensionalize problem.
      *
@@ -90,7 +92,7 @@ public:
      *
      * @param[in] value Spatial database with iniital values for auxiliary field.
      */
-    void setAuxiliaryFieldDB(spatialdata::spatialdb::SpatialDB* const value);
+    void setAuxiliaryFieldDB(std::shared_ptr<spatialdata::spatialdb::SpatialDB>& const value);
 
     /** Set discretization information for auxiliary subfield.
      *
@@ -134,13 +136,13 @@ public:
      *
      * @param[in] observer Observer to receive notifications.
      */
-    void registerObserver(pylith::problems::ObserverPhysics* observer);
+    void registerObserver(std::shared_ptr<pylith::problems::ObserverPhysics>& observer);
 
     /** Remove observer from receiving notifications.
      *
      * @param[in] observer Observer to remove.
      */
-    void removeObserver(pylith::problems::ObserverPhysics* observer);
+    void removeObserver(std::shared_ptr<pylith::problems::ObserverPhysics>& observer);
 
     /** Get observers receiving notifications of physics updates.
      *
@@ -249,7 +251,7 @@ protected:
     // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
 protected:
 
-    spatialdata::units::Nondimensional* _normalizer; ///< Nondimensionalizer.
+    std::shared_ptr<spatialdata::units::Nondimensional> _normalizer; ///< Nondimensionalizer.
     FormulationEnum _formulation; ///< Formulation for equations.
     pylith::real_array _kernelConstants; ///< Constants used in finite-element kernels (point-wise functions).
 
@@ -258,7 +260,7 @@ private:
 
     std::string _labelName; ///< Name of label in mesh for material.
     int _labelValue; ///< Value of label in mesh for material.
-    pylith::problems::ObserversPhysics* _observers; ///< Subscribers of updates.
+    std::unique_ptr<pylith::problems::ObserversPhysics> _observers; ///< Subscribers of updates.
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:

@@ -31,8 +31,8 @@ public:
      * @param[in] normalizer Nondimensionalizer for problem.
      * @param[in] spaceDim Spatial dimension of problem.
      */
-    SolutionFactory(pylith::topology::Field& solution,
-                    const spatialdata::units::Nondimensional& normalizer);
+    SolutionFactory(std::shared_ptr<pylith::topology::Field>& solution,
+                    const std::shared_ptr<spatialdata::units::Nondimensional>& normalizer);
 
     /// Destructor.
     ~SolutionFactory(void);
@@ -94,8 +94,8 @@ public:
     // PRIVATE MEMBERS ////////////////////////////////////////////////////
 private:
 
-    pylith::topology::Field& _solution; ///< Solution field.
-    const spatialdata::units::Nondimensional& _normalizer; ///< Nondimensionalizer.
+    std::shared_ptr<pylith::topology::Field> _solution; ///< Solution field.
+    const std::shared_ptr<spatialdata::units::Nondimensional> _normalizer; ///< Nondimensionalizer.
     const int _spaceDim; ///< Spatal dimension of problem.
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////

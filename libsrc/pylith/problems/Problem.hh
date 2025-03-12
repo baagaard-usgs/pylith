@@ -92,15 +92,15 @@ public:
 
     /** Set manager of scales used to nondimensionalize problem.
      *
-     * @param[in] dim Nondimensionalizer.
+     * @param[in] normalizer Nondimensionalizer.
      */
-    void setNormalizer(const spatialdata::units::Nondimensional& dim);
+    void setNormalizer(std::shared_ptr<spatialdata::units::Nondimensional>& normalizer);
 
     /** Set gravity field.
      *
      * @param[in] g Gravity field.
      */
-    void setGravityField(spatialdata::spatialdb::GravityField* const g);
+    void setGravityField(std::shared_ptr<spatialdata::spatialdb::GravityField>& const g);
 
     /** Register observer to receive notifications.
      *
@@ -108,19 +108,19 @@ public:
      *
      * @param[in] observer Observer to receive notifications.
      */
-    void registerObserver(pylith::problems::ObserverSoln* observer);
+    void registerObserver(std::shared_ptr<pylith::problems::ObserverSoln>& observer);
 
     /** Remove observer from receiving notifications.
      *
      * @param[in] observer Observer to remove.
      */
-    void removeObserver(pylith::problems::ObserverSoln* observer);
+    void removeObserver(std::shared_ptr<pylith::problems::ObserverSoln>& observer);
 
     /** Set solution field.
      *
      * @param[in] field Solution field.
      */
-    void setSolution(pylith::topology::Field* field);
+    void setSolution(std::shared_ptr<pylith::topology::Field>& field);
 
     /** Get solution field.
      *
@@ -137,26 +137,20 @@ public:
     /** Set materials.
      *
      * @param[in] materials Array of materials.
-     * @param[in] numMaterials Number of materials.
      */
-    void setMaterials(pylith::materials::Material* materials[],
-                      const int numMaterials);
+    void setMaterials(std::vector<std::shared_ptr<pylith::materials::Material> >& materials);
 
     /** Set boundary conditions.
      *
-     * @param[in] bc Array of boundary conditions.
-     * @param[in] numBC Number of boundary conditions.
+     * @param[in] bcs Array of boundary conditions.
      */
-    void setBoundaryConditions(pylith::bc::BoundaryCondition* bc[],
-                               const int numBC);
+    void setBoundaryConditions(std::vector<std::shared_ptr<pylith::bc::BoundaryCondition> >& bcs);
 
     /** Set interior interface conditions.
      *
      * @param[in] interfaces Array of interior interfaces.
-     * @param[in] numInterfaces Number of interior interfaces.
      */
-    void setInterfaces(pylith::faults::FaultCohesive* faults[],
-                       const int numFaults);
+    void setInterfaces(std::vector<std::shared_ptr<pylith::faults::FaultCohesive> >& interfaces);
 
     /** Do minimal initialization.
      *
@@ -176,18 +170,18 @@ public:
     // PROTECTED MEMBERS ///////////////////////////////////////////////////////////////////////////////////////////////
 protected:
 
-    pylith::feassemble::IntegrationData* _integrationData; /// > Data needed to integrate PDE.
+    std::unique_ptr<pylith::feassemble::IntegrationData> _integrationData; /// > Data needed to integrate PDE.
 
-    spatialdata::units::Nondimensional* _normalizer; ///< Nondimensionalization of scales.
-    spatialdata::spatialdb::GravityField* _gravityField; ///< Gravity field.
+    std::shared_ptr<spatialdata::units::Nondimensional> _normalizer; ///< Nondimensionalization of scales.
+    std::shared_ptr<spatialdata::spatialdb::GravityField> _gravityField; ///< Gravity field.
 
-    std::vector<pylith::materials::Material*> _materials; ///< Array of materials.
-    std::vector<pylith::bc::BoundaryCondition*> _bc; ///< Array of boundary conditions.
-    std::vector<pylith::faults::FaultCohesive*> _interfaces; ///< Array of interior interfaces.
+    std::vector<std::shared_ptr<pylith::materials::Material> > _materials; ///< Array of materials.
+    std::vector<std::shared_ptr<pylith::bc::BoundaryCondition> > _bc; ///< Array of boundary conditions.
+    std::vector<std::shared_ptr<pylith::faults::FaultCohesive> > _interfaces; ///< Array of interior interfaces.
 
-    std::vector<pylith::feassemble::Integrator*> _integrators; ///< Array of integrators.
-    std::vector<pylith::feassemble::Constraint*> _constraints; ///< Array of constraints.
-    pylith::problems::ObserversSoln* _observers; ///< Subscribers of solution updates.
+    std::vector<std::unique_ptr<pylith::feassemble::Integrator> > _integrators; ///< Array of integrators.
+    std::vector<std::unique_ptr<pylith::feassemble::Constraint> > _constraints; ///< Array of constraints.
+    std::unique_ptr<pylith::problems::ObserversSoln> _observers; ///< Subscribers of solution updates.
 
     pylith::problems::Physics::FormulationEnum _formulation; ///< Formulation for equations.
     SolverTypeEnum _solverType; ///< Problem (solver) type.

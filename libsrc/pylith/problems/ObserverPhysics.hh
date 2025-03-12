@@ -37,14 +37,14 @@ public:
      *
      * @param[in] physics Physics implementation to observe.
      */
-    void setPhysicsImplementation(const pylith::feassemble::PhysicsImplementation* const physics);
+    void setPhysicsImplementation(const std::shared_ptr<pylith::feassemble::PhysicsImplementation>& const physics);
 
     /** Set time scale.
      *
      * @param[in] value Time scale for dimensionalizing time.
      */
     virtual
-    void setTimeScale(const PylithReal value) = 0;
+    void setTimeScale(const pylith::real value) = 0;
 
     /** Verify observer is compatible with solution.
      *
@@ -61,15 +61,15 @@ public:
      * @param[in] notification Type of notification.
      */
     virtual
-    void update(const PylithReal t,
-                const PylithInt tindex,
+    void update(const pylith::real t,
+                const pylith::integer tindex,
                 const pylith::topology::Field& solution,
                 const pylith::problems::Observer::NotificationType notification) = 0;
 
     // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
 protected:
 
-    const pylith::feassemble::PhysicsImplementation* _physics; ///< Physics implementation to observe.
+    const std::shared_ptr<pylith::feassemble::PhysicsImplementation> _physics; ///< Physics implementation to observe.
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:

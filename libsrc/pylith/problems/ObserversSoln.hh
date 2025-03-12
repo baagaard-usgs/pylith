@@ -41,13 +41,13 @@ public:
      *
      * @param[in] observer Observer to receive notifications.
      */
-    void registerObserver(pylith::problems::ObserverSoln* observer);
+    void registerObserver(std::shared_ptr<pylith::problems::ObserverSoln>& observer);
 
     /** Remove observer from receiving notifications.
      *
      * @param[in] observer Observer to remove.
      */
-    void removeObserver(pylith::problems::ObserverSoln* observer);
+    void removeObserver(std::shared_ptr<pylith::problems::ObserverSoln>& observer);
 
     /** Set time scale in observers.
      *
@@ -91,8 +91,7 @@ private:
     // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    typedef std::set<pylith::problems::ObserverSoln*>::iterator iterator; ///< Iterator.
-    std::set<pylith::problems::ObserverSoln*, _compare> _observers; ///< Subscribers of updates.
+    std::set<std::shared_ptr<pylith::problems::ObserverSoln>, _compare> _observers; ///< Subscribers of updates.
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:

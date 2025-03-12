@@ -281,8 +281,8 @@ private:
     double _dtInitial; ///< Initial time step (seconds).
     size_t _maxTimeSteps; ///< Maximum number of time steps for problem.
     PetscTS _ts; ///< PETSc time stepper.
-    std::vector<pylith::problems::InitialCondition*> _ic; ///< Array of initial conditions.
-    pylith::problems::ProgressMonitorTime* _monitor; ///< Monitor for simulation progress.
+    std::vector<std::shared_ptr<pylith::problems::InitialCondition> > _ic; ///< Array of initial conditions.
+    std::shared_ptr<pylith::problems::ProgressMonitorTime> _monitor; ///< Monitor for simulation progress.
 
     bool _needNewLHSJacobian; ///< True if need to recompute LHS Jacobian.
     bool _haveNewLHSJacobian; ///< True if LHS Jacobian was reformed.

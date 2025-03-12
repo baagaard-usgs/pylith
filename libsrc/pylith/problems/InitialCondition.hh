@@ -36,10 +36,8 @@ public:
     /** Set solution subfields for initial condition.
      *
      * @param[in] subfields Array of names of solution subfields.
-     * @param[in] numSubfields Number of subfields.
      */
-    void setSubfields(const char* subfields[],
-                      const int numSubfields);
+    void setSubfields(pylith::string_vector& subfields);
 
     /** Verify configuration is acceptable.
      *

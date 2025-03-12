@@ -32,7 +32,7 @@ public:
      *
      * @param[in] db Spatial database holding initial conditions.
      */
-    void setDB(spatialdata::spatialdb::SpatialDB* db);
+    void setDB(std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db);
 
     /** Set solution to values for initial condition.
      *
@@ -45,7 +45,7 @@ public:
     // PRIVATE MEMEBRS /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    spatialdata::spatialdb::SpatialDB* _db; ///< Spatial database with values for initial condition.
+    std::shared_ptr<spatialdata::spatialdb::SpatialDB> _db; ///< Spatial database with values for initial condition.
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:

@@ -9,7 +9,7 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/utils/types.hh" // USES PylithScalar, PylithReal
+#include "pylith/utils/types.hh" // USES pylith::scalar, pylith::real
 
 #include <string> // USES std::string
 #include <vector> // USES std::vector
@@ -32,17 +32,17 @@ namespace pylith {
     /// Alias for std::valarray<double>
     typedef std::valarray<double> double_array;
 
-    /// Alias for std::valarray<PylithInt>
-    typedef std::valarray<PylithInt> int_array;
+    /// Alias for std::valarray<pylith::integer>
+    typedef std::valarray<pylith::integer> integer_array;
 
     /// Alias for std::valarray<char>
     typedef std::valarray<char> char_array;
 
-    /// Alias for std::valarray<PylithReal>
-    typedef std::valarray<PylithReal> real_array;
+    /// Alias for std::valarray<pylith::real>
+    typedef std::valarray<pylith::real> real_array;
 
-    /// Alias for std::valarray<PylithScalar>
-    typedef std::valarray<PylithScalar> scalar_array;
+    /// Alias for std::valarray<pylith::scalar>
+    typedef std::valarray<pylith::scalar> scalar_array;
 
 } // pylith
 
