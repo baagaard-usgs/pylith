@@ -527,7 +527,7 @@ public:
         assert(Jf0);
         assert(sOff);
 
-        const PylithInt spaceDim = dim+1; // :KLUDGE: dim passed in is spaceDim-1
+        const PylithInt spaceDim = dim;
 
         for (PylithInt i = 0; i < spaceDim; ++i) {
             Jf0[i*spaceDim+i] += +1.0;
