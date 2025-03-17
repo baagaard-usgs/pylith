@@ -53,10 +53,10 @@ public:
                 void init(void);
 
                 static pylith::utils::EventLogger logger;
-                static PylithInt refine;
-                static PylithInt refineFixFaceLabels;
-                static PylithInt refineFixCellsLabel;
-                static PylithInt refineCheckTopology;
+                static pylith::integer refine;
+                static pylith::integer refineFixFaceLabels;
+                static pylith::integer refineFixCellsLabel;
+                static pylith::integer refineCheckTopology;
             };
 
         }; // _RefineUniform
@@ -64,10 +64,10 @@ public:
 } // pylith
 
 pylith::utils::EventLogger pylith::topology::_RefineUniform::Events::logger;
-PylithInt pylith::topology::_RefineUniform::Events::refine;
-PylithInt pylith::topology::_RefineUniform::Events::refineFixFaceLabels;
-PylithInt pylith::topology::_RefineUniform::Events::refineFixCellsLabel;
-PylithInt pylith::topology::_RefineUniform::Events::refineCheckTopology;
+pylith::integer pylith::topology::_RefineUniform::Events::refine;
+pylith::integer pylith::topology::_RefineUniform::Events::refineFixFaceLabels;
+pylith::integer pylith::topology::_RefineUniform::Events::refineFixCellsLabel;
+pylith::integer pylith::topology::_RefineUniform::Events::refineCheckTopology;
 
 // ------------------------------------------------------------------------------------------------
 void
@@ -240,7 +240,6 @@ pylith::topology::RefineUniform::refine(Mesh* const newMesh,
     _RefineUniform::cleanFaceLabels(newMesh, faceLabelNames);
 
     _RefineUniform::Events::logger.eventBegin(_RefineUniform::Events::refineCheckTopology);
-    // Check consistency
     pylith::topology::MeshOps::checkTopology(*newMesh);
     _RefineUniform::Events::logger.eventEnd(_RefineUniform::Events::refineCheckTopology);
 

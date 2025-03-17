@@ -36,7 +36,7 @@ pylith::topology::FieldOps::deallocate(void) {
 // ------------------------------------------------------------------------------------------------
 // Create PetscFE object for discretization.
 PetscFE
-pylith::topology::FieldOps::createFE(const FieldBase::Discretization& feinfo,
+pylith::topology::FieldOps::createFE(const FieldBase::Discretization& discretization,
                                      const PetscDM dm,
                                      const int numComponents) {
     PYLITH_METHOD_BEGIN;
@@ -46,10 +46,10 @@ pylith::topology::FieldOps::createFE(const FieldBase::Discretization& feinfo,
     PetscErrorCode err;
 
     err = DMGetDimension(dm, &dim);PYLITH_CHECK_ERROR(err);
-    dim = (feinfo.dimension < 0) ? dim : feinfo.dimension;assert(dim > 0);
-    FieldBase::Discretization feKey = FieldBase::Discretization(feinfo.basisOrder, feinfo.quadOrder, dim, numComponents,
-                                                                feinfo.isFaultOnly, feinfo.cellBasis, feinfo.feSpace,
-                                                                feinfo.isBasisContinuous);
+    dim = (discretization.dimension < 0) ? dim : discretization.dimension;assert(dim > 0);
+    FieldBase::Discretization feKey = FieldBase::Discretization(discretization.basisOrder, discretization.quadOrder, dim, numComponents,
+                                                                discretization.isFaultOnly, discretization.cellBasis, discretization.feSpace,
+                                                                discretization.isBasisContinuous);
     std::map<FieldBase::Discretization, pylith::topology::FE>::const_iterator hasFE = pylith::topology::FieldOps::feStore.find(feKey);
 
     if (hasFE == pylith::topology::FieldOps::feStore.end()) {
@@ -131,8 +131,8 @@ void
 pylith::topology::FieldOps::checkDiscretization(const pylith::topology::Field& target,
                                                 const pylith::topology::Field& auxiliary) {
     PYLITH_METHOD_BEGIN;
-    // PYLITH_JOURNAL_DEBUG("checkDiscretization(target="<<target.getLabel()<<",
-    // auxiliary="<<auxiliary.getLabel()<<")");
+    // PYLITH_JOURNAL_DEBUG("checkDiscretization(target="<<target.getName()<<",
+    // auxiliary="<<auxiliary.getName()<<")");
 
     // Verify that the quadrature order of the target subfields all
     // match and that they match the quadrature order of the auxiliary
@@ -149,7 +149,7 @@ pylith::topology::FieldOps::checkDiscretization(const pylith::topology::Field& t
             if (quadOrder > 0) {
                 if (quadOrder != sinfo.fe.quadOrder) {
                     std::ostringstream msg;
-                    msg << "Quadrature order of subfields in target field '" << target.getLabel()
+                    msg << "Quadrature order of subfields in target field '" << target.getName()
                         << "' must all be the same. Expected quadrature order of " << quadOrder << ", but subfield '"
                         << subfieldNames[i] << "' has a quadrature order of " << sinfo.fe.quadOrder << ".";
                     throw std::runtime_error(msg.str());
@@ -169,8 +169,8 @@ pylith::topology::FieldOps::checkDiscretization(const pylith::topology::Field& t
             if (quadOrder > 0) {
                 if (quadOrder != sinfo.fe.quadOrder) {
                     std::ostringstream msg;
-                    msg << "Quadrature order of subfields in auxiliary field '" << auxiliary.getLabel()
-                        << "' must all match the quadrature order in the target subfields '" << target.getLabel()
+                    msg << "Quadrature order of subfields in auxiliary field '" << auxiliary.getName()
+                        << "' must all match the quadrature order in the target subfields '" << target.getName()
                         << "'. Expected quadrature order of " << quadOrder << ", but subfield '" << subfieldNames[i]
                         << "' has a quadrature order of " << sinfo.fe.quadOrder << ".";
                     throw std::runtime_error(msg.str());
@@ -211,7 +211,7 @@ pylith::topology::FieldOps::checkSubfieldsExist(const pylith::string_vector& req
                 msg << ",";
             }
         }
-        msg << " in " << field.getLabel() << " field. Field contains: ";
+        msg << " in " << field.getName() << " field. Field contains: ";
         for (size_t i = 0; i < subfieldNames.size(); ++i) {
             msg << "'" << subfieldNames[i] << "'";
             if (i+1 < subfieldNames.size()) {
@@ -236,14 +236,14 @@ pylith::topology::FieldOps::getSubfieldNamesDomain(const pylith::topology::Field
     // (as opposed to those defined over a subset like the fault_lagrange_multiplier).
     PetscDS fieldDS = NULL;
     PetscErrorCode err = DMGetDS(field.getDM(), &fieldDS);PYLITH_CHECK_ERROR(err);
-    PylithInt numFields = 0;
+    pylith::integer numFields = 0;
     err = PetscDSGetNumFields(fieldDS, &numFields);PYLITH_CHECK_ERROR(err);
     assert(numFields > 0);
     pylith::string_vector subfieldNamesDomain(numFields);
-    for (PylithInt iField = 0; iField < numFields; ++iField) {
+    for (pylith::integer iField = 0; iField < numFields; ++iField) {
         PetscObject discretization = NULL;
         err = PetscDSGetDiscretization(fieldDS, iField, &discretization);PYLITH_CHECK_ERROR(err);
-        PylithInt fieldIndex = -1;
+        pylith::integer fieldIndex = -1;
         err = PetscDSGetFieldIndex(fieldDS, discretization, &fieldIndex);PYLITH_CHECK_ERROR(err);
         assert(fieldIndex >= 0 && size_t(fieldIndex) < subfieldNames.size());
         subfieldNamesDomain[iField] = subfieldNames[fieldIndex];
@@ -259,7 +259,7 @@ bool
 pylith::topology::FieldOps::layoutsMatch(const pylith::topology::Field& fieldA,
                                          const pylith::topology::Field& fieldB) {
     PYLITH_METHOD_BEGIN;
-    // PYLITH_JOURNAL_DEBUG("layoutsMatch(fieldA="<<fieldA.getLabel()<<", fieldB="<<fieldB.getLabel()<<")");
+    // PYLITH_JOURNAL_DEBUG("layoutsMatch(fieldA="<<fieldA.getName()<<", fieldB="<<fieldB.getName()<<")");
 
     bool isMatch = true;
 

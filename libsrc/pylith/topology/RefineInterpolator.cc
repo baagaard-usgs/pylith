@@ -35,8 +35,8 @@ public:
                 void init(void);
 
                 static pylith::utils::EventLogger logger;
-                static PylithInt initialize;
-                static PylithInt interpolate;
+                static pylith::integer initialize;
+                static pylith::integer interpolate;
             };
 
         }; // _RefineInterpolator
@@ -44,8 +44,8 @@ public:
 } // pylith
 
 pylith::utils::EventLogger pylith::topology::_RefineInterpolator::Events::logger;
-PylithInt pylith::topology::_RefineInterpolator::Events::initialize;
-PylithInt pylith::topology::_RefineInterpolator::Events::interpolate;
+pylith::integer pylith::topology::_RefineInterpolator::Events::initialize;
+pylith::integer pylith::topology::_RefineInterpolator::Events::interpolate;
 
 // ------------------------------------------------------------------------------------------------
 void

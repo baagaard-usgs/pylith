@@ -21,7 +21,6 @@
  * domain.
  */
 class pylith::topology::Mesh {
-    friend class MeshOps;
     friend class TestMesh; // unit testing
 
     // PUBLIC MEMBERS ///////////////////////////////////////////////////////
@@ -79,7 +78,7 @@ public:
      *
      * @returns Coordinate system.
      */
-    const spatialdata::geocoords::CoordSys* getCoordSys(void) const;
+    const std::shared_ptr<spatialdata::geocoords::CoordSys>& getCoordSys(void) const;
 
     /** Get dimension of mesh.
      *

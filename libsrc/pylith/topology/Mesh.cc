@@ -30,7 +30,6 @@ const char* pylith::topology::Mesh::cells_label_name = "material-id";
 // ------------------------------------------------------------------------------------------------
 // Default constructor
 pylith::topology::Mesh::Mesh(void) :
-    _coordSys(NULL),
     _dm(NULL) {}
 
 
@@ -38,7 +37,6 @@ pylith::topology::Mesh::Mesh(void) :
 // Constructor with dimension and communicator.
 pylith::topology::Mesh::Mesh(const int dim,
                              const MPI_Comm& comm) :
-    _coordSys(NULL),
     _dm(NULL) {
     PYLITH_METHOD_BEGIN;
 
@@ -65,7 +63,7 @@ void
 pylith::topology::Mesh::deallocate(void) {
     PYLITH_METHOD_BEGIN;
 
-    delete _coordSys;_coordSys = NULL;
+    _coordSys.reset();
     PetscErrorCode err = DMDestroy(&_dm);PYLITH_CHECK_ERROR(err);
 
     PYLITH_METHOD_END;
@@ -79,7 +77,7 @@ pylith::topology::Mesh::clone(void) const {
     PYLITH_METHOD_BEGIN;
 
     Mesh* mesh = new Mesh();assert(mesh);
-    mesh->setCoordSys(this->getCoordSys());
+    mesh->setCoordSys(_coordSys);
 
     PetscErrorCode err = PETSC_SUCCESS;
     if (this->_dm) {
@@ -124,7 +122,7 @@ pylith::topology::Mesh::setDM(PetscDM dm,
 
 // ----------------------------------------------------------------------
 // Get coordinate system.
-const spatialdata::geocoords::CoordSys*
+const std::shared_ptr<spatialdata::geocoords::CoordSys>&
 pylith::topology::Mesh::getCoordSys(void) const {
     return _coordSys;
 }
@@ -133,12 +131,8 @@ pylith::topology::Mesh::getCoordSys(void) const {
 // ------------------------------------------------------------------------------------------------
 // Set coordinate system.
 void
-pylith::topology::Mesh::setCoordSys(const spatialdata::geocoords::CoordSys* cs) {
-    PYLITH_METHOD_BEGIN;
-
-    delete _coordSys;_coordSys = (cs) ? cs->clone() : NULL;
-
-    PYLITH_METHOD_END;
+pylith::topology::Mesh::setCoordSys(const std::shared_ptr<spatialdata::geocoords::CoordSys>& cs) {
+    _coordSys = cs;
 } // setCoordSys
 
 

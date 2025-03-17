@@ -67,7 +67,7 @@ public:
      *     - number of components
      */
     static
-    PetscFE createFE(const FieldBase::Discretization& feinfo,
+    PetscFE createFE(const FieldBase::Discretization& discretization,
                      const PetscDM dm,
                      const int numComponents);
 

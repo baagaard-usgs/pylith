@@ -73,7 +73,7 @@ public:
      *
      * @param[in] src Field to copy layout from.
      *
-     * @note Don't forget to call setLabel(), especially if reusing a field.
+     * @note Don't forget to call setName(), especially if reusing a field.
      */
     Field(const Field& src);
 
@@ -95,17 +95,17 @@ public:
      */
     PetscDM getDM(void) const;
 
-    /** Get label for field.
+    /** Get name of field.
      *
-     * @returns Label for field.
+     * @returns Name of field.
      */
-    const char* getLabel(void) const;
+    const char* getName(void) const;
 
-    /** Set label for field.
+    /** Set name of field.
      *
-     * @param value Label for field.
+     * @param name Name of field.
      */
-    void setLabel(const char* value);
+    void setName(const char* name);
 
     /** Get local PetscSection.
      *
@@ -147,13 +147,13 @@ public:
      *
      * @returns the chart size.
      */
-    PylithInt getChartSize(void) const;
+    pylith::integer getChartSize(void) const;
 
     /** Get the number of degrees of freedom.
      *
      * @returns the number of degrees of freedom.
      */
-    PylithInt getStorageSize(void) const;
+    pylith::integer getStorageSize(void) const;
 
     /** Create discretization for field.
      *
@@ -288,7 +288,7 @@ private:
 private:
 
     subfields_type _subfields; ///< Map of subfields in field.
-    std::string _label; ///< Label for field.
+    std::string _name; ///< Name of field.
 
     pylith::topology::Mesh* _mesh; ///< Mesh associated with field.
     PetscVec _localVec; ///< Local PETSc vector.

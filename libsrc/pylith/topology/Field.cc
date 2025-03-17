@@ -65,7 +65,7 @@ pylith::topology::Field::Field(const pylith::topology::Mesh& mesh) :
     PYLITH_METHOD_BEGIN;
 
     GenericComponent::setName("field");
-    _label = ":UNKNOWN:";
+    _name = ":UNKNOWN:";
     _mesh = mesh.clone();assert(_mesh);
 
     PYLITH_METHOD_END;
@@ -144,33 +144,33 @@ pylith::topology::Field::getDM(void) const {
 // ------------------------------------------------------------------------------------------------
 // Get label for field.
 const char*
-pylith::topology::Field::getLabel(void) const {
-    return _label.c_str();
+pylith::topology::Field::getName(void) const {
+    return _name.c_str();
 }
 
 
 // ------------------------------------------------------------------------------------------------
 // Set label for field.
 void
-pylith::topology::Field::setLabel(const char* value) {
+pylith::topology::Field::setName(const char* name) {
     PYLITH_METHOD_BEGIN;
     assert(_mesh);
 
     const char* dmName = NULL;
     PetscErrorCode err = PetscObjectGetName((PetscObject) _mesh->getDM(), &dmName);PYLITH_CHECK_ERROR(err);
-    _label = std::string(dmName) + std::string(" ") + std::string(value);
+    _name = std::string(dmName) + std::string(" ") + std::string(name);
 
     if (_mesh->getDM()) {
-        err = PetscObjectSetName((PetscObject) _mesh->getDM(), _label.c_str());PYLITH_CHECK_ERROR(err);
+        err = PetscObjectSetName((PetscObject) _mesh->getDM(), _name.c_str());PYLITH_CHECK_ERROR(err);
     } // if
     if (_localVec) {
-        err = PetscObjectSetName((PetscObject) _localVec, _label.c_str());PYLITH_CHECK_ERROR(err);
+        err = PetscObjectSetName((PetscObject) _localVec, _name.c_str());PYLITH_CHECK_ERROR(err);
     } // if
     if (_globalVec) {
-        err = PetscObjectSetName((PetscObject) _globalVec, _label.c_str());PYLITH_CHECK_ERROR(err);
+        err = PetscObjectSetName((PetscObject) _globalVec, _name.c_str());PYLITH_CHECK_ERROR(err);
     } // if
     if (_outputVec) {
-        err = PetscObjectSetName((PetscObject) _outputVec, _label.c_str());PYLITH_CHECK_ERROR(err);
+        err = PetscObjectSetName((PetscObject) _outputVec, _name.c_str());PYLITH_CHECK_ERROR(err);
     } // if
 
     PYLITH_METHOD_END;
@@ -239,13 +239,13 @@ pylith::topology::Field::getSpaceDim(void) const {
 
 // ------------------------------------------------------------------------------------------------
 // Get the chart size.
-PylithInt
+pylith::integer
 pylith::topology::Field::getChartSize(void) const {
     PYLITH_METHOD_BEGIN;
     assert(_mesh);
 
     PetscSection s = NULL;
-    PylithInt pStart, pEnd;
+    pylith::integer pStart, pEnd;
     PetscErrorCode err;
 
     err = DMGetLocalSection(_mesh->getDM(), &s);PYLITH_CHECK_ERROR(err);
@@ -257,12 +257,12 @@ pylith::topology::Field::getChartSize(void) const {
 
 // ------------------------------------------------------------------------------------------------
 // Get the number of degrees of freedom.
-PylithInt
+pylith::integer
 pylith::topology::Field::getStorageSize(void) const {
     PYLITH_METHOD_BEGIN;
     assert(_mesh);
 
-    PylithInt size = 0;
+    pylith::integer size = 0;
     PetscSection s = NULL;
     PetscErrorCode err;
     err = DMGetLocalSection(_mesh->getDM(), &s);PYLITH_CHECK_ERROR(err);
@@ -307,7 +307,7 @@ pylith::topology::Field::allocate(void) {
 
     err = VecDestroy(&_localVec);PYLITH_CHECK_ERROR(err);
     err = DMCreateLocalVector(dm, &_localVec);PYLITH_CHECK_ERROR(err);
-    err = PetscObjectSetName((PetscObject) _localVec,  _label.c_str());PYLITH_CHECK_ERROR(err);
+    err = PetscObjectSetName((PetscObject) _localVec,  _name.c_str());PYLITH_CHECK_ERROR(err);
     err = VecSet(_localVec, 0.0);PYLITH_CHECK_ERROR(err);
 
     PYLITH_METHOD_END;
@@ -337,7 +337,7 @@ pylith::topology::Field::view(const char* label,
 
     const int rank = _mesh->getCommRank();
     if (!rank) {
-        std::cout << "Viewing field '" << _label << "' "<< label << ".\n";
+        std::cout << "Viewing field '" << _name << "' "<< label << ".\n";
         if (_subfields.size() > 0) {
             std::cout << "  Subfields:\n";
             for (subfields_type::const_iterator s_iter = _subfields.begin(); s_iter != _subfields.end(); ++s_iter) {
@@ -535,7 +535,7 @@ pylith::topology::Field::subfieldsSetup(void) {
                 std::ostringstream msg;
                 msg << "PETSc DMPlex routines currently assume all subfields use the same quadrature order. Quadrature order of "
                     << sinfo.fe.quadOrder << " for subfield '" << sname << "' does not match the quadrature order of " << quadOrder
-                    << " for other subfields in field '" << getLabel() << "'.";
+                    << " for other subfields in field '" << getName() << "'.";
                 throw std::runtime_error(msg.str());
             } // if
         } else {
@@ -605,7 +605,7 @@ pylith::topology::Field::getSubfieldInfo(const char* name) const {
     subfields_type::const_iterator iter = _subfields.find(name);
     if (_subfields.end() == iter) {
         std::ostringstream msg;
-        msg << "Could not find subfield '" << name << "' in field '" << getLabel() << "'.\n"
+        msg << "Could not find subfield '" << name << "' in field '" << getName() << "'.\n"
             << "Available subfields:";
         for (subfields_type::const_iterator s_iter = _subfields.begin(); s_iter != _subfields.end(); ++s_iter) {
             msg << " '" << s_iter->first << "'";
@@ -628,7 +628,7 @@ pylith::topology::Field::createGlobalVector(void) {
 
     PetscErrorCode err = VecDestroy(&_globalVec);PYLITH_CHECK_ERROR(err);
     err = DMCreateGlobalVector(_mesh->getDM(), &_globalVec);PYLITH_CHECK_ERROR(err);assert(_globalVec);
-    err = PetscObjectSetName((PetscObject) _globalVec, getLabel());PYLITH_CHECK_ERROR(err);
+    err = PetscObjectSetName((PetscObject) _globalVec, getName());PYLITH_CHECK_ERROR(err);
 
     PYLITH_METHOD_END;
 }
@@ -655,7 +655,7 @@ pylith::topology::Field::createOutputVector(void) {
     } // for
 
     err = DMCreateGlobalVector(dmOutput, &_outputVec);PYLITH_CHECK_ERROR(err);assert(_outputVec);
-    err = PetscObjectSetName((PetscObject) _outputVec, getLabel());PYLITH_CHECK_ERROR(err);
+    err = PetscObjectSetName((PetscObject) _outputVec, getName());PYLITH_CHECK_ERROR(err);
 
     PYLITH_METHOD_END;
 }
@@ -706,7 +706,7 @@ pylith::topology::_Field::viewValues(const Field& field) {
 
     const pylith::string_vector& subfieldNames = field.getSubfieldNames();
     const size_t numSubfields = subfieldNames.size();
-    pylith::int_array numComponents(numSubfields);
+    pylith::integer_array numComponents(numSubfields);
     for (size_t i = 0; i < numSubfields; ++i) {
         numComponents[i] = field.getSubfieldInfo(subfieldNames[i].c_str()).description.numComponents;
     } // for
@@ -763,7 +763,7 @@ pylith::topology::_Field::viewLocalSection(const Field& field) {
 
     const pylith::string_vector& subfieldNames = field.getSubfieldNames();
     const size_t numSubfields = subfieldNames.size();
-    pylith::int_array numComponents(numSubfields);
+    pylith::integer_array numComponents(numSubfields);
     for (size_t i = 0; i < numSubfields; ++i) {
         numComponents[i] = field.getSubfieldInfo(subfieldNames[i].c_str()).description.numComponents;
     } // for
@@ -833,7 +833,7 @@ pylith::topology::_Field::viewGlobalSection(const Field& field) {
 
     const pylith::string_vector& subfieldNames = field.getSubfieldNames();
     const size_t numSubfields = subfieldNames.size();
-    pylith::int_array numComponents(numSubfields);
+    pylith::integer_array numComponents(numSubfields);
     for (size_t i = 0; i < numSubfields; ++i) {
         numComponents[i] = field.getSubfieldInfo(subfieldNames[i].c_str()).description.numComponents;
     } // for

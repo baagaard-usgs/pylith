@@ -130,10 +130,10 @@ pylith::topology::Distributor::write(meshio::DataWriter* const writer,
 
     // Setup and allocate PETSc vector
     const int commRank = mesh.getCommRank();
-    PylithScalar rankReal = PylithReal(commRank);
+    pylith::scalar rankReal = pylith::scalar(commRank);
 
     pylith::topology::Field partitionField(mesh);
-    partitionField.setLabel("partition");
+    partitionField.setName("partition");
 
     pylith::topology::Field::Description description;
     description.label = "partition";
@@ -176,7 +176,7 @@ pylith::topology::Distributor::write(meshio::DataWriter* const writer,
         pylith::meshio::OutputSubfield::create(partitionField, mesh, "partition", basisOrder, refineLevels);
     outputField->project(partitionField.getOutputVector());
 
-    const PylithScalar t = 0.0;
+    const pylith::scalar t = 0.0;
     const bool isInfo = true;
     writer->open(mesh, isInfo);
     writer->openTimeStep(t, mesh);

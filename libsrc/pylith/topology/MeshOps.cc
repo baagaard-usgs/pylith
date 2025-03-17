@@ -14,7 +14,7 @@
 
 #include "pylith/topology/Mesh.hh" // USES Mesh
 #include "pylith/topology/Stratum.hh" // USES Stratum
-#include "pylith/utils/array.hh" // USES int_array
+#include "pylith/utils/array.hh" // USES integer_array
 #include "pylith/utils/EventLogger.hh" // USES EventLogger
 #include "pylith/utils/journals.hh" // USES PYLITH_JOURNAL*
 
@@ -41,15 +41,15 @@ public:
                 void init(void);
 
                 static pylith::utils::EventLogger logger;
-                static PylithInt createSubdomainMesh;
-                static PylithInt createLowerDimMesh;
-                static PylithInt createFromPoints;
-                static PylithInt nondimensionalize;
-                static PylithInt checkTopology;
-                static PylithInt checkTopologyGeometry;
-                static PylithInt checkTopologySymmetry;
-                static PylithInt checkTopologySkeleton;
-                static PylithInt checkMaterialLabels;
+                static pylith::integer createSubdomainMesh;
+                static pylith::integer createLowerDimMesh;
+                static pylith::integer createFromPoints;
+                static pylith::integer nondimensionalize;
+                static pylith::integer checkTopology;
+                static pylith::integer checkTopologyGeometry;
+                static pylith::integer checkTopologySymmetry;
+                static pylith::integer checkTopologySkeleton;
+                static pylith::integer checkMaterialLabels;
 
                 static bool isInitialized;
             };
@@ -57,15 +57,15 @@ public:
     }
 }
 pylith::utils::EventLogger pylith::topology::_MeshOps::Events::logger;
-PylithInt pylith::topology::_MeshOps::Events::createSubdomainMesh;
-PylithInt pylith::topology::_MeshOps::Events::createLowerDimMesh;
-PylithInt pylith::topology::_MeshOps::Events::createFromPoints;
-PylithInt pylith::topology::_MeshOps::Events::nondimensionalize;
-PylithInt pylith::topology::_MeshOps::Events::checkTopology;
-PylithInt pylith::topology::_MeshOps::Events::checkTopologyGeometry;
-PylithInt pylith::topology::_MeshOps::Events::checkTopologySymmetry;
-PylithInt pylith::topology::_MeshOps::Events::checkTopologySkeleton;
-PylithInt pylith::topology::_MeshOps::Events::checkMaterialLabels;
+pylith::integer pylith::topology::_MeshOps::Events::createSubdomainMesh;
+pylith::integer pylith::topology::_MeshOps::Events::createLowerDimMesh;
+pylith::integer pylith::topology::_MeshOps::Events::createFromPoints;
+pylith::integer pylith::topology::_MeshOps::Events::nondimensionalize;
+pylith::integer pylith::topology::_MeshOps::Events::checkTopology;
+pylith::integer pylith::topology::_MeshOps::Events::checkTopologyGeometry;
+pylith::integer pylith::topology::_MeshOps::Events::checkTopologySymmetry;
+pylith::integer pylith::topology::_MeshOps::Events::checkTopologySkeleton;
+pylith::integer pylith::topology::_MeshOps::Events::checkMaterialLabels;
 bool pylith::topology::_MeshOps::Events::isInitialized = false;
 
 void
@@ -147,13 +147,12 @@ pylith::topology::MeshOps::createSubdomainMesh(const pylith::topology::Mesh& mes
         throw std::runtime_error(msg.str());
     } // if
 
-    PylithScalar lengthScale;
+    pylith::real lengthScale;
     err = DMPlexGetScale(dmDomain, PETSC_UNIT_LENGTH, &lengthScale);PYLITH_CHECK_ERROR(err);
     err = DMPlexSetScale(dmSubdomain, PETSC_UNIT_LENGTH, lengthScale);PYLITH_CHECK_ERROR(err);
 
     pylith::topology::Mesh* submesh = new pylith::topology::Mesh();assert(submesh);
     submesh->setCoordSys(mesh.getCoordSys());
-
     submesh->setDM(dmSubdomain, componentName);
 
     _MeshOps::Events::logger.eventEnd(_MeshOps::Events::createSubdomainMesh);
@@ -267,12 +266,12 @@ pylith::topology::MeshOps::createLowerDimMesh(const pylith::topology::Mesh& mesh
     } // if
 
     // Set length scale
-    PylithScalar lengthScale;
+    pylith::real lengthScale;
     err = DMPlexGetScale(dmDomain, PETSC_UNIT_LENGTH, &lengthScale);PYLITH_CHECK_ERROR(err);
     err = DMPlexSetScale(dmSubmesh, PETSC_UNIT_LENGTH, lengthScale);PYLITH_CHECK_ERROR(err);
+
     pylith::topology::Mesh* submesh = new pylith::topology::Mesh();assert(submesh);
     submesh->setCoordSys(mesh.getCoordSys());
-
     submesh->setDM(dmSubmesh, componentName);
 
     // Check topology
@@ -286,10 +285,10 @@ pylith::topology::MeshOps::createLowerDimMesh(const pylith::topology::Mesh& mesh
 // ---------------------------------------------------------------------------------------------------------------------
 // Create 0-dimension mesh from points.
 pylith::topology::Mesh*
-pylith::topology::MeshOps::createFromPoints(const PylithReal* points,
+pylith::topology::MeshOps::createFromPoints(const pylith::real* points,
                                             const size_t numPoints,
-                                            const spatialdata::geocoords::CoordSys* cs,
-                                            const PylithReal lengthScale,
+                                            const std::shared_ptr<spatialdata::geocoords::CoordSys>& cs,
+                                            const pylith::real lengthScale,
                                             MPI_Comm comm,
                                             const char* componentName) {
     PYLITH_METHOD_BEGIN;
@@ -306,9 +305,9 @@ pylith::topology::MeshOps::createFromPoints(const PylithReal* points,
     const PetscInt depth = 0;
     PetscInt dmNumPoints[1];
     dmNumPoints[0] = numPoints;
-    pylith::int_array dmConeSizes(0, numPoints);
-    pylith::int_array dmCones(0, numPoints);
-    pylith::int_array dmConeOrientations(0, numPoints);
+    pylith::integer_array dmConeSizes(0, numPoints);
+    pylith::integer_array dmCones(0, numPoints);
+    pylith::integer_array dmConeOrientations(0, numPoints);
 
     const size_t spaceDim = cs->getSpaceDim();
 
@@ -329,10 +328,8 @@ pylith::topology::MeshOps::createFromPoints(const PylithReal* points,
     err = DMGetPointSF(dmPoints, &sf);PYLITH_CHECK_ERROR(err);
     err = PetscSFSetGraph(sf, numPoints, 0, NULL, PETSC_COPY_VALUES, NULL, PETSC_COPY_VALUES);
 
-    mesh->setDM(dmPoints, componentName);
-
     mesh->setCoordSys(cs);
-
+    mesh->setDM(dmPoints, componentName);
     err = DMPlexSetScale(mesh->getDM(), PETSC_UNIT_LENGTH, lengthScale);PYLITH_CHECK_ERROR(err);
 
     _MeshOps::Events::logger.eventEnd(_MeshOps::Events::createFromPoints);
@@ -352,7 +349,7 @@ pylith::topology::MeshOps::nondimensionalize(Mesh* const mesh,
     assert(mesh);
 
     PetscVec coordVec = NULL;
-    const PylithScalar lengthScale = normalizer.getLengthScale();
+    const pylith::real lengthScale = normalizer.getLengthScale();
     PetscErrorCode err = 0;
 
     PetscDM dmMesh = mesh->getDM();assert(dmMesh);
@@ -365,16 +362,16 @@ pylith::topology::MeshOps::nondimensionalize(Mesh* const mesh,
     if (dim < 1) {
         PYLITH_METHOD_END;
     } // if
-    PylithReal coordMin[3];
-    PylithReal coordMax[3];
+    pylith::real coordMin[3];
+    pylith::real coordMax[3];
     err = DMGetBoundingBox(dmMesh, coordMin, coordMax);
-    PylithReal volume = 1.0;
+    pylith::real volume = 1.0;
     for (int i = 0; i < dim; ++i) {
         volume *= coordMax[i] - coordMin[i];
     } // for
     assert(dim > 0);
-    const PylithReal avgCellDim = pow(volume / MeshOps::getNumCells(*mesh), 1.0/dim);
-    const PylithReal avgDimTolerance = 0.02;
+    const pylith::real avgCellDim = pow(volume / MeshOps::getNumCells(*mesh), 1.0/dim);
+    const pylith::real avgDimTolerance = 0.02;
     if (avgCellDim < avgDimTolerance) {
         std::ostringstream msg;
         msg << "Nondimensional average cell dimension (" << avgCellDim << ") is less than minimum tolerance ("
@@ -537,13 +534,13 @@ pylith::topology::MeshOps::isCohesiveCell(const PetscDM dm,
 
 // ----------------------------------------------------------------------
 // Get number of vertices in mesh.
-PylithInt
+pylith::integer
 pylith::topology::MeshOps::getNumVertices(const pylith::topology::Mesh& mesh) {
     PYLITH_METHOD_BEGIN;
 
     PetscDM dmMesh = mesh.getDM();assert(dmMesh);
-    PylithInt nvertices = 0;
-    PylithInt begin = 0, end = 0;
+    pylith::integer nvertices = 0;
+    pylith::integer begin = 0, end = 0;
     PetscErrorCode err = DMPlexGetDepthStratum(dmMesh, 0, &begin, &end);PYLITH_CHECK_ERROR(err);
     nvertices = end-begin;
 
@@ -553,13 +550,13 @@ pylith::topology::MeshOps::getNumVertices(const pylith::topology::Mesh& mesh) {
 
 // ----------------------------------------------------------------------
 // Get number of cells in mesh.
-PylithInt
+pylith::integer
 pylith::topology::MeshOps::getNumCells(const pylith::topology::Mesh& mesh) {
     PYLITH_METHOD_BEGIN;
 
     PetscDM dmMesh = mesh.getDM();assert(dmMesh);
     PetscInt ncells = 0;
-    PylithInt begin = 0, end = 0;
+    pylith::integer begin = 0, end = 0;
     const int cellHeight = 0;
     PetscErrorCode err = DMPlexGetHeightStratum(dmMesh, cellHeight, &begin, &end);PYLITH_CHECK_ERROR(err);
     ncells = end-begin;
@@ -570,7 +567,7 @@ pylith::topology::MeshOps::getNumCells(const pylith::topology::Mesh& mesh) {
 
 // ----------------------------------------------------------------------
 // Get number of vertices in a cell.
-PylithInt
+pylith::integer
 pylith::topology::MeshOps::getNumCorners(const pylith::topology::Mesh& mesh) {
     PYLITH_METHOD_BEGIN;
 
@@ -597,7 +594,7 @@ pylith::topology::MeshOps::getNumCorners(const pylith::topology::Mesh& mesh) {
 // ---------------------------------------------------------------------------------------------------------------------
 void
 pylith::topology::MeshOps::checkMaterialLabels(const pylith::topology::Mesh& mesh,
-                                               pylith::int_array& labelValues) {
+                                               pylith::integer_array& labelValues) {
     PYLITH_METHOD_BEGIN;
     _MeshOps::Events::init();
     _MeshOps::Events::logger.eventBegin(_MeshOps::Events::checkMaterialLabels);
@@ -611,7 +608,7 @@ pylith::topology::MeshOps::checkMaterialLabels(const pylith::topology::Mesh& mes
         materialIndex[labelValues[i]] = i;
     } // for
 
-    int_array matCellCounts(numIds);
+    integer_array matCellCounts(numIds);
     matCellCounts = 0;
 
     PetscDM dmMesh = mesh.getDM();assert(dmMesh);
@@ -651,7 +648,7 @@ pylith::topology::MeshOps::checkMaterialLabels(const pylith::topology::Mesh& mes
     } // for
 
     // Make sure each material has cells.
-    int_array matCellCountsAll(matCellCounts.size());
+    integer_array matCellCountsAll(matCellCounts.size());
     err = MPI_Allreduce(&matCellCounts[0], &matCellCountsAll[0],
                         matCellCounts.size(), MPI_INT, MPI_SUM, mesh.getComm());PYLITH_CHECK_ERROR(err);
     for (size_t i = 0; i < numIds; ++i) {
