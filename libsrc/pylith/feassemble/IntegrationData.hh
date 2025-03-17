@@ -55,14 +55,14 @@ public:
      * @param[in] value Value of scalar.
      */
     void setScalar(const std::string& name,
-                   const PylithReal value);
+                   const pylith::real value);
 
     /** Get scalar quantity.
      *
      * @param[in] name Name of scalar.
      * @returns Value of scalar.
      */
-    PylithReal getScalar(const std::string& name) const;
+    pylith::real getScalar(const std::string& name) const;
 
     /** Remove scalar quantity.
      *
@@ -122,7 +122,7 @@ public:
     // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:
 
-    typedef std::map<std::string, PylithReal> scalars_map_t;
+    typedef std::map<std::string, pylith::real> scalars_map_t;
     typedef std::map<std::string, pylith::topology::Field*> fields_map_t;
     typedef std::map<std::string, pylith::topology::Mesh*> meshes_map_t;
 

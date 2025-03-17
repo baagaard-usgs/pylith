@@ -35,8 +35,8 @@ protected:
      * @param[in] tindex Current time step.
      * @param[in] solution Solution at time t.
      */
-    void _writeSolnStep(const PylithReal t,
-                        const PylithInt tindex,
+    void _writeSolnStep(const pylith::real t,
+                        const pylith::integer tindex,
                         const pylith::topology::Field& solution);
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////

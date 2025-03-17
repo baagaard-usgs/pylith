@@ -18,7 +18,7 @@
 // Forward declarations -------------------------------------------------
 
 // ExodusII ----------------------------------------------------------
-class pylith::meshio::ExodusII { // ExodusII
+class pylith::meshio::ExodusII {
     friend class TestExodusII; // unit testing
 
     // PUBLIC METHODS ///////////////////////////////////////////////////////
@@ -43,13 +43,13 @@ public:
      *
      * @param filename Name of file
      */
-    void filename(const char* name);
+    void setFilename(const char* name);
 
     /** Get filename.
      *
      * @returns Name of file
      */
-    const char* filename(void) const;
+    const char* getFilename(void) const;
 
     /// Open file.
     void open(void);

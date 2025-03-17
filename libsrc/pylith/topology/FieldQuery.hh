@@ -36,7 +36,7 @@ class pylith::topology::FieldQuery {
     // PUBLIC TYPEDEF ///////////////////////////////////////////////////////
 public:
 
-    static const PylithReal SCALE_TOLERANCE;
+    static const pylith::real SCALE_TOLERANCE;
 
     // PUBLIC TYPEDEF ///////////////////////////////////////////////////////
 public:
@@ -48,10 +48,10 @@ public:
      * @param[in] Array of values from spatial database query.
      * @param[in] Indices of values from spatial database to use for computing subfield values.
      */
-    typedef std::string (*convertfn_type)(PylithScalar[],
-                                          const PylithInt,
+    typedef std::string (*convertfn_type)(pylith::scalar[],
+                                          const pylith::integer,
                                           const pylith::scalar_array,
-                                          const pylith::int_array);
+                                          const pylith::integer_array);
 
     // PUBLIC MEMBERS ///////////////////////////////////////////////////////
 public:
@@ -97,7 +97,7 @@ public:
      * location coordinates.
      */
     void openDB(spatialdata::spatialdb::SpatialDB* db,
-                const PylithReal lengthScale);
+                const pylith::real lengthScale);
 
     /// Query spatial database to set values in field.
     void queryDB(void);
@@ -108,7 +108,7 @@ public:
      * @param[in] value Value of label.
      */
     void queryDBLabel(const char* name,
-                      const PylithInt value=1);
+                      const pylith::integer value=1);
 
     /** Close spatial database query for setting values in field.
      *
@@ -129,11 +129,11 @@ public:
      * @returns PETSc error code (0 for success).
      */
     static
-    PetscErrorCode queryDBPointFn(PylithInt dim,
-                                  PylithReal t,
-                                  const PylithReal x[],
-                                  PylithInt nvalues,
-                                  PylithScalar* values,
+    PetscErrorCode queryDBPointFn(pylith::integer dim,
+                                  pylith::real t,
+                                  const pylith::real x[],
+                                  pylith::integer nvalues,
+                                  pylith::scalar* values,
                                   void* context);
 
     /** Validator for positive values.
@@ -147,9 +147,9 @@ public:
      * @returns Error message if not positive, empty string otherwise.
      */
     static
-    std::string validatorPositive(const PylithReal value,
-                                  const PylithReal scale,
-                                  const PylithReal tolerance);
+    std::string validatorPositive(const pylith::real value,
+                                  const pylith::real scale,
+                                  const pylith::real tolerance);
 
     /** Validator for nonnegative values.
      *
@@ -162,9 +162,9 @@ public:
      * @returns Error message if negative, empty string otherwise.
      */
     static
-    std::string validatorNonnegative(const PylithReal value,
-                                     const PylithReal scale,
-                                     const PylithReal tolerance);
+    std::string validatorNonnegative(const pylith::real value,
+                                     const pylith::real scale,
+                                     const pylith::real tolerance);
 
     /** Validator for scale only.
      *
@@ -177,9 +177,9 @@ public:
      * @returns Error message if negative, empty string otherwise.
      */
     static
-    std::string validatorScale(const PylithReal value,
-                               const PylithReal scale,
-                               const PylithReal tolerance);
+    std::string validatorScale(const pylith::real value,
+                               const pylith::real scale,
+                               const pylith::real tolerance);
 
     // PRIVATE TYPEDEFS /////////////////////////////////////////////////////
 private:
@@ -199,23 +199,23 @@ private:
     typedef std::map<std::string, SubfieldQuery> subfieldquery_map_type;
 
     /// Function prototype for query functions.
-    typedef PetscErrorCode (*queryfn_type)(PylithInt,
-                                           PylithReal,
-                                           const PylithReal[],
-                                           PylithInt,
-                                           PylithScalar*,
+    typedef PetscErrorCode (*queryfn_type)(pylith::integer,
+                                           pylith::real,
+                                           const pylith::real[],
+                                           pylith::integer,
+                                           pylith::scalar*,
                                            void*);
 
     /// Context for spatial database queries.
     struct DBQueryContext {
         spatialdata::spatialdb::SpatialDB* db; ///< Spatial database.
         const spatialdata::geocoords::CoordSys* cs; ///< Coordinate system of input point locations.
-        PylithReal lengthScale; ///< Length scale for dimensionalizing coordinates.
-        PylithReal valueScale; ///< Scale for dimensionalizing values for subfield.
-        PylithReal validatorTolerance; ///< Tolerance relative to valueScale for validation.
+        pylith::real lengthScale; ///< Length scale for dimensionalizing coordinates.
+        pylith::real valueScale; ///< Scale for dimensionalizing values for subfield.
+        pylith::real validatorTolerance; ///< Tolerance relative to valueScale for validation.
         std::string description; ///< Name of value;
         pylith::scalar_array queryValues; ///< Values returned by spatial database query;
-        pylith::int_array queryIndices; ///< Indices of spatial database values to use for subfield.
+        pylith::integer_array queryIndices; ///< Indices of spatial database values to use for subfield.
         convertfn_type converter; ///< Function to convert values to subfield (optional).
         pylith::topology::FieldBase::validatorfn_type validator; ///< Function to validate values (optional).
 

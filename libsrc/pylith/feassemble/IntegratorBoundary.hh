@@ -69,7 +69,7 @@ public:
 public:
 
     /// Constructor
-    IntegratorBoundary(pylith::problems::Physics* const physics);
+    IntegratorBoundary(std::shared_ptr<pylith::problems::Physics>& physics);
 
     /// Destructor
     virtual ~IntegratorBoundary(void);
@@ -120,7 +120,7 @@ public:
      *
      * @param[in] t Current time.
      */
-    void setState(const PylithReal t);
+    void setState(const pylith::real t);
 
     /** Compute RHS residual for G(t,s).
      *
@@ -166,7 +166,7 @@ protected:
     // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    pylith::topology::Mesh* _boundaryMesh; ///< Boundary mesh.
+    std::unique_ptr<pylith::topology::Mesh> _boundaryMesh; ///< Boundary mesh.
     std::string _boundarySurfaceLabel; ///< Name of label identifying boundary surface.
     std::string _subfieldName; ///< Name of solution subfield for boundary condition.
 

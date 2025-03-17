@@ -13,32 +13,23 @@ namespace pylith {
     namespace materials {
         // New stuff
         class Material;
+        class SubfieldFactory;
 
         class Elasticity;
-        class AuxiliaryFactoryElasticity;
-        class DerivedFactoryElasticity;
-
         class RheologyElasticity;
         class IsotropicLinearElasticity;
         class IsotropicLinearMaxwell;
         class IsotropicLinearGenMaxwell;
         class IsotropicPowerLaw;
         class IsotropicLinearIncompElasticity;
-        class AuxiliaryFactoryElastic;
-        class AuxiliaryFactoryViscoelastic;
 
         class IncompressibleElasticity;
-
         class RheologyIncompressibleElasticity;
         class IsotropicLinearIncompElasticity;
 
         class Poroelasticity;
-        class AuxiliaryFactoryPoroelasticity;
-        class DerivedFactoryPoroelasticity;
-
         class RheologyPoroelasticity;
         class IsotropicLinearPoroelasticity;
-        class AuxiliaryFactoryPoroelastic;
 
         class Query;
 

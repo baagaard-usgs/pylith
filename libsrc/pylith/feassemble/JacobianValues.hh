@@ -23,14 +23,14 @@ class pylith::feassemble::JacobianValues : public pylith::utils::GenericComponen
 public:
 
     typedef void (*PointFn)(pylith::scalar_array*,
-                            const PylithReal,
-                            const PylithReal,
-                            const PylithReal,
-                            const PylithInt,
-                            const PylithInt,
-                            const PylithInt,
-                            const PylithInt,
-                            const PylithInt);
+                            const pylith::real,
+                            const pylith::real,
+                            const pylith::real,
+                            const pylith::integer,
+                            const pylith::integer,
+                            const pylith::integer,
+                            const pylith::integer,
+                            const pylith::integer);
 
     /// Kernels (point-wise functions) for Jacobian;
     struct JacobianKernel {
@@ -83,9 +83,9 @@ public:
      */
     void computeLHSJacobian(PetscMat jacobianMat,
                             PetscMat precondMat,
-                            const PylithReal t,
-                            const PylithReal dt,
-                            const PylithReal s_tshift,
+                            const pylith::real t,
+                            const pylith::real dt,
+                            const pylith::real s_tshift,
                             const pylith::topology::Field& solution,
                             const pylith::feassemble::DSLabelAccess& dsLabel);
 
@@ -98,14 +98,14 @@ public:
      */
     static
     void blockDiag_tshift(pylith::scalar_array* cellMat,
-                          const PylithReal t,
-                          const PylithReal dt,
-                          const PylithReal s_tshift,
-                          const PylithInt trialDof,
-                          const PylithInt trialOff,
-                          const PylithInt basisDof,
-                          const PylithInt basisOff,
-                          const PylithInt totalDim);
+                          const pylith::real t,
+                          const pylith::real dt,
+                          const pylith::real s_tshift,
+                          const pylith::integer trialDof,
+                          const pylith::integer trialOff,
+                          const pylith::integer basisDof,
+                          const pylith::integer basisOff,
+                          const pylith::integer totalDim);
 
     // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
 private:

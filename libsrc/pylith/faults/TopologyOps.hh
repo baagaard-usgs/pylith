@@ -123,10 +123,10 @@ public:
      * @param[in] cohesiveCell Cohesive cell.
      */
     static
-    void getAdjacentCells(PylithInt* adjacentCellNegative,
-                          PylithInt* adjacentCellPositive,
+    void getAdjacentCells(pylith::integer* adjacentCellNegative,
+                          pylith::integer* adjacentCellPositive,
                           PetscDM dmMesh,
-                          const PylithInt cohesiveCell);
+                          const pylith::integer cohesiveCell);
 
 }; // class TopologyOps
 

@@ -11,12 +11,12 @@
 
 namespace pylith {
     namespace faults {
+        class SubfieldFactory;
+        class KinSrcSubfieldFactory;
+
         class FaultCohesive;
         class FaultCohesiveKin;
         class FaultCohesiveImpulses;
-        class AuxiliaryFieldFactory;
-        class DiagnosticFieldFactory;
-        class DerivedFieldFactory;
 
         class KinSrc;
         class KinSrcConstRate;

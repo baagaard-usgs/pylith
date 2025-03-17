@@ -11,7 +11,7 @@
 
 #include "pylith/utils/utilsfwd.hh" // forward declarations
 
-#include "array.hh" // USES scalar_array
+#include "arrayfwd.hh" // USES scalar_array
 
 // TestArray ------------------------------------------------------------
 /** @brief C++ object for testing array values.

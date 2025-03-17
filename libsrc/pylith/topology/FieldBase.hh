@@ -46,9 +46,9 @@ public:
 public:
 
     /// Function prototype for validator functions.
-    typedef std::string (*validatorfn_type)(const PylithReal /*value */,
-                                            const PylithReal /* scale */,
-                                            const PylithReal /* tolerance */);
+    typedef std::string (*validatorfn_type)(const pylith::real /*value */,
+                                            const pylith::real /* scale */,
+                                            const pylith::real /* tolerance */);
 
     // PUBLIC STRUCTS ///////////////////////////////////////////////////////
 public:
@@ -59,8 +59,8 @@ public:
         VectorFieldEnum vectorFieldType; ///< Type of vector field.
         pylith::string_vector componentNames; ///< Names of components.
         size_t numComponents; ///< Number of components.
-        PylithReal scale; ///< Dimension scale associated with values.
-        PylithReal validatorTolerance; ///< Tolerance relative to scale for validation.
+        pylith::real scale; ///< Dimension scale associated with values.
+        pylith::real validatorTolerance; ///< Tolerance relative to scale for validation.
         validatorfn_type validator; ///< Validator for values in field;
         bool hasHistory; ///< Has subfields with history, i.e., state variables.
         size_t historySize; ///< Number of points in time history (currently only).
@@ -82,8 +82,8 @@ public:
                     const pylith::string_vector& componentNamesValue,
                     const size_t numComponentsValue=0,
                     const VectorFieldEnum vectorFieldTypeValue=SCALAR,
-                    const PylithReal scaleValue=1.0,
-                    const PylithReal validatorToleranceValue=0.0,
+                    const pylith::real scaleValue=1.0,
+                    const pylith::real validatorToleranceValue=0.0,
                     const validatorfn_type validatorValue=NULL,
                     bool isFaultOnlyValue=false,
                     bool hasHistoryValue=false,

@@ -41,12 +41,6 @@ public:
     /// Destructor
     ~DataWriterVTK(void);
 
-    /** Make copy of this object.
-     *
-     * @returns Copy of this.
-     */
-    DataWriter* clone(void) const;
-
     /// Deallocate PETSc and local data structures.
     void deallocate(void);
 
@@ -54,13 +48,13 @@ public:
      *
      * @param[in] filename Name of VTK file.
      */
-    void filename(const char* filename);
+    void setFilename(const char* filename);
 
     /** Set time format for time stamp in name of VTK file.
      *
      * @param[in] format C style time format for filename.
      */
-    void timeFormat(const char* format);
+    void setTimeFormat(const char* format);
 
     /** Set value used to normalize time stamp in name of VTK file.
      *
@@ -69,13 +63,13 @@ public:
      * @param[in] value Value (time in seconds) used to normalize time stamp in
      * filename.
      */
-    void timeConstant(const PylithScalar value);
+    void setTimeConstant(const pylith::real value);
 
     /** Set precision of floating point values in output.
      *
      * @param[in] value Precision for floating point values.
      */
-    void precision(const int value);
+    void setPrecision(const int value);
 
     /** Prepare for writing files.
      *
@@ -93,7 +87,7 @@ public:
      * @param[in] t Time stamp for new data
      * @param[in] mesh Finite-element mesh.
      */
-    void openTimeStep(const PylithScalar t,
+    void openTimeStep(const pylith::real t,
                       const topology::Mesh& mesh);
 
     /// Cleanup after writing data for a time step.
@@ -104,7 +98,7 @@ public:
      * @param[in] t Time associated with field.
      * @param[in] subfield Subfield with basis order 1.
      */
-    void writeVertexField(const PylithScalar t,
+    void writeVertexField(const pylith::real t,
                           const pylith::meshio::OutputSubfield& field);
 
     /** Write field over cells to file.
@@ -112,34 +106,29 @@ public:
      * @param[in] t Time associated with field.
      * @param[in] subfield Subfield with basis order 0.
      */
-    void writeCellField(const PylithScalar t,
+    void writeCellField(const pylith::real t,
                         const pylith::meshio::OutputSubfield& subfield);
 
     // PRIVATE METHODS //////////////////////////////////////////////////////
 private:
 
-    /** Copy constructor.
-     *
-     * @param[in] w Object to copy.
-     */
-    DataWriterVTK(const DataWriterVTK& w);
-
     /** Generate filename for VTK file.
      *
      * @param[in] t Time in seconds.
      */
-    std::string _vtkFilename(const PylithScalar t) const;
+    std::string _vtkFilename(const pylith::real t) const;
 
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
+    DataWriterVTK(const DataWriterVTK&); ///< Not implemented
     const DataWriterVTK& operator=(const DataWriterVTK&); ///< Not implemented
 
     // PRIVATE MEMBERS //////////////////////////////////////////////////////
 private:
 
     /// Time value (in seconds) used to normalize time stamp.
-    PylithScalar _timeConstant;
+    pylith::real _timeConstant;
     int _precision; ///< Precision of floating point values in output.
 
     std::string _filename; ///< Name of VTK file.

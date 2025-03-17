@@ -73,7 +73,7 @@ public:
      *
      * @param[in] value Time scale for dimensionalizing time.
      */
-    void setTimeScale(const PylithReal value) override;
+    void setTimeScale(const pylith::real value) override;
 
     /** Verify configuration.
      *
@@ -88,8 +88,8 @@ public:
      * @param[in] solution Solution at time t.
      * @param[in] notification Type of notification.
      */
-    void update(const PylithReal t,
-                const PylithInt tindex,
+    void update(const pylith::real t,
+                const pylith::integer tindex,
                 const pylith::topology::Field& solution,
                 const NotificationType notification) override;
 
@@ -115,7 +115,7 @@ protected:
      * @param[in] t Time associated with field.
      * @param[in] mesh Mesh for output.
      */
-    void _openDataStep(const PylithReal t,
+    void _openDataStep(const pylith::real t,
                        const pylith::topology::Mesh& mesh);
 
     /// Finalize output at this solution step.
@@ -127,8 +127,8 @@ protected:
      * @param[in] tindex Current time step.
      * @param[in] solution Solution at time t.
      */
-    void _writeDataStep(const PylithReal t,
-                        const PylithInt tindex,
+    void _writeDataStep(const pylith::real t,
+                        const pylith::integer tindex,
                         const pylith::topology::Field& solution);
 
     /** Names of information fields for output.

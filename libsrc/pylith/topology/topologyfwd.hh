@@ -26,9 +26,9 @@ namespace pylith {
         class VecVisitorSubmesh;
 
         class FE;
-        class FieldFactory;
         class FieldOps;
         class FieldQuery;
+        class SubfieldFactory;
         class RefineInterpolator;
 
         class MatVisitorMesh;

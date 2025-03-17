@@ -27,7 +27,7 @@ public:
      *
      * @param[in] physics Physics implemented by constraint.
      */
-    ConstraintSpatialDB(pylith::problems::Physics* const physics);
+    ConstraintSpatialDB(std::shared_ptr<pylith::problems::Physics>& physics);
 
     /// Destructor.
     ~ConstraintSpatialDB(void);
@@ -48,7 +48,7 @@ public:
      *
      * @param[in] t Current time.
      */
-    void setState(const PylithReal t);
+    void setState(const pylith::real t);
 
     /** Set constrained values in solution field.
      *

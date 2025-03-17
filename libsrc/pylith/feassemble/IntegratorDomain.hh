@@ -89,7 +89,7 @@ public:
 public:
 
     /// Constructor
-    IntegratorDomain(pylith::problems::Physics* const physics);
+    IntegratorDomain(std::shared_ptr<pylith::problems::Physics>& physics);
 
     /// Destructor
     virtual ~IntegratorDomain(void);
@@ -159,7 +159,7 @@ public:
      *
      * @param[in] t Current time.
      */
-    void setState(const PylithReal t);
+    void setState(const pylith::real t);
 
     /** Compute RHS residual for G(t,s).
      *
@@ -204,8 +204,8 @@ protected:
      * @param[in] dt Current time step.
      * @param[in] solution Field with current trial solution.
      */
-    void _updateStateVars(const PylithReal t,
-                          const PylithReal dt,
+    void _updateStateVars(const pylith::real t,
+                          const pylith::real dt,
                           const pylith::topology::Field& solution);
 
     /** Compute field derived from solution and auxiliary field.
@@ -214,8 +214,8 @@ protected:
      * @param[in] dt Current time step.
      * @param[in] solution Field with current trial solution.
      */
-    void _computeDerivedField(const PylithReal t,
-                              const PylithReal dt,
+    void _computeDerivedField(const pylith::real t,
+                              const pylith::real dt,
                               const pylith::topology::Field& solution);
 
     // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -226,9 +226,12 @@ private:
 
     pylith::topology::Mesh* _materialMesh; ///< Mesh associated with material.
 
-    pylith::feassemble::UpdateStateVars* _updateState; ///< Data structure for layout needed to update state vars.
-    pylith::feassemble::JacobianValues* _jacobianValues; ///< Jacobian values without finite-element integration.
-    pylith::feassemble::DSLabelAccess* _dsLabel; ///< Information about integration (PETSc DS, Label, label value, etc).
+    std::unique_ptr<pylith::feassemble::UpdateStateVars> _updateState; ///< Data structure for layout needed to update
+                                                                       ///< state vars.
+    std::unique_ptr<pylith::feassemble::JacobianValues> _jacobianValues; ///< Jacobian values without finite-element
+                                                                         ///< integration.
+    std::unique_ptr<pylith::feassemble::DSLabelAccess> _dsLabel; ///< Information about integration (PETSc DS, Label,
+                                                                 ///< label value, etc).
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:

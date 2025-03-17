@@ -57,24 +57,24 @@ public:
      * @param[out] slip [dim].
      */
     static
-    void slipFn(const PylithInt dim,
-                const PylithInt numS,
-                const PylithInt numA,
-                const PylithInt sOff[],
-                const PylithInt sOff_x[],
-                const PylithScalar s[],
-                const PylithScalar s_t[],
-                const PylithScalar s_x[],
-                const PylithInt aOff[],
-                const PylithInt aOff_x[],
-                const PylithScalar a[],
-                const PylithScalar a_t[],
-                const PylithScalar a_x[],
-                const PylithReal t,
-                const PylithScalar x[],
-                const PylithInt numConstants,
-                const PylithScalar constants[],
-                PylithScalar slip[]);
+    void slipFn(const pylith::integer dim,
+                const pylith::integer numS,
+                const pylith::integer numA,
+                const pylith::integer sOff[],
+                const pylith::integer sOff_x[],
+                const pylith::scalar s[],
+                const pylith::scalar s_t[],
+                const pylith::scalar s_x[],
+                const pylith::integer aOff[],
+                const pylith::integer aOff_x[],
+                const pylith::scalar a[],
+                const pylith::scalar a_t[],
+                const pylith::scalar a_x[],
+                const pylith::real t,
+                const pylith::scalar x[],
+                const pylith::integer numConstants,
+                const pylith::scalar constants[],
+                pylith::scalar slip[]);
 
     // PROTECTED METHODS ///////////////////////////////////////////////////////////////////////////////////////////////
 protected:

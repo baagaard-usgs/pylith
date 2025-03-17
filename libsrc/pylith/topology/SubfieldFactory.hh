@@ -13,20 +13,22 @@
 #include "pylith/utils/GenericComponent.hh" // ISA GenericComponent
 
 #include "pylith/topology/FieldBase.hh" // USES FieldBase::Discretization
+#include "pylith/topology/FieldQuery.hh" // USES FieldQuery::convertfn_type
 
+#include "spatialdata/spatialdb/spatialdbfwd.hh" // USES SpatialDB
 #include "spatialdata/units/unitsfwd.hh" // HOLDSA Normalizer
 
-class pylith::topology::FieldFactory : public pylith::utils::GenericComponent {
-    friend class TestFieldFactory; // unit testing
+class pylith::topology::SubfieldFactory : public pylith::utils::GenericComponent {
+    friend class TestSubfieldFactory; // unit testing
 
     // PUBLIC METHODS //////////////////////////////////////////////////////////////////////////////////////////////////
 public:
 
     /// Default constructor.
-    FieldFactory(void);
+    SubfieldFactory(void);
 
     /// Destructor.
-    virtual ~FieldFactory(void);
+    virtual ~SubfieldFactory(void);
 
     /** Get number of subfield discretizations.
      *
@@ -62,34 +64,72 @@ public:
      */
     const pylith::topology::FieldBase::Discretization& getSubfieldDiscretization(const char* subfieldName) const;
 
+    /** Set spatial database for filling auxiliary subfields.
+     *
+     * @param[in] value Pointer to database.
+     */
+    void setQueryDB(std::shared_ptr<spatialdata::spatialdb::SpatialDB>& value);
+
+    /** Get spatial database for filling auxiliary subfields.
+     *
+     * @returns Pointer to database.
+     */
+    const spatialdata::spatialdb::SpatialDB* getQueryDB(void) const;
+
     /** Initialize factory for setting up auxiliary subfields.
      *
-     * @param[inout] field Auxiliary field for which subfields are to be created.
+     * @param[inout] field Field for which subfields are to be created.
      * @param[in] normalizer Scales for nondimensionalization.
      * @param[in] spaceDim Spatial dimension of problem.
      * @param[in] defaultDescription Default description for new subfields.
      */
     virtual
-    void initialize(pylith::topology::Field* field,
+    void initialize(std::shared_ptr<pylith::topology::Field>& field,
                     const spatialdata::units::Nondimensional& normalizer,
                     const int spaceDim,
-                    const pylith::topology::FieldBase::Description* defaultDescription=NULL);
+                    std::unique_ptr<pylith::topology::FieldBase::Description>& defaultDescription);
+
+    /// Set subfield values using spatial database.
+    void setValuesFromDB(void);
+
+    /** Set query function for subfield.
+     *
+     * @param[in] subfieldName Name of subfield.
+     * @param[in] namesDBValues Array of names of values to use from spatial database.
+     * @param[in] numDBValues Size of names array.
+     * @param[in] convertFn Function to convert spatial database values to subfield values.
+     * @param[in] db Spatial database to query.
+     */
+    void setSubfieldQuery(const char* subfieldName,
+                          const char* namesDBValues[]=NULL,
+                          const size_t numDBValues=0,
+                          pylith::topology::FieldQuery::convertfn_type convertFn=NULL,
+                          spatialdata::spatialdb::SpatialDB* db=NULL);
 
     // PROTECTED MEMBERS ///////////////////////////////////////////////////////////////////////////////////////////////
 protected:
 
-    pylith::topology::Field* _field; ///< Auxiliary field.
+    std::shared_ptr<pylith::topology::Field> _field; ///< Field.
     pylith::topology::FieldBase::discretizations_map _subfieldDiscretizations; ///< Discretization for each subfield.
-    pylith::topology::FieldBase::Description* _defaultDescription; ///< Description for default subfield.
-    spatialdata::units::Nondimensional* _normalizer; ///< Scales for nondimensionalization.
-    int _spaceDim; ///< Spatial dimension.
+
+    /// Description for default subfield.
+    std::unique_ptr<pylith::topology::FieldBase::Description> _defaultDescription;
+
+    /// Database of values for filling subfields.
+    std::shared_ptr<spatialdata::spatialdb::SpatialDB> _queryDB;
+
+    /// Field query for filling subfield values via spatial database.
+    std::unique_ptr<pylith::topology::FieldQuery> _fieldQuery;
+
+    std::shared_ptr<spatialdata::units::Nondimensional> _normalizer; ///< Scales for nondimensionalization.
+    size_t _spaceDim; ///< Spatial dimension.
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    FieldFactory(const FieldFactory &); ///< Not implemented.
-    const FieldFactory& operator=(const FieldFactory&); ///< Not implemented
+    SubfieldFactory(const SubfieldFactory &); ///< Not implemented.
+    const SubfieldFactory& operator=(const SubfieldFactory&); ///< Not implemented
 
-}; // class FieldFactory
+}; // class SubfieldFactory
 
 // End of file

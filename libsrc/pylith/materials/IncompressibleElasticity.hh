@@ -44,7 +44,7 @@ public:
      *
      * @param[in] rheology Bulk rheology for elasticity.
      */
-    void setBulkRheology(pylith::materials::RheologyIncompressibleElasticity* const rheology);
+    void setBulkRheology(std::shared_ptr<pylith::materials::RheologyIncompressibleElasticity>& rheology);
 
     /** Get bulk rheology.
      *
@@ -56,7 +56,7 @@ public:
      *
      * @param[in] solution Solution field.
      */
-    void verifyConfiguration(const pylith::topology::Field& solution) const;
+    void verifyConfiguration(const pylith::topology::Field& solution) const override;
 
     /** Create integrator and set kernels.
      *
@@ -64,7 +64,7 @@ public:
      *
      *  @returns Integrator if applicable, otherwise NULL.
      */
-    pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution);
+    pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution) override;
 
     /** Create auxiliary field.
      *
@@ -74,7 +74,7 @@ public:
      * @returns Auxiliary field if applicable, otherwise NULL.
      */
     pylith::topology::Field* createAuxiliaryField(const pylith::topology::Field& solution,
-                                                  const pylith::topology::Mesh& domainMesh);
+                                                  const pylith::topology::Mesh& domainMesh) override;
 
     /** Create derived field.
      *
@@ -84,7 +84,7 @@ public:
      * @returns Derived field if applicable, otherwise NULL.
      */
     pylith::topology::Field* createDerivedField(const pylith::topology::Field& solution,
-                                                const pylith::topology::Mesh& domainMesh);
+                                                const pylith::topology::Mesh& domainMesh) override;
 
     /** Get default PETSc solver options appropriate for material.
      *
@@ -93,28 +93,16 @@ public:
      * @returns PETSc solver options.
      */
     pylith::utils::PetscOptions* getSolverDefaults(const bool isParallel,
-                                                   const bool hasFault) const;
+                                                   const bool hasFault) const override;
 
     // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
 protected:
-
-    /** Get auxiliary factory associated with physics.
-     *
-     * @return Auxiliary factory for physics object.
-     */
-    pylith::feassemble::AuxiliaryFactory* _getAuxiliaryFactory(void);
 
     /** Update kernel constants.
      *
      * @param[in] dt Current time step.
      */
-    void _updateKernelConstants(const PylithReal dt);
-
-    /** Get derived factory associated with physics.
-     *
-     * @return Derived factory for physics object.
-     */
-    pylith::topology::FieldFactory* _getDerivedFactory(void);
+    void _updateKernelConstants(const pylith::real dt) override;
 
     // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:
@@ -155,8 +143,9 @@ private:
 private:
 
     bool _useBodyForce; ///< Flag to include body force term.
-    pylith::materials::RheologyIncompressibleElasticity* _rheology; ///< Bulk rheology for incompressible elasticity.
-    pylith::materials::DerivedFactoryElasticity* _derivedFactory; ///< Factory for creating derived fields.
+
+    /// Bulk rheology for incompressible elasticity.
+    std::shared_ptr<pylith::materials::RheologyIncompressibleElasticity> _rheology;
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:

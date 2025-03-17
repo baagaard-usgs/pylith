@@ -41,17 +41,11 @@ public:
      */
     bool useReferenceState(void) const;
 
-    /** Get auxiliary factory associated with physics.
-     *
-     * @return Auxiliary factory for physics object.
-     */
-    pylith::materials::AuxiliaryFactoryElasticity* getAuxiliaryFactory(void);
-
     /** Add rheology subfields to auxiliary field.
      *
      * @param[inout] auxiliaryField Auxiliary field.
      */
-    void addAuxiliarySubfields(void);
+    void addAuxiliarySubfields(void) override;
 
     /** Get f0p kernel for LHS residual, F(t,s,\dot{s}).
      *
@@ -59,7 +53,7 @@ public:
      *
      * @return RHS residual kernel for pressure.
      */
-    PetscPointFunc getKernelf0p(const spatialdata::geocoords::CoordSys* coordsys) const;
+    PetscPointFunc getKernelf0p(const spatialdata::geocoords::CoordSys* coordsys) const override;
 
     /** Get f1u kernel for LHS residual, F(t,s,\dot{s}).
      *
@@ -67,7 +61,7 @@ public:
      *
      * @return LHS residual kernel for stress.
      */
-    PetscPointFunc getKernelf1u(const spatialdata::geocoords::CoordSys* coordsys) const;
+    PetscPointFunc getKernelf1u(const spatialdata::geocoords::CoordSys* coordsys) const override;
 
     /** Get Jf0pp kernel for LHS Jacobian F(t,s,\dot{s}).
      *
@@ -75,7 +69,7 @@ public:
      *
      * @return LHS Jf0pp kernel.
      */
-    PetscPointJac getKernelJf0pp(const spatialdata::geocoords::CoordSys* coordsys) const;
+    PetscPointJac getKernelJf0pp(const spatialdata::geocoords::CoordSys* coordsys) const override;
 
     /** Get Jf3uu kernel for LHS Jacobian F(t,s,\dot{s}).
      *
@@ -83,7 +77,7 @@ public:
      *
      * @return LHS Jacobian kernel for elastic constants.
      */
-    PetscPointJac getKernelJf3uu(const spatialdata::geocoords::CoordSys* coordsys) const;
+    PetscPointJac getKernelJf3uu(const spatialdata::geocoords::CoordSys* coordsys) const override;
 
     /** Get stress kernel for derived field.
      *
@@ -91,20 +85,11 @@ public:
      *
      * @return Project kernel for computing stress subfield in derived field.
      */
-    PetscPointFunc getKernelCauchyStressVector(const spatialdata::geocoords::CoordSys* coordsys) const;
-
-    // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
-protected:
-
-    /** Get auxiliary factory associated with physics.
-     * @return Auxiliary factory for physics object.
-     */
-    pylith::feassemble::AuxiliaryFactory* _getAuxiliaryFactory(void);
+    PetscPointFunc getKernelCauchyStressVector(const spatialdata::geocoords::CoordSys* coordsys) const override;
 
     // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:
 
-    pylith::materials::AuxiliaryFactoryElastic* _auxiliaryFactory; ///< Factory for auxiliary subfields.
     bool _useReferenceState; ///< Flag to use reference stress and strain.
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////

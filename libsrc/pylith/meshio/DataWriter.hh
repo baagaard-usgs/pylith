@@ -33,13 +33,6 @@ public:
     /// Destructor
     virtual ~DataWriter(void);
 
-    /** Make copy of this object.
-     *
-     * @returns Copy of this.
-     */
-    virtual
-    DataWriter* clone(void) const = 0;
-
     /// Deallocate PETSc and local data structures.
     virtual
     void deallocate(void);
@@ -48,7 +41,7 @@ public:
      *
      * @param[in] value Time scale
      */
-    void setTimeScale(const PylithScalar value);
+    void setTimeScale(const pylith::real value);
 
     /** Is data writer open, i.e., ready for openTimeStep()/closeTimeStep()?
      *
@@ -75,7 +68,7 @@ public:
      * @param[in] mesh PETSc mesh object
      */
     virtual
-    void openTimeStep(const PylithScalar t,
+    void openTimeStep(const pylith::real t,
                       const topology::Mesh& mesh);
 
     /// Cleanup after writing data for a time step.
@@ -88,7 +81,7 @@ public:
      * @param[in] subfield Subfield with basis order 1.
      */
     virtual
-    void writeVertexField(const PylithScalar t,
+    void writeVertexField(const pylith::real t,
                           const pylith::meshio::OutputSubfield& field) = 0;
 
     /** Write field over cells to file.
@@ -97,7 +90,7 @@ public:
      * @param[in] subfield Subfield with basis order 0.
      */
     virtual
-    void writeCellField(const PylithScalar t,
+    void writeCellField(const pylith::real t,
                         const pylith::meshio::OutputSubfield& subfield) = 0;
 
     /** Write dataset with names of points to file.
@@ -113,12 +106,6 @@ public:
 
     // PROTECTED METHODS ////////////////////////////////////////////////////
 protected:
-
-    /** Copy constructor.
-     *
-     * @param[in] w Object to copy.
-     */
-    DataWriter(const DataWriter& w);
 
     /** Create and populate field PETSc global vector with coordinates of mesh vertices.
      *
@@ -144,12 +131,13 @@ protected:
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
+    DataWriter(const DataWriter&); ///< Not implemented
     const DataWriter& operator=(const DataWriter&); ///< Not implemented
 
     // PROTECTED MEMBERS ////////////////////////////////////////////////////
 protected:
 
-    PylithScalar _timeScale; ///< Time scale for dimensioning time in output.
+    pylith::real _timeScale; ///< Time scale for dimensioning time in output.
     std::string _context; ///< Context of scatters for DataWriter.
     bool _isInfo; ///< True if only writing info values.
     bool _isOpen; ///< True if writer is ready for openTimeStep()/closeTimeStep().

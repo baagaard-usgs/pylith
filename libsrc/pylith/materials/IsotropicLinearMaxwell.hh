@@ -42,17 +42,11 @@ public:
      */
     bool useReferenceState(void) const;
 
-    /** Get auxiliary factory associated with physics.
-     *
-     * @return Auxiliary factory for physics object.
-     */
-    pylith::materials::AuxiliaryFactoryElasticity* getAuxiliaryFactory(void);
-
     /** Add rheology subfields to auxiliary field.
      *
      * @param[inout] auxiliaryField Auxiliary field.
      */
-    void addAuxiliarySubfields(void);
+    void addAuxiliarySubfields(void) override;
 
     /** Get stress kernel for LHS residual, F(t,s,\dot{s}).
      *
@@ -60,7 +54,7 @@ public:
      *
      * @return LHS residual kernel for stress.
      */
-    PetscPointFunc getKernelf1v(const spatialdata::geocoords::CoordSys* coordsys) const;
+    PetscPointFunc getKernelf1v(const spatialdata::geocoords::CoordSys* coordsys) const override;
 
     /** Get elastic constants kernel for LHS Jacobian F(t,s,\dot{s}).
      *
@@ -68,7 +62,7 @@ public:
      *
      * @return LHS Jacobian kernel for elastic constants.
      */
-    PetscPointJac getKernelJf3vu(const spatialdata::geocoords::CoordSys* coordsys) const;
+    PetscPointJac getKernelJf3vu(const spatialdata::geocoords::CoordSys* coordsys) const override;
 
     /** Get f0 kernel for LHS interface residual, F(t,s,dot{s}), for negative fault face.
      *
@@ -76,7 +70,7 @@ public:
      *
      * @return LHS residual f0 kernel.
      */
-    PetscBdPointFunc getKernelf0Neg(const spatialdata::geocoords::CoordSys* coordsys) const;
+    PetscBdPointFunc getKernelf0Neg(const spatialdata::geocoords::CoordSys* coordsys) const override;
 
     /** Get f0 kernel for LHS interface residual, F(t,s,dot{s}), for positive fault face.
      *
@@ -84,7 +78,7 @@ public:
      *
      * @return LHS residual f0 kernel.
      */
-    PetscBdPointFunc getKernelf0Pos(const spatialdata::geocoords::CoordSys* coordsys) const;
+    PetscBdPointFunc getKernelf0Pos(const spatialdata::geocoords::CoordSys* coordsys) const override;
 
     /** Get Cauchy stress kernel for derived field.
      *
@@ -92,7 +86,7 @@ public:
      *
      * @return Project kernel for computing stress subfield in derived field.
      */
-    PetscPointFunc getKernelCauchyStressVector(const spatialdata::geocoords::CoordSys* coordsys) const;
+    PetscPointFunc getKernelCauchyStressVector(const spatialdata::geocoords::CoordSys* coordsys) const override;
 
     /** Add kernels for updating state variables.
      *
@@ -100,7 +94,7 @@ public:
      * @param[in] coordsys Coordinate system.
      */
     void addKernelsUpdateStateVars(std::vector<pylith::feassemble::IntegratorDomain::ProjectKernels>* kernels,
-                                   const spatialdata::geocoords::CoordSys* coordsys) const;
+                                   const spatialdata::geocoords::CoordSys* coordsys) const override;
 
     /** Update kernel constants.
      *
@@ -108,12 +102,11 @@ public:
      * @param[in] dt Current time step.
      */
     void updateKernelConstants(pylith::real_array* kernelConstants,
-                               const PylithReal dt) const;
+                               const pylith::real dt) const;
 
     // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:
 
-    pylith::materials::AuxiliaryFactoryViscoelastic* _auxiliaryFactory; ///< Factory for creating auxiliary subfields.
     bool _useReferenceState; ///< Flag to use reference stress and strain.
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////

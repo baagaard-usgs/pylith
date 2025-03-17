@@ -29,11 +29,9 @@ public:
     /** Set indices of fault degrees of freedom associated with
      * impulses.
      *
-     * @param flags Array of indices for degrees of freedom.
-     * @param size Size of array
+     * @param dof Array of indices for degrees of freedom.
      */
-    void setImpulseDOF(const int* flags,
-                       const size_t size);
+    void setImpulseDOF(const pylith::integer_array& dof);
 
     /** Set threshold for nonzero impulse amplitude.
      *
@@ -51,7 +49,7 @@ public:
      *
      * @param[in] solution Solution field.
      */
-    void verifyConfiguration(const pylith::topology::Field& solution) const;
+    void verifyConfiguration(const pylith::topology::Field& solution) const override;
 
     /** Create auxiliary field.
      *
@@ -61,7 +59,7 @@ public:
      * @returns Auxiliary field if applicable, otherwise NULL.
      */
     pylith::topology::Field* createAuxiliaryField(const pylith::topology::Field& solution,
-                                                  const pylith::topology::Mesh& domainMesh);
+                                                  const pylith::topology::Mesh& domainMesh) override;
 
     /** Update auxiliary subfields at beginning of time step.
      *
@@ -69,16 +67,10 @@ public:
      * @param[in] t Current time.
      */
     void updateAuxiliaryField(pylith::topology::Field* auxiliaryField,
-                              const double t);
+                              const pylith::real t) override;
 
     // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
 protected:
-
-    /** Get auxiliary factory associated with physics.
-     *
-     * @return Auxiliary factory for physics object.
-     */
-    pylith::feassemble::AuxiliaryFactory* _getAuxiliaryFactory(void);
 
     /** Update slip subfield in auxiliary field at beginning of time step.
      *
@@ -96,7 +88,7 @@ protected:
      */
     void _setKernelsResidual(pylith::feassemble::IntegratorInterface* integrator,
                              const pylith::topology::Field& solution,
-                             const std::vector<pylith::materials::Material*>& materials) const;
+                             const std::vector<pylith::materials::Material*>& materials) const override;
 
     /** Set kernels for Jacobian.
      *
@@ -106,14 +98,14 @@ protected:
      */
     void _setKernelsJacobian(pylith::feassemble::IntegratorInterface* integrator,
                              const pylith::topology::Field& solution,
-                             const std::vector<pylith::materials::Material*>& materials) const;
+                             const std::vector<pylith::materials::Material*>& materials) const override;
 
     // PRIVATE METHODS ////////////////////////////////////////////////////////////////////////////
 private:
 
-    PylithReal _threshold; ///< Threshold for nonzero impulse amplitude.
-    int_array _impulseDOF; ///< Degrees of freedom with impulses.
-    int_array _impulsePoints; ///< Points with nonzero threshold.
+    pylith::real _threshold; ///< Threshold for nonzero impulse amplitude.
+    pylith::integer_array _impulseDOF; ///< Degrees of freedom with impulses.
+    pylith::integer_array _impulsePoints; ///< Points with nonzero threshold.
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:

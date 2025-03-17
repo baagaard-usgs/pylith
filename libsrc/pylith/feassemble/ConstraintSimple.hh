@@ -27,7 +27,7 @@ public:
      *
      * @param[in] physics Physics implemented by constraint.
      */
-    ConstraintSimple(pylith::problems::Physics* const physics);
+    ConstraintSimple(std::shared_ptr<pylith::problems::Physics>& physics);
 
     /// Destructor.
     virtual ~ConstraintSimple(void);

@@ -63,8 +63,8 @@ public:
      * @param[in] name Name of PETSc label associated with subfield.
      * @param[in] value Value of PETSc label associated with subfield.
      */
-    void setLabel(const char* name,
-                  const int value);
+    void setName(const char* name,
+                 const int value);
 
     /** Get description of subfield.
      *
@@ -121,19 +121,19 @@ private:
     // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
 protected:
 
-    pylith::topology::FieldBase::Description _description; ///< Description of subfield.
-    pylith::topology::FieldBase::Discretization _discretization; ///< Discretization of subfield.
-    PetscInt _subfieldIndex; ///< Index of subfield in fields.
+    std::unique_ptr<pylith::topology::FieldBase::Description> _description; ///< Description of subfield.
+    std::unique_ptr<pylith::topology::FieldBase::Discretization> _discretization; ///< Discretization of subfield.
+    std::unique_ptr<pylith::topology::RefineInterpolator> _interpolator; ///< Interpolator for refined output.
+    pylith::integer _subfieldIndex; ///< Index of subfield in fields.
+    std::string _labelName; ///< Value of PETSc label associated with subfield.
+    pylith::integer _labelValue; ///< Value of PETSc label associated with subfield.
+
     PetscDM _projectDM; ///< PETSc global vector for subfield projection.
     PetscVec _projectVector; ///< PETSc global vector for subfield projection.
     PetscVec _projectVectorInterp; ///< PETSc global vector for subfield projection transformed for interpolation.
     PetscPointFunc _fn; ///< PETSc point function for projection.
     PetscDM _outputDM; ///< PETSc DM for subfield output.
     PetscVec _outputVector; ///< PETSc global vector for subfield output.
-    pylith::topology::RefineInterpolator* _interpolator; ///< Interpolator for refined output.
-
-    PetscDMLabel _label; ///< PETSc label associated with subfield.
-    PetscInt _labelValue; ///< Value of PETSc label associated with subfield.
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:

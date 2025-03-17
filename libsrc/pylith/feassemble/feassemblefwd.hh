@@ -11,8 +11,6 @@
 
 namespace pylith {
     namespace feassemble {
-        class AuxiliaryFactory; ///< Creates auxiliary subfields.
-
         class PhysicsImplementation; ///< Abstract base class for constraints and integrators.
 
         class DSLabelAccess; ///< Utility class for accessing PetscDMLabel, PetscDS, and PetscWeakForm.

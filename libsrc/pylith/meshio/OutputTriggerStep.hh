@@ -31,8 +31,8 @@ public:
      * @param[in] tindex Inxex of current time step.
      * @returns True if output should be written at time t, false otherwise.
      */
-    bool shouldWrite(const PylithReal t,
-                     const PylithInt tindex);
+    bool shouldWrite(const pylith::real t,
+                     const pylith::integer tindex);
 
     /** Set number of steps to skip between writes.
      *
@@ -49,8 +49,8 @@ public:
     // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    PylithInt _numStepsSkip; ///< Number of steps to skip between writes.
-    PylithInt _stepWrote; ///< Step when data was previously written.
+    pylith::integer _numStepsSkip; ///< Number of steps to skip between writes.
+    pylith::integer _stepWrote; ///< Step when data was previously written.
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:

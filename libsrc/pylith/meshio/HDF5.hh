@@ -20,7 +20,7 @@
  *
  * @warning Do not use this object for parallel I/O.
  */
-class pylith::meshio::HDF5 { // HDF5
+class pylith::meshio::HDF5 {
     friend class TestHDF5; // Unit testing
 
     // PUBLIC METHODS -------------------------------------------------------

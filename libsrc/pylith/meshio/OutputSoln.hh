@@ -52,7 +52,7 @@ public:
      *
      * @param[in] value Time scale for dimensionalizing time.
      */
-    void setTimeScale(const PylithReal value) override;
+    void setTimeScale(const pylith::real value) override;
 
     /** Verify observer is compatible with solution.
      *
@@ -68,8 +68,8 @@ public:
      * @param[in] solution Solution at time t.
      * @param[in] notification Type of notification.
      */
-    void update(const PylithReal t,
-                const PylithInt tindex,
+    void update(const pylith::real t,
+                const pylith::integer tindex,
                 const pylith::topology::Field& solution,
                 const NotificationType notification) override;
 
@@ -93,7 +93,7 @@ protected:
      * @param[in] mesh Mesh for output.
      */
     virtual
-    void _openSolnStep(const PylithReal t,
+    void _openSolnStep(const pylith::real t,
                        const pylith::topology::Mesh& mesh);
 
     /// Finalize output at this solution step.
@@ -107,8 +107,8 @@ protected:
      * @param[in] solution Solution at time t.
      */
     virtual
-    void _writeSolnStep(const PylithReal t,
-                        const PylithInt tindex,
+    void _writeSolnStep(const pylith::real t,
+                        const pylith::integer tindex,
                         const pylith::topology::Field& solution);
 
     // PROTECTED MEMBERS ///////////////////////////////////////////////////////////////////////////////////////////////

@@ -30,7 +30,7 @@ public:
 
     /// Deallocate PETSc and local data structures.
     virtual
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set name of label identifying cohesive cells.
      *
@@ -108,13 +108,13 @@ public:
      *
      * @param vec Reference direction unit vector.
      */
-    void setRefDir1(const PylithReal vec[3]);
+    void setRefDir1(const pylith::real vec[3]);
 
     /** Set second choice for reference direction to discriminate among tangential directions in 3-D.
      *
      * @param vec Reference direction unit vector.
      */
-    void setRefDir2(const PylithReal vec[3]);
+    void setRefDir2(const pylith::real vec[3]);
 
     /** Adjust mesh topology for fault implementation.
      *
@@ -143,7 +143,7 @@ public:
      * @param[in] solution Solution field.
      * @returns Constraint if applicable, otherwise NULL.
      */
-    std::vector<pylith::feassemble::Constraint*> createConstraints(const pylith::topology::Field& solution);
+    std::vector<pylith::feassemble::Constraint*> createConstraints(const pylith::topology::Field& solution) override;
 
     /** Create derived field.
      *
@@ -153,7 +153,7 @@ public:
      * @returns Derived field if applicable, otherwise NULL.
      */
     pylith::topology::Field* createDerivedField(const pylith::topology::Field& solution,
-                                                const pylith::topology::Mesh& domainMesh);
+                                                const pylith::topology::Mesh& domainMesh) override;
 
     /** Create diagnostic field.
      *
@@ -163,28 +163,22 @@ public:
      * @returns Diagnostic field if applicable, otherwise NULL.
      */
     pylith::topology::Field* createDiagnosticField(const pylith::topology::Field& solution,
-                                                   const pylith::topology::Mesh& physicsMesh);
+                                                   const pylith::topology::Mesh& physicsMesh) override;
 
     // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
 protected:
 
-    /** Get auxiliary factory associated with physics.
+    /** Get subfield factory associated with physics.
      *
-     * @return Auxiliary factory for physics object.
+     * @return Subfield factory for physics object.
      */
-    pylith::feassemble::AuxiliaryFactory* _getAuxiliaryFactory(void);
-
-    /** Get derived factory associated with physics.
-     *
-     * @return Derived factory for physics object.
-     */
-    pylith::topology::FieldFactory* _getDerivedFactory(void);
+    pylith::topology::SubfieldFactory* _getSubfieldFactory(void) override;
 
     /** Update kernel constants.
      *
      * @param[in] dt Current time step.
      */
-    void _updateKernelConstants(const PylithReal dt);
+    void _updateKernelConstants(const pylith::real dt) override;
 
     /** Set kernels for residual.
      *
@@ -229,8 +223,8 @@ protected:
     // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
 protected:
 
-    PylithReal _refDir1[3]; ///< First choice reference direction used to compute boundary tangential directions.
-    PylithReal _refDir2[3]; ///< Second choice reference direction used to compute boundary tangential directions.
+    pylith::real _refDir1[3]; ///< First choice reference direction used to compute boundary tangential directions.
+    pylith::real _refDir2[3]; ///< Second choice reference direction used to compute boundary tangential directions.
 
     // PRIVATE METHODS ////////////////////////////////////////////////////////////////////////////
 private:
@@ -252,13 +246,11 @@ private:
     // PROTECTED MEMBERS ////////////////////////////////////////////////////////////////////////////
 protected:
 
-    pylith::faults::AuxiliaryFieldFactory* _auxiliaryFactory; ///< Factory for auxiliary subfields.
+    std::unique_ptr<pylith::faults::SubfieldFactory> _subfieldFactory; ///< Factory for subfields.
 
     // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:
 
-    pylith::faults::DiagnosticFieldFactory* _diagnosticFactory; ///< Factory for auxiliary subfields.
-    pylith::faults::DerivedFieldFactory* _derivedFactory; ///< Factory for derived subfields.
     std::string _surfaceLabelName; ///< Name of label identifying points associated with fault.
     std::string _buriedEdgesLabelName; ///< Name of label identifying buried edges of fault.
     int _surfaceLabelValue; ///< Value of label identifying points associated with fault.
@@ -270,7 +262,7 @@ private:
     FaultCohesive(const FaultCohesive&); ///< Not implemented
     const FaultCohesive& operator=(const FaultCohesive&); ///< Not implemented
 
-    pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution); // Empty method
+    pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution) override; // Empty method
 
 }; // class FaultCohesive
 

@@ -47,20 +47,20 @@ public:
      *
      * @param vec Reference direction unit vector.
      */
-    void setRefDir1(const PylithReal vec[3]);
+    void setRefDir1(const pylith::real vec[3]);
 
     /** Set second choice for reference direction to discriminate among tangential directions in 3-D.
      *
      * @param vec Reference direction unit vector.
      */
-    void setRefDir2(const PylithReal vec[3]);
+    void setRefDir2(const pylith::real vec[3]);
 
     /** Verify configuration is acceptable.
      *
      * @param[in] solution Solution field.
      */
     virtual
-    void verifyConfiguration(const pylith::topology::Field& solution) const;
+    void verifyConfiguration(const pylith::topology::Field& solution) const override;
 
     /** Create diagnostic field.
      *
@@ -71,16 +71,22 @@ public:
      */
     virtual
     pylith::topology::Field* createDiagnosticField(const pylith::topology::Field& solution,
-                                                   const pylith::topology::Mesh& physicsMesh);
+                                                   const pylith::topology::Mesh& physicsMesh) override;
 
     // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
 protected:
+
+    /** Get subfield factory associated with physics.
+     *
+     * @return Subfield factory for physics object.
+     */
+    pylith::topology::SubfieldFactory* _getSubfieldFactory(void) override;
 
     /** Update kernel constants.
      *
      * @param[in] dt Current time step.
      */
-    void _updateKernelConstants(const PylithReal dt);
+    void _updateKernelConstants(const pylith::real dt);
 
     /** Set kernels for computing diagnostic field.
      *
@@ -103,10 +109,10 @@ protected:
     // PROTECTED MEMBERS ///////////////////////////////////////////////////////////////////////////////////////////////
 protected:
 
-    PylithReal _refDir1[3]; ///< First choice reference direction used to compute boundary tangential directions.
-    PylithReal _refDir2[3]; ///< Second choice reference direction used to compute boundary tangential directions.
+    pylith::real _refDir1[3]; ///< First choice reference direction used to compute boundary tangential directions.
+    pylith::real _refDir2[3]; ///< Second choice reference direction used to compute boundary tangential directions.
     std::string _subfieldName; ///< Name of solution subfield for boundary condition.
-    pylith::bc::DiagnosticFieldFactory* _diagnosticFactory; ///< Factory for auxiliary subfields.
+    std::unique_ptr<pylith::bc::SubfieldFactory> _subfieldFactory; ///< Factory for auxiliary subfields.
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:

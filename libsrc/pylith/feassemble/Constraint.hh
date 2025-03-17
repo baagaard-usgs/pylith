@@ -49,7 +49,7 @@ public:
      *
      * @param[in] physics Physics implemented by constraint.
      */
-    Constraint(pylith::problems::Physics* const physics);
+    Constraint(std::shared_ptr<pylith::problems::Physics>& physics);
 
     /// Destructor.
     virtual ~Constraint(void);
@@ -100,16 +100,14 @@ public:
      * a Cartesian coordinate system.
      *
      * @param[in] dof Array of indices for constrained degrees of freedom.
-     * @param[in] size Size of array
      */
-    void setConstrainedDOF(const int* flags,
-                           const int size);
+    void setConstrainedDOF(const pylith::integer_array& dof);
 
     /** Get indices of constrained degrees of freedom.
      *
      * @returns Array of indices for constrained degrees of freedom.
      */
-    const pylith::int_array& getConstrainedDOF(void) const;
+    const pylith::integer_array& getConstrainedDOF(void) const;
 
     /** Get mesh associated with constrained boundary.
      *
@@ -139,9 +137,9 @@ public:
      * @param[in] notification Type of notification.
      */
     virtual
-    void poststep(const PylithReal t,
-                  const PylithInt tindex,
-                  const PylithReal dt,
+    void poststep(const pylith::real t,
+                  const pylith::integer tindex,
+                  const pylith::real dt,
                   const pylith::topology::Field& solution,
                   const pylith::problems::Observer::NotificationType notification);
 
@@ -150,7 +148,7 @@ public:
      * @param[in] t Current time.
      */
     virtual
-    void setState(const PylithReal t);
+    void setState(const pylith::real t);
 
     /** Set constrained values in solution field.
      *
@@ -168,7 +166,7 @@ protected:
      * @param[in] dt Current time step.
      */
     void _setKernelConstants(const pylith::topology::Field& solution,
-                             const PylithReal dt) const;
+                             const pylith::real dt) const;
 
     /// Compute diagnostic field from auxiliary field.
     virtual
@@ -181,9 +179,9 @@ protected:
     std::string _labelName; ///< Name of label associated with integration domain.
     int _labelValue; ///< Value of label associated with integration domain.
 
-    int_array _constrainedDOF; ///< List of constrained degrees of freedom at each location.
-    pylith::topology::Mesh* _boundaryMesh; ///< Boundary mesh.
-    PylithReal _tSolution; ///< Time used for current solution.
+    pylith::integer_array _constrainedDOF; ///< List of constrained degrees of freedom at each location.
+    std::unique_ptr<pylith::topology::Mesh> _boundaryMesh; ///< Boundary mesh.
+    pylith::real _tSolution; ///< Time used for current solution.
 
     std::vector<ProjectKernels> _kernelsDiagnosticField; ///< kernels for computing diagnostic field.
 

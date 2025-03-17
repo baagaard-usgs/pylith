@@ -225,7 +225,7 @@ public:
      *
      * @param[in] t Current time.
      */
-    void setState(const PylithReal t);
+    void setState(const pylith::real t);
 
     /** Compute RHS residual for G(t,s).
      *
@@ -270,8 +270,8 @@ protected:
      * @param[in] dt Current time step.
      * @param[in] solution Field with current trial solution.
      */
-    void _updateStateVars(const PylithReal t,
-                          const PylithReal dt,
+    void _updateStateVars(const pylith::real t,
+                          const pylith::real dt,
                           const pylith::topology::Field& solution);
 
     /// Compute diagnostic field from auxiliary field.
@@ -283,17 +283,17 @@ protected:
      * @param[in] dt Current time step.
      * @param[in] solution Field with current trial solution.
      */
-    void _computeDerivedField(const PylithReal t,
-                              const PylithReal dt,
+    void _computeDerivedField(const pylith::real t,
+                              const pylith::real dt,
                               const pylith::topology::Field& solution);
 
     // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:
 
-    pylith::topology::Mesh* _interfaceMesh; ///< Boundary mesh.
+    std::unique_ptr<pylith::topology::Mesh> _interfaceMesh; ///< Boundary mesh.
+    std::unique_ptr<pylith::feassemble::InterfacePatches> _integrationPatches; ///< Face patches.
     std::string _surfaceLabelName; ///< Name of label identifying interface surface.
 
-    pylith::feassemble::InterfacePatches* _integrationPatches; ///< Face patches.
     std::vector<ProjectKernels> _kernelsUpdateStateVars; ///< kernels for updating state variables.
     std::vector<ProjectKernels> _kernelsDiagnosticField; ///< kernels for computing diagnostic field.
     std::vector<ProjectKernels> _kernelsDerivedField; ///< kernels for computing derived field.

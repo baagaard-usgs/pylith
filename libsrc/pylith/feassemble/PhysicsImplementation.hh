@@ -83,21 +83,22 @@ public:
      * @param[in] tindex Current time step.
      * @param[in] solution Solution at time t.
      */
-    void notifyObservers(const PylithReal t,
-                         const PylithInt tindex,
+    void notifyObservers(const pylith::real t,
+                         const pylith::integer tindex,
                          const pylith::topology::Field& solution,
                          const pylith::problems::Observer::NotificationType notification);
 
     // PROTECTED MEMBERS ///////////////////////////////////////////////////////////////////////////////////////////////
 protected:
 
-    pylith::problems::Physics* const _physics;
-    pylith::topology::Field* _auxiliaryField;
-    pylith::topology::Field* _diagnosticField;
-    pylith::topology::Field* _derivedField;
-    pylith::problems::ObserversPhysics* _observers;
+    std::shared_ptr<pylith::problems::Physics> _physics;
+    std::shared_ptr<pylith::problems::ObserversPhysics> _observers;
 
-    pylith::utils::EventLogger* _logger;
+    std::unique_ptr<pylith::topology::Field> _auxiliaryField;
+    std::unique_ptr<pylith::topology::Field> _diagnosticField;
+    std::unique_ptr<pylith::topology::Field> _derivedField;
+
+    std::unique_ptr<pylith::utils::EventLogger> _logger;
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:

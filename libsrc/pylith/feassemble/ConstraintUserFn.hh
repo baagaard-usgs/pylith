@@ -28,7 +28,7 @@ public:
      *
      * @param[in] physics Physics implemented by constraint.
      */
-    ConstraintUserFn(pylith::problems::Physics* const physics);
+    ConstraintUserFn(std::shared_ptr<pylith::problems::Physics>& physics);
 
     /// Destructor.
     virtual ~ConstraintUserFn(void);

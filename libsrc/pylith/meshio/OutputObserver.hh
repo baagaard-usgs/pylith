@@ -37,7 +37,7 @@ public:
      *
      * @param[in] trigger Output trigger.
      */
-    void setTrigger(pylith::meshio::OutputTrigger* const trigger);
+    void setTrigger(std::shared_ptr<pylith::meshio::OutputTrigger>& const trigger);
 
     /** Get trigger for how often to write otuput.
      *
@@ -49,7 +49,7 @@ public:
      *
      * @param[in] datawriter Writer for data.
      */
-    void setWriter(pylith::meshio::DataWriter* const writer);
+    void setWriter(std::shared_ptr<pylith::meshio::DataWriter>& const writer);
 
     /** Set basis order for output.
      *
@@ -68,7 +68,7 @@ public:
      * @param[in] value Time scale for dimensionalizing time.
      */
     virtual
-    void setTimeScale(const PylithReal value);
+    void setTimeScale(const pylith::real value);
 
     // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
 protected:
@@ -102,17 +102,17 @@ protected:
      * @param[in] t Current time.
      * @param[in] subfield Subfield to write.
      */
-    void _appendField(const PylithReal t,
+    void _appendField(const pylith::real t,
                       const pylith::meshio::OutputSubfield& subfield);
 
     // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
 protected:
 
-    PylithReal _timeScale; ///< Time scale for dimentionalizing time.
+    pylith::real _timeScale; ///< Time scale for dimentionalizing time.
     std::map<std::string, OutputSubfield*> _subfields; ///< Subfields extracted for output.
-    pylith::topology::Mesh* _outputMesh; ///< Mesh associated with output.ß
-    DataWriter* _writer; ///< Writer for data.
-    OutputTrigger* _trigger; ///< Trigger for deciding how often to write output.
+    std::unique_ptr<pylith::topology::Mesh> _outputMesh; ///< Mesh associated with output.ß
+    std::shared_ptr<DataWriter> _writer; ///< Writer for data.
+    std::shared_ptr<OutputTrigger> _trigger; ///< Trigger for deciding how often to write output.
     int _outputBasisOrder; ///< Basis order for output.
     int _refineLevels; ///< Number of mesh refinement levels for output.
 

@@ -50,12 +50,6 @@ public:
     /// Destructor
     ~DataWriterHDF5Ext(void);
 
-    /** Make copy of this object.
-     *
-     * @returns Copy of this.
-     */
-    DataWriter* clone(void) const;
-
     /// Deallocate PETSc and local data structures.
     void deallocate(void);
 
@@ -63,7 +57,7 @@ public:
      *
      * @param[in] filename Name of HDF5 file.
      */
-    void filename(const char* filename);
+    void setFilename(const char* filename);
 
     /** Generate filename for HDF5 file.
      *
@@ -74,7 +68,7 @@ public:
      *
      * @returns String for HDF5 filename.
      */
-    std::string hdf5Filename(void) const;
+    std::string getHDF5Filename(void) const;
 
     /** Prepare for writing files.
      *
@@ -91,7 +85,7 @@ public:
      * @param[in] t Time associated with field.
      * @param[in] subfield Subfield with basis order 1.
      */
-    void writeVertexField(const PylithScalar t,
+    void writeVertexField(const pylith::real t,
                           const pylith::meshio::OutputSubfield& field);
 
     /** Write field over cells to file.
@@ -99,7 +93,7 @@ public:
      * @param[in] t Time associated with field.
      * @param[in] subfield Subfield with basis order 0.
      */
-    void writeCellField(const PylithScalar t,
+    void writeCellField(const pylith::real t,
                         const pylith::meshio::OutputSubfield& subfield);
 
     /** Write dataset with names of points to file.
@@ -115,12 +109,6 @@ public:
     // PRIVATE METHODS //////////////////////////////////////////////////////
 private:
 
-    /** Copy constructor.
-     *
-     * @param[in] w Object to copy.
-     */
-    DataWriterHDF5Ext(const DataWriterHDF5Ext& w);
-
     /// Generate filename for external dataset file.
     std::string _datasetFilename(const char* field) const;
 
@@ -128,11 +116,12 @@ private:
      *
      * @param[in] t Time in seconds.
      */
-    void _writeTimeStamp(const PylithScalar t);
+    void _writeTimeStamp(const pylith::real t);
 
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
+    DataWriterHDF5Ext(const DataWriterHDF5Ext&); ///< Not implemented
     const DataWriterHDF5Ext& operator=(const DataWriterHDF5Ext&); ///< Not implemented
 
     // PRIVATE STRUCTS //////////////////////////////////////////////////////

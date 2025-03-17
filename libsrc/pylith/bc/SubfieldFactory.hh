@@ -10,11 +10,11 @@
 #pragma once
 
 #include "pylith/bc/bcfwd.hh" // forward declarations
-#include "pylith/feassemble/AuxiliaryFactory.hh" // ISA AuxiliaryFactory
+#include "pylith/topology/SubfieldFactory.hh" // ISA SubfieldFactory
 
 #include "spatialdata/spatialdb/spatialdbfwd.hh" // USES TimeHistory
 
-class pylith::bc::TimeDependentAuxiliaryFactory : public pylith::feassemble::AuxiliaryFactory {
+class pylith::bc::SubfieldFactory : public pylith::topology::SubfieldFactory {
     friend class TestDirichletAuxiliaryFactory; // unit testing
 
     // PUBLIC ENUMS ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,10 +32,10 @@ public:
      *
      * @param[in] reference Reference for coordinate directions in auxiliary subfield.s
      */
-    TimeDependentAuxiliaryFactory(const ReferenceEnum reference=XYZ);
+    SubfieldFactory(const ReferenceEnum reference=XYZ);
 
     /// Destructor.
-    ~TimeDependentAuxiliaryFactory(void);
+    ~SubfieldFactory(void);
 
     /// Add initial amplitude field to auxiliary fields.
     void addInitialAmplitude(void);
@@ -55,6 +55,27 @@ public:
     /// Add time history value field to auxiliary fields.
     void addTimeHistoryValue(void);
 
+    /// Add density field to auxiliary fields.
+    void addDensity(void);
+
+    /// Add shear wave speed field to auxiliary fields.
+    void addVs(void);
+
+    /// Add dilatational wave speed field to auxiliary fields.
+    void addVp(void);
+
+    /// Add boundary normal direction subfield to diagnostic field.
+    void addNormalDir(void);
+
+    /// Add (horizontla) tangential direction subfield to diagnostic field.
+    void addTangentialDirHoriz(void);
+
+    /// Add (vertical) tangential direction subfield to diagnostic field.
+    void addTangentialDirVert(void);
+
+    /// Add subfields using discretizations provided.
+    virtual void addSubfields(void);
+
     /** Update auxiliary field for current time.
      *
      * @param[inout] auxiliaryField Auxiliary field to update.
@@ -64,8 +85,8 @@ public:
      */
     static
     void updateAuxiliaryField(pylith::topology::Field* auxiliaryField,
-                              const PylithReal t,
-                              const PylithReal timeScale,
+                              const pylith::real t,
+                              const pylith::real timeScale,
                               spatialdata::spatialdb::TimeHistory* const dbTimeHistory);
 
     // PRIVATE METHODS /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,9 +106,9 @@ private:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    TimeDependentAuxiliaryFactory(const TimeDependentAuxiliaryFactory &); ///< Not implemented.
-    const TimeDependentAuxiliaryFactory& operator=(const TimeDependentAuxiliaryFactory&); ///< Not implemented
+    SubfieldFactory(const SubfieldFactory &); ///< Not implemented.
+    const SubfieldFactory& operator=(const SubfieldFactory&); ///< Not implemented
 
-}; // class TimeDependentAuxiliaryFactory
+}; // class SubfieldFactory
 
 // End of file

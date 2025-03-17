@@ -34,11 +34,13 @@ public:
 
     /** Get PETSc DM for input (coarsest level)
      *
+     * @returns PETSc DM associated with the input.
      */
     PetscDM getInputDM(void);
 
     /** Get PETSc DM for output (finest level)
      *
+     * @returns PETSc DM associated with the output.
      */
     PetscDM getOutputDM(void);
 

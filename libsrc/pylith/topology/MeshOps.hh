@@ -63,10 +63,10 @@ public:
      * @param[in] componentName Name of component associated with subdomain.
      */
     static
-    pylith::topology::Mesh* createFromPoints(const PylithReal* points,
+    pylith::topology::Mesh* createFromPoints(const pylith::real* points,
                                              const size_t numPoints,
-                                             const spatialdata::geocoords::CoordSys* cs,
-                                             const PylithReal lengthScale,
+                                             const std::shared_ptr<spatialdata::geocoords::CoordSys>& cs,
+                                             const pylith::real lengthScale,
                                              MPI_Comm comm,
                                              const char* componentName);
 
@@ -119,7 +119,7 @@ public:
      * @returns Number of vertices in mesh.
      */
     static
-    PylithInt getNumVertices(const pylith::topology::Mesh& mesh);
+    pylith::integer getNumVertices(const pylith::topology::Mesh& mesh);
 
     /** Get number of cells in mesh.
      *
@@ -127,7 +127,7 @@ public:
      * @returns Number of cells in mesh.
      */
     static
-    PylithInt getNumCells(const pylith::topology::Mesh& mesh);
+    pylith::integer getNumCells(const pylith::topology::Mesh& mesh);
 
     /** Get number of vertices in a cell in mesh.
      *
@@ -135,7 +135,7 @@ public:
      * @returns Number of vertices in a cell.
      */
     static
-    PylithInt getNumCorners(const pylith::topology::Mesh& mesh);
+    pylith::integer getNumCorners(const pylith::topology::Mesh& mesh);
 
     /** Check to make sure material label value for every cell matches the label value of
      *  one of the materials.
@@ -145,7 +145,7 @@ public:
      */
     static
     void checkMaterialLabels(const Mesh& mesh,
-                             pylith::int_array& labelValues);
+                             pylith::integer_array& labelValues);
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:

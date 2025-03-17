@@ -57,13 +57,13 @@ public:
      *
      * @param value Origin time for earthquake source.
      */
-    void setOriginTime(const PylithReal value);
+    void setOriginTime(const pylith::real value);
 
     /** Get origin time for earthquake source.
      *
      * @returns Origin time for earthquake source.
      */
-    PylithReal getOriginTime(void) const;
+    pylith::real getOriginTime(void) const;
 
     /** Get auxiliary field associated with the kinematic source.
      *
@@ -98,8 +98,8 @@ public:
     virtual
     void getSlipSubfields(PetscVec slipLocalVec,
                           pylith::topology::Field* faultAuxiliaryField,
-                          const PylithScalar t,
-                          const PylithScalar timeScale,
+                          const pylith::real t,
+                          const pylith::real timeScale,
                           const int bitSlipSubfields);
 
     // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
@@ -131,16 +131,16 @@ protected:
     // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
 protected:
 
-    pylith::faults::KinSrcAuxiliaryFactory* _auxiliaryFactory; ///< Factory for auxiliary subfields.
+    std::unique_ptr<pylith::faults::KinSrcSubfieldFactory> _auxiliaryFactory; ///< Factory for auxiliary subfields.
+    std::unique_ptr<pylith::topology::Field> _auxiliaryField; ///< Auxiliary field for this integrator.
     PetscPointFunc _slipFnKernel; ///< Kernel for slip time function.
     PetscPointFunc _slipRateFnKernel; ///< Kernel for slip rate time function.
     PetscPointFunc _slipAccFnKernel; ///< Kernel for slip acceleration time function.
-    pylith::topology::Field* _auxiliaryField; ///< Auxiliary field for this integrator.
 
     // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:
 
-    PylithReal _originTime; ///< Origin time for earthquake source
+    pylith::real _originTime; ///< Origin time for earthquake source
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:

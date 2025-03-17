@@ -40,7 +40,7 @@ public:
      * @param[in] pointNames Array with point names.
      * @param[in] numPointNames Number of point banes.
      */
-    void setPoints(const PylithReal* pointCoords,
+    void setPoints(const pylith::real* pointCoords,
                    const int numPoints,
                    const int spaceDim,
                    const char* const* pointNames,
@@ -55,8 +55,8 @@ protected:
      * @param[in] tindex Current time step.
      * @param[in] solution Solution at time t.
      */
-    void _writeSolnStep(const PylithReal t,
-                        const PylithInt tindex,
+    void _writeSolnStep(const pylith::real t,
+                        const pylith::integer tindex,
                         const pylith::topology::Field& solution);
 
     /** Get output subfield, creating if necessary.
@@ -92,8 +92,8 @@ private:
 
     pylith::scalar_array _pointCoords; ///< Array of point coordinates.
     pylith::string_vector _pointNames; ///< Array of point names.
-    pylith::topology::Mesh* _pointMesh; ///< Mesh for points (no cells).
-    pylith::topology::Field* _pointSoln; ///< Solution field at points.
+    std::unique_ptr<pylith::topology::Mesh> _pointMesh; ///< Mesh for points (no cells).
+    std::unique_ptr<pylith::topology::Field> _pointSoln; ///< Solution field at points.
     DMInterpolationInfo _interpolator; ///< Field interpolator.
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////

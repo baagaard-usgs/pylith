@@ -45,14 +45,14 @@ public:
      * @param[in] solution Solution field.
      * @returns Integrator if applicable, otherwise NULL.
      */
-    pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution);
+    pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution) override;
 
     /** Create constraint and set kernels.
      *
      * @param[in] solution Solution field.
      * @returns Constraint if applicable, otherwise NULL.
      */
-    std::vector<pylith::feassemble::Constraint*> createConstraints(const pylith::topology::Field& solution);
+    std::vector<pylith::feassemble::Constraint*> createConstraints(const pylith::topology::Field& solution) override;
 
     /** Create auxiliary field.
      *
@@ -62,16 +62,7 @@ public:
      * @returns Auxiliary field if applicable, otherwise NULL.
      */
     pylith::topology::Field* createAuxiliaryField(const pylith::topology::Field& solution,
-                                                  const pylith::topology::Mesh& domainMesh);
-
-    // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
-protected:
-
-    /** Get auxiliary factory associated with physics.
-     *
-     * @return Auxiliary factory for physics object.
-     */
-    pylith::feassemble::AuxiliaryFactory* _getAuxiliaryFactory(void);
+                                                  const pylith::topology::Mesh& domainMesh) override;
 
     // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:

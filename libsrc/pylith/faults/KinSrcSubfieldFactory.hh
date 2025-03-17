@@ -10,19 +10,19 @@
 #pragma once
 
 #include "pylith/faults/faultsfwd.hh" // forward declarations
-#include "pylith/feassemble/AuxiliaryFactory.hh" // ISA AuxiliaryFactory
+#include "pylith/topology/SubfieldFactory.hh" // ISA SubfieldFactory
 
-class pylith::faults::KinSrcAuxiliaryFactory : public pylith::feassemble::AuxiliaryFactory {
-    friend class TestSlipFnAuxiliaryFactory; // unit testing
+class pylith::faults::KinSrcSubfieldFactory : public pylith::topology::SubfieldFactory {
+    friend class TestSlipFnSubfieldFactory; // unit testing
 
     // PUBLIC METHODS //////////////////////////////////////////////////////////////////////////////////////////////////
 public:
 
     /// Default constructor.
-    KinSrcAuxiliaryFactory(void);
+    KinSrcSubfieldFactory(void);
 
     /// Destructor.
-    virtual ~KinSrcAuxiliaryFactory(void);
+    virtual ~KinSrcSubfieldFactory(void);
 
     /// Add slip initiation time (relative to origin time) subfield to auxiliary field.
     void addInitiationTime(void);
@@ -51,16 +51,16 @@ public:
      */
     static
     void updateTimeHistoryValue(pylith::topology::Field* auxiliaryField,
-                                const PylithReal t,
-                                const PylithReal timeScale,
+                                const pylith::real t,
+                                const pylith::real timeScale,
                                 spatialdata::spatialdb::TimeHistory* const dbTimeHistory);
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    KinSrcAuxiliaryFactory(const KinSrcAuxiliaryFactory&); ///< Not implemented.
-    const KinSrcAuxiliaryFactory& operator=(const KinSrcAuxiliaryFactory&); ///< Not implemented
+    KinSrcSubfieldFactory(const KinSrcSubfieldFactory&); ///< Not implemented.
+    const KinSrcSubfieldFactory& operator=(const KinSrcSubfieldFactory&); ///< Not implemented
 
-}; // class KinSrcAuxiliaryFactory
+}; // class KinSrcSubfieldFactory
 
 // End of file

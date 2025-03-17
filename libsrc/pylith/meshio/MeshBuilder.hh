@@ -12,7 +12,7 @@
 #include "pylith/meshio/meshiofwd.hh" // forward declarations
 
 #include "pylith/topology/topologyfwd.hh" // USES Mesh
-#include "pylith/utils/arrayfwd.hh" // HASA scalar_array, int_array,  string_vector
+#include "pylith/utils/arrayfwd.hh" // HASA scalar_array, integer_array,  string_vector
 
 #include "pylith/topology/Mesh.hh" // USES Mesh
 
@@ -36,7 +36,7 @@ public:
         size_t numCells;
         size_t numCorners;
         shape_t cellShape;
-        int_array cells;
+        pylith::integer_array cells;
 
         Topology(void) :
             dimension(0),
@@ -71,7 +71,7 @@ public:
 
         Geometry(const size_t _numVertices,
                  const size_t _spaceDim,
-                 const PylithScalar* _vertices) :
+                 const pylith::scalar* _vertices) :
             numVertices(_numVertices),
             spaceDim(_spaceDim),
             vertices(_vertices, _numVertices*_spaceDim) {}
@@ -106,7 +106,7 @@ public:
      */
     static
     void setMaterials(pylith::topology::Mesh* mesh,
-                      const int_array& materialIds);
+                      const pylith::integer_array& materialIds);
 
     /** Build a point group of vertices.
      *
@@ -121,7 +121,7 @@ public:
     static
     void setVertexGroup(pylith::topology::Mesh* mesh,
                         const char* name,
-                        const int_array& points,
+                        const pylith::integer_array& points,
                         const int labelValue=1);
 
     /** Build a point group of faces from cell+vertices.
@@ -138,7 +138,7 @@ public:
     static
     void setFaceGroupFromCellVertices(pylith::topology::Mesh* mesh,
                                       const char* name,
-                                      const int_array& points,
+                                      const pylith::integer_array& points,
                                       const shape_t faceShape,
                                       const int labelValue=1);
 
@@ -155,7 +155,7 @@ public:
     static
     void setFaceGroupFromCellSide(pylith::topology::Mesh* mesh,
                                   const char* name,
-                                  const int_array& points,
+                                  const pylith::integer_array& points,
                                   const int labelValue=1);
 
     /** Get information about vertices in mesh.
@@ -186,7 +186,7 @@ public:
      * @param[in] mesh Finite-element mesh.
      */
     static
-    void getMaterials(int_array* materialIds,
+    void getMaterials(pylith::integer_array* materialIds,
                       const pylith::topology::Mesh& mesh);
 
     /** Get names of vertex groups in mesh.
@@ -195,7 +195,7 @@ public:
      * @param[in] mesh Finite-element mesh.
      */
     static
-    void getVertexGroupNames(string_vector* names,
+    void getVertexGroupNames(pylith::string_vector* names,
                              const pylith::topology::Mesh& mesh);
 
     /** Get names of face groups in mesh.
@@ -204,7 +204,7 @@ public:
      * @param[in] mesh Finite-element mesh.
      */
     static
-    void getFaceGroupNames(string_vector* names,
+    void getFaceGroupNames(pylith::string_vector* names,
                            const pylith::topology::Mesh& mesh);
 
     /** Get a point group of vertices.
@@ -218,7 +218,7 @@ public:
      * @param[in] labelValue Value of group label in mesh.
      */
     static
-    void getVertexGroup(int_array* points,
+    void getVertexGroup(pylith::integer_array* points,
                         const pylith::topology::Mesh& mesh,
                         const char* name,
                         const int labelValue=1);
@@ -234,7 +234,7 @@ public:
      * @param[in] labelValue Value of group label in mesh.
      */
     static
-    void getFaceGroup(int_array* points,
+    void getFaceGroup(pylith::integer_array* points,
                       const pylith::topology::Mesh& mesh,
                       const char* name,
                       const int labelValue=1);

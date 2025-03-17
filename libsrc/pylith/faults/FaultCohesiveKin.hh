@@ -46,7 +46,7 @@ public:
      *
      * @param[in] solution Solution field.
      */
-    void verifyConfiguration(const pylith::topology::Field& solution) const;
+    void verifyConfiguration(const pylith::topology::Field& solution) const override;
 
     /** Create auxiliary field.
      *
@@ -56,7 +56,7 @@ public:
      * @returns Auxiliary field if applicable, otherwise NULL.
      */
     pylith::topology::Field* createAuxiliaryField(const pylith::topology::Field& solution,
-                                                  const pylith::topology::Mesh& domainMesh);
+                                                  const pylith::topology::Mesh& domainMesh) override;
 
     /** Update auxiliary subfields at beginning of time step.
      *
@@ -64,7 +64,7 @@ public:
      * @param[in] t Current time.
      */
     void updateAuxiliaryField(pylith::topology::Field* auxiliaryField,
-                              const double t);
+                              const pylith::real t) override;
 
     // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
 protected:
@@ -87,7 +87,7 @@ protected:
      */
     void _setKernelsResidual(pylith::feassemble::IntegratorInterface* integrator,
                              const pylith::topology::Field& solution,
-                             const std::vector<pylith::materials::Material*>& materials) const;
+                             const std::vector<pylith::materials::Material*>& materials) const override;
 
     /** Set kernels for Jacobian.
      *
@@ -97,7 +97,7 @@ protected:
      */
     void _setKernelsJacobian(pylith::feassemble::IntegratorInterface* integrator,
                              const pylith::topology::Field& solution,
-                             const std::vector<pylith::materials::Material*>& materials) const;
+                             const std::vector<pylith::materials::Material*>& materials) const override;
 
     /** Set kernels for computing derived field.
      *
@@ -105,7 +105,7 @@ protected:
      * @param[in] solution Solution field.
      */
     void _setKernelsDerivedField(pylith::feassemble::IntegratorInterface* integrator,
-                                 const pylith::topology::Field& solution) const;
+                                 const pylith::topology::Field& solution) const override;
 
     // PROTECTED TYPEDEFS /////////////////////////////////////////////////////////////////////////
 protected:

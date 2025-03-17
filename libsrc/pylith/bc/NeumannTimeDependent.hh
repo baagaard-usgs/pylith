@@ -35,7 +35,7 @@
 class pylith::bc::NeumannTimeDependent : public pylith::bc::BoundaryCondition {
     friend class TestNeumannTimeDependent; // unit testing
 
-    // PUBLIC METHODS //////////////////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 
     /// Default constructor.
@@ -51,7 +51,7 @@ public:
      *
      * @param[in] db Time history database.
      */
-    void setTimeHistoryDB(spatialdata::spatialdb::TimeHistory* th);
+    void setTimeHistoryDB(std::shared_ptr<spatialdata::spatialdb::TimeHistory>& th);
 
     /** Get time history database.
      *
@@ -113,14 +113,14 @@ public:
      * @param[in] solution Solution field.
      * @returns Integrator if applicable, otherwise NULL.
      */
-    pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution);
+    pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution) override;
 
     /** Create constraint and set kernels.
      *
      * @param[in] solution Solution field.
      * @returns Constraint if applicable, otherwise NULL.
      */
-    std::vector<pylith::feassemble::Constraint*> createConstraints(const pylith::topology::Field& solution);
+    std::vector<pylith::feassemble::Constraint*> createConstraints(const pylith::topology::Field& solution) override;
 
     /** Create auxiliary field.
      *
@@ -130,7 +130,7 @@ public:
      * @returns Auxiliary field if applicable, otherwise NULL.
      */
     pylith::topology::Field* createAuxiliaryField(const pylith::topology::Field& solution,
-                                                  const pylith::topology::Mesh& domainMesh);
+                                                  const pylith::topology::Mesh& domainMesh) override;
 
     /** Update auxiliary subfields at beginning of time step.
      *
@@ -138,30 +138,19 @@ public:
      * @param[in] t Current time.
      */
     void updateAuxiliaryField(pylith::topology::Field* auxiliaryField,
-                              const double t);
+                              const double t) override;
 
-    // PROTECTED METHODS ///////////////////////////////////////////////////////////////////////////////////////////////
-protected:
-
-    /** Get auxiliary factory associated with physics.
-     *
-     * @return Auxiliary factory for physics object.
-     */
-    pylith::feassemble::AuxiliaryFactory* _getAuxiliaryFactory(void);
-
-    // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
+    // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:
 
-    spatialdata::spatialdb::TimeHistory* _dbTimeHistory; ///< Time history database.
-    pylith::bc::TimeDependentAuxiliaryFactory* _auxiliaryFactory; ///< Factory for auxiliary subfields.
+    std::shared_ptr<spatialdata::spatialdb::TimeHistory> _dbTimeHistory; ///< Time history database.
     std::string _scaleName; ///< Name of scale associated with Neumann boundary condition.
 
     bool _useInitial; ///< Use initial value term.
     bool _useRate; ///< Use rate term.
     bool _useTimeHistory; ///< Use time history term.
 
-    // NOT IMPLEMENTED
-    // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
     NeumannTimeDependent(const NeumannTimeDependent&); ///< Not implemented.

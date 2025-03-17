@@ -65,7 +65,7 @@ public:
      *
      * @param[in] physics Physics implemented by integrator.
      */
-    Integrator(pylith::problems::Physics* const physics);
+    Integrator(std::shared_ptr<pylith::problems::Physics>& physics);
 
     /// Destructor
     virtual ~Integrator(void);
@@ -136,9 +136,9 @@ public:
      * @param[in] notification Type of notification.
      */
     virtual
-    void poststep(const PylithReal t,
-                  const PylithInt tindex,
-                  const PylithReal dt,
+    void poststep(const pylith::real t,
+                  const pylith::integer tindex,
+                  const pylith::real dt,
                   const pylith::topology::Field& solution,
                   const pylith::problems::Observer::NotificationType notification);
 
@@ -147,7 +147,7 @@ public:
      * @param[in] t Current time.
      */
     virtual
-    void setState(const PylithReal t);
+    void setState(const pylith::real t);
 
     /** Compute RHS residual for G(t,s).
      *
@@ -197,7 +197,7 @@ protected:
      */
     virtual
     void _setKernelConstants(const pylith::topology::Field& solution,
-                             const PylithReal dt) const;
+                             const pylith::real dt) const;
 
     /** Update state variables as needed.
      *
@@ -206,8 +206,8 @@ protected:
      * @param[in] solution Field with current trial solution.
      */
     virtual
-    void _updateStateVars(const PylithReal t,
-                          const PylithReal dt,
+    void _updateStateVars(const pylith::real t,
+                          const pylith::real dt,
                           const pylith::topology::Field& solution);
 
     /// Compute diagnostic field from auxiliary field.
@@ -221,8 +221,8 @@ protected:
      * @param[in] solution Field with current trial solution.
      */
     virtual
-    void _computeDerivedField(const PylithReal t,
-                              const PylithReal dt,
+    void _computeDerivedField(const pylith::real t,
+                              const pylith::real dt,
                               const pylith::topology::Field& solution);
 
     // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////

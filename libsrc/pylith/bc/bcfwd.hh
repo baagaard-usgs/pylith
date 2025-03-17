@@ -12,19 +12,16 @@
 namespace pylith {
     namespace bc {
         class BoundaryCondition;
-        class DiagnosticFieldFactory;
-        class TimeDependentAuxiliaryFactory;
+        class SubfieldFactory;
 
-        class ConstraintBoundary;
         class Dirichlet;
         class DirichletTimeDependent;
         class DirichletUserFn;
 
         class NeumannTimeDependent;
         class NeumannUserFn;
-        class AbsorbingDampers;
 
-        class AbsorbingDampersAuxiliaryFactory;
+        class AbsorbingDampers;
 
     } // bc
 } // pylith

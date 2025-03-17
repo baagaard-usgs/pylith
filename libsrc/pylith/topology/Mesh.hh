@@ -21,6 +21,7 @@
  * domain.
  */
 class pylith::topology::Mesh {
+    friend class MeshOps;
     friend class TestMesh; // unit testing
 
     // PUBLIC MEMBERS ///////////////////////////////////////////////////////
@@ -72,7 +73,7 @@ public:
      *
      * @param cs Coordinate system.
      */
-    void setCoordSys(const spatialdata::geocoords::CoordSys* cs);
+    void setCoordSys(const std::shared_ptr<spatialdata::geocoords::CoordSys>& cs);
 
     /** Get coordinate system.
      *
@@ -118,7 +119,7 @@ public:
     // PRIVATE MEMBERS //////////////////////////////////////////////////////
 private:
 
-    spatialdata::geocoords::CoordSys* _coordSys; ///< Coordinate system.
+    std::shared_ptr<spatialdata::geocoords::CoordSys> _coordSys; ///< Coordinate system.
     PetscDM _dm; ///< PETSc DM with topology.
 
     // NOT IMPLEMENTED //////////////////////////////////////////////////////

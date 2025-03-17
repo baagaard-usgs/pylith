@@ -92,7 +92,7 @@ public:
      *
      * @param[in] value Spatial database with iniital values for auxiliary field.
      */
-    void setAuxiliaryFieldDB(std::shared_ptr<spatialdata::spatialdb::SpatialDB>& const value);
+    void setAuxiliaryFieldDB(std::shared_ptr<spatialdata::spatialdb::SpatialDB>& value);
 
     /** Set discretization information for auxiliary subfield.
      *
@@ -157,7 +157,7 @@ public:
      *
      * @return Array of constants.
      */
-    const pylith::real_array& getKernelConstants(const PylithReal dt);
+    const pylith::real_array& getKernelConstants(const pylith::real dt);
 
     /** Verify configuration is acceptable.
      *
@@ -232,21 +232,14 @@ protected:
      * @return Auxiliary factory for physics object.
      */
     virtual
-    pylith::feassemble::AuxiliaryFactory* _getAuxiliaryFactory(void) = 0;
-
-    /** Get derived factory associated with physics.
-     *
-     * @return Derived factory for physics object.
-     */
-    virtual
-    pylith::topology::FieldFactory* _getDerivedFactory(void);
+    pylith::topology::SubfieldFactory* _getSubfieldFactory(void) = 0;
 
     /** Update kernel constants.
      *
      * @param[in] dt Current time step.
      */
     virtual
-    void _updateKernelConstants(const PylithReal dt);
+    void _updateKernelConstants(const pylith::real dt);
 
     // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
 protected:
@@ -258,9 +251,9 @@ protected:
     // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:
 
+    std::shared_ptr<pylith::problems::ObserversPhysics> _observers; ///< Subscribers of updates.
     std::string _labelName; ///< Name of label in mesh for material.
     int _labelValue; ///< Value of label in mesh for material.
-    std::unique_ptr<pylith::problems::ObserversPhysics> _observers; ///< Subscribers of updates.
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:

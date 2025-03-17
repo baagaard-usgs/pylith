@@ -35,12 +35,11 @@ public:
     /// Deallocate PETSc and local data structures.
     void deallocate(void);
 
-    /** Get auxiliary factory associated with physics.
+    /** Get subfield factory associated with physics.
      *
-     * @return Auxiliary factory for physics object.
+     * @return Subfield factory for physics object.
      */
-    virtual
-    pylith::materials::AuxiliaryFactoryElasticity* getAuxiliaryFactory(void) = 0;
+    pylith::materials::SubfieldFactory* getSubfieldFactory(void);
 
     /// Add rheology subfields to auxiliary field.
     virtual
@@ -107,7 +106,13 @@ public:
      */
     virtual
     void updateKernelConstants(pylith::real_array* kernelConstants,
-                               const PylithReal dt) const;
+                               const pylith::real dt) const;
+
+    // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
+protected:
+
+    /// Factory for creating auxiliary subfields.
+    std::unique_ptr<pylith::materials::SubfieldFactory> _subfieldFactory;
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:

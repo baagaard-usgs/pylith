@@ -10,19 +10,19 @@
 #pragma once
 
 #include "pylith/faults/faultsfwd.hh" // forward declarations
-#include "pylith/feassemble/AuxiliaryFactory.hh" // ISA AuxiliaryFactory
+#include "pylith/topology/SubfieldFactory.hh" // ISA AuxiliaryFactory
 
-class pylith::faults::AuxiliaryFieldFactory : public pylith::feassemble::AuxiliaryFactory {
+class pylith::faults::SubfieldFactory : public pylith::topology::SubfieldFactory {
     friend class TestAuxiliaryFieldFactory; // unit testing
 
     // PUBLIC METHODS //////////////////////////////////////////////////////////////////////////////////////////////////
 public:
 
     /// Default constructor.
-    AuxiliaryFieldFactory(void);
+    SubfieldFactory(void);
 
     /// Destructor.
-    ~AuxiliaryFieldFactory(void);
+    ~SubfieldFactory(void);
 
     /// Add slip subfield to auxiliary field.
     void addSlip(void);
@@ -33,12 +33,27 @@ public:
     /// Add slip acceleration subfield to auxiliary field.
     void addSlipAcceleration(void);
 
+    /// Add traction change subfield to derived field.
+    void addTractionChange(void);
+
+    /// Add fault normal direction subfield to auxiliary field.
+    void addNormalDir(void);
+
+    /// Add fault strike direction subfield to auxiliary field.
+    void addStrikeDir(void);
+
+    /// Add fault up-dip direction modulus subfield to auxiliary field.
+    void addUpDipDir(void);
+
+    /// Add subfields using discretizations provided.
+    virtual void addSubfields(void);
+
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    AuxiliaryFieldFactory(const AuxiliaryFieldFactory &); ///< Not implemented.
-    const AuxiliaryFieldFactory& operator=(const AuxiliaryFieldFactory&); ///< Not implemented
+    SubfieldFactory(const SubfieldFactory &); ///< Not implemented.
+    const SubfieldFactory& operator=(const SubfieldFactory&); ///< Not implemented
 
-}; // class AuxiliaryFieldFactory
+}; // class SubfieldFactory
 
 // End of file

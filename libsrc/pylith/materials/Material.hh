@@ -58,7 +58,7 @@ public:
 
     /// Deallocate PETSc and local data structures.
     virtual
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set gravity field.
      *
@@ -78,7 +78,7 @@ public:
      * @returns Constraint if applicable, otherwise NULL.
      */
     virtual
-    std::vector<pylith::feassemble::Constraint*> createConstraints(const pylith::topology::Field& solution);
+    std::vector<pylith::feassemble::Constraint*> createConstraints(const pylith::topology::Field& solution) override;
 
     /** Get default PETSc solver options appropriate for material.
      *
@@ -110,10 +110,20 @@ public:
     std::vector<InterfaceJacobianKernels> getInterfaceKernelsJacobian(const pylith::topology::Field& solution,
                                                                       pylith::feassemble::IntegratorInterface::FaceEnum face) const;
 
+    /** Get subfield factory associated with physics.
+     *
+     * @return Subfield factory for physics object.
+     */
+    pylith::topology::SubfieldFactory* _getSubfieldFactory(void) override;
+
     // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
 protected:
 
-    spatialdata::spatialdb::GravityField* _gravityField; ///< Gravity field for gravitational body forces.
+    std::unique_ptr<pylith::materials::SubfieldFactory> _subfieldFactory; ///< Factory for subfields.
+
+    /// Gravity field for gravitational body forces.
+    std::shared_ptr<spatialdata::spatialdb::GravityField> _gravityField;
+
     std::vector<pylith::feassemble::IntegratorDomain::ResidualKernels> _mmsBodyForceKernels;
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////

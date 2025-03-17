@@ -31,8 +31,8 @@ public:
      * @param[in] tindex Inxex of current time step.
      * @returns True if output should be written at time t, false otherwise.
      */
-    bool shouldWrite(const PylithReal t,
-                     const PylithInt tindex);
+    bool shouldWrite(const pylith::real t,
+                     const pylith::integer tindex);
 
     /** Set elapsed time between writes.
      *
@@ -49,8 +49,8 @@ public:
     // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    PylithReal _timeSkip; ///< Elapsed (dimensional) time between writes.
-    PylithReal _timeNondimWrote; ///< Time (nondimensional) when data was previously writtern.
+    pylith::real _timeSkip; ///< Elapsed (dimensional) time between writes.
+    pylith::real _timeNondimWrote; ///< Time (nondimensional) when data was previously writtern.
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:

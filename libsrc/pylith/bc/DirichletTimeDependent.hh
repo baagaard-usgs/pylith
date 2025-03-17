@@ -53,16 +53,14 @@ public:
      * a Cartesian coordinate system.
      *
      * @param[in] dof Array of indices for constrained degrees of freedom.
-     * @param[in] size Size of array
      */
-    void setConstrainedDOF(const int* flags,
-                           const int size);
+    void setConstrainedDOF(const pylith::integer_array& dof);
 
     /** Get indices of constrained degrees of freedom.
      *
      * @returns Array of indices for constrained degrees of freedom.
      */
-    const pylith::int_array& getConstrainedDOF(void) const;
+    const pylith::integer_array& getConstrainedDOF(void) const;
 
     /** Set time history database.
      *
@@ -116,21 +114,21 @@ public:
      *
      * @param[in] solution Solution field.
      */
-    void verifyConfiguration(const pylith::topology::Field& solution) const;
+    void verifyConfiguration(const pylith::topology::Field& solution) const override;
 
     /** Create integrator and set kernels.
      *
      * @param[in] solution Solution field.
      * @returns Integrator if applicable, otherwise NULL.
      */
-    pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution);
+    pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution) override;
 
     /** Create constraint and set kernels.
      *
      * @param[in] solution Solution field.
      * @returns Constraint if applicable, otherwise NULL.
      */
-    std::vector<pylith::feassemble::Constraint*> createConstraints(const pylith::topology::Field& solution);
+    std::vector<pylith::feassemble::Constraint*> createConstraints(const pylith::topology::Field& solution) override;
 
     /** Create auxiliary field.
      *
@@ -140,7 +138,7 @@ public:
      * @returns Auxiliary field if applicable, otherwise NULL.
      */
     pylith::topology::Field* createAuxiliaryField(const pylith::topology::Field& solution,
-                                                  const pylith::topology::Mesh& domainMesh);
+                                                  const pylith::topology::Mesh& domainMesh) override;
 
     /** Update time-dependent auxiliary field.
      *
@@ -148,23 +146,13 @@ public:
      * @param[in] t Current time.
      */
     void updateAuxiliaryField(pylith::topology::Field* auxiliaryField,
-                              const double t);
-
-    // PROTECTED METHODS ///////////////////////////////////////////////////////////////////////////////////////////////
-protected:
-
-    /** Get auxiliary factory associated with physics.
-     *
-     * @return Auxiliary factory for physics object.
-     */
-    pylith::feassemble::AuxiliaryFactory* _getAuxiliaryFactory(void);
+                              const double t) override;
 
     // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    int_array _constrainedDOF; ///< List of constrained degrees of freedom at each location.
-    spatialdata::spatialdb::TimeHistory* _dbTimeHistory; ///< Time history database.
-    pylith::bc::TimeDependentAuxiliaryFactory* _auxiliaryFactory; ///< Factory for auxiliary subfields.
+    pylith::integer_array _constrainedDOF; ///< List of constrained degrees of freedom at each location.
+    std::unique_ptr<spatialdata::spatialdb::TimeHistory> _dbTimeHistory; ///< Time history database.
 
     bool _useInitial; ///< Use initial value term.
     bool _useRate; ///< Use rate term.

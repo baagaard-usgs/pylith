@@ -82,7 +82,7 @@ public:
      *
      * @param[in] rheology Bulk rheology for elasticity.
      */
-    void setBulkRheology(pylith::materials::RheologyPoroelasticity* const rheology);
+    void setBulkRheology(std::shared_ptr<pylith::materials::RheologyPoroelasticity>& rheology);
 
     /** Get bulk rheology.
      *
@@ -136,23 +136,11 @@ public:
     // PROTECTED METHODS ///////////////////////////////////////////////////////////////////////////////////////////////
 protected:
 
-    /** Get auxiliary factory associated with physics.
-     *
-     * @return Auxiliary factory for physics object.
-     */
-    pylith::feassemble::AuxiliaryFactory* _getAuxiliaryFactory(void);
-
     /** Update kernel constants.
      *
      * @param[in] dt Current time step.
      */
-    void _updateKernelConstants(const PylithReal dt);
-
-    /** Get derived factory associated with physics.
-     *
-     * @return Derived factory for physics object.
-     */
-    pylith::topology::FieldFactory* _getDerivedFactory(void);
+    void _updateKernelConstants(const pylith::real dt);
 
     // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
@@ -196,8 +184,7 @@ private:
     bool _useReferenceState; ///< Flag to use reference stress and strain.
     bool _useSourceDensity; ///< Flag to use source density.
     bool _useStateVars; ///< Flag to update auxiliary fields.
-    pylith::materials::RheologyPoroelasticity* _rheology; ///< Bulk rheology for elasticity.
-    pylith::materials::DerivedFactoryPoroelasticity* _derivedFactory; ///< Factory for creating derived fields.
+    std::shared_ptr<pylith::materials::RheologyPoroelasticity> _rheology; ///< Bulk rheology for elasticity.
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
