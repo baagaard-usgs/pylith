@@ -21,9 +21,9 @@
 // ----------------------------------------------------------------------
 // Check to make sure array of values match expected values.
 bool
-pylith::utils::TestArray::check(const PylithScalar* valuesE,
+pylith::utils::TestArray::check(const pylith::scalar* valuesE,
                                 const int nvalues,
-                                const scalar_array& values) { // check(PylithScalar)
+                                const scalar_array& values) { // check(pylith::scalar)
     assert( (0 == nvalues && 0 == valuesE) ||
             (0 < nvalues && 0 != valuesE) );
 
@@ -33,7 +33,7 @@ pylith::utils::TestArray::check(const PylithScalar* valuesE,
         return false;
     } // if
 
-    const PylithScalar tolerance = 1.0e-06;
+    const pylith::scalar tolerance = 1.0e-06;
     bool okay = true;
     for (int i = 0; i < nvalues; ++i) {
         okay = true;
@@ -53,7 +53,7 @@ pylith::utils::TestArray::check(const PylithScalar* valuesE,
     } // for
 
     return true;
-} // check(PylithScalar)
+} // check(pylith::scalar)
 
 
 // End of file
