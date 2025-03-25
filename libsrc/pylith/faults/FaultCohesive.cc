@@ -386,17 +386,58 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
             } // for
         } // labelsRemoveCohesivePoints
 
-#if 0
-        { // Print transform type label
+        { // Create buried edge label
             PetscDMLabel transformTypes = NULL;
             err = DMPlexTransformGetTransformTypes(transform, &transformTypes);PYLITH_CHECK_ERROR(err);
-            err = DMLabelView(transformTypes, PETSC_VIEWER_STDOUT_SELF);PYLITH_CHECK_ERROR(err);
-            // the points are the ones in the origin mesh
-            DMPlexShiftLabels
-            // Update points to ones in new mesh
-            // Loop over points, check if value is
-        } // Print transform type label
-#endif
+            // err = DMLabelView(transformTypes, PETSC_VIEWER_STDOUT_SELF);PYLITH_CHECK_ERROR(err);
+
+            bool hasBuriedEdge = false;
+            PetscDMLabel buriedEdgeLabel = NULL;
+            const std::string buriedEdgeLabelName = _surfaceLabelName + std::string("_edge");
+            PetscBool hasBuriedEdgeLabel = PETSC_FALSE;
+            err = DMHasLabel(dmMeshNew, buriedEdgeLabelName.c_str(), &hasBuriedEdgeLabel);
+            if (!hasBuriedEdgeLabel) { // if
+                err = DMCreateLabel(dmMeshNew, buriedEdgeLabelName.c_str());PYLITH_CHECK_ERROR(err);
+                err = DMGetLabel(dmMeshNew, buriedEdgeLabelName.c_str(), &buriedEdgeLabel);PYLITH_CHECK_ERROR(err);
+
+                PylithInt pStart, pEnd;
+                err = DMPlexGetChart(dmMesh, &pStart, &pEnd);PYLITH_CHECK_ERROR(err);
+                for (PylithInt point = pStart; point < pEnd; ++point) {
+                    DMPolytopeType cellType;
+                    PetscInt value;
+                    err = DMPlexGetCellType(dmMesh, point, &cellType);PYLITH_CHECK_ERROR(err);
+                    err = DMLabelGetValue(surfaceLabel, point, &value);PYLITH_CHECK_ERROR(err);
+                    if (value >= 200) { // buried edge (no splitting)
+                        PylithInt numCellTypes; // Number of cell types.
+                        DMPolytopeType* newCellTypes = NULL; // List of new cell types [numCellTypes]
+                        PylithInt* newCellTypesSize = NULL; // Sizes for newCellTypes [numCellTypes];
+                        PylithInt* newPointsCones = NULL; // Cone of every point it makes.
+                        PylithInt* coneOrientations = NULL; // Orientation of every cone point
+                        PylithInt dim, pointEdge = 0;
+
+                        hasBuriedEdge = true;
+                        dim = DMPolytopeTypeGetDim(cellType);
+                        err = DMPlexTransformCellTransform(transform, cellType, point, NULL, &numCellTypes, &newCellTypes, &newCellTypesSize, &newPointsCones, &coneOrientations);PYLITH_CHECK_ERROR(err);
+                        for (PylithInt iCellType = 0; iCellType < numCellTypes; ++iCellType) {
+                            if (DMPolytopeTypeGetDim(newCellTypes[iCellType]) != dim) {
+                                continue;
+                            } // if
+                            const PetscInt cellTypeSize = newCellTypesSize[iCellType];
+                            assert(1 == cellTypeSize);
+                            const PetscInt iPoint = 0; // single point in cell type size
+                            err = DMPlexTransformGetTargetPoint(transform, cellType, newCellTypes[iCellType], point, iPoint, &pointEdge);PYLITH_CHECK_ERROR(err);
+                            err = DMLabelSetValue(buriedEdgeLabel, pointEdge, 1);PYLITH_CHECK_ERROR(err);
+                        } // for
+                    } // if
+
+                } // for
+                if (!hasBuriedEdge) {
+                    err = DMRemoveLabel(dmMeshNew, buriedEdgeLabelName.c_str(), NULL);PYLITH_CHECK_ERROR(err);
+                } else {
+                    // err = DMLabelView(buriedEdgeLabel, PETSC_VIEWER_STDOUT_SELF);PYLITH_CHECK_ERROR(err);
+                } // if/else
+            } // if
+        } // Create buried edge label
 
         mesh->setDM(dmMeshNew);
         err = DMPlexTransformDestroy(&transform);PYLITH_CHECK_ERROR(err);
