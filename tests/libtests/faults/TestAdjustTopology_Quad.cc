@@ -432,7 +432,8 @@ pylith::faults::TestAdjustTopology_Quad::caseH(void) {
                                  value = 12;
                              }
                          } else {
-                             value = (xyz[0] > +0.9) ? 100 : 101;
+                             const int numCohesiveCellsFaultA = 2;
+                             value = (cell > numNoncohesiveCells + numCohesiveCellsFaultA) ? interfaceIds[1] : interfaceIds[0];
                          }
                          return value;
                      };
