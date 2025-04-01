@@ -386,13 +386,13 @@ pylith::faults::TestAdjustTopology_Tri::caseG(void) {
                          return value;
                      };
 
-    static const size_t numGroups = 5;
+    static const size_t numGroups = 6;
     data->numGroups = numGroups;
-    static const int groupSizes[numGroups] = { 5+3, 1, 3+2, 3, 2 }; // vertices + edges
+    static const int groupSizes[numGroups] = { 5+3, 1, 3+2, 3, 2, 1 }; // vertices + edges
     data->groupSizes = const_cast<int*>(groupSizes);
-    static const char* groupNames[numGroups] = { "output_vertices", "edge_vertices", "fault_vertices", "output_faces", "fault_faces" };
+    static const char* groupNames[numGroups] = { "output_vertices", "edge_vertices", "fault_vertices", "output_faces", "fault_faces", "fault_faces_edge" };
     data->groupNames = const_cast<char**>(groupNames);
-    static const char* groupTypes[numGroups] = { "vertex", "vertex", "vertex", "face", "face" };
+    static const char* groupTypes[numGroups] = { "vertex", "vertex", "vertex", "face", "face", "vertex" };
     data->groupTypes = const_cast<char**>(groupTypes);
 
     return data;
@@ -442,13 +442,13 @@ pylith::faults::TestAdjustTopology_Tri::caseH(void) {
                          return value;
                      };
 
-    static const size_t numGroups = 5;
+    static const size_t numGroups = 6;
     data->numGroups = numGroups;
-    static const int groupSizes[numGroups] = { 3+2, 2, 4+4, 2, 4 }; // vertices + edges
+    static const int groupSizes[numGroups] = { 3+2, 2, 4+4, 2, 4, 2 }; // vertices + edges
     data->groupSizes = const_cast<int*>(groupSizes);
-    static const char* groupNames[numGroups] = { "output_vertices", "edge_vertices", "fault_vertices", "output_faces", "fault_faces" };
+    static const char* groupNames[numGroups] = { "output_vertices", "edge_vertices", "fault_vertices", "output_faces", "fault_faces", "fault_faces_edge" };
     data->groupNames = const_cast<char**>(groupNames);
-    static const char* groupTypes[numGroups] = { "vertex", "vertex", "vertex", "face", "face" };
+    static const char* groupTypes[numGroups] = { "vertex", "vertex", "vertex", "face", "face", "vertex" };
     data->groupTypes = const_cast<char**>(groupTypes);
 
     return data;

@@ -563,13 +563,13 @@ pylith::faults::TestAdjustTopology_Tet::caseK(void) {
                          return (cell < numNoncohesiveCells) ? 10 : 100;
                      };
 
-    static const size_t numGroups = 5;
+    static const size_t numGroups = 6;
     data->numGroups = numGroups;
-    static const int groupSizes[numGroups] = { 223+5+4, 10+8, 2*139-8-10, 66, 2*101 }; // vertices + edges + faces
+    static const int groupSizes[numGroups] = { 223+5+4, 10+8, 2*139-8-10, 66, 2*101, 10+8 }; // vertices + edges + faces
     data->groupSizes = const_cast<int*>(groupSizes);
-    static const char* groupNames[numGroups] = { "vertices_zpos", "fault_edge_vertices", "fault_vertices", "boundary_zpos", "fault_faces" };
+    static const char* groupNames[numGroups] = { "vertices_zpos", "fault_edge_vertices", "fault_vertices", "boundary_zpos", "fault_faces", "fault_faces_edge" };
     data->groupNames = const_cast<char**>(groupNames);
-    static const char* groupTypes[numGroups] = { "vertex", "vertex", "vertex", "face", "face" };
+    static const char* groupTypes[numGroups] = { "vertex", "vertex", "vertex", "face", "face", "vertex" };
     data->groupTypes = const_cast<char**>(groupTypes);
 
     return data;

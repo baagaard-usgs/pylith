@@ -298,8 +298,10 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
 
         err = DMGetLabelName(dmMesh, iLabel, &labelName);PYLITH_CHECK_ERROR(err);
         if (ignoreLabels.count(labelName) > 0) { continue; }
+        INFO("Checking label '" <<labelName << "'");
         err = DMGetLabel(dmMesh, labelName, &label);PYLITH_CHECK_ERROR(err);assert(label);
         err = DMLabelGetStratumIS(label, 1, &pointIS);PYLITH_CHECK_ERROR(err);
+        REQUIRE(pointIS);
         err = ISGetLocalSize(pointIS, &numPoints);PYLITH_CHECK_ERROR(err);
         err = ISGetIndices(pointIS, &points);PYLITH_CHECK_ERROR(err);
         err = DMGetLabelValue(dmMesh, "depth", points[0], &depth);PYLITH_CHECK_ERROR(err);

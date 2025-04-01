@@ -520,13 +520,13 @@ pylith::faults::TestAdjustTopology_Hex::caseJ(void) {
                          return value;
                      };
 
-    static const size_t numGroups = 5;
+    static const size_t numGroups = 6;
     data->numGroups = numGroups;
-    static const int groupSizes[numGroups] = { 22+31+10, 6+5, 8+11+4, 10, 8+4 }; // vertices + edges + faces
+    static const int groupSizes[numGroups] = { 22+31+10, 6+5, 8+11+4, 10, 8+4, 4+3 }; // vertices + edges + faces
     data->groupSizes = const_cast<int*>(groupSizes);
-    static const char* groupNames[numGroups] = { "output_vertices", "fault_edge_vertices", "fault_vertices", "output_faces", "fault_faces" };
+    static const char* groupNames[numGroups] = { "output_vertices", "fault_edge_vertices", "fault_vertices", "output_faces", "fault_faces", "fault_faces_edge" };
     data->groupNames = const_cast<char**>(groupNames);
-    static const char* groupTypes[numGroups] = { "vertex", "vertex", "vertex", "face", "face" };
+    static const char* groupTypes[numGroups] = { "vertex", "vertex", "vertex", "face", "face", "vertex" };
     data->groupTypes = const_cast<char**>(groupTypes);
 
     return data;
