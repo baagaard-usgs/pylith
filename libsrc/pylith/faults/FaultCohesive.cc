@@ -329,115 +329,24 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
         PetscDM dmMeshNew = PETSC_NULLPTR;
         err = DMPlexTransformApply(transform, dmMesh, &dmMeshNew);PYLITH_CHECK_ERROR(err);assert(dmMeshNew);
 
-        { // setCohesiveCellLabel
-            // Set label and label value for newly created cohesive cells.
-            pylith::topology::Stratum oldStratum(dmMesh, pylith::topology::Stratum::HEIGHT, 0);
-            const PetscInt pStart = oldStratum.end();
-            pylith::topology::Stratum newStratum(dmMeshNew, pylith::topology::Stratum::HEIGHT, 0);
-            const PetscInt pEnd = newStratum.end();
-            const PetscInt cohesiveLabelValue = getLabelValue();
-            PetscDMLabel dmLabel = NULL;
-            err = DMGetLabel(dmMeshNew, getLabelName(), &dmLabel);PYLITH_CHECK_ERROR(err);
-            for (PetscInt point = pStart; point < pEnd; ++point) {
-                DMLabelSetValue(dmLabel, point, cohesiveLabelValue);
-            } // for
-        } // setCohesiveCellLabel
+        // Set label and label value for newly created cohesive cells.
+        TopologyOps::setCohesiveCellLabel(dmMeshNew, dmMesh, getLabelName(), getLabelValue());
 
-        { // labelsRemoveCohesivePoints
-            PetscInt numLabels = 0;
-            err = DMGetNumLabels(dmMeshNew, &numLabels);PYLITH_CHECK_ERROR(err);
+        // Remove cohesive points from labels.
+        TopologyOps::labelsRemoveCohesivePoints(dmMeshNew);
 
-            const std::string& materialLabelName = pylith::topology::Mesh::cells_label_name;
+        // Create buried edge label
+        PetscDMLabel transformTypes = NULL;
+        err = DMPlexTransformGetTransformTypes(transform, &transformTypes);PYLITH_CHECK_ERROR(err);
+        // err = DMLabelView(transformTypes, PETSC_VIEWER_STDOUT_SELF);PYLITH_CHECK_ERROR(err);
 
-            for (int iLabel = 0; iLabel < numLabels; ++iLabel) {
-                const char* labelStr = NULL;
-                err = DMGetLabelName(dmMeshNew, iLabel, &labelStr);PYLITH_CHECK_ERROR(err);
-                const std::string labelName = std::string(labelStr);
-
-                if ((labelName != std::string("depth"))
-                    && (labelName != std::string("celltype"))
-                    && (labelName != materialLabelName)) {
-                    PetscDMLabel dmLabel = PETSC_NULLPTR;
-                    PetscInt pStart = -1, pEnd = -1;
-                    err = DMGetLabel(dmMeshNew, labelStr, &dmLabel);PYLITH_CHECK_ERROR(err);
-                    err = DMLabelGetBounds(dmLabel, &pStart, &pEnd);PYLITH_CHECK_ERROR(err);
-
-                    PetscIS valuesIS = PETSC_NULLPTR;
-                    err = DMLabelGetNonEmptyStratumValuesIS(dmLabel, &valuesIS);PYLITH_CHECK_ERROR(err);
-                    PetscInt numValues = 0;
-                    err = ISGetLocalSize(valuesIS, &numValues);PYLITH_CHECK_ERROR(err);
-                    const PetscInt* valuesIndices = PETSC_NULLPTR;
-                    err = ISGetIndices(valuesIS, &valuesIndices);
-                    for (PetscInt point = pStart; point < pEnd; ++point) {
-                        DMPolytopeType ct;
-                        err = DMPlexGetCellType(dmMeshNew, point, &ct);PYLITH_CHECK_ERROR(err);
-                        if ((ct == DM_POLYTOPE_POINT_PRISM_TENSOR) ||
-                            (ct == DM_POLYTOPE_SEG_PRISM_TENSOR) ||
-                            (ct == DM_POLYTOPE_TRI_PRISM_TENSOR) ||
-                            (ct == DM_POLYTOPE_QUAD_PRISM_TENSOR)) {
-                            for (PetscInt iValue = 0; iValue < numValues; ++iValue) {
-                                err = DMLabelClearValue(dmLabel, point, valuesIndices[iValue]);PYLITH_CHECK_ERROR(err);
-                            } // for
-                        } // if
-                    } // for
-                    err = ISRestoreIndices(valuesIS, &valuesIndices);
-                    err = ISDestroy(&valuesIS);
-                } // if
-            } // for
-        } // labelsRemoveCohesivePoints
-
-        { // Create buried edge label
-            PetscDMLabel transformTypes = NULL;
-            err = DMPlexTransformGetTransformTypes(transform, &transformTypes);PYLITH_CHECK_ERROR(err);
-            // err = DMLabelView(transformTypes, PETSC_VIEWER_STDOUT_SELF);PYLITH_CHECK_ERROR(err);
-
-            bool hasBuriedEdge = false;
-            PetscDMLabel buriedEdgeLabel = NULL;
-            const std::string buriedEdgeLabelName = _surfaceLabelName + std::string("_edge");
-            PetscBool hasBuriedEdgeLabel = PETSC_FALSE;
-            err = DMHasLabel(dmMeshNew, buriedEdgeLabelName.c_str(), &hasBuriedEdgeLabel);
-            if (!hasBuriedEdgeLabel) { // if
-                err = DMCreateLabel(dmMeshNew, buriedEdgeLabelName.c_str());PYLITH_CHECK_ERROR(err);
-                err = DMGetLabel(dmMeshNew, buriedEdgeLabelName.c_str(), &buriedEdgeLabel);PYLITH_CHECK_ERROR(err);
-
-                PylithInt pStart, pEnd;
-                err = DMPlexGetChart(dmMesh, &pStart, &pEnd);PYLITH_CHECK_ERROR(err);
-                for (PylithInt point = pStart; point < pEnd; ++point) {
-                    DMPolytopeType cellType;
-                    PetscInt value;
-                    err = DMPlexGetCellType(dmMesh, point, &cellType);PYLITH_CHECK_ERROR(err);
-                    err = DMLabelGetValue(surfaceLabel, point, &value);PYLITH_CHECK_ERROR(err);
-                    if (value >= 200) { // buried edge (no splitting)
-                        PylithInt numCellTypes; // Number of cell types.
-                        DMPolytopeType* newCellTypes = NULL; // List of new cell types [numCellTypes]
-                        PylithInt* newCellTypesSize = NULL; // Sizes for newCellTypes [numCellTypes];
-                        PylithInt* newPointsCones = NULL; // Cone of every point it makes.
-                        PylithInt* coneOrientations = NULL; // Orientation of every cone point
-                        PylithInt dim, pointEdge = 0;
-
-                        hasBuriedEdge = true;
-                        dim = DMPolytopeTypeGetDim(cellType);
-                        err = DMPlexTransformCellTransform(transform, cellType, point, NULL, &numCellTypes, &newCellTypes, &newCellTypesSize, &newPointsCones, &coneOrientations);PYLITH_CHECK_ERROR(err);
-                        for (PylithInt iCellType = 0; iCellType < numCellTypes; ++iCellType) {
-                            if (DMPolytopeTypeGetDim(newCellTypes[iCellType]) != dim) {
-                                continue;
-                            } // if
-                            const PetscInt cellTypeSize = newCellTypesSize[iCellType];
-                            assert(1 == cellTypeSize);
-                            const PetscInt iPoint = 0; // single point in cell type size
-                            err = DMPlexTransformGetTargetPoint(transform, cellType, newCellTypes[iCellType], point, iPoint, &pointEdge);PYLITH_CHECK_ERROR(err);
-                            err = DMLabelSetValue(buriedEdgeLabel, pointEdge, 1);PYLITH_CHECK_ERROR(err);
-                        } // for
-                    } // if
-
-                } // for
-                if (!hasBuriedEdge) {
-                    err = DMRemoveLabel(dmMeshNew, buriedEdgeLabelName.c_str(), NULL);PYLITH_CHECK_ERROR(err);
-                } else {
-                    // err = DMLabelView(buriedEdgeLabel, PETSC_VIEWER_STDOUT_SELF);PYLITH_CHECK_ERROR(err);
-                } // if/else
-            } // if
-        } // Create buried edge label
+        const std::string buriedEdgeLabelName = _surfaceLabelName + std::string("_edge");
+        PetscBool hasBuriedEdgeLabel = PETSC_FALSE;
+        err = DMHasLabel(dmMeshNew, buriedEdgeLabelName.c_str(), &hasBuriedEdgeLabel);
+        if (!hasBuriedEdgeLabel) {
+            const PylithInt buriedEdgeLabelValue = 1;
+            TopologyOps::createBuriedEdgeLabel(dmMeshNew, dmMesh, buriedEdgeLabelName.c_str(), buriedEdgeLabelValue, surfaceLabel, transform);
+        } // if
 
         mesh->setDM(dmMeshNew);
         err = DMPlexTransformDestroy(&transform);PYLITH_CHECK_ERROR(err);
