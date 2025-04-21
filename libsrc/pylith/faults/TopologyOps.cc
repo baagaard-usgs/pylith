@@ -446,6 +446,10 @@ pylith::faults::TopologyOps::updateCohesiveLabel(const pylith::topology::Mesh* m
     } // if
     for (PylithInt iPoint = 0; iPoint < numPoints; ++iPoint) {
         const PylithInt point = points[iPoint];
+
+        // Clear existing point in label (need label values to be depth).
+        err = DMLabelClearValue(dmLabel, point, labelValue);PYLITH_CHECK_ERROR(err);
+
         PylithInt *closure = nullptr;
         PylithInt closureSize = 0, pointDepth = 0;
 
@@ -458,10 +462,11 @@ pylith::faults::TopologyOps::updateCohesiveLabel(const pylith::topology::Mesh* m
         } // for
         err = DMPlexRestoreTransitiveClosure(dmMesh, point, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
     } // for
-    err = ISRestoreIndices(pointIS, &points);PYLITH_CHECK_ERROR(err);
-    err = ISDestroy(&pointIS);PYLITH_CHECK_ERROR(err);
+    if (pointIS) {
+        err = ISRestoreIndices(pointIS, &points);PYLITH_CHECK_ERROR(err);
+        err = ISDestroy(&pointIS);PYLITH_CHECK_ERROR(err);
+    } // if
     err = DMLabelDestroyIndex(dmLabel);PYLITH_CHECK_ERROR(err); // :KLUDGE: Clear out old indexing.
-
     err = DMPlexOrientLabel(dmMesh, dmLabel);PYLITH_CHECK_ERROR(err);
     err = DMPlexLabelCohesiveComplete(dmMesh, dmLabel, nullptr, 0, PETSC_FALSE, PETSC_FALSE, NULL);PYLITH_CHECK_ERROR(err);
 } // updateCohesiveLabel
