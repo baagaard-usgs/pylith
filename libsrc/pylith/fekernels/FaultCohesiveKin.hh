@@ -615,8 +615,8 @@ public:
             const PylithScalar tanDir[2] = {-n[1], n[0] };
 
             // 0=opening, 1=left-lateral
-            tractionChange[0] = n[0]*lagrange[0] + n[1]*lagrange[1];
-            tractionChange[1] = tanDir[0]*lagrange[0] + tanDir[1]*lagrange[1];
+            tractionChange[0] = -n[0]*lagrange[0] - n[1]*lagrange[1];
+            tractionChange[1] = -tanDir[0]*lagrange[0] - tanDir[1]*lagrange[1];
             break;
         } // case 2
         case 3: {
@@ -626,9 +626,9 @@ public:
             pylith::fekernels::BoundaryDirections::tangential_directions(tanDir1, tanDir2, refDir1, refDir2, n);
 
             // 0=opening, 1=left-lateral, 2=reverse
-            tractionChange[0] = n[0]*lagrange[0] + n[1]*lagrange[1] + n[2]*lagrange[2];
-            tractionChange[1] = tanDir1[0]*lagrange[0] + tanDir1[1]*lagrange[1] + tanDir1[2]*lagrange[2];
-            tractionChange[2] = tanDir2[0]*lagrange[0] + tanDir2[1]*lagrange[1] + tanDir2[2]*lagrange[2];
+            tractionChange[0] = -n[0]*lagrange[0] - n[1]*lagrange[1] - n[2]*lagrange[2];
+            tractionChange[1] = -tanDir1[0]*lagrange[0] - tanDir1[1]*lagrange[1] - tanDir1[2]*lagrange[2];
+            tractionChange[2] = -tanDir2[0]*lagrange[0] - tanDir2[1]*lagrange[1] - tanDir2[2]*lagrange[2];
             break;
         } // case 3
         default:
