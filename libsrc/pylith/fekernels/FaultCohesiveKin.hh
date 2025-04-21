@@ -20,14 +20,14 @@
  *
  * LHS Residual
  *
- *  - f0u^+ = -\lambda
- *  - f0u^- = +\lambda
+ *  - f0u^+ = +\lambda
+ *  - f0u^- = -\lambda
  *  - f0\lambda = d - u^+ + u^-
  *
  * LHS Jacobian
  *
- *  - Jf0^{u \lambda} = -1 for u^+, +1 for u^-
- *  - Jf0^{\lambda u} = -1 for u^+, +1 for u^-
+ *  - Jf0^{u \lambda} = +1 for u^+, -1 for u^-
+ *  - Jf0^{\lambda u} = +1 for u^+, -1 for u^-
  *
  * Kernel interface.
  *
@@ -66,7 +66,7 @@ class pylith::fekernels::FaultCohesiveKin {
 public:
 
     // --------------------------------------------------------------------------------------------
-    /** f0 function for elasticity equation: f0u = +\lambda (neg side).
+    /** f0 function for elasticity equation: f0u = -\lambda (neg side).
      *
      * Solution fields: [disp(dim), ..., lagrange(dim)]
      */
@@ -103,12 +103,12 @@ public:
         const PylithScalar* lagrange = &s[sOffLagrange];
 
         for (PylithInt i = 0; i < spaceDim; ++i) {
-            f0[fOffN+i] += +lagrange[i];
+            f0[fOffN+i] += -lagrange[i];
         } // for
     }
 
     // --------------------------------------------------------------------------------------------
-    /** f0 function for elasticity equation: f0u = -\lambda (pos side).
+    /** f0 function for elasticity equation: f0u = +\lambda (pos side).
      *
      * Solution fields: [disp(dim), ..., lagrange(dim)]
      */
@@ -145,7 +145,7 @@ public:
         const PylithScalar* lagrange = &s[sOffLagrange];
 
         for (PylithInt i = 0; i < spaceDim; ++i) {
-            f0[fOffP+i] += -lagrange[i];
+            f0[fOffP+i] += +lagrange[i];
         } // for
     }
 
@@ -202,7 +202,7 @@ public:
             const PylithScalar tanDir[2] = {-n[1], n[0] };
             for (PylithInt i = 0; i < _spaceDim; ++i) {
                 const PylithScalar slipXY = n[i]*slip[0] + tanDir[i]*slip[1];
-                f0[fOffLagrange+i] += -dispP[i] + dispN[i] + slipXY;
+                f0[fOffLagrange+i] += dispP[i] - dispN[i] -slipXY;
             } // for
             break;
         } // case 2
@@ -215,7 +215,7 @@ public:
 
             for (PylithInt i = 0; i < _spaceDim; ++i) {
                 const PylithScalar slipXYZ = n[i]*slip[0] + tanDir1[i]*slip[1] + tanDir2[i]*slip[2];
-                f0[fOffLagrange+i] += -dispP[i] + dispN[i] + slipXYZ;
+                f0[fOffLagrange+i] += dispP[i] - dispN[i] - slipXYZ;
             } // for
             break;
         } // case 3
@@ -326,7 +326,7 @@ public:
         const PylithInt ncols = spaceDim;
 
         for (PylithInt i = 0; i < spaceDim; ++i) {
-            Jf0[(gOffN+i)*ncols+i] += +1.0;
+            Jf0[(gOffN+i)*ncols+i] += -1.0;
         } // for
     }
 
@@ -364,7 +364,7 @@ public:
         const PylithInt ncols = spaceDim;
 
         for (PylithInt i = 0; i < spaceDim; ++i) {
-            Jf0[i*ncols+i] += -1.0;
+            Jf0[i*ncols+i] += +1.0;
         } // for
     }
 
@@ -406,8 +406,8 @@ public:
         const PylithInt ncols = spaceDim;
 
         for (PylithInt i = 0; i < spaceDim; ++i) {
-            Jf0[gOffN+i*ncols+i] += +1.0;
-            Jf0[gOffP+i*ncols+i] += -1.0;
+            Jf0[gOffN+i*ncols+i] += -1.0;
+            Jf0[gOffP+i*ncols+i] += +1.0;
         } // for
     }
 
