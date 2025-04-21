@@ -142,7 +142,7 @@ pylith::faults::TestAdjustTopology_Tet::caseA(void) {
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
-    static const int groupSizes[numGroups] = { 5+4+1, 6+6+2, 1, 6+2 }; // vertices + edges + faces
+    static const int groupSizes[numGroups] = { 5+4+1, 6+6+2, 1, 6 }; // vertices + edges + faces
     data->groupSizes = const_cast<int*>(groupSizes);
     static const char* groupNames[numGroups] = { "output_vertices", "fault_vertices", "output_faces", "fault_faces" };
     data->groupNames = const_cast<char**>(groupNames);
@@ -182,7 +182,7 @@ pylith::faults::TestAdjustTopology_Tet::caseB(void) {
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
-    static const int groupSizes[numGroups] = { 5+4+1, 6+6+2, 1, 6+2 }; // vertices + edges + faces
+    static const int groupSizes[numGroups] = { 5+4+1, 6+6+2, 1, 6 }; // vertices + edges + faces
     data->groupSizes = const_cast<int*>(groupSizes);
     static const char* groupNames[numGroups] = { "output_vertices", "fault_vertices", "output_faces", "fault_faces" };
     data->groupNames = const_cast<char**>(groupNames);
@@ -222,7 +222,7 @@ pylith::faults::TestAdjustTopology_Tet::caseC(void) {
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
-    static const int groupSizes[numGroups] = { 5+4+1, 6+6+2, 1, 6+2 }; // vertices + edges + faces
+    static const int groupSizes[numGroups] = { 5+4+1, 6+6+2, 1, 6 }; // vertices + edges + faces
     data->groupSizes = const_cast<int*>(groupSizes);
     static const char* groupNames[numGroups] = { "output_vertices", "fault_vertices", "output_faces", "fault_faces" };
     data->groupNames = const_cast<char**>(groupNames);
@@ -262,7 +262,7 @@ pylith::faults::TestAdjustTopology_Tet::caseD(void) {
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
-    static const int groupSizes[numGroups] = { 5+4+1, 6+6+2, 1, 6+2 }; // vertices + edges + faces
+    static const int groupSizes[numGroups] = { 5+4+1, 6+6+2, 1, 6 }; // vertices + edges + faces
     data->groupSizes = const_cast<int*>(groupSizes);
     static const char* groupNames[numGroups] = { "output_vertices", "fault_vertices", "output_faces", "fault_faces" };
     data->groupNames = const_cast<char**>(groupNames);
@@ -302,7 +302,7 @@ pylith::faults::TestAdjustTopology_Tet::caseF(void) {
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
-    static const int groupSizes[numGroups] = { 5+4+1, 6+6+2, 1, 6+2 }; // vertices + edges + faces
+    static const int groupSizes[numGroups] = { 5+4+1, 6+6+2, 1, 6 }; // vertices + edges + faces
     data->groupSizes = const_cast<int*>(groupSizes);
     static const char* groupNames[numGroups] = { "output_vertices", "fault_vertices", "output_faces", "fault_faces" };
     data->groupNames = const_cast<char**>(groupNames);
@@ -342,7 +342,7 @@ pylith::faults::TestAdjustTopology_Tet::caseG(void) {
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
-    static const int groupSizes[numGroups] = { 5+4+1, 6+6+2, 1, 6+2 }; // vertices + edges + faces
+    static const int groupSizes[numGroups] = { 5+4+1, 6+6+2, 1, 6 }; // vertices + edges + faces
     data->groupSizes = const_cast<int*>(groupSizes);
     static const char* groupNames[numGroups] = { "output_vertices", "fault_vertices", "output_faces", "fault_faces" };
     data->groupNames = const_cast<char**>(groupNames);
@@ -382,7 +382,7 @@ pylith::faults::TestAdjustTopology_Tet::caseH(void) {
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
-    static const int groupSizes[numGroups] = { 5+4+1, 6+6+2, 1, 6+2 }; // vertices + edges + faces
+    static const int groupSizes[numGroups] = { 5+4+1, 6+6+2, 1, 6 }; // vertices + edges + faces
     data->groupSizes = const_cast<int*>(groupSizes);
     static const char* groupNames[numGroups] = { "output_vertices", "fault_vertices", "output_faces", "fault_faces" };
     data->groupNames = const_cast<char**>(groupNames);
@@ -422,7 +422,7 @@ pylith::faults::TestAdjustTopology_Tet::caseI(void) {
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
-    static const int groupSizes[numGroups] = { 2+0+0, 8+10+4, 1, 10+4 }; // vertices + edges + faces
+    static const int groupSizes[numGroups] = { 2+0+0, 8+10+4, 1, 10 }; // vertices + edges + faces
     data->groupSizes = const_cast<int*>(groupSizes);
     static const char* groupNames[numGroups] = { "output_vertices", "fault_vertices", "output_faces", "fault_faces"};
     data->groupNames = const_cast<char**>(groupNames);
@@ -470,7 +470,7 @@ pylith::faults::TestAdjustTopology_Tet::caseJ(void) {
 
     static const size_t numGroups = 4;
     data->numGroups = numGroups;
-    static const int groupSizes[numGroups] = { 8+10+4, 6+6+2, 2, 6+2 }; // vertices + edges + faces
+    static const int groupSizes[numGroups] = { 8+10+4, 6+6+2, 2, 6 }; // vertices + edges + faces
     data->groupSizes = const_cast<int*>(groupSizes);
     static const char* groupNames[numGroups] = { "output_vertices", "fault_vertices", "output_faces", "fault_faces" };
     data->groupNames = const_cast<char**>(groupNames);
@@ -565,7 +565,8 @@ pylith::faults::TestAdjustTopology_Tet::caseK(void) {
 
     static const size_t numGroups = 6;
     data->numGroups = numGroups;
-    static const int groupSizes[numGroups] = { 223+5+4, 10+8, 2*139-8-10, 66, 2*101, 10+8 }; // vertices + edges + faces
+    static const int groupSizes[numGroups] = { 223+5+4, 10+8, 2*139-8-10, 66, 101+21, 10+8 }; // vertices + edges +
+                                                                                              // faces
     data->groupSizes = const_cast<int*>(groupSizes);
     static const char* groupNames[numGroups] = { "vertices_zpos", "fault_edge_vertices", "fault_vertices", "boundary_zpos", "fault_faces", "fault_faces_edge" };
     data->groupNames = const_cast<char**>(groupNames);
