@@ -357,7 +357,7 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
         pythia::journal::debug_t debug(PyreComponent::getName());
         if (debug.state()) {
             mesh->view(":mesh_transformed.txt:ascii_info_detail");
-            mesh->view("vtk:mesh_transformed.vtu");
+            mesh->view("vtk:mesh_transformed.vtu:vtk_vtu");
         } // if
 
     } catch (const std::exception& err) {
