@@ -44,6 +44,8 @@ namespace pylith {
 
         class Poroelasticity;
         class PoroelasticityPlaneStrain;
+        class PoroIsotropicLinearMaxwell;
+        class PoroIsotropicLinearMaxwellPlaneStrain;
         class Poroelasticity3D;
 
         class IsotropicLinearPoroelasticity;

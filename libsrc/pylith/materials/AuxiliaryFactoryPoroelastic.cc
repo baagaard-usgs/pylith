@@ -290,5 +290,108 @@ pylith::materials::AuxiliaryFactoryPoroelastic::addShearModulus(void) {
     PYLITH_METHOD_END;
 } // addShearModulus
 
+// ------------------------------------------------------------------------------------------------
+// Add Maxwell time subfield to auxiliary fields.
+void
+pylith::materials::AuxiliaryFactoryViscoelastic::addMaxwellTime(void) {
+    PYLITH_METHOD_BEGIN;
+    PYLITH_JOURNAL_DEBUG("addMaxwellTime(void)");
+
+    const char* subfieldName = "maxwell_time";
+    const PylithReal timeScale = _normalizer->getTimeScale();
+
+    pylith::topology::Field::Description description;
+    description.label = subfieldName;
+    description.alias = subfieldName;
+    description.vectorFieldType = pylith::topology::Field::SCALAR;
+    description.numComponents = 1;
+    description.componentNames.resize(1);
+    description.componentNames[0] = subfieldName;
+    description.scale = timeScale;
+    description.validator = pylith::topology::FieldQuery::validatorPositive;
+
+    _field->subfieldAdd(description, getSubfieldDiscretization(subfieldName));
+    pylith::materials::Query::maxwellTimeFromVM(subfieldName, this);
+
+    PYLITH_METHOD_END;
+} // addMaxwellTime
+
+// ------------------------------------------------------------------------------------------------
+// Add viscous strain subfield to auxiliary fields.
+void
+pylith::materials::AuxiliaryFactoryViscoelastic::addViscousStrain(void) {
+    PYLITH_METHOD_BEGIN;
+    PYLITH_JOURNAL_DEBUG("addViscousStrain(void)");
+
+    const char* subfieldName = "viscous_strain";
+    const char* componentNames[6] = {
+        "viscous_strain_xx",
+        "viscous_strain_yy",
+        "viscous_strain_zz",
+        "viscous_strain_xy",
+        "viscous_strain_yz",
+        "viscous_strain_xz"
+    };
+    const int strainSize = (3 == _spaceDim) ? 6 : (2 == _spaceDim) ? 4 : 1;
+
+    pylith::topology::Field::Description description;
+    description.label = subfieldName;
+    description.alias = subfieldName;
+    description.vectorFieldType = (3 == _spaceDim) ? pylith::topology::Field::TENSOR : pylith::topology::Field::OTHER;
+    description.numComponents = strainSize;
+    description.componentNames.resize(strainSize);
+    description.hasHistory = true;
+    description.historySize = 1;
+    for (int i = 0; i < strainSize; ++i) {
+        description.componentNames[i] = componentNames[i];
+    } // for
+    description.scale = 1.0;
+    description.validator = NULL;
+
+    _field->subfieldAdd(description, getSubfieldDiscretization(subfieldName));
+    this->setSubfieldQuery(subfieldName);
+
+    PYLITH_METHOD_END;
+} // addViscousStrain
+
+// ------------------------------------------------------------------------------------------------
+// Add total strain subfield to auxiliary fields.
+void
+pylith::materials::AuxiliaryFactoryViscoelastic::addTotalStrain(void) {
+    PYLITH_METHOD_BEGIN;
+    PYLITH_JOURNAL_DEBUG("addTotalStrain(void)");
+
+    const char* subfieldName = "total_strain";
+    const char* componentNames[6] = {
+        "total_strain_xx",
+        "total_strain_yy",
+        "total_strain_zz",
+        "total_strain_xy",
+        "total_strain_yz",
+        "total_strain_xz"
+    };
+    const int strainSize = (3 == _spaceDim) ? 6 : (2 == _spaceDim) ? 4 : 1;
+
+    pylith::topology::Field::Description description;
+    description.label = subfieldName;
+    description.alias = subfieldName;
+    description.vectorFieldType = pylith::topology::Field::OTHER;
+    description.numComponents = strainSize;
+    description.componentNames.resize(strainSize);
+    description.hasHistory = true;
+    description.historySize = 1;
+    for (int i = 0; i < strainSize; ++i) {
+        description.componentNames[i] = componentNames[i];
+    } // for
+    description.scale = 1.0;
+    description.validator = NULL;
+
+    _field->subfieldAdd(description, getSubfieldDiscretization(subfieldName));
+    this->setSubfieldQuery(subfieldName);
+
+    PYLITH_METHOD_END;
+} // addTotalStrain
+
+
 
 // End of file

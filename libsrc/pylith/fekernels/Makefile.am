@@ -25,6 +25,7 @@ subpkginclude_HEADERS = \
 	IsotropicLinearIncompElasticity.hh \
 	IsotropicLinearPoroelasticity.hh \
 	Poroelasticity.hh \
+	PoroIsotropicLinearMaxwell.hh \
 	Solution.hh \
 	DispVel.hh \
 	TimeDependentFn.hh \

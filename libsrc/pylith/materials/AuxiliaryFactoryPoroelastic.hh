@@ -48,6 +48,15 @@ public:
     /// Add shear modulus subfield to auxiliary subfields.
     void addShearModulus(void);
 
+    /// Add Maxwell time subfield to auxiliary subfields.
+    void addMaxwellTime(void);
+
+    /// Add total strain subfield to auxiliary subfields.
+    void addTotalStrain(void);
+
+    /// Add viscous strain subfield to auxiliary subfields.
+    void addViscousStrain(void);
+
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 

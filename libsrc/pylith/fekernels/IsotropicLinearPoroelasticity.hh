@@ -639,6 +639,29 @@ public:
     } // f0p_implicit
 
     // ----------------------------------------------------------------------
+    // f0p override function for generic poroelasticity terms.
+    static inline
+    void f0p_implicit(const PylithInt dim,
+                      pylith::fekernels::Poroelasticity::Context* poroelasticContext,
+                      pylith::fekernels::IsotropicLinearPoroelasticity::Context* rheologyContext,
+                      PylithScalar f0[]) {
+
+        const PylithInt _dim = 2;assert(_dim == dim);
+        // Solution Variables
+        PylithScalar pressure_t = (poroelasticContext.pressure_t ? poroelasticContext.pressure_t : 0.0);
+        PylithScalar trace_strain_t = (poroelasticContext.trace_strain_t ? poroelasticContext.trace_strain_t : 0.0);
+
+        // Rheological Auxiliaries
+        const PylithReal biotCoefficient = rheologyContext.biotCoefficient;
+        const PylithReal biotModulus = rheologyContext.biotModulus;
+
+        f0[0] += s_t ? (biotCoefficient * trace_strain_t) : 0.0;
+        f0[0] += s_t ? (pressure_t / biotModulus) : 0.0;
+
+    }//f0p_implicit
+                     
+
+    // ----------------------------------------------------------------------
     // f0p function for generic poroelasticity terms (source density).
     static inline
     void f0p_implicit_source(const PylithInt dim,
@@ -691,6 +714,32 @@ public:
     } // f0p_implicit_source
 
     // ----------------------------------------------------------------------
+    // f0p overide function for generic poroelasticity terms (source density).
+    static inline
+    void f0p_implicit_source(const PylithInt dim,
+                             pylith::fekernels::Poroelasticity::Context* poroelasticContext,
+                             pylith::fekernels::IsotropicLinearPoroelasticity::Context* rheologyContext,
+                             PylithScalar f0[]) {
+        const PylithInt _dim = 2;assert(_dim == dim);
+
+         // Solution Variables
+        const PylithReal pressure_t = poroelasticContext.pressure_t;
+        const PylithReal trace_strain_t = poroelasticContext.trace_strain_t;
+
+        // Poroelastic Auxiliaries
+        const PylithScalar source = poroelasticContext.sourceDensity;
+
+        // Rheological Auxiliaries
+        const PylithScalar biotCoefficient = rheologyContext.biotCoefficient;
+        const PylithScalar biotModulus = rheologyContext.biotModulus;
+
+        f0[0] += biotCoefficient * trace_strain_t;
+        f0[0] += pressure_t / biotModulus;
+        f0[0] -= source;
+
+    }// f0p_implicit_source
+
+    // ----------------------------------------------------------------------
     // f0p function for generic poroelasticity terms (source density).
     static
     void f0p_implicit_source_body(const PylithInt dim,
@@ -725,6 +774,31 @@ public:
         pylith::fekernels::IsotropicLinearPoroelasticity::setContext(
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
+
+        // Solution Variables
+        const PylithReal pressure_t = poroelasticContext.pressure_t;
+        const PylithReal trace_strain_t = poroelasticContext.trace_strain_t;
+
+        // Poroelastic Auxiliaries
+        const PylithScalar source = poroelasticContext.sourceDensity;
+
+        // Rheological Auxiliaries
+        const PylithScalar biotCoefficient = rheologyContext.biotCoefficient;
+        const PylithScalar biotModulus = rheologyContext.biotModulus;
+
+        f0[0] += biotCoefficient * trace_strain_t;
+        f0[0] += pressure_t / biotModulus;
+        f0[0] -= source;
+    } // f0p_implicit_source_body
+
+    // ----------------------------------------------------------------------
+    // f0p overide function for generic poroelasticity terms (source density).
+    static inline
+    void f0p_implicit_source_body(const PylithInt dim,
+                                  pylith::fekernels::Poroelasticity::Context* poroelasticContext,
+                                  pylith::fekernels::IsotropicLinearPoroelasticity::Context* rheologyContext,
+                                  PylithScalar f0[]) {
+        const PylithInt _dim = 2;assert(_dim == dim);
 
         // Solution Variables
         const PylithReal pressure_t = poroelasticContext.pressure_t;
@@ -795,6 +869,31 @@ public:
     } // f0p_implicit_source_grav
 
     // ----------------------------------------------------------------------
+    // f0p overide function for generic poroelasticity terms (source density).
+    static inline
+    void f0p_implicit_source_grav(const PylithInt dim,
+                                  pylith::fekernels::Poroelasticity::Context* poroelasticContext,
+                                  pylith::fekernels::IsotropicLinearPoroelasticity::Context* rheologyContext,
+                                  PylithScalar f0[]) {
+        const PylithInt _dim = 2;assert(_dim == dim);
+
+        // Solution Variables
+        const PylithReal pressure_t = poroelasticContext.pressure_t;
+        const PylithReal trace_strain_t = poroelasticContext.trace_strain_t;
+
+        // Poroelastic Auxiliaries
+        const PylithScalar source = poroelasticContext.sourceDensity;
+
+        // Rheological Auxiliaries
+        const PylithScalar biotCoefficient = rheologyContext.biotCoefficient;
+        const PylithScalar biotModulus = rheologyContext.biotModulus;
+
+        f0[0] += biotCoefficient * trace_strain_t;
+        f0[0] += pressure_t / biotModulus;
+        f0[0] -= source;                           
+    } // f0p_implicit_source_grav
+
+    // ----------------------------------------------------------------------
     // f0p function for generic poroelasticity terms (source density).
     static inline
     void f0p_implicit_source_grav_body(const PylithInt dim,
@@ -831,6 +930,31 @@ public:
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
         // Solution Variables
+        const PylithReal pressure_t = poroelasticContext.pressure_t;
+        const PylithReal trace_strain_t = poroelasticContext.trace_strain_t;
+
+        // Poroelastic Auxiliaries
+        const PylithScalar source = poroelasticContext.sourceDensity;
+
+        // Rheological Auxiliaries
+        const PylithScalar biotCoefficient = rheologyContext.biotCoefficient;
+        const PylithScalar biotModulus = rheologyContext.biotModulus;
+
+        f0[0] += biotCoefficient * trace_strain_t;
+        f0[0] += pressure_t / biotModulus;
+        f0[0] -= source;
+    } // f0p_implicit_source_grav_body
+
+    // ----------------------------------------------------------------------
+    // f0p overide function for generic poroelasticity terms (source density).
+    static inline
+    void f0p_implicit_source_grav_body(const PylithInt dim,
+                                       pylith::fekernels::Poroelasticity::Context* poroelasticContext,
+                                       pylith::fekernels::IsotropicLinearPoroelasticity::Context* rheologyContext,
+                                       PylithScalar f0[]) {
+        const PylithInt _dim = 2;assert(_dim == dim);
+
+         // Solution Variables
         const PylithReal pressure_t = poroelasticContext.pressure_t;
         const PylithReal trace_strain_t = poroelasticContext.trace_strain_t;
 
@@ -1444,6 +1568,26 @@ public:
         } // for
     } // Jf2up
 
+
+    // ----------------------------------------------------------------------
+    /** Jf2_up entry function override for isotropic linear poroelasticity.
+     * Solution fields: [...]
+     * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
+     */
+    static inline
+    void Jf2up(const PylithInt dim,
+               pylith::fekernels::IsotropicLinearPoroelasticity::Context* rheologyContext,
+               PylithScalar Jf2[]) {
+        const PylithInt _dim = 2;assert(_dim == dim);
+
+        // Rheology Auxiliaries
+        const PylithScalar biotCoefficient = rheologyContext.biotCoefficient;
+
+        for (PylithInt d = 0; d < _dim; ++d) {
+            Jf2[d * _dim + d] += biotCoefficient;
+        } // for
+    } // Jf2up
+
     // -----------------------------------------------------------------------------
     // Jf2ue function for isotropic linear poroelasticity.
     static inline
@@ -1473,6 +1617,23 @@ public:
         pylith::fekernels::IsotropicLinearPoroelasticity::setContext(
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
+
+        // Rheological Auxiliaries
+        const PylithScalar shearModulus = rheologyContext.shearModulus;
+        const PylithScalar drainedBulkModulus = rheologyContext.drainedBulkModulus;
+
+        for (PylithInt d = 0; d < _dim; ++d) {
+            Jf2[d * _dim + d] -= drainedBulkModulus - (2.0 * shearModulus) / 3.0;
+        } // for
+    } // Jf2ue
+
+    // -----------------------------------------------------------------------------
+    // Jf2ue override function for isotropic linear poroelasticity.
+    static inline
+    void Jf2ue(const PylithInt dim,
+               pylith::fekernels::IsotropicLinearPoroelasticity::Context* rheologyContext,
+               PylithScalar Jf2[]) {
+        const PylithInt _dim = 2;assert(_dim == dim);
 
         // Rheological Auxiliaries
         const PylithScalar shearModulus = rheologyContext.shearModulus;
@@ -1519,6 +1680,30 @@ public:
         pylith::fekernels::IsotropicLinearPoroelasticity::setContextIsotropicPerm(
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
+
+        // Poroelastic Auxiliaries
+        const PylithScalar fluidViscosity = rheologyContext.fluidViscosity;
+
+        // Rheological Auxiliaries
+        // const PylithScalar *tensorPermeablity = rheologyContext.permeability;
+        PylithScalar tensorPermeability[4] = {0.0, 0.0, 0.0, 0.0};
+        pylith::fekernels::Tensor::ops2D.toTensor(rheologyContext.permeability, tensorPermeability);
+
+        for (PylithInt i = 0; i < _dim; ++i) {
+            for (PylithInt j = 0; j < _dim; j++) {
+                Jf3[i * _dim + j] += tensorPermeability[i * _dim + j] / fluidViscosity;
+            } // for
+        } // for
+
+    } // Jf3pp
+
+    // ----------------------------------------------------------------------
+    // Jf3pp entry function override for isotropic linear poroelasticity.
+    static inline
+    void Jf3pp(const PylithInt dim,
+               pylith::fekernels::IsotropicLinearPoroelasticity::Context* rheologyContext,
+               PylithScalar Jf3[]) {
+        const PylithInt _dim = 2;assert(_dim == dim);
 
         // Poroelastic Auxiliaries
         const PylithScalar fluidViscosity = rheologyContext.fluidViscosity;
@@ -1629,6 +1814,22 @@ public:
     } // Jf0pp
 
     // ----------------------------------------------------------------------
+    //Jf0_pp entry function override for isotropic linear poroelasticity.
+    static inline
+    void Jf0pp(const PylithInt dim,
+               const PylithReal s_tshift,
+               pylith::fekernels::IsotropicLinearPoroelasticity::Context* rheologyContext,
+               PylithScalar Jf0[]) {
+        const PylithInt _dim = 2;assert(_dim == dim);
+
+        // Rheological Auxiliaries
+        const PylithScalar biotModulus = rheologyContext.biotModulus;
+
+        Jf0[0] += s_tshift / biotModulus;
+
+        } // Jf0pp
+
+    // ----------------------------------------------------------------------
     /** Jf0_pe entry function for isotropic linear poroelasticity.
      *
      * Solution fields: [...]
@@ -1661,6 +1862,21 @@ public:
         pylith::fekernels::IsotropicLinearPoroelasticity::setContext(
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
+
+        // Rheological Auxiliaries
+        const PylithScalar biotCoefficient = rheologyContext.biotCoefficient;
+
+        Jf0[0] += s_tshift * biotCoefficient;
+    } // Jf0pe
+
+    // ----------------------------------------------------------------------
+    // Jf0_pe entry function for isotropic linear poroelasticity.
+    static inline
+    void Jf0pe(const PylithInt dim,
+               const PylithReal s_tshift,
+               pylith::fekernels::IsotropicLinearPoroelasticity::Context* rheologyContext,
+               PylithScalar Jf0[]) {
+        const PylithInt _dim = 2;assert(_dim == dim);
 
         // Rheological Auxiliaries
         const PylithScalar biotCoefficient = rheologyContext.biotCoefficient;
@@ -2379,6 +2595,25 @@ public:
         *waterContent = biotCoefficient * trace_strain + pressure / biotModulus;
 
     } // waterContent_asScalar
+
+    // Calculate water content function override
+    static inline
+    void waterContent_asScalar(const PylithInt dim,
+                               pylith::fekernels::Poroelasticity::Context* poroelasticContext,
+                               pylith::fekernels::IsotropicLinearPoroelasticity::Context* rheologyContext,
+                               PylithReal* waterContent){
+
+        // Solution Variables
+        PylithScalar pressure = poroelasticContext.pressure;
+        PylithScalar trace_strain = poroelasticContext.trace_strain;
+
+        // Rheological Auxiliaries
+        const PylithReal biotCoefficient = rheologyContext.biotCoefficient;
+        const PylithReal biotModulus = rheologyContext.biotModulus;
+
+        *waterContent = biotCoefficient * trace_strain + pressure / biotModulus;
+
+    }// waterContent_asScalar
 
     // ========================== Update Kernels ===================================
 
