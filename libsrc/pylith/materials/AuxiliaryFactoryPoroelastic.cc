@@ -293,7 +293,7 @@ pylith::materials::AuxiliaryFactoryPoroelastic::addShearModulus(void) {
 // ------------------------------------------------------------------------------------------------
 // Add Maxwell time subfield to auxiliary fields.
 void
-pylith::materials::AuxiliaryFactoryViscoelastic::addMaxwellTime(void) {
+pylith::materials::AuxiliaryFactoryPoroelastic::addMaxwellTime(void) {
     PYLITH_METHOD_BEGIN;
     PYLITH_JOURNAL_DEBUG("addMaxwellTime(void)");
 
@@ -319,7 +319,7 @@ pylith::materials::AuxiliaryFactoryViscoelastic::addMaxwellTime(void) {
 // ------------------------------------------------------------------------------------------------
 // Add viscous strain subfield to auxiliary fields.
 void
-pylith::materials::AuxiliaryFactoryViscoelastic::addViscousStrain(void) {
+pylith::materials::AuxiliaryFactoryPoroelastic::addViscousStrain(void) {
     PYLITH_METHOD_BEGIN;
     PYLITH_JOURNAL_DEBUG("addViscousStrain(void)");
 
@@ -357,7 +357,7 @@ pylith::materials::AuxiliaryFactoryViscoelastic::addViscousStrain(void) {
 // ------------------------------------------------------------------------------------------------
 // Add total strain subfield to auxiliary fields.
 void
-pylith::materials::AuxiliaryFactoryViscoelastic::addTotalStrain(void) {
+pylith::materials::AuxiliaryFactoryPoroelastic::addTotalStrain(void) {
     PYLITH_METHOD_BEGIN;
     PYLITH_JOURNAL_DEBUG("addTotalStrain(void)");
 

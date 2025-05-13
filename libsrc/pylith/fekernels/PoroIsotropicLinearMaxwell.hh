@@ -889,8 +889,8 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit(
-            _dim, &poroelasticContext, &rheologyContext, f0);
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_calc(
+            _dim, s_t, &poroelasticContext, &rheologyContext, f0);
 
     } // f0p_implicit
 
@@ -930,7 +930,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_source(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_source_calc(
             _dim, &poroelasticContext, &rheologyContext, f0);
 
     } // f0p_implicit_source
@@ -971,7 +971,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_source_body(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_source_body_calc(
             _dim, &poroelasticContext, &rheologyContext, f0);
     } // f0p_implicit_source_body
 
@@ -1011,7 +1011,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_source_grav(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_source_grav_calc(
             _dim, &poroelasticContext, &rheologyContext, f0);
        
     } // f0p_implicit_source_grav
@@ -1052,7 +1052,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_source_grav(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_source_grav_body_calc(
             _dim, &poroelasticContext, &rheologyContext, f0);
     } // f0p_implicit_source_grav_body
 
@@ -1716,7 +1716,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf2up(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf2up_calc(
             dim, &rheologyContext, Jf2);
     } // Jf2up
 
@@ -1750,7 +1750,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf2ue(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf2ue_calc(
             dim, &rheologyContext, Jf2);
     } // Jf2ue
 
@@ -1791,7 +1791,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf3pp(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf3pp_calc(
             dim, &rheologyContext, Jf3);
 
     } // Jf3pp
@@ -1840,7 +1840,7 @@ public:
         PylithScalar tensorPermeability[4] = {0.0, 0.0, 0.0, 0.0};
         pylith::fekernels::Tensor::ops2D.toTensor(rheologyContext.permeability, tensorPermeability);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf3pp(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf3pp_calc(
             dim, &rheologyContext, Jf3);
 
     } // Jf3pp_tensor_permeability
@@ -1879,7 +1879,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf0pp(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf0pp_calc(
             _dim, s_tshift, &rheologyContext, Jf0);
         
     } // Jf0pp
@@ -1918,7 +1918,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf0pe(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf0pe_calc(
             _dim, s_tshift, &rheologyContext, Jf0);
 
     } // Jf0pe
@@ -2210,7 +2210,7 @@ public:
             &rheologyContext, dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith:fekernels::IsotropicLinearPoroelasticityPlaneStrain::waterContent_asScalar(
+        pylith:fekernels::IsotropicLinearPoroelasticityPlaneStrain::waterContent_asScalar_calc(
             dim, &poroelasticContext, &rheologyContext, waterContent);
 
     } // waterContent_asScalar
