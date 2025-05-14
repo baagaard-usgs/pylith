@@ -94,295 +94,9 @@
 /// Kernels specific to isotropic, linear poroelasticity.
 class pylith::fekernels::PoroIsotropicLinearMaxwell {
     // PUBLIC MEMBERS /////////////////////////////////////////////////////////////////////////////
-// public:
-
-//     struct Context {
-//         PylithReal pressure;
-//         PylithReal trace_strain;
-//         PylithReal trace_strain_t;
-//         PylithReal fluidViscosity; // Poroelastic Auxiliaries
-//         PylithReal shearModulus; // Rheologic Auxiliaries
-//         PylithReal drainedBulkModulus;
-//         PylithReal biotCoefficient;
-//         PylithReal biotModulus;
-//         pylith::fekernels::Tensor permeability;
-//         PylithReal maxwellTime;
-//         PylithReal dt;
-//         pylith::fekernels::Tensor viscousStrain;
-//         pylith::fekernels::Tensor totalStrain;
-//         pylith::fekernels::Tensor refStress;
-//         pylith::fekernels::Tensor refStrain;
-
-//         Context(void) :
-//             shearModulus(0.0),
-//             drainedBulkModulus(0.0),
-//             maxwellTime(0.0),
-//             dt(0.0) {}
-//     };
-
 
     // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
-
-    // --------------------------------------------------------------------------------------------
-    // static inline
-    // void setContext(Context* context,
-    //                 const PylithInt dim,
-    //                 const PylithInt numS,
-    //                 const PylithInt numA,
-    //                 const PylithInt sOff[],
-    //                 const PylithInt sOff_x[],
-    //                 const PylithScalar s[],
-    //                 const PylithScalar s_t[],
-    //                 const PylithScalar s_x[],
-    //                 const PylithInt aOff[],
-    //                 const PylithInt aOff_x[],
-    //                 const PylithScalar a[],
-    //                 const PylithScalar a_t[],
-    //                 const PylithScalar a_x[],
-    //                 const PylithReal t,
-    //                 const PylithScalar x[],
-    //                 const PylithInt numConstants,
-    //                 const PylithScalar constants[],
-    //                 const pylith::fekernels::TensorOps& tensorOps) {
-    //         assert(context);
-
-    //         // Incoming solution subfields
-    //         const PylithInt i_pressure = 1;
-
-    //         // Incoming poroelastic auxiliary subfields
-    //         const PylithInt i_fluidViscosity = 2;
-
-    //         // Incoming rheology auxiliary subfields.
-    //         const PylithInt i_shearModulus = numA - 8;
-    //         const PylithInt i_drainedBulkModulus = numA - 7;
-    //         const PylithInt i_biotCoefficient = numA - 6;
-    //         const PylithInt i_biotModulus = numA - 5;
-    //         const PylithInt i_maxwellTime = numA - 4;
-    //         const PylithInt i_viscousStrain = numA - 3;
-    //         const PylithInt i_totalStrain = numA - 2;
-
-    //         assert(numA >= 11); // also have density
-    //         assert(s);
-    //         assert(sOff);
-    //         assert(sOff[i_pressure] >= 0);
-    //         assert(a);
-    //         assert(aOff);
-    //         assert(aOff[i_shearModulus] >= 0);
-    //         assert(aOff[i_drainedBulkModulus] >= 0);
-    //         assert(aOff[i_biotCoefficient] >= 0);
-    //         assert(aOff[i_biotModulus] >= 0);
-    //         assert(aOff[i_fluidViscosity] >= 0);
-    //         assert(aOff[i_maxwellTime] >= 0);
-    //         assert(aOff[i_viscousStrain] >= 0);
-    //         assert(aOff[i_totalStrain] >= 0);
-    //         assert(1 == numConstants);
-    //         assert(constants);
-
-    //          // Solution Variables
-    //         context->pressure = s[sOff[i_pressure]];
-
-    //         // Poroelastic Auxiliary Variables
-    //         context->fluidViscosity = a[aOff[i_fluidViscosity]];assert(context->fluidViscosity > 0.0);
-
-    //         // Rheology Specific Auxiliary Variables
-    //         context->shearModulus = a[aOff[i_shearModulus]];assert(context->shearModulus > 0.0);
-    //         context->drainedBulkModulus = a[aOff[i_drainedBulkModulus]];assert(context->drainedBulkModulus > 0.0);
-    //         context->biotCoefficient = a[aOff[i_biotCoefficient]];assert(context->biotCoefficient > 0.0);
-    //         context->biotModulus = a[aOff[i_biotModulus]];assert(context->biotModulus > 0.0);
-    //         context->maxwellTime = a[aOff[i_maxwellTime]];assert(context->maxwellTime > 0.0);
-    //         context->dt = constants[0];
-
-    //         tensorOps.fromVector(&a[aOff[i_viscousStrain]], &context->viscousStrain);
-    //         tensorOps.fromVector(&a[aOff[i_totalStrain]], &context->totalStrain);
-        
-       
-
-    // } // setContext
-
-    //  // --------------------------------------------------------------------------------------------
-    // static inline
-    // void setContextIsotropicPerm(Context* context,
-    //                              const PylithInt dim,
-    //                              const PylithInt numS,
-    //                              const PylithInt numA,
-    //                              const PylithInt sOff[],
-    //                              const PylithInt sOff_x[],
-    //                              const PylithScalar s[],
-    //                              const PylithScalar s_t[],
-    //                              const PylithScalar s_x[],
-    //                              const PylithInt aOff[],
-    //                              const PylithInt aOff_x[],
-    //                              const PylithScalar a[],
-    //                              const PylithScalar a_t[],
-    //                              const PylithScalar a_x[],
-    //                              const PylithReal t,
-    //                              const PylithScalar x[],
-    //                              const PylithInt numConstants,
-    //                              const PylithScalar constants[],
-    //                              const pylith::fekernels::TensorOps& tensorOps) {
-    //     assert(context);
-
-    //     // Incoming auxiliary fields.
-    //     const PylithInt i_isotropicPermeability = numA - 1;
-
-    //     // Using isotropic permeability
-    //     tensorOps.fromScalar(a[aOff[i_isotropicPermeability]], &context->permeability);
-
-    // } // setContextIsotropicPerm
-
-    //   // --------------------------------------------------------------------------------------------
-    // static inline
-    // void setContextTensorPerm(Context* context,
-    //                           const PylithInt dim,
-    //                           const PylithInt numS,
-    //                           const PylithInt numA,
-    //                           const PylithInt sOff[],
-    //                           const PylithInt sOff_x[],
-    //                           const PylithScalar s[],
-    //                           const PylithScalar s_t[],
-    //                           const PylithScalar s_x[],
-    //                           const PylithInt aOff[],
-    //                           const PylithInt aOff_x[],
-    //                           const PylithScalar a[],
-    //                           const PylithScalar a_t[],
-    //                           const PylithScalar a_x[],
-    //                           const PylithReal t,
-    //                           const PylithScalar x[],
-    //                           const PylithInt numConstants,
-    //                           const PylithScalar constants[],
-    //                           const pylith::fekernels::TensorOps& tensorOps) {
-    //     assert(context);
-
-    //     // Incoming auxiliary fields.
-    //     const PylithInt i_tensorPermeability = numA - 1;
-
-    //     // Using tensor permeability
-    //     tensorOps.fromVector(&a[aOff[i_tensorPermeability]], &context->permeability);
-
-    // } // setContextTensorPerm
-
-    // // --------------------------------------------------------------------------------------------
-    // static inline
-    // void setContextRefState(Context* context,
-    //                         const PylithInt dim,
-    //                         const PylithInt numS,
-    //                         const PylithInt numA,
-    //                         const PylithInt sOff[],
-    //                         const PylithInt sOff_x[],
-    //                         const PylithScalar s[],
-    //                         const PylithScalar s_t[],
-    //                         const PylithScalar s_x[],
-    //                         const PylithInt aOff[],
-    //                         const PylithInt aOff_x[],
-    //                         const PylithScalar a[],
-    //                         const PylithScalar a_t[],
-    //                         const PylithScalar a_x[],
-    //                         const PylithReal t,
-    //                         const PylithScalar x[],
-    //                         const PylithInt numConstants,
-    //                         const PylithScalar constants[],
-    //                         const pylith::fekernels::TensorOps& tensorOps) {
-    //     assert(context);
-        
-    //     // Incoming auxiliary fields.
-    //     const PylithInt i_refStress = numA - 10;
-    //     const PylithInt i_refStrain = numA - 9;
-
-    //     // Reference stress and strain
-    //     tensorOps.fromVector(&a[aOff[i_refStress]], &context->refStress);
-    //     tensorOps.fromVector(&a[aOff[i_refStrain]], &context->refStrain);
-
-    // } // setContextRefState
-
-    // // --------------------------------------------------------------------------------------------
-    // static inline
-    // void setContextQuasistatic(Context* context,
-    //                            const PylithInt dim,
-    //                            const PylithInt numS,
-    //                            const PylithInt numA,
-    //                            const PylithInt sOff[],
-    //                            const PylithInt sOff_x[],
-    //                            const PylithScalar s[],
-    //                            const PylithScalar s_t[],
-    //                            const PylithScalar s_x[],
-    //                            const PylithInt aOff[],
-    //                            const PylithInt aOff_x[],
-    //                            const PylithScalar a[],
-    //                            const PylithScalar a_t[],
-    //                            const PylithScalar a_x[],
-    //                            const PylithReal t,
-    //                            const PylithScalar x[],
-    //                            const PylithInt numConstants,
-    //                            const PylithScalar constants[],
-    //                            const pylith::fekernels::TensorOps& tensorOps) {
-    //     assert(context);
-
-    //     // Incoming solution fields.
-    //     const PylithInt i_trace_strain = 2;
-    //     assert(sOff[i_trace_strain] >= 0);
-
-    //     // Variables &c
-    //     context->trace_strain = s[sOff[i_trace_strain]];
-
-       
-
-
-    // } // setContextQuasistatic
-
-    // // --------------------------------------------------------------------------------------------
-    // static inline
-    // void setContextDynamic(Context* context,
-    //                        const PylithInt dim,
-    //                        const PylithInt numS,
-    //                        const PylithInt numA,
-    //                        const PylithInt sOff[],
-    //                        const PylithInt sOff_x[],
-    //                        const PylithScalar s[],
-    //                        const PylithScalar s_t[],
-    //                        const PylithScalar s_x[],
-    //                        const PylithInt aOff[],
-    //                        const PylithInt aOff_x[],
-    //                        const PylithScalar a[],
-    //                        const PylithScalar a_t[],
-    //                        const PylithScalar a_x[],
-    //                        const PylithReal t,
-    //                        const PylithScalar x[],
-    //                        const PylithInt numConstants,
-    //                        const PylithScalar constants[],
-    //                        const pylith::fekernels::TensorOps& tensorOps) {
-    //     assert(context);
-
-    //     // Incoming solution fields.
-    //     const PylithInt i_displacement = 0;
-    //     // const PylithInt i_pressure = 1;
-    //     const PylithInt i_velocity = 2;
-
-    //     assert(sOff[i_displacement] >= 0);
-    //     // assert(sOff[i_pressure] >= 0);
-    //     assert(sOff[i_velocity] >= 0);
-    //     // Improvised values
-
-    //     const PylithScalar *displacement_x = &s_x[sOff_x[i_displacement]];
-    //     const PylithScalar *velocity_x = &s_x[sOff_x[i_velocity]];
-
-    //     PylithScalar trace_strain = 0.0;
-    //     for (PylithInt d = 0; d < dim; ++d) {
-    //         trace_strain += displacement_x[d * dim + d];
-    //     }
-
-    //     PylithScalar trace_strain_t = 0.0;
-    //     for (PylithInt d = 0; d < dim; ++d) {
-    //         trace_strain_t += velocity_x[d * dim + d];
-    //     }
-
-    //     // Variables
-    //     context->trace_strain = trace_strain;
-    //     context->trace_strain_t = trace_strain_t;
-        
-       
-
-    // } // setContextDynamic
 
    // --------------------------------------------------------------------------------------------
     static inline
@@ -679,58 +393,6 @@ public:
         context->trace_strain = s[sOff[i_trace_strain]];
 
     } // setIsotropicLinearPoroelasticityContextQuasistatic
-
-     // --------------------------------------------------------------------------------------------
-    static inline
-    void setIsotropicLinearPoroelasticityContextDynamic(pylith::fekernels::IsotropicLinearPoroelasticity::Context* context,
-                                                    const PylithInt dim,
-                                                    const PylithInt numS,
-                                                    const PylithInt numA,
-                                                    const PylithInt sOff[],
-                                                    const PylithInt sOff_x[],
-                                                    const PylithScalar s[],
-                                                    const PylithScalar s_t[],
-                                                    const PylithScalar s_x[],
-                                                    const PylithInt aOff[],
-                                                    const PylithInt aOff_x[],
-                                                    const PylithScalar a[],
-                                                    const PylithScalar a_t[],
-                                                    const PylithScalar a_x[],
-                                                    const PylithReal t,
-                                                    const PylithScalar x[],
-                                                    const PylithInt numConstants,
-                                                    const PylithScalar constants[],
-                                                    const pylith::fekernels::TensorOps& tensorOps) {
-        assert(context);
-
-        // Incoming solution fields.
-        const PylithInt i_displacement = 0;
-        // const PylithInt i_pressure = 1;
-        const PylithInt i_velocity = 2;
-
-        assert(sOff[i_displacement] >= 0);
-        // assert(sOff[i_pressure] >= 0);
-        assert(sOff[i_velocity] >= 0);
-        // Improvised values
-
-        const PylithScalar *displacement_x = &s_x[sOff_x[i_displacement]];
-        const PylithScalar *velocity_x = &s_x[sOff_x[i_velocity]];
-
-        PylithScalar trace_strain = 0.0;
-        for (PylithInt d = 0; d < dim; ++d) {
-            trace_strain += displacement_x[d * dim + d];
-        }
-
-        PylithScalar trace_strain_t = 0.0;
-        for (PylithInt d = 0; d < dim; ++d) {
-            trace_strain_t += velocity_x[d * dim + d];
-        }
-
-        // Variables
-        context->trace_strain = trace_strain;
-        context->trace_strain_t = trace_strain_t;
-        
-    } // setIsotropicLinearPoroelasticityContextDynamic
    
 
     // --------------------------------------------------------------------------------------------
@@ -889,7 +551,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_calc(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_context(
             _dim, s_t, &poroelasticContext, &rheologyContext, f0);
 
     } // f0p_implicit
@@ -930,7 +592,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_source_calc(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_source_context(
             _dim, &poroelasticContext, &rheologyContext, f0);
 
     } // f0p_implicit_source
@@ -971,7 +633,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_source_body_calc(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_source_body_context(
             _dim, &poroelasticContext, &rheologyContext, f0);
     } // f0p_implicit_source_body
 
@@ -1052,7 +714,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_source_grav_body_calc(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_source_grav_body_context(
             _dim, &poroelasticContext, &rheologyContext, f0);
     } // f0p_implicit_source_grav_body
 
@@ -1716,7 +1378,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf2up_calc(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf2up_context(
             dim, &rheologyContext, Jf2);
     } // Jf2up
 
@@ -1750,7 +1412,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf2ue_calc(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf2ue_context(
             dim, &rheologyContext, Jf2);
     } // Jf2ue
 
@@ -1791,7 +1453,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf3pp_calc(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf3pp_context(
             dim, &rheologyContext, Jf3);
 
     } // Jf3pp
@@ -1840,7 +1502,7 @@ public:
         PylithScalar tensorPermeability[4] = {0.0, 0.0, 0.0, 0.0};
         pylith::fekernels::Tensor::ops2D.toTensor(rheologyContext.permeability, tensorPermeability);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf3pp_calc(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf3pp_context(
             dim, &rheologyContext, Jf3);
 
     } // Jf3pp_tensor_permeability
@@ -1879,7 +1541,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf0pp_calc(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf0pp_context(
             _dim, s_tshift, &rheologyContext, Jf0);
         
     } // Jf0pp
@@ -1918,7 +1580,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf0pe_calc(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf0pe_context(
             _dim, s_tshift, &rheologyContext, Jf0);
 
     } // Jf0pe
@@ -2210,7 +1872,7 @@ public:
             &rheologyContext, dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith:fekernels::IsotropicLinearPoroelasticityPlaneStrain::waterContent_asScalar_calc(
+        pylith:fekernels::IsotropicLinearPoroelasticityPlaneStrain::waterContent_asScalar_context(
             dim, &poroelasticContext, &rheologyContext, waterContent);
 
     } // waterContent_asScalar
