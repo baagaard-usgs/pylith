@@ -23,8 +23,10 @@ mmstest_linearporoelasticity_nofaults2d_SOURCES = \
 	$(top_srcdir)/tests/src/MMSTest.cc \
 	$(top_srcdir)/tests/src/driver_catch2.cc \
 	TestLinearPoroelasticity.cc \
+	TestLinearPoroviscoelasticity.cc \
 	TestCases.cc \
-	PressureGradient.cc
+	PressureGradient.cc \
+	PressureGradientPVE.cc
 
 run_%.sh:
 	echo "#!/bin/bash" > $@
@@ -33,7 +35,9 @@ run_%.sh:
 
 dist_noinst_HEADERS = \
 	TestLinearPoroelasticity.hh	\
-	PressureGradient.hh
+	TestLinearPoroviscoelasticity.hh
+	PressureGradient.hh \
+	PressureGradientPVE.hh
 
 
 dist_noinst_DATA = \

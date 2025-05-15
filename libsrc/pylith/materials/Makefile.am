@@ -17,7 +17,7 @@ subpkginclude_HEADERS = \
 	Elasticity.hh \
 	RheologyElasticity.hh \
 	Poroelasticity.hh \
-	PoroIsotropicLinearMaxwell.hh
+	PoroIsotropicLinearMaxwell.hh\
 	RheologyPoroelasticity.hh \
 	AuxiliaryFactoryElasticity.hh \
 	AuxiliaryFactoryPoroelasticity.hh \
