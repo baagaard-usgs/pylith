@@ -37,6 +37,15 @@
 #include <sstream> // USES std::ostringstream
 #include <stdexcept> // USES std::runtime_error
 
+namespace pylith {
+    namespace faults {
+        namespace _FaultCohesive {
+            static const PylithInt defaultLabelValue = 100;
+            static const std::string buriedEdgeSuffix = "_edge_auto";
+        }
+    }
+}
+
 // ------------------------------------------------------------------------------------------------
 typedef pylith::feassemble::IntegratorInterface::ProjectKernels ProjectKernels;
 
@@ -50,7 +59,7 @@ pylith::faults::FaultCohesive::FaultCohesive(void) :
     _buriedEdgesLabelName(""),
     _surfaceLabelValue(1),
     _buriedEdgesLabelValue(1) {
-    setLabelValue(100);
+    setLabelValue(_FaultCohesive::defaultLabelValue);
 
     _refDir1[0] = 0.0;
     _refDir1[1] = 0.0;
@@ -340,12 +349,18 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
         err = DMPlexTransformGetTransformTypes(transform, &transformTypes);PYLITH_CHECK_ERROR(err);
         // err = DMLabelView(transformTypes, PETSC_VIEWER_STDOUT_SELF);PYLITH_CHECK_ERROR(err);
 
-        const std::string buriedEdgeLabelName = _surfaceLabelName + std::string("_edge");
-        PetscBool hasBuriedEdgeLabel = PETSC_FALSE;
-        err = DMHasLabel(dmMeshNew, buriedEdgeLabelName.c_str(), &hasBuriedEdgeLabel);
-        if (!hasBuriedEdgeLabel) {
+        if (_buriedEdgesLabelName.empty()) {
+            const std::string buriedEdgeLabelName = _surfaceLabelName + _FaultCohesive::buriedEdgeSuffix;
+            PetscBool hasBuriedEdgeLabel = PETSC_FALSE;
+            err = DMHasLabel(dmMeshNew, buriedEdgeLabelName.c_str(), &hasBuriedEdgeLabel);
+            if (hasBuriedEdgeLabel) {
+                // :KLUDGE: Assume it is safe to delete this label.
+                PetscDMLabel dmBuriedEdgeLabel = PETSC_NULLPTR;
+                err = DMGetLabel(dmMeshNew, buriedEdgeLabelName.c_str(), &dmBuriedEdgeLabel);PYLITH_CHECK_ERROR(err);
+                err = DMLabelReset(dmBuriedEdgeLabel);PYLITH_CHECK_ERROR(err);
+            } // if
             const PylithInt buriedEdgeLabelValue = 1;
-            TopologyOps::createBuriedEdgeLabel(dmMeshNew, dmMesh, buriedEdgeLabelName.c_str(), buriedEdgeLabelValue, surfaceLabel, transform);
+            pylith::faults::TopologyOps::createBuriedEdgeLabel(dmMeshNew, dmMesh, buriedEdgeLabelName.c_str(), buriedEdgeLabelValue, surfaceLabel, transform);
         } // if
 
         mesh->setDM(dmMeshNew);
@@ -496,7 +511,14 @@ pylith::faults::FaultCohesive::createConstraints(const pylith::topology::Field& 
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("createConstraints(solution="<<solution.getLabel()<<")");
 
-    if (0 == strlen(getBuriedEdgesLabelName())) {
+    PetscDM dm = solution.getDM();
+    const std::string buriedEdgeLabelNameAuto = _surfaceLabelName + _FaultCohesive::buriedEdgeSuffix;
+    PetscBool hasBuriedEdgeLabelAuto = PETSC_FALSE;
+    err = DMHasLabel(dm, buriedEdgeLabelNameAuto.c_str(), &hasBuriedEdgeLabelAuto);PYLITH_CHECK_ERROR(err);
+    if (hasBuriedEdgeLabelAuto) {
+        setBuriedEdgesLabelName(buriedEdgeLabelNameAuto.c_str());
+        setBuriedEdgesLabelValue(1);
+    } else if (0 == strlen(getBuriedEdgesLabelName())) {
         std::vector<pylith::feassemble::Constraint*> constraintArray;
         PYLITH_METHOD_RETURN(constraintArray);
     } // if
@@ -510,15 +532,12 @@ pylith::faults::FaultCohesive::createConstraints(const pylith::topology::Field& 
         constrainedDOF[c] = c;
     }
     // Make new label for cohesive edges and faces
-    PetscDM dm = solution.getDM();
     PetscDMLabel buriedLabel = NULL;
     PetscDMLabel buriedCohesiveLabel = NULL;
     PetscIS pointIS = NULL;
     const PetscInt *points = NULL;
     PetscInt numPoints = 0;
-    std::ostringstream labelstream;
-    labelstream << getBuriedEdgesLabelName() << "_cohesive";
-    std::string buriedLabelName = labelstream.str();
+    std::string buriedLabelName = _buriedEdgesLabelName + std::string("_cohesive");
 
     PylithCallPetsc(DMCreateLabel(dm, buriedLabelName.c_str()));
     PylithCallPetsc(DMGetLabel(dm, getBuriedEdgesLabelName(), &buriedLabel));
@@ -560,12 +579,12 @@ pylith::faults::FaultCohesive::createConstraints(const pylith::topology::Field& 
         PylithCallPetsc(ISRestoreIndices(pointIS, &points));
         PylithCallPetsc(ISDestroy(&pointIS));
     } // if
+    PylithCallPetsc(PetscObjectViewFromOptions((PetscObject) buriedLabel, NULL, "-buried_edge_label_view"));
+    PylithCallPetsc(PetscObjectViewFromOptions((PetscObject) buriedCohesiveLabel, NULL, "-buried_cohesive_edge_label_view"));
 
     std::vector<pylith::feassemble::Constraint*> constraintArray;
     pylith::feassemble::ConstraintSimple *constraint = new pylith::feassemble::ConstraintSimple(this);assert(constraint);
     constraint->setLabelName(buriedLabelName.c_str());
-    PylithCallPetsc(PetscObjectViewFromOptions((PetscObject) buriedLabel, NULL, "-buried_edge_label_view"));
-    PylithCallPetsc(PetscObjectViewFromOptions((PetscObject) buriedCohesiveLabel, NULL, "-buried_cohesive_edge_label_view"));
     constraint->setConstrainedDOF(&constrainedDOF[0], constrainedDOF.size());
     constraint->setSubfieldName(lagrangeName);
     constraint->setUserFn(_zero);
