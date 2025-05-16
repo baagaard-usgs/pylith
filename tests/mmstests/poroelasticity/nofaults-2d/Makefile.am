@@ -13,7 +13,8 @@ include $(top_srcdir)/tests/check_catch2.am
 MMS_DRIVER = mmstest_linearporoelasticity_nofaults2d
 
 TESTS = \
-	run_PressureGradient.sh
+	run_PressureGradient.sh \
+	run_PressureGradientPVE.sh
 
 check_SCRIPTS = $(TESTS)
 
@@ -35,7 +36,7 @@ run_%.sh:
 
 dist_noinst_HEADERS = \
 	TestLinearPoroelasticity.hh	\
-	TestLinearPoroviscoelasticity.hh
+	TestLinearPoroviscoelasticity.hh \
 	PressureGradient.hh \
 	PressureGradientPVE.hh
 

@@ -81,5 +81,45 @@ pylith::materials::RheologyPoroelasticity::addKernelsUpdateStateVarsExplicit(std
     PYLITH_METHOD_END;
 } // addKernelsUpdateStateVarsExplicit
 
+//------------------------------------------------------------------------------------------------------------------------
+// Unimplemented explicit kernel functions. Rheologies that use explicit time stepping should implement these.
+PetscPointFunc 
+pylith::materials::RheologyPoroelasticity::getKernelf0p_explicit(const spatialdata::geocoords::CoordSys* coordsys) const {
+    PYLITH_METHOD_BEGIN;
+    PYLITH_COMPONENT_DEBUG("getKernelf0p_explicit is not implemented");
+
+    return NULL;
+} // getKernelf0p_explicit
+
+PetscPointFunc 
+pylith::materials::RheologyPoroelasticity::getKernelg0p(const spatialdata::geocoords::CoordSys* coordsys,
+                                                        const bool _useBodyForce,
+                                                        const bool _gravityField,
+                                                        const bool _useSourceDensity) const {
+    PYLITH_METHOD_BEGIN;
+    PYLITH_COMPONENT_DEBUG("getKernelg0p is not implemented");
+
+    return NULL;
+} // getKernelg0p
+
+PetscPointFunc 
+pylith::materials::RheologyPoroelasticity::getKernelg1p_explicit(const spatialdata::geocoords::CoordSys* coordsys,
+                                                                 const bool _gravityField) const {
+    PYLITH_METHOD_BEGIN;
+    PYLITH_COMPONENT_DEBUG("getKernelg1p_explicit is not implemented");
+
+    return NULL;
+
+} // getKernelg1p_explicit
+
+PetscPointFunc 
+pylith::materials::RheologyPoroelasticity::getKernelg1v_explicit(const spatialdata::geocoords::CoordSys* coordsys) const {
+    PYLITH_METHOD_BEGIN;
+    PYLITH_COMPONENT_DEBUG("getKernelg1v_explicit is not implemented");
+
+    return NULL;
+} // getKernelg1v_explicit
+
+
 
 // End of file

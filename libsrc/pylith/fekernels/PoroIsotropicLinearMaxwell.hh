@@ -673,7 +673,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_source_grav_calc(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit_source_grav_context(
             _dim, &poroelasticContext, &rheologyContext, f0);
        
     } // f0p_implicit_source_grav
@@ -773,8 +773,7 @@ public:
         PylithScalar stressTensor[9] = {0.0, 0.0, 0.0,  0.0, 0.0, 0.0,  0.0, 0.0, 0.0 };
         tensorOps.toTensor(stress, stressTensor);
 
-        const PylithInt dim = strainContext.dim;
-        for (PylithInt i = 0; i < dim*dim; ++i) {
+        for (PylithInt i = 0; i < _dim*_dim; ++i) {
             f1[i] -= stressTensor[i];
         } // for
 
@@ -841,8 +840,7 @@ public:
         PylithScalar stressTensor[9] = {0.0, 0.0, 0.0,  0.0, 0.0, 0.0,  0.0, 0.0, 0.0 };
         tensorOps.toTensor(stress, stressTensor);
 
-        const PylithInt dim = strainContext.dim;
-        for (PylithInt i = 0; i < dim*dim; ++i) {
+        for (PylithInt i = 0; i < _dim*_dim; ++i) {
             f1[i] -= stressTensor[i];
         } // for
 
@@ -1495,9 +1493,6 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        // Poroelastic Auxiliaries
-        const PylithScalar fluidViscosity = rheologyContext.fluidViscosity;
-
         // Rheological Auxiliaries
         PylithScalar tensorPermeability[4] = {0.0, 0.0, 0.0, 0.0};
         pylith::fekernels::Tensor::ops2D.toTensor(rheologyContext.permeability, tensorPermeability);
@@ -1747,9 +1742,9 @@ public:
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
         // Using dynamic formulation for trace strain, assuming that it will be equal to the variable
         // for QS
-        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextDynamic(
-            &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
-            t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
+        // pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextDynamic(
+        //     &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+        //     t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
         pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearMaxwellContext(
             &rheologyContextIsotropicLinearMaxwell, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
@@ -1819,9 +1814,9 @@ public:
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
         // Using dynamic formulation for trace strain, assuming that it will be equal to the variable
         // for QS
-        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextDynamic(
-            &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
-            t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
+        // pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextDynamic(
+        //     &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+        //     t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
         pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearMaxwellContext(
             &rheologyContextIsotropicLinearMaxwell, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
@@ -1872,7 +1867,7 @@ public:
             &rheologyContext, dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith:fekernels::IsotropicLinearPoroelasticityPlaneStrain::waterContent_asScalar_context(
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::waterContent_asScalar_context(
             dim, &poroelasticContext, &rheologyContext, waterContent);
 
     } // waterContent_asScalar

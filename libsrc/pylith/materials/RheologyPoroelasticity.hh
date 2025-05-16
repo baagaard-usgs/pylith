@@ -54,7 +54,7 @@ public:
     PetscPointFn* getKernelg0p(const spatialdata::geocoords::CoordSys* coordsys,
                                const bool _useBodyForce,
                                const bool _gravityField,
-                               const bool _useSourceDensity) const = 0;
+                               const bool _useSourceDensity) const;
 
     // ---------------------------------------------------------------------------------------------------------------------
     /** Get pressure kernel for RHS residual, G(t,s).
@@ -65,19 +65,19 @@ public:
      */
     virtual
     PetscPointFn* getKernelg1p_explicit(const spatialdata::geocoords::CoordSys* coordsys,
-                                        const bool _gravityField) const = 0;
+                                        const bool _gravityField) const;
 
     // ---------------------------------------------------------------------------------------------------------------------
     // Get stress kernel for RHS residual, G(t,s)
     virtual
-    PetscPointFn* getKernelg1v_explicit(const spatialdata::geocoords::CoordSys* coordsys) const = 0;
+    PetscPointFn* getKernelg1v_explicit(const spatialdata::geocoords::CoordSys* coordsys) const;
 
     // =============================== LHS =================================== //
 
     // ---------------------------------------------------------------------------------------------------------------------
     // Get variation in fluid content kernel for LHS residual, F(t,s,\dot{s})
     virtual
-    PetscPointFn* getKernelf0p_explicit(const spatialdata::geocoords::CoordSys* coordsys) const = 0;
+    PetscPointFn* getKernelf0p_explicit(const spatialdata::geocoords::CoordSys* coordsys) const;
 
     // ---------------------------------------------------------------------------------------------------------------------
     // Select implicit f0p function.

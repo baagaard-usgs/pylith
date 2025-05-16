@@ -33,6 +33,7 @@ namespace pylith {
         class IsotropicLinearIncompElasticity;
 
         class Poroelasticity;
+        class PoroIsotropicLinearMaxwell;
         class AuxiliaryFactoryPoroelasticity;
         class DerivedFactoryPoroelasticity;
 

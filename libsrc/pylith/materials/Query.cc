@@ -57,6 +57,12 @@ public:
                                         const pylith::int_array dbIndices);
 
             static
+            std::string vsToMaxwellTime(PylithScalar valueSubfield[],
+                                        const PylithInt numComponents,
+                                        const pylith::scalar_array dbValues,
+                                        const pylith::int_array dbIndices);
+
+            static
             std::string vmToGeneralizedMaxwellTimes(PylithScalar valueSubfield[],
                                                     const PylithInt numComponents,
                                                     const pylith::scalar_array dbValues,
@@ -121,6 +127,18 @@ pylith::materials::Query::maxwellTimeFromVM(const char* subfieldName,
     assert(factory);
     factory->setSubfieldQuery(subfieldName, dbValues, numDBValues, _Query::vmToMaxwellTime);
 } // maxwellTimeFromVM
+
+// ------------------------------------------------------------------------------------------------
+// Setup subfield query in auxiliary factory for Maxwell time from shear modulus and viscosity.
+void
+pylith::materials::Query::maxwellTimeFromVS(const char* subfieldName,
+                                            pylith::feassemble::AuxiliaryFactory* factory) {
+    const size_t numDBValues = 2;
+    const char* dbValues[numDBValues] = { "shear_modulus", "solid_viscosity" };
+
+    assert(factory);
+    factory->setSubfieldQuery(subfieldName, dbValues, numDBValues, _Query::vsToMaxwellTime);
+} // maxwellTimeFromVS
 
 
 // ------------------------------------------------------------------------------------------------
@@ -300,6 +318,38 @@ pylith::materials::_Query::vmToMaxwellTime(PylithScalar valueSubfield[],
     } // if
     if (vs <= 0) {
         msg << "Found non-positive shear wave speed (" << vs << ").";
+    } // if
+    if (viscosity <= 0) {
+        msg << "Found non-positive viscosity (" << viscosity << ").";
+    } // if
+
+    PYLITH_METHOD_RETURN(msg.str());
+} // vmToMaxwellTime
+
+// ------------------------------------------------------------------------------------------------
+// Compute Maxwell time from from shear modulus Nnd viscosity.
+std::string
+pylith::materials::_Query::vsToMaxwellTime(PylithScalar valueSubfield[],
+                                           const PylithInt numComponents,
+                                           const pylith::scalar_array dbValues,
+                                           const pylith::int_array dbIndices) {
+    PYLITH_METHOD_BEGIN;
+
+    const size_t _numComponents = 1;
+
+    assert(valueSubfield);
+    assert(_numComponents == size_t(numComponents));
+    assert(2 == dbIndices.size());
+
+    const size_t i_shearModulus = 0;assert(size_t(dbIndices[i_shearModulus]) < dbValues.size());
+    const size_t i_viscosity = 1;assert(size_t(dbIndices[i_viscosity]) < dbValues.size());
+    const PylithScalar shearModulus = dbValues[dbIndices[i_shearModulus]];
+    const PylithScalar viscosity = dbValues[dbIndices[i_viscosity]];
+    valueSubfield[0] = viscosity / shearModulus;
+
+    std::ostringstream msg;
+    if (shearModulus <= 0) {
+        msg << "Found non-positive shear modulus (" << shearModulus << ").";
     } // if
     if (viscosity <= 0) {
         msg << "Found non-positive viscosity (" << viscosity << ").";

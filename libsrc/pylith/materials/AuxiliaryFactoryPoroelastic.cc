@@ -311,7 +311,7 @@ pylith::materials::AuxiliaryFactoryPoroelastic::addMaxwellTime(void) {
     description.validator = pylith::topology::FieldQuery::validatorPositive;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(subfieldName));
-    pylith::materials::Query::maxwellTimeFromVM(subfieldName, this);
+    pylith::materials::Query::maxwellTimeFromVS(subfieldName, this);
 
     PYLITH_METHOD_END;
 } // addMaxwellTime

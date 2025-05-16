@@ -23,6 +23,7 @@
 #include "spatialdata/geocoords/CoordSys.hh" // USES CoordSys
 
 #include <typeinfo> // USES typeid()
+#include "PoroIsotropicLinearMaxwell.hh"
 
 // ---------------------------------------------------------------------------------------------------------------------
 typedef pylith::feassemble::IntegratorDomain::ProjectKernels ProjectKernels;
@@ -488,6 +489,8 @@ pylith::materials::PoroIsotropicLinearMaxwell::addKernelsUpdateStateVarsImplicit
         size_t prevNumKernels = kernels->size();
         kernels->resize(prevNumKernels + 1);
         (*kernels)[prevNumKernels+0] = ProjectKernels("porosity", funcPorosity);
+        (*kernels)[prevNumKernels+1] = ProjectKernels("viscous_strain", funcViscousStrain);
+        (*kernels)[prevNumKernels+2] = ProjectKernels("total_strain", funcTotalStrain);
     }
 
     PYLITH_METHOD_END;

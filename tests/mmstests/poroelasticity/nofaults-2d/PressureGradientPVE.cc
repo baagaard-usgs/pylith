@@ -52,7 +52,7 @@ class pylith::_PressureGradientPVE {
     static double solid_viscosity(const double x,
                                   const double y) {
             return 1.0e21;
-        }
+    } // solid viscosity
 
     static const char* viscosity_units(void) {
         return "Pa*s";
@@ -116,6 +116,71 @@ class pylith::_PressureGradientPVE {
         return "m*m";
     } // permeability_units
 
+    // Strain
+    static double viscous_strain_xx(const double x,
+                                    const double y) {
+        return 0.0;
+    } // viscous_strain_xx
+
+    static double viscous_strain_yy(const double x,
+                                    const double y) {
+        return 0.0;
+    } // viscous_strain_yy
+
+    static double viscous_strain_zz(const double x,
+                                    const double y) {
+        return 0.0;
+    } // viscous_strain_zz
+
+    static double viscous_strain_xy(const double x,
+                                    const double y) {
+        return 0.0;
+    } // viscous_strain_xy
+
+    static double viscous_strain_xz(const double x,
+                                    const double y) {
+        return 0.0;
+    } // viscous_strain_xz
+
+    static double viscous_strain_yz(const double x,
+                                    const double y) {
+        return 0.0;
+    } // viscous_strain_yz
+
+    static double total_strain_xx(const double x,
+                                  const double y) {
+        return 0.0;
+    } // total_strain_xx
+
+    static double total_strain_yy(const double x,
+                                  const double y) {
+        return 0.0;
+    } // total_strain_yy
+
+    static double total_strain_zz(const double x,
+                                  const double y) {
+        return 0.0;
+    } // total_strain_zz
+
+    static double total_strain_xy(const double x,
+                                  const double y) {
+        return 0.0;
+    } // total_strain_xy
+
+    static double total_strain_xz(const double x,
+                                  const double y) {
+        return 0.0;
+    } // total_strain_xz
+
+    static double total_strain_yz(const double x,
+                                  const double y) {
+        return 0.0;
+    } // total_strain_yz
+
+    static const char* strain_units(void) {
+        return "none";
+    } //strain_units
+
 
     // Solution subfields (nondimensional)
 
@@ -145,8 +210,6 @@ class pylith::_PressureGradientPVE {
     static double vel_x(const double x,
                         const double y,
                         const double t) {
-        const double muN = shear_modulus(x, y) / PRESSURE_SCALE;
-        const double lambdaN = drained_bulk_modulus(x, y) / PRESSURE_SCALE - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y);
         const double etaN = solid_viscosity(x, y) / (PRESSURE_SCALE * TIME_SCALE);
         return -alpha * (PRESSURE0 / PRESSURE_SCALE) * (x / LENGTH_SCALE) * (1.0/etaN);
@@ -200,6 +263,7 @@ class pylith::_PressureGradientPVE {
                                           PetscScalar* s,
                                           void* context) {
         assert(2 == spaceDim);
+        assert(x);
         assert(2 == numComponents);
         assert(s);
 
@@ -289,7 +353,7 @@ public:
 
     static
     TestLinearPoroviscoelasticity_Data* createData(void) {
-        TestLinearPoroviscoelasticity_Data* data = new TestLinearPoroeviscolasticity_Data();assert(data);
+        TestLinearPoroviscoelasticity_Data* data = new TestLinearPoroviscoelasticity_Data();assert(data);
 
         data->journalName = "PressureGradientPVE";
         data->isJacobianLinear = true;
@@ -346,7 +410,22 @@ public:
         data->auxDB.addValue("biot_coefficient", biot_coefficient, modulus_units());
         data->auxDB.addValue("fluid_bulk_modulus", fluid_bulk_modulus, modulus_units());
         data->auxDB.addValue("solid_bulk_modulus", solid_bulk_modulus, modulus_units());
-        data->auxDB.addValue("solid_viscosity", solid_viscosity(), viscosity_units()); // ???
+        data->auxDB.addValue("solid_viscosity", solid_viscosity, viscosity_units());
+
+        data->auxDB.addValue("viscous_strain_xx", viscous_strain_xx, strain_units());
+        data->auxDB.addValue("viscous_strain_yy", viscous_strain_yy, strain_units());
+        data->auxDB.addValue("viscous_strain_zz", viscous_strain_zz, strain_units());
+        data->auxDB.addValue("viscous_strain_xy", viscous_strain_xy, strain_units());
+        data->auxDB.addValue("viscous_strain_xz", viscous_strain_xz, strain_units());
+        data->auxDB.addValue("viscous_strain_yz", viscous_strain_yz, strain_units());
+
+        data->auxDB.addValue("total_strain_xx", total_strain_xx, strain_units());
+        data->auxDB.addValue("total_strain_yy", total_strain_yy, strain_units());
+        data->auxDB.addValue("total_strain_zz", total_strain_zz, strain_units());
+        data->auxDB.addValue("total_strain_xy", total_strain_xy, strain_units());
+        data->auxDB.addValue("total_strain_xz", total_strain_xz, strain_units());
+        data->auxDB.addValue("total_strain_yz", total_strain_yz, strain_units());
+
         data->auxDB.addValue("isotropic_permeability", isotropic_permeability, permeability_units());
         data->auxDB.setCoordSys(data->cs);
 
@@ -453,12 +532,12 @@ public:
     } // createDataStateVars
 
 }; //PressureGradientPVE
-const double pylith::_PressureGradient::LENGTH_SCALE = 1.0e+3;
-const double pylith::_PressureGradient::TIME_SCALE = 2.0;
-const double pylith::_PressureGradient::PRESSURE_SCALE = 2.25e+10;
+const double pylith::_PressureGradientPVE::LENGTH_SCALE = 1.0e+3;
+const double pylith::_PressureGradientPVE::TIME_SCALE = 2.0;
+const double pylith::_PressureGradientPVE::PRESSURE_SCALE = 2.25e+10;
 
-const double pylith::_PressureGradient::PRESSURE0 = 4.0e+6;
-const double pylith::_PressureGradient::XMAX = 8.0e+3;
+const double pylith::_PressureGradientPVE::PRESSURE0 = 4.0e+6;
+const double pylith::_PressureGradientPVE::XMAX = 8.0e+3;
 
 // ------------------------------------------------------------------------------------------------
 pylith::TestLinearPoroviscoelasticity_Data*
@@ -497,7 +576,7 @@ pylith::PressureGradientPVE::TriP2P1P1(void) {
 // ------------------------------------------------------------------------------------------------
 pylith::TestLinearPoroviscoelasticity_Data*
 pylith::PressureGradientPVE::TriP3P2P2(void) {
-    TestLinearPoroeviscolasticity_Data* data = pylith::_PressureGradientPVE::createData();assert(data);
+    TestLinearPoroviscoelasticity_Data* data = pylith::_PressureGradientPVE::createData();assert(data);
 
     data->meshFilename = "data/tri.mesh";
 
@@ -599,7 +678,7 @@ pylith::PressureGradientPVE::QuadQ3Q2Q2(void) {
 // ------------------------------------------------------------------------------------------------
 pylith::TestLinearPoroviscoelasticity_Data*
 pylith::PressureGradientPVE::TriP2P1P1_StateVars(void) {
-    TestLinearPoroelasticity_Data* data = pylith::_PressureGradientPVE::createDataStateVars();assert(data);
+    TestLinearPoroviscoelasticity_Data* data = pylith::_PressureGradientPVE::createDataStateVars();assert(data);
 
     data->meshFilename = "data/tri.mesh";
 

@@ -49,6 +49,15 @@ public:
     void maxwellTimeFromVM(const char* subfieldName,
                            pylith::feassemble::AuxiliaryFactory* factory);
 
+    /** Setup subfield query in auxiliary factory for Maxwell time from shear modulus, and viscosity.
+     *
+     * @param[in] subfieldName Name for Maxwell time subfield.
+     * @param[inout] factory Auxiliary factory associated with shear modulus subfield.
+     */
+    static
+    void maxwellTimeFromVS(const char* subfieldName,
+                           pylith::feassemble::AuxiliaryFactory* factory);
+
     /** Setup subfield query in auxiliary factory for generalized Maxwell times from density, Vs, and viscosities.
      *
      * @param[in] subfieldName Name for generalized Maxwelltime subfield.
