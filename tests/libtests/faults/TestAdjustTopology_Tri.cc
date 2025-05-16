@@ -390,7 +390,7 @@ pylith::faults::TestAdjustTopology_Tri::caseG(void) {
     data->numGroups = numGroups;
     static const int groupSizes[numGroups] = { 5+3, 1, 3+2, 3, 2, 1 }; // vertices + edges
     data->groupSizes = const_cast<int*>(groupSizes);
-    static const char* groupNames[numGroups] = { "output_vertices", "edge_vertices", "fault_vertices", "output_faces", "fault_faces", "fault_faces_edge" };
+    static const char* groupNames[numGroups] = { "output_vertices", "edge_vertices", "fault_vertices", "output_faces", "fault_faces", "fault_faces_edge_auto" };
     data->groupNames = const_cast<char**>(groupNames);
     static const char* groupTypes[numGroups] = { "vertex", "vertex", "vertex", "face", "face", "vertex" };
     data->groupTypes = const_cast<char**>(groupTypes);
@@ -446,7 +446,7 @@ pylith::faults::TestAdjustTopology_Tri::caseH(void) {
     data->numGroups = numGroups;
     static const int groupSizes[numGroups] = { 3+2, 2, 4+4, 2, 4, 2 }; // vertices + edges
     data->groupSizes = const_cast<int*>(groupSizes);
-    static const char* groupNames[numGroups] = { "output_vertices", "edge_vertices", "fault_vertices", "output_faces", "fault_faces", "fault_faces_edge" };
+    static const char* groupNames[numGroups] = { "output_vertices", "edge_vertices", "fault_vertices", "output_faces", "fault_faces", "fault_faces_edge_auto" };
     data->groupNames = const_cast<char**>(groupNames);
     static const char* groupTypes[numGroups] = { "vertex", "vertex", "vertex", "face", "face", "vertex" };
     data->groupTypes = const_cast<char**>(groupTypes);

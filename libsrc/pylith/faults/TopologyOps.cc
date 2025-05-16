@@ -563,9 +563,11 @@ pylith::faults::TopologyOps::createBuriedEdgeLabel(PetscDM dmMeshNew,
 
     bool hasBuriedEdge = false;
     PetscDMLabel buriedEdgeLabel = NULL;
+    PylithInt dimMesh = 0;
 
     err = DMCreateLabel(dmMeshNew, buriedEdgeLabelName);PYLITH_CHECK_ERROR(err);
     err = DMGetLabel(dmMeshNew, buriedEdgeLabelName, &buriedEdgeLabel);PYLITH_CHECK_ERROR(err);
+    err = DMGetDimension(dmMesh, &dimMesh);PYLITH_CHECK_ERROR(err);
 
     PylithInt pStart, pEnd;
     err = DMPlexGetChart(dmMesh, &pStart, &pEnd);PYLITH_CHECK_ERROR(err);
@@ -586,7 +588,7 @@ pylith::faults::TopologyOps::createBuriedEdgeLabel(PetscDM dmMeshNew,
             dim = DMPolytopeTypeGetDim(cellType);
             err = DMPlexTransformCellTransform(transform, cellType, point, NULL, &numCellTypes, &newCellTypes, &newCellTypesSize, &newPointsCones, &coneOrientations);PYLITH_CHECK_ERROR(err);
             for (PylithInt iCellType = 0; iCellType < numCellTypes; ++iCellType) {
-                if (DMPolytopeTypeGetDim(newCellTypes[iCellType]) != dim) {
+                if ((DMPolytopeTypeGetDim(newCellTypes[iCellType]) != dim) || (dim != dimMesh-2)) {
                     continue;
                 } // if
                 const PetscInt cellTypeSize = newCellTypesSize[iCellType];
@@ -600,9 +602,7 @@ pylith::faults::TopologyOps::createBuriedEdgeLabel(PetscDM dmMeshNew,
     } // for
     if (!hasBuriedEdge) {
         err = DMRemoveLabel(dmMeshNew, buriedEdgeLabelName, NULL);PYLITH_CHECK_ERROR(err);
-    } else {
-        // err = DMLabelView(buriedEdgeLabel, PETSC_VIEWER_STDOUT_SELF);PYLITH_CHECK_ERROR(err);
-    } // if/else
+    } else {} // if/else
 
     PYLITH_METHOD_END;
 } // createBuriedEdgeLabel

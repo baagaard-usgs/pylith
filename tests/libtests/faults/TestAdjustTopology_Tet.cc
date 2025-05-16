@@ -565,12 +565,12 @@ pylith::faults::TestAdjustTopology_Tet::caseK(void) {
 
     static const size_t numGroups = 6;
     data->numGroups = numGroups;
-    static const int groupSizes[numGroups] = { 223+5+4, 10+8, 2*139-8-10, 66, 101+21, 10+8 }; // vertices + edges +
-                                                                                              // faces
+    static const int groupSizes[numGroups] = { 223+5+4, 10+8, 2*139-8-10, 66, 101+21, 8 }; // vertices + edges +
+                                                                                           // faces
     data->groupSizes = const_cast<int*>(groupSizes);
-    static const char* groupNames[numGroups] = { "vertices_zpos", "fault_edge_vertices", "fault_vertices", "boundary_zpos", "fault_faces", "fault_faces_edge" };
+    static const char* groupNames[numGroups] = { "vertices_zpos", "fault_edge_vertices", "fault_vertices", "boundary_zpos", "fault_faces", "fault_faces_edge_auto" };
     data->groupNames = const_cast<char**>(groupNames);
-    static const char* groupTypes[numGroups] = { "vertex", "vertex", "vertex", "face", "face", "vertex" };
+    static const char* groupTypes[numGroups] = { "vertex", "vertex", "vertex", "face", "face", "face" };
     data->groupTypes = const_cast<char**>(groupTypes);
 
     return data;
