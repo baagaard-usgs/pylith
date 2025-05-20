@@ -531,7 +531,7 @@ pylith::faults::FaultCohesive::createConstraints(const pylith::topology::Field& 
     for (int c = 0; c < numComponents; ++c) {
         constrainedDOF[c] = c;
     }
-    // Make new label for cohesive edges and faces
+    // Make new label for cohesive edges (Lagrange multiplier) for buried edges.
     PetscDMLabel buriedLabel = NULL;
     PetscDMLabel buriedCohesiveLabel = NULL;
     PetscIS pointIS = NULL;
@@ -559,19 +559,7 @@ pylith::faults::FaultCohesive::createConstraints(const pylith::topology::Field& 
 
             PylithCallPetsc(DMPlexGetCellType(dm, spoint, &ct));
             if ((ct == DM_POLYTOPE_SEG_PRISM_TENSOR) || (ct == DM_POLYTOPE_POINT_PRISM_TENSOR)) {
-                const PetscInt *cone = NULL;
-                PetscInt coneSize;
-
-                PylithCallPetsc(DMPlexGetConeSize(dm, spoint, &coneSize));
-                PylithCallPetsc(DMPlexGetCone(dm, spoint, &cone));
-                for (int c = 0; c < coneSize; ++c) {
-                    PetscInt val;
-                    PylithCallPetsc(DMLabelGetValue(buriedLabel, cone[c], &val));
-                    if (val >= 0) {
-                        PylithCallPetsc(DMLabelSetValue(buriedCohesiveLabel, spoint, 1));
-                        break;
-                    } // if
-                } // for
+                PylithCallPetsc(DMLabelSetValue(buriedCohesiveLabel, spoint, 1));
             } // if
         } // for
     } // for
