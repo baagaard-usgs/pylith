@@ -660,7 +660,7 @@ pylith::faults::TopologyOps::createFaultFromCohesiveCells(pylith::topology::Mesh
             const PylithInt negativeFace = cone[0];
             err = DMLabelSetValue(negativeLabel, negativeFace, negativeLabelValue);PYLITH_CHECK_ERROR(err);
         } // for
-        err = ISRestoreIndices(pointIS, &points);PYLITH_CHECK_ERROR(err);
+        if (pointIS) {err = ISRestoreIndices(pointIS, &points);PYLITH_CHECK_ERROR(err);}
         err = ISDestroy(&pointIS);PYLITH_CHECK_ERROR(err);
         err = DMPlexLabelComplete(dmDomain, negativeLabel);PYLITH_CHECK_ERROR(err);
     } // Create label over negative sides of cohesive cells

@@ -323,6 +323,9 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
             msg << "Mesh missing group '" << _surfaceLabelName << "' for fault interface condition.";
             throw std::runtime_error(msg.str());
         } // if
+        if (!hasLabel && (rank > 0)) {
+            err = DMCreateLabel(dmMesh, _surfaceLabelName.c_str());PYLITH_CHECK_ERROR(err);
+        } // if
         pylith::faults::TopologyOps::updateCohesiveLabel(mesh, _surfaceLabelName.c_str(), _surfaceLabelValue);
 
         err = DMGetLabel(dmMesh, _surfaceLabelName.c_str(), &surfaceLabel);PYLITH_CHECK_ERROR(err);
@@ -347,7 +350,6 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
         // Create buried edge label
         PetscDMLabel transformTypes = NULL;
         err = DMPlexTransformGetTransformTypes(transform, &transformTypes);PYLITH_CHECK_ERROR(err);
-        // err = DMLabelView(transformTypes, PETSC_VIEWER_STDOUT_SELF);PYLITH_CHECK_ERROR(err);
 
         if (_buriedEdgesLabelName.empty()) {
             const std::string buriedEdgeLabelName = _surfaceLabelName + _FaultCohesive::buriedEdgeSuffix;
