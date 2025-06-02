@@ -246,8 +246,8 @@ class pylith::_PressureGradientPVE {
     } // trace_strain
 
     static double trace_strain_dot(const double x,
-                               const double y,
-                               const double t) {
+                                   const double y,
+                                   const double t) {
         const double muN = shear_modulus(x, y) / PRESSURE_SCALE;
         const double lambdaN = drained_bulk_modulus(x, y) / PRESSURE_SCALE - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y);
@@ -255,6 +255,35 @@ class pylith::_PressureGradientPVE {
         return alpha * (PRESSURE0 / PRESSURE_SCALE) * (-2.0 * (XMAX / LENGTH_SCALE) * lambdaN - 4.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * (x / LENGTH_SCALE) * muN) 
         * (1.0 / (XMAX / LENGTH_SCALE)) * (1.0 / etaN) * (1.0 / (lambdaN + 2.0 * muN));
     } // trace_strain_dot
+
+    static
+    void source_density(const PylithInt dim,
+                            const PylithInt numS,
+                            const PylithInt numA,
+                            const PylithInt sOff[],
+                            const PylithInt sOff_x[],
+                            const PylithScalar s[],
+                            const PylithScalar s_t[],
+                            const PylithScalar s_x[],
+                            const PylithInt aOff[],
+                            const PylithInt aOff_x[],
+                            const PylithScalar a[],
+                            const PylithScalar a_t[],
+                            const PylithScalar a_x[],
+                            const PylithReal t,
+                            const PylithReal x[],
+                            const PylithReal n[],
+                            const PylithInt numConstants,
+                            const PylithScalar constants[],
+                            PylithScalar r0[]) {
+        assert(r0);
+        const double alpha = biot_coefficient(x[0], x[1]);
+        const double etaN = solid_viscosity(x[0], x[1]) / (PRESSURE_SCALE * TIME_SCALE);
+        const double muN = shear_modulus(x[0], x[1]) / PRESSURE_SCALE;
+        const double lambdaN = drained_bulk_modulus(x[0], x[1]) / PRESSURE_SCALE - 2.0/3.0 * muN;
+        r0[0] =  2 * (PRESSURE0 / PRESSURE_SCALE) * alpha * alpha * (-(XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + (x[0] / LENGTH_SCALE) * muN)
+        / ((XMAX / LENGTH_SCALE) * etaN * (lambdaN + 2.0 * muN));
+    } // source_density
 
     static PetscErrorCode solnkernel_disp(PetscInt spaceDim,
                                           PetscReal t,
@@ -264,7 +293,7 @@ class pylith::_PressureGradientPVE {
                                           void* context) {
         assert(2 == spaceDim);
         assert(x);
-        assert(2 == numComponents);
+        //assert(2 == numComponents); // Not needed, should be covered by space dim
         assert(s);
 
         s[0] = disp_x(x[0], x[1], t);
@@ -439,7 +468,7 @@ public:
         static const PylithInt constrainedX[1] = { 0 };
         static const PylithInt constrainedY[1] = { 1 };
         static const PylithInt numConstrained = 1;
-        data->bcs.resize(6);
+        data->bcs.resize(8);
         { // Displacement -x
             pylith::bc::DirichletUserFn*bc = new pylith::bc::DirichletUserFn();assert(bc);
             bc->setSubfieldName("displacement");
@@ -493,6 +522,22 @@ public:
             bc->setConstrainedDOF(constrainedX, numConstrained);
             bc->setUserFn(solnkernel_fluid_pressure);
             data->bcs[5] = bc;
+        }
+        { // Source density -x
+            pylith::bc::NeumannUserFn*bc = new pylith::bc::NeumannUserFn();assert(bc);
+            bc->setSubfieldName("sourceDensity");
+            bc->setLabelName("boundary_xneg");
+            bc->setLabelValue(1);
+            bc->setUserFn(source_density);
+            data->bcs[6] = bc;
+        }
+        { // Source density +x
+            pylith::bc::NeumannUserFn*bc = new pylith::bc::NeumannUserFn();assert(bc);
+            bc->setSubfieldName("sourceDensity");
+            bc->setLabelName("boundary_xpos");
+            bc->setLabelValue(1);
+            bc->setUserFn(source_density);
+            data->bcs[6] = bc;
         }
 
         static const pylith::testing::MMSTest::solution_fn _exactSolnFns[3] = {
