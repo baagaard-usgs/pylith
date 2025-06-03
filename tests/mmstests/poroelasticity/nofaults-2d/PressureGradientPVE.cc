@@ -192,7 +192,7 @@ class pylith::_PressureGradientPVE {
         const double lambdaN = drained_bulk_modulus(x, y) / PRESSURE_SCALE - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y);
         const double etaN = solid_viscosity(x, y) / (PRESSURE_SCALE * TIME_SCALE);
-        return -0.5 * alpha  * (PRESSURE0 / PRESSURE_SCALE) / (lambdaN + 2.0*muN) * (x*x / (XMAX / LENGTH_SCALE)) - alpha * (PRESSURE0 / PRESSURE_SCALE) * (x / LENGTH_SCALE) * (t / TIME_SCALE) * (1.0/etaN);
+        return -0.5 * alpha  * (PRESSURE0 / PRESSURE_SCALE) / (lambdaN + 2.0*muN) * (x*x / (XMAX / LENGTH_SCALE)) - alpha * (PRESSURE0 / PRESSURE_SCALE) * x * t  * (1.0/etaN);
     } // disp_x
 
     static double disp_y(const double x,
@@ -202,7 +202,7 @@ class pylith::_PressureGradientPVE {
         const double lambdaN = drained_bulk_modulus(x, y) / PRESSURE_SCALE - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y);
         const double etaN = solid_viscosity(x, y) / (PRESSURE_SCALE * TIME_SCALE);
-        return alpha * (PRESSURE0 / PRESSURE_SCALE) * ((-XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * (x / LENGTH_SCALE) * muN) * (y / LENGTH_SCALE) * (t / TIME_SCALE) * (1.0 / (XMAX / LENGTH_SCALE))
+        return alpha * (PRESSURE0 / PRESSURE_SCALE) * ((-XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) * y * t * (1.0 / (XMAX / LENGTH_SCALE))
         * (1.0 / etaN) * (1.0/(lambdaN + 2.0 * muN));
     }
 
@@ -212,7 +212,7 @@ class pylith::_PressureGradientPVE {
                         const double t) {
         const double alpha = biot_coefficient(x, y);
         const double etaN = solid_viscosity(x, y) / (PRESSURE_SCALE * TIME_SCALE);
-        return -alpha * (PRESSURE0 / PRESSURE_SCALE) * (x / LENGTH_SCALE) * (1.0/etaN);
+        return -alpha * (PRESSURE0 / PRESSURE_SCALE) * x * (1.0/etaN);
     } // vel_x
 
     static double vel_y(const double x,
@@ -222,7 +222,7 @@ class pylith::_PressureGradientPVE {
         const double lambdaN = drained_bulk_modulus(x, y) / PRESSURE_SCALE - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y);
         const double etaN = solid_viscosity(x, y) / (PRESSURE_SCALE * TIME_SCALE);
-        return alpha * (PRESSURE0 / PRESSURE_SCALE) * ((-XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * (x / LENGTH_SCALE) * muN) * (y / LENGTH_SCALE) * (1.0 / (XMAX / LENGTH_SCALE))
+        return alpha * (PRESSURE0 / PRESSURE_SCALE) * ((-XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) * y * (1.0 / (XMAX / LENGTH_SCALE))
         * (1.0 / etaN) * (1.0/(lambdaN + 2.0 * muN));
     } // vel_y
 
@@ -241,8 +241,8 @@ class pylith::_PressureGradientPVE {
         const double lambdaN = drained_bulk_modulus(x, y) / PRESSURE_SCALE - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y);
         const double etaN = solid_viscosity(x, y) / (PRESSURE_SCALE * TIME_SCALE);
-        return alpha * (PRESSURE0 / PRESSURE_SCALE) * (-2.0 * (XMAX / LENGTH_SCALE) * (t / TIME_SCALE) * lambdaN - 4.0 * (XMAX / LENGTH_SCALE) * (t / TIME_SCALE) * muN + 2.0 * (t / TIME_SCALE) * (x / LENGTH_SCALE) * muN 
-        - (x / LENGTH_SCALE) * etaN) * (1.0 / (XMAX / LENGTH_SCALE)) * (1.0 / etaN) * (1.0 / (lambdaN + 2.0 * muN));
+        return alpha * (PRESSURE0 / PRESSURE_SCALE) * (-2.0 * (XMAX / LENGTH_SCALE) * t * lambdaN - 4.0 * (XMAX / LENGTH_SCALE) * t * muN + 2.0 * t * x * muN 
+        - x * etaN) * (1.0 / (XMAX / LENGTH_SCALE)) * (1.0 / etaN) * (1.0 / (lambdaN + 2.0 * muN));
     } // trace_strain
 
     static double trace_strain_dot(const double x,
@@ -252,38 +252,36 @@ class pylith::_PressureGradientPVE {
         const double lambdaN = drained_bulk_modulus(x, y) / PRESSURE_SCALE - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y);
         const double etaN = solid_viscosity(x, y) / (PRESSURE_SCALE * TIME_SCALE);
-        return alpha * (PRESSURE0 / PRESSURE_SCALE) * (-2.0 * (XMAX / LENGTH_SCALE) * lambdaN - 4.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * (x / LENGTH_SCALE) * muN) 
+        return alpha * (PRESSURE0 / PRESSURE_SCALE) * (-2.0 * (XMAX / LENGTH_SCALE) * lambdaN - 4.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) 
         * (1.0 / (XMAX / LENGTH_SCALE)) * (1.0 / etaN) * (1.0 / (lambdaN + 2.0 * muN));
     } // trace_strain_dot
 
-    static
-    void source_density(const PylithInt dim,
-                            const PylithInt numS,
-                            const PylithInt numA,
-                            const PylithInt sOff[],
-                            const PylithInt sOff_x[],
-                            const PylithScalar s[],
-                            const PylithScalar s_t[],
-                            const PylithScalar s_x[],
-                            const PylithInt aOff[],
-                            const PylithInt aOff_x[],
-                            const PylithScalar a[],
-                            const PylithScalar a_t[],
-                            const PylithScalar a_x[],
-                            const PylithReal t,
-                            const PylithReal x[],
-                            const PylithReal n[],
-                            const PylithInt numConstants,
-                            const PylithScalar constants[],
-                            PylithScalar r0[]) {
-        assert(r0);
-        const double alpha = biot_coefficient(x[0], x[1]);
-        const double etaN = solid_viscosity(x[0], x[1]) / (PRESSURE_SCALE * TIME_SCALE);
-        const double muN = shear_modulus(x[0], x[1]) / PRESSURE_SCALE;
-        const double lambdaN = drained_bulk_modulus(x[0], x[1]) / PRESSURE_SCALE - 2.0/3.0 * muN;
-        r0[0] =  2 * (PRESSURE0 / PRESSURE_SCALE) * alpha * alpha * (-(XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + (x[0] / LENGTH_SCALE) * muN)
+    static double source_density(const double x,
+                                 const double y,
+                                 const double t) {
+        const double alpha = biot_coefficient(x, y);
+        const double etaN = solid_viscosity(x, y) / (PRESSURE_SCALE * TIME_SCALE);
+        const double muN = shear_modulus(x, y) / PRESSURE_SCALE;
+        const double lambdaN = drained_bulk_modulus(x, y) / PRESSURE_SCALE - 2.0/3.0 * muN;
+        return  2 * (PRESSURE0 / PRESSURE_SCALE) * alpha * alpha * (-(XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + x * muN)
         / ((XMAX / LENGTH_SCALE) * etaN * (lambdaN + 2.0 * muN));
     } // source_density
+
+    static double body_force_x(const double x,
+                               const double y,
+                               const double t) {
+        const double alpha = biot_coefficient(x, y);
+        const double etaN = solid_viscosity(x, y) / (PRESSURE_SCALE * TIME_SCALE);
+        const double muN = shear_modulus(x, y) / PRESSURE_SCALE;
+        const double lambdaN = drained_bulk_modulus(x, y) / PRESSURE_SCALE - 2.0/3.0 * muN;
+        return -2.0 * (PRESSURE0 / PRESSURE_SCALE) * alpha * lambdaN * muN * t * (1.0/ (XMAX / LENGTH_SCALE) * etaN * (lambdaN + 2.0 * muN));
+    } // body_force_x
+
+    static double body_force_y(const double x,
+                               const double y,
+                               const double t) {
+        return 0.0;
+    } // body_force_y
 
     static PetscErrorCode solnkernel_disp(PetscInt spaceDim,
                                           PetscReal t,
@@ -378,6 +376,59 @@ class pylith::_PressureGradientPVE {
         return 0;
     } // solnkernel_trace_strain_dot
 
+    static
+    void source_density_kernel(const PylithInt dim,
+                                const PylithInt numS,
+                                const PylithInt numA,
+                                const PylithInt sOff[],
+                                const PylithInt sOff_x[],
+                                const PylithScalar s[],
+                                const PylithScalar s_t[],
+                                const PylithScalar s_x[],
+                                const PylithInt aOff[],
+                                const PylithInt aOff_x[],
+                                const PylithScalar a[],
+                                const PylithScalar a_t[],
+                                const PylithScalar a_x[],
+                                const PylithReal t,
+                                const PylithScalar x[],
+                                const PylithInt numConstants,
+                                const PylithScalar constants[],
+                                PylithScalar f0[]) {
+
+        assert(2 == dim);
+
+        f0[0] = source_density(x[0], x[1], t); 
+
+    } // source_density_kernel
+
+    static
+    void body_force_kernel(const PylithInt dim,
+                            const PylithInt numS,
+                            const PylithInt numA,
+                            const PylithInt sOff[],
+                            const PylithInt sOff_x[],
+                            const PylithScalar s[],
+                            const PylithScalar s_t[],
+                            const PylithScalar s_x[],
+                            const PylithInt aOff[],
+                            const PylithInt aOff_x[],
+                            const PylithScalar a[],
+                            const PylithScalar a_t[],
+                            const PylithScalar a_x[],
+                            const PylithReal t,
+                            const PylithScalar x[],
+                            const PylithInt numConstants,
+                            const PylithScalar constants[],
+                            PylithScalar f0[]) {
+
+        assert(2 == dim);
+
+        f0[0] = body_force_x(x[0], x[1], t); 
+        f0[1] = body_force_y(x[0], x[1], t); 
+
+    } // source_density_kernel
+
 public:
 
     static
@@ -458,7 +509,13 @@ public:
         data->auxDB.addValue("isotropic_permeability", isotropic_permeability, permeability_units());
         data->auxDB.setCoordSys(data->cs);
 
+        std::vector<pylith::feassemble::IntegratorDomain::ResidualKernels> mmsKernels(2);
+        typedef pylith::feassemble::IntegratorDomain::ResidualKernels ResidualKernels;
+        mmsKernels[0] = ResidualKernels("displacement", pylith::feassemble::Integrator::LHS, body_force_kernel, NULL);
+        mmsKernels[1] = ResidualKernels("pressure", pylith::feassemble::Integrator::LHS, source_density_kernel, NULL);
+
         data->material.setFormulation(pylith::problems::Physics::QUASISTATIC);
+        data->material.setMMSBodyForceKernels(mmsKernels);
         data->rheology.useReferenceState(false);
 
         data->material.setIdentifier("poroviscoelasticity");
@@ -468,7 +525,7 @@ public:
         static const PylithInt constrainedX[1] = { 0 };
         static const PylithInt constrainedY[1] = { 1 };
         static const PylithInt numConstrained = 1;
-        data->bcs.resize(8);
+        data->bcs.resize(6);
         { // Displacement -x
             pylith::bc::DirichletUserFn*bc = new pylith::bc::DirichletUserFn();assert(bc);
             bc->setSubfieldName("displacement");
@@ -523,22 +580,22 @@ public:
             bc->setUserFn(solnkernel_fluid_pressure);
             data->bcs[5] = bc;
         }
-        { // Source density -x
-            pylith::bc::NeumannUserFn*bc = new pylith::bc::NeumannUserFn();assert(bc);
-            bc->setSubfieldName("sourceDensity");
-            bc->setLabelName("boundary_xneg");
-            bc->setLabelValue(1);
-            bc->setUserFn(source_density);
-            data->bcs[6] = bc;
-        }
-        { // Source density +x
-            pylith::bc::NeumannUserFn*bc = new pylith::bc::NeumannUserFn();assert(bc);
-            bc->setSubfieldName("sourceDensity");
-            bc->setLabelName("boundary_xpos");
-            bc->setLabelValue(1);
-            bc->setUserFn(source_density);
-            data->bcs[7] = bc;
-        }
+        // { // Source density -x
+        //     pylith::bc::NeumannUserFn*bc = new pylith::bc::NeumannUserFn();assert(bc);
+        //     bc->setSubfieldName("sourceDensity");
+        //     bc->setLabelName("boundary_xneg");
+        //     bc->setLabelValue(1);
+        //     bc->setUserFn(source_density);
+        //     data->bcs[6] = bc;
+        // }
+        // { // Source density +x
+        //     pylith::bc::NeumannUserFn*bc = new pylith::bc::NeumannUserFn();assert(bc);
+        //     bc->setSubfieldName("sourceDensity");
+        //     bc->setLabelName("boundary_xpos");
+        //     bc->setLabelValue(1);
+        //     bc->setUserFn(source_density);
+        //     data->bcs[7] = bc;
+        // }
 
         static const pylith::testing::MMSTest::solution_fn _exactSolnFns[3] = {
             solnkernel_disp,
@@ -546,10 +603,13 @@ public:
             solnkernel_trace_strain,
         };
 
-        static const pylith::testing::MMSTest::solution_fn _exactSolnDotFns[2] = {
+        static const pylith::testing::MMSTest::solution_fn _exactSolnDotFns[3] = {
             solnkernel_vel,
+            solnkernel_fluid_pressure_dot,
             solnkernel_trace_strain_dot,
         };
+        
+
         data->exactSolnFns = const_cast<pylith::testing::MMSTest::solution_fn*>(_exactSolnFns);
         data->exactSolnDotFns = const_cast<pylith::testing::MMSTest::solution_fn*>(_exactSolnDotFns);;
 
@@ -557,24 +617,24 @@ public:
     
     } // createData
 
-    static
-    TestLinearPoroviscoelasticity_Data* createDataStateVars(void) {
-        TestLinearPoroviscoelasticity_Data* data = createData();
+    // static
+    // TestLinearPoroviscoelasticity_Data* createDataStateVars(void) {
+    //     TestLinearPoroviscoelasticity_Data* data = createData();
 
-        data->material.useStateVars(true);
+    //     data->material.useStateVars(true);
 
-        static const pylith::testing::MMSTest::solution_fn _exactSolnFns[6] = {
-            solnkernel_disp,
-            solnkernel_fluid_pressure,
-            solnkernel_trace_strain,
-            solnkernel_vel,
-            solnkernel_fluid_pressure_dot,
-            solnkernel_trace_strain_dot,
-        };
-        data->exactSolnFns = const_cast<pylith::testing::MMSTest::solution_fn*>(_exactSolnFns);
+    //     static const pylith::testing::MMSTest::solution_fn _exactSolnFns[6] = {
+    //         solnkernel_disp,
+    //         solnkernel_fluid_pressure,
+    //         solnkernel_trace_strain,
+    //         solnkernel_vel,
+    //         solnkernel_fluid_pressure_dot,
+    //         solnkernel_trace_strain_dot,
+    //     };
+    //     data->exactSolnFns = const_cast<pylith::testing::MMSTest::solution_fn*>(_exactSolnFns);
 
-        return data;
-    } // createDataStateVars
+    //     return data;
+    // } // createDataStateVars
 
 }; //PressureGradientPVE
 const double pylith::_PressureGradientPVE::LENGTH_SCALE = 1.0e+3;
@@ -721,152 +781,152 @@ pylith::PressureGradientPVE::QuadQ3Q2Q2(void) {
 } // QuadQ2Q1Q1
 
 // ------------------------------------------------------------------------------------------------
-pylith::TestLinearPoroviscoelasticity_Data*
-pylith::PressureGradientPVE::TriP2P1P1_StateVars(void) {
-    TestLinearPoroviscoelasticity_Data* data = pylith::_PressureGradientPVE::createDataStateVars();assert(data);
+// pylith::TestLinearPoroviscoelasticity_Data*
+// pylith::PressureGradientPVE::TriP2P1P1_StateVars(void) {
+//     TestLinearPoroviscoelasticity_Data* data = pylith::_PressureGradientPVE::createDataStateVars();assert(data);
 
-    data->meshFilename = "data/tri.mesh";
+//     data->meshFilename = "data/tri.mesh";
 
-    data->numSolnSubfields = 6;
-    static const pylith::topology::Field::Discretization _solnDiscretizations[6] = {
-        pylith::topology::Field::Discretization(2, 2), // displacement
-        pylith::topology::Field::Discretization(1, 2), // fluid pressure
-        pylith::topology::Field::Discretization(1, 2), // trace strain
-        pylith::topology::Field::Discretization(2, 2), // velocity
-        pylith::topology::Field::Discretization(1, 2), // fluid pressure dot
-        pylith::topology::Field::Discretization(1, 2), // trace strain dot
-    };
-    data->solnDiscretizations = const_cast<pylith::topology::Field::Discretization*>(_solnDiscretizations);
+//     data->numSolnSubfields = 6;
+//     static const pylith::topology::Field::Discretization _solnDiscretizations[6] = {
+//         pylith::topology::Field::Discretization(2, 2), // displacement
+//         pylith::topology::Field::Discretization(1, 2), // fluid pressure
+//         pylith::topology::Field::Discretization(1, 2), // trace strain
+//         pylith::topology::Field::Discretization(2, 2), // velocity
+//         pylith::topology::Field::Discretization(1, 2), // fluid pressure dot
+//         pylith::topology::Field::Discretization(1, 2), // trace strain dot
+//     };
+//     data->solnDiscretizations = const_cast<pylith::topology::Field::Discretization*>(_solnDiscretizations);
 
-    static const pylith::topology::Field::Discretization _auxDiscretizations[12] = {
-        pylith::topology::Field::Discretization(0, 2), // solid_density
-        pylith::topology::Field::Discretization(0, 2), // fluid_density
-        pylith::topology::Field::Discretization(0, 2), // fluid_viscosity
-        pylith::topology::Field::Discretization(0, 2), // porosity
-        pylith::topology::Field::Discretization(0, 2), // shear_modulus
-        pylith::topology::Field::Discretization(0, 2), // drained_bulk_modulus
-        pylith::topology::Field::Discretization(0, 2), // biot_coefficient
-        pylith::topology::Field::Discretization(0, 2), // biot_modulus
-        pylith::topology::Field::Discretization(0, 2), // maxwell_time
-        pylith::topology::Field::Discretization(0, 2), // viscous_strain
-        pylith::topology::Field::Discretization(0, 2), // total_strain
-        pylith::topology::Field::Discretization(0, 2), // isotropic_permeability
-    };
-    data->auxDiscretizations = const_cast<pylith::topology::Field::Discretization*>(_auxDiscretizations);
+//     static const pylith::topology::Field::Discretization _auxDiscretizations[12] = {
+//         pylith::topology::Field::Discretization(0, 2), // solid_density
+//         pylith::topology::Field::Discretization(0, 2), // fluid_density
+//         pylith::topology::Field::Discretization(0, 2), // fluid_viscosity
+//         pylith::topology::Field::Discretization(0, 2), // porosity
+//         pylith::topology::Field::Discretization(0, 2), // shear_modulus
+//         pylith::topology::Field::Discretization(0, 2), // drained_bulk_modulus
+//         pylith::topology::Field::Discretization(0, 2), // biot_coefficient
+//         pylith::topology::Field::Discretization(0, 2), // biot_modulus
+//         pylith::topology::Field::Discretization(0, 2), // maxwell_time
+//         pylith::topology::Field::Discretization(0, 2), // viscous_strain
+//         pylith::topology::Field::Discretization(0, 2), // total_strain
+//         pylith::topology::Field::Discretization(0, 2), // isotropic_permeability
+//     };
+//     data->auxDiscretizations = const_cast<pylith::topology::Field::Discretization*>(_auxDiscretizations);
 
-    return data;
-} // TriP2P1P1_StateVars
+//     return data;
+// } // TriP2P1P1_StateVars
 
-// ------------------------------------------------------------------------------------------------
-pylith::TestLinearPoroviscoelasticity_Data*
-pylith::PressureGradientPVE::TriP3P2P2_StateVars(void) {
-    TestLinearPoroviscoelasticity_Data* data = pylith::_PressureGradientPVE::createDataStateVars();assert(data);
+// // ------------------------------------------------------------------------------------------------
+// pylith::TestLinearPoroviscoelasticity_Data*
+// pylith::PressureGradientPVE::TriP3P2P2_StateVars(void) {
+//     TestLinearPoroviscoelasticity_Data* data = pylith::_PressureGradientPVE::createDataStateVars();assert(data);
 
-    data->meshFilename = "data/tri.mesh";
+//     data->meshFilename = "data/tri.mesh";
 
-    data->numSolnSubfields = 6;
-    static const pylith::topology::Field::Discretization _solnDiscretizations[6] = {
-        pylith::topology::Field::Discretization(3, 3), // displacement
-        pylith::topology::Field::Discretization(2, 3), // fluid pressure
-        pylith::topology::Field::Discretization(2, 3), // trace strain
-        pylith::topology::Field::Discretization(3, 3), // velocity
-        pylith::topology::Field::Discretization(2, 3), // fluid pressure dot
-        pylith::topology::Field::Discretization(2, 3), // trace strain dot
-    };
-    data->solnDiscretizations = const_cast<pylith::topology::Field::Discretization*>(_solnDiscretizations);
+//     data->numSolnSubfields = 6;
+//     static const pylith::topology::Field::Discretization _solnDiscretizations[6] = {
+//         pylith::topology::Field::Discretization(3, 3), // displacement
+//         pylith::topology::Field::Discretization(2, 3), // fluid pressure
+//         pylith::topology::Field::Discretization(2, 3), // trace strain
+//         pylith::topology::Field::Discretization(3, 3), // velocity
+//         pylith::topology::Field::Discretization(2, 3), // fluid pressure dot
+//         pylith::topology::Field::Discretization(2, 3), // trace strain dot
+//     };
+//     data->solnDiscretizations = const_cast<pylith::topology::Field::Discretization*>(_solnDiscretizations);
 
-    static const pylith::topology::Field::Discretization _auxDiscretizations[12] = {
-        pylith::topology::Field::Discretization(0, 3), // solid_density
-        pylith::topology::Field::Discretization(0, 3), // fluid_density
-        pylith::topology::Field::Discretization(0, 3), // fluid_viscosity
-        pylith::topology::Field::Discretization(0, 3), // porosity
-        pylith::topology::Field::Discretization(0, 3), // shear_modulus
-        pylith::topology::Field::Discretization(0, 3), // drained_bulk_modulus
-        pylith::topology::Field::Discretization(0, 3), // biot_coefficient
-        pylith::topology::Field::Discretization(0, 3), // biot_modulus
-        pylith::topology::Field::Discretization(0, 3), // maxwell_time
-        pylith::topology::Field::Discretization(0, 3), // viscous_strain
-        pylith::topology::Field::Discretization(0, 3), // total_strain
-        pylith::topology::Field::Discretization(0, 3), // isotropic_permeability
-    };
-    data->auxDiscretizations = const_cast<pylith::topology::Field::Discretization*>(_auxDiscretizations);
+//     static const pylith::topology::Field::Discretization _auxDiscretizations[12] = {
+//         pylith::topology::Field::Discretization(0, 3), // solid_density
+//         pylith::topology::Field::Discretization(0, 3), // fluid_density
+//         pylith::topology::Field::Discretization(0, 3), // fluid_viscosity
+//         pylith::topology::Field::Discretization(0, 3), // porosity
+//         pylith::topology::Field::Discretization(0, 3), // shear_modulus
+//         pylith::topology::Field::Discretization(0, 3), // drained_bulk_modulus
+//         pylith::topology::Field::Discretization(0, 3), // biot_coefficient
+//         pylith::topology::Field::Discretization(0, 3), // biot_modulus
+//         pylith::topology::Field::Discretization(0, 3), // maxwell_time
+//         pylith::topology::Field::Discretization(0, 3), // viscous_strain
+//         pylith::topology::Field::Discretization(0, 3), // total_strain
+//         pylith::topology::Field::Discretization(0, 3), // isotropic_permeability
+//     };
+//     data->auxDiscretizations = const_cast<pylith::topology::Field::Discretization*>(_auxDiscretizations);
 
-    return data;
-} // TriP3P2P2_StateVars
+//     return data;
+// } // TriP3P2P2_StateVars
 
-// ------------------------------------------------------------------------------------------------
-pylith::TestLinearPoroviscoelasticity_Data*
-pylith::PressureGradientPVE::QuadQ2Q1Q1_StateVars(void) {
-    TestLinearPoroviscoelasticity_Data* data = pylith::_PressureGradientPVE::createDataStateVars();assert(data);
+// // ------------------------------------------------------------------------------------------------
+// pylith::TestLinearPoroviscoelasticity_Data*
+// pylith::PressureGradientPVE::QuadQ2Q1Q1_StateVars(void) {
+//     TestLinearPoroviscoelasticity_Data* data = pylith::_PressureGradientPVE::createDataStateVars();assert(data);
 
-    data->meshFilename = "data/quad.mesh";
+//     data->meshFilename = "data/quad.mesh";
 
-    data->numSolnSubfields = 6;
-    static const pylith::topology::Field::Discretization _solnDiscretizations[6] = {
-        pylith::topology::Field::Discretization(2, 2), // displacement
-        pylith::topology::Field::Discretization(1, 2), // fluid pressure
-        pylith::topology::Field::Discretization(1, 2), // trace strain
-        pylith::topology::Field::Discretization(2, 2), // velocity
-        pylith::topology::Field::Discretization(1, 2), // fluid pressure dot
-        pylith::topology::Field::Discretization(1, 2), // trace strain dot
-    };
-    data->solnDiscretizations = const_cast<pylith::topology::Field::Discretization*>(_solnDiscretizations);
+//     data->numSolnSubfields = 6;
+//     static const pylith::topology::Field::Discretization _solnDiscretizations[6] = {
+//         pylith::topology::Field::Discretization(2, 2), // displacement
+//         pylith::topology::Field::Discretization(1, 2), // fluid pressure
+//         pylith::topology::Field::Discretization(1, 2), // trace strain
+//         pylith::topology::Field::Discretization(2, 2), // velocity
+//         pylith::topology::Field::Discretization(1, 2), // fluid pressure dot
+//         pylith::topology::Field::Discretization(1, 2), // trace strain dot
+//     };
+//     data->solnDiscretizations = const_cast<pylith::topology::Field::Discretization*>(_solnDiscretizations);
 
-    static const pylith::topology::Field::Discretization _auxDiscretizations[12] = {
-        pylith::topology::Field::Discretization(0, 2), // solid_density
-        pylith::topology::Field::Discretization(0, 2), // fluid_density
-        pylith::topology::Field::Discretization(0, 2), // fluid_viscosity
-        pylith::topology::Field::Discretization(0, 2), // porosity
-        pylith::topology::Field::Discretization(0, 2), // shear_modulus
-        pylith::topology::Field::Discretization(0, 2), // drained_bulk_modulus
-        pylith::topology::Field::Discretization(0, 2), // biot_coefficient
-        pylith::topology::Field::Discretization(0, 2), // biot_modulus
-        pylith::topology::Field::Discretization(0, 2), // maxwell_time
-        pylith::topology::Field::Discretization(0, 2), // viscous_strain
-        pylith::topology::Field::Discretization(0, 2), // total_strain
-        pylith::topology::Field::Discretization(0, 2), // isotropic_permeability
-    };
-    data->auxDiscretizations = const_cast<pylith::topology::Field::Discretization*>(_auxDiscretizations);
+//     static const pylith::topology::Field::Discretization _auxDiscretizations[12] = {
+//         pylith::topology::Field::Discretization(0, 2), // solid_density
+//         pylith::topology::Field::Discretization(0, 2), // fluid_density
+//         pylith::topology::Field::Discretization(0, 2), // fluid_viscosity
+//         pylith::topology::Field::Discretization(0, 2), // porosity
+//         pylith::topology::Field::Discretization(0, 2), // shear_modulus
+//         pylith::topology::Field::Discretization(0, 2), // drained_bulk_modulus
+//         pylith::topology::Field::Discretization(0, 2), // biot_coefficient
+//         pylith::topology::Field::Discretization(0, 2), // biot_modulus
+//         pylith::topology::Field::Discretization(0, 2), // maxwell_time
+//         pylith::topology::Field::Discretization(0, 2), // viscous_strain
+//         pylith::topology::Field::Discretization(0, 2), // total_strain
+//         pylith::topology::Field::Discretization(0, 2), // isotropic_permeability
+//     };
+//     data->auxDiscretizations = const_cast<pylith::topology::Field::Discretization*>(_auxDiscretizations);
 
-    return data;
-} // QuadQ2Q1Q1_StateVars
+//     return data;
+// } // QuadQ2Q1Q1_StateVars
 
-// ------------------------------------------------------------------------------------------------
-pylith::TestLinearPoroviscoelasticity_Data*
-pylith::PressureGradientPVE::QuadQ3Q2Q2_StateVars(void) {
-    TestLinearPoroviscoelasticity_Data* data = pylith::_PressureGradientPVE::createDataStateVars();assert(data);
+// // ------------------------------------------------------------------------------------------------
+// pylith::TestLinearPoroviscoelasticity_Data*
+// pylith::PressureGradientPVE::QuadQ3Q2Q2_StateVars(void) {
+//     TestLinearPoroviscoelasticity_Data* data = pylith::_PressureGradientPVE::createDataStateVars();assert(data);
 
-    data->meshFilename = "data/quad.mesh";
+//     data->meshFilename = "data/quad.mesh";
 
-    data->numSolnSubfields = 6;
-    static const pylith::topology::Field::Discretization _solnDiscretizations[6] = {
-        pylith::topology::Field::Discretization(3, 3), // displacement
-        pylith::topology::Field::Discretization(2, 3), // fluid pressure
-        pylith::topology::Field::Discretization(2, 3), // trace strain
-        pylith::topology::Field::Discretization(3, 3), // velocity
-        pylith::topology::Field::Discretization(2, 3), // fluid pressure dot
-        pylith::topology::Field::Discretization(2, 3), // trace strain dot
-    };
-    data->solnDiscretizations = const_cast<pylith::topology::Field::Discretization*>(_solnDiscretizations);
+//     data->numSolnSubfields = 6;
+//     static const pylith::topology::Field::Discretization _solnDiscretizations[6] = {
+//         pylith::topology::Field::Discretization(3, 3), // displacement
+//         pylith::topology::Field::Discretization(2, 3), // fluid pressure
+//         pylith::topology::Field::Discretization(2, 3), // trace strain
+//         pylith::topology::Field::Discretization(3, 3), // velocity
+//         pylith::topology::Field::Discretization(2, 3), // fluid pressure dot
+//         pylith::topology::Field::Discretization(2, 3), // trace strain dot
+//     };
+//     data->solnDiscretizations = const_cast<pylith::topology::Field::Discretization*>(_solnDiscretizations);
 
-    static const pylith::topology::Field::Discretization _auxDiscretizations[12] = {
-        pylith::topology::Field::Discretization(0, 3), // solid_density
-        pylith::topology::Field::Discretization(0, 3), // fluid_density
-        pylith::topology::Field::Discretization(0, 3), // fluid_viscosity
-        pylith::topology::Field::Discretization(0, 3), // porosity
-        pylith::topology::Field::Discretization(0, 3), // shear_modulus
-        pylith::topology::Field::Discretization(0, 3), // drained_bulk_modulus
-        pylith::topology::Field::Discretization(0, 3), // biot_coefficient
-        pylith::topology::Field::Discretization(0, 3), // biot_modulus
-        pylith::topology::Field::Discretization(0, 3), // maxwell_time
-        pylith::topology::Field::Discretization(0, 3), // viscous_strain
-        pylith::topology::Field::Discretization(0, 3), // total_strain
-        pylith::topology::Field::Discretization(0, 3), // isotropic_permeability
-    };
-    data->auxDiscretizations = const_cast<pylith::topology::Field::Discretization*>(_auxDiscretizations);
+//     static const pylith::topology::Field::Discretization _auxDiscretizations[12] = {
+//         pylith::topology::Field::Discretization(0, 3), // solid_density
+//         pylith::topology::Field::Discretization(0, 3), // fluid_density
+//         pylith::topology::Field::Discretization(0, 3), // fluid_viscosity
+//         pylith::topology::Field::Discretization(0, 3), // porosity
+//         pylith::topology::Field::Discretization(0, 3), // shear_modulus
+//         pylith::topology::Field::Discretization(0, 3), // drained_bulk_modulus
+//         pylith::topology::Field::Discretization(0, 3), // biot_coefficient
+//         pylith::topology::Field::Discretization(0, 3), // biot_modulus
+//         pylith::topology::Field::Discretization(0, 3), // maxwell_time
+//         pylith::topology::Field::Discretization(0, 3), // viscous_strain
+//         pylith::topology::Field::Discretization(0, 3), // total_strain
+//         pylith::topology::Field::Discretization(0, 3), // isotropic_permeability
+//     };
+//     data->auxDiscretizations = const_cast<pylith::topology::Field::Discretization*>(_auxDiscretizations);
 
-    return data;
-} // QuadQ3Q2Q2_StateVars
+//     return data;
+// } // QuadQ3Q2Q2_StateVars
 
 
 // End of file
