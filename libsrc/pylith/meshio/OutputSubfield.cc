@@ -146,9 +146,10 @@ pylith::meshio::OutputSubfield::create(const pylith::topology::Field& field,
     // Setup PETSc DM for projection
     const char* meshName = PETSC_NULLPTR;
     err = PetscObjectGetName((PetscObject) mesh.getDM(), &meshName);PYLITH_CHECK_ERROR(err);
-    const std::string& projectName = meshName + std::string(" ") + std::string(name);
+    const std::string& projectName = meshName + std::string(".") + std::string(name);
     err = DMClone(mesh.getDM(), &subfield->_projectDM);PYLITH_CHECK_ERROR(err);
     err = PetscObjectSetName((PetscObject)subfield->_projectDM, projectName.c_str());PYLITH_CHECK_ERROR(err);
+    err = PetscObjectSetOptionsPrefix((PetscObject)subfield->_projectDM, projectName.c_str());PYLITH_CHECK_ERROR(err);
     err = DMReorderSectionSetDefault(subfield->_projectDM, DM_REORDER_DEFAULT_FALSE);PYLITH_CHECK_ERROR(err);
     err = DMReorderSectionSetType(subfield->_projectDM, NULL);PYLITH_CHECK_ERROR(err);
     err = DMPlexReorderSetDefault(subfield->_projectDM, DM_REORDER_DEFAULT_FALSE);
@@ -209,6 +210,7 @@ pylith::meshio::OutputSubfield::create(const pylith::topology::Field& field,
     err = DMReorderSectionSetDefault(subfield->_projectDM, DM_REORDER_DEFAULT_FALSE);PYLITH_CHECK_ERROR(err);
     err = DMReorderSectionSetType(subfield->_projectDM, NULL);PYLITH_CHECK_ERROR(err);
     err = PetscObjectSetName((PetscObject)subfield->_projectDM, name);PYLITH_CHECK_ERROR(err);
+    err = PetscObjectSetOptionsPrefix((PetscObject)subfield->_projectDM, name);PYLITH_CHECK_ERROR(err);
 
     pylith::topology::VecVisitorMesh fieldVisitor(field, name);
 
