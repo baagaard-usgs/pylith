@@ -537,7 +537,7 @@ public:
             bc->setLabelName("boundary_xpos");
             bc->setLabelValue(1);
             bc->setUserFn(source_density);
-            data->bcs[6] = bc;
+            data->bcs[7] = bc;
         }
 
         static const pylith::testing::MMSTest::solution_fn _exactSolnFns[3] = {
