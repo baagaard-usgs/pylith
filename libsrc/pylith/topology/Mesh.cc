@@ -108,7 +108,8 @@ pylith::topology::Mesh::getDM(void) const {
 // Set DMPlex mesh.
 void
 pylith::topology::Mesh::setDM(PetscDM dm,
-                              const char* label) {
+                              const char* label,
+                              const char* prefix) {
     PYLITH_METHOD_BEGIN;
 
     PetscErrorCode err = PETSC_SUCCESS;
@@ -116,6 +117,9 @@ pylith::topology::Mesh::setDM(PetscDM dm,
     _dm = dm;
     if (_dm && label) {
         err = PetscObjectSetName((PetscObject) _dm, label);PYLITH_CHECK_ERROR(err);
+    } // if
+    if (_dm && prefix) {
+        err = PetscObjectSetOptionsPrefix((PetscObject) _dm, label);PYLITH_CHECK_ERROR(err);
     } // if
 
     PYLITH_METHOD_END;
