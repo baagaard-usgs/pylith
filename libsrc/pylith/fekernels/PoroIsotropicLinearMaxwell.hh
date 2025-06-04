@@ -427,6 +427,8 @@ public:
         pylith::fekernels::IsotropicLinearMaxwell::viscousStrain(maxwellTime, viscousStrainPrev, totalStrain, strain, dt, &viscousStrain);
 
         deviatoricStress(isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearMaxwellContext->shearModulus, viscousStrain, stress);
+        //deviatoricStress(isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearMaxwellContext->shearModulus, strain, stress);
+
 
     } // cauchyStress
 
