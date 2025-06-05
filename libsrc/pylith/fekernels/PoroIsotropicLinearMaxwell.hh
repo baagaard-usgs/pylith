@@ -156,6 +156,7 @@ public:
             context->shearModulus = a[aOff[i_shearModulus]];assert(context->shearModulus > 0.0);
             context->drainedBulkModulus = a[aOff[i_drainedBulkModulus]];assert(context->drainedBulkModulus > 0.0);
             context->biotCoefficient = a[aOff[i_biotCoefficient]];assert(context->biotCoefficient > 0.0);
+            context->biotModulus = a[aOff[i_biotModulus]];assert(context->biotModulus > 0.0);
         
        
 

@@ -496,7 +496,7 @@ public:
         TestLinearPoroviscoelasticity_Data* data = new TestLinearPoroviscoelasticity_Data();assert(data);
 
         data->journalName = "PressureGradientPVE";
-        data->isJacobianLinear = true;
+        data->isJacobianLinear = false;
 
         data->meshFilename = ":UNKNOWN:"; // Set in child class.
         data->boundaryLabel = "boundary";
