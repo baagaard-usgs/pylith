@@ -43,7 +43,8 @@ dist_noinst_HEADERS = \
 
 dist_noinst_DATA = \
 	data/tri.mesh \
-	data/quad.mesh
+	data/quad.mesh \ 
+	data/quad_simple.mesh
 
 export_datadir = $(abs_builddir)
 include $(top_srcdir)/tests/data.am

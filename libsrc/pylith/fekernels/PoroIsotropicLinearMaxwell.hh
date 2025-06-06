@@ -425,10 +425,10 @@ public:
         const pylith::fekernels::Tensor& totalStrain = isotropicLinearMaxwellContext->totalStrain;
         const pylith::fekernels::Tensor& viscousStrainPrev = isotropicLinearMaxwellContext->viscousStrain;
         pylith::fekernels::Tensor viscousStrain;
-        pylith::fekernels::IsotropicLinearMaxwell::viscousStrain(maxwellTime, viscousStrainPrev, totalStrain, strain, dt, &viscousStrain);
+        // pylith::fekernels::IsotropicLinearMaxwell::viscousStrain(maxwellTime, viscousStrainPrev, totalStrain, strain, dt, &viscousStrain);
 
-        deviatoricStress(isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearMaxwellContext->shearModulus, viscousStrain, stress);
-        //deviatoricStress(isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearMaxwellContext->shearModulus, strain, stress);
+        //deviatoricStress(isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearMaxwellContext->shearModulus, viscousStrain, stress);
+        deviatoricStress(isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearPoroelasticityContext->shearModulus, strain, stress);
 
 
     } // cauchyStress
@@ -765,6 +765,13 @@ public:
         pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearMaxwellContext(
             &rheologyContextIsotropicLinearMaxwell, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
+
+        // pylith::fekernels::Elasticity::f1v(
+        //     strainContext, &rheologyContextIsotropicLinearPoroelasticity,
+        //     pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain,
+        //     pylith::fekernels::IsotropicLinearPoroelasticity::cauchyStress,
+        //     pylith::fekernels::Tensor::ops2D,
+        //     f1);
 
         Tensor strain;
         pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain(strainContext, &strain);
@@ -1307,7 +1314,7 @@ public:
 
         const PylithScalar dq = pylith::fekernels::IsotropicLinearMaxwell::viscousStrainCoeff(dt, maxwellTime);
 
-        // Unique components of Jacobian.
+        //Unique components of Jacobian.
         const PylithReal C1111 = drainedBulkModulus + 4.0/3.0 * shearModulus * dq;
         const PylithReal C1122 = drainedBulkModulus - 2.0/3.0 * shearModulus * dq;
         const PylithReal C1212 = shearModulus * dq;
@@ -1333,17 +1340,20 @@ public:
          */
 
         /* Nonzero Jacobian entries. */
-        Jf3[0] -= C1111; /* j0000 */
-        Jf3[3] -= C1212; /* j0011 */
-        Jf3[5] -= C1122; /* j0101 */
-        Jf3[6] -= C1212; /* j0110 */
-        Jf3[9] -= C1212; /* j1001 */
-        Jf3[10] -= C1122; /* j1010 */
-        Jf3[12] -= C1212; /* j1100 */
-        Jf3[15] -= C1111; /* j1111 */
-
-
-
+        // Jf3[0] -= C1111; /* j0000 */
+        // Jf3[3] -= C1212; /* j0011 */
+        // Jf3[5] -= C1122; /* j0101 */
+        // Jf3[6] -= C1212; /* j0110 */
+        // Jf3[9] -= C1212; /* j1001 */
+        // Jf3[10] -= C1122; /* j1010 */
+        // Jf3[12] -= C1212; /* j1100 */
+        // Jf3[15] -= C1111; /* j1111 */
+        for (PylithInt i = 0; i < _dim; ++i) {
+            for (PylithInt j = 0; j < _dim; ++j) {
+                Jf3[((i * _dim + i) * _dim + j) * _dim + j] -= shearModulus;
+                Jf3[((i * _dim + j) * _dim + j) * _dim + i] -= shearModulus;
+            }
+        }
     }
 
     // ----------------------------------------------------------------------

@@ -254,6 +254,8 @@ pylith::materials::Poroelasticity::createAuxiliaryField(const pylith::topology::
     assert(auxiliaryFactory);
     auxiliaryFactory->setValuesFromDB();
 
+    auxiliaryField->view("Poroelasticity AuxiliarField");
+
     PYLITH_METHOD_RETURN(auxiliaryField);
 } // createAuxiliaryField
 

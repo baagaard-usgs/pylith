@@ -172,6 +172,66 @@ public:
 
     } // setContext
 
+     static inline
+    void setContext_test(Context* context,
+                    const PylithInt dim,
+                    const PylithInt numS,
+                    const PylithInt numA,
+                    const PylithInt sOff[],
+                    const PylithInt sOff_x[],
+                    const PylithScalar s[],
+                    const PylithScalar s_t[],
+                    const PylithScalar s_x[],
+                    const PylithInt aOff[],
+                    const PylithInt aOff_x[],
+                    const PylithScalar a[],
+                    const PylithScalar a_t[],
+                    const PylithScalar a_x[],
+                    const PylithReal t,
+                    const PylithScalar x[],
+                    const PylithInt numConstants,
+                    const PylithScalar constants[],
+                    const pylith::fekernels::TensorOps& tensorOps) {
+        assert(context);
+
+        // Incoming solution subfields
+        const PylithInt i_pressure = 1;
+
+        // Incoming poroelastic auxiliary subfields
+        const PylithInt i_fluidViscosity = 2;
+
+        // Incoming rheology auxiliary subfields.
+        const PylithInt i_shearModulus = numA - 8;
+        const PylithInt i_drainedBulkModulus = numA - 7;
+        const PylithInt i_biotCoefficient = numA - 6;
+        const PylithInt i_biotModulus = numA - 5;
+
+        assert(numA >= 3); // also have density
+        assert(s);
+        assert(sOff);
+        assert(sOff[i_pressure] >= 0);
+        assert(a);
+        assert(aOff);
+        assert(aOff[i_shearModulus] >= 0);
+        assert(aOff[i_drainedBulkModulus] >= 0);
+        assert(aOff[i_biotCoefficient] >= 0);
+        assert(aOff[i_biotModulus] >= 0);
+        assert(aOff[i_fluidViscosity] >= 0);
+
+        // Solution Variables
+        context->pressure = s[sOff[i_pressure]];
+
+        // Poroelastic Auxiliary Variables
+        context->fluidViscosity = a[aOff[i_fluidViscosity]];assert(context->fluidViscosity > 0.0);
+
+        // Rheology Specific Auxiliary Variables
+        context->shearModulus = a[aOff[i_shearModulus]];assert(context->shearModulus > 0.0);
+        context->drainedBulkModulus = a[aOff[i_drainedBulkModulus]];assert(context->drainedBulkModulus > 0.0);
+        context->biotCoefficient = a[aOff[i_biotCoefficient]];assert(context->biotCoefficient > 0.0);
+        context->biotModulus = a[aOff[i_biotModulus]];assert(context->biotModulus > 0.0);
+
+    } // setContext_test
+
     // --------------------------------------------------------------------------------------------
     static inline
     void setContextIsotropicPerm(Context* context,
@@ -660,7 +720,7 @@ public:
         f0[0] += s_t ? (biotCoefficient * trace_strain_t) : 0.0;
         f0[0] += s_t ? (pressure_t / biotModulus) : 0.0;
 
-    }//f0p_implicit_calc
+    }//f0p_implicit_context
                      
 
     // ----------------------------------------------------------------------

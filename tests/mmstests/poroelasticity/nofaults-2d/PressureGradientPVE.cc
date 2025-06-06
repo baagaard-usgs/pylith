@@ -777,7 +777,7 @@ pylith::TestLinearPoroviscoelasticity_Data*
 pylith::PressureGradientPVE::QuadQ2Q1Q1(void) {
     TestLinearPoroviscoelasticity_Data* data = pylith::_PressureGradientPVE::createData();assert(data);
 
-    data->meshFilename = "data/quad.mesh";
+    data->meshFilename = "data/quad_simple.mesh";
 
     data->numSolnSubfields = 3;
     static const pylith::topology::Field::Discretization _solnDiscretizations[3] = {
