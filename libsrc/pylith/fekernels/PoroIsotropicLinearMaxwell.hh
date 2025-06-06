@@ -425,10 +425,10 @@ public:
         const pylith::fekernels::Tensor& totalStrain = isotropicLinearMaxwellContext->totalStrain;
         const pylith::fekernels::Tensor& viscousStrainPrev = isotropicLinearMaxwellContext->viscousStrain;
         pylith::fekernels::Tensor viscousStrain;
-        // pylith::fekernels::IsotropicLinearMaxwell::viscousStrain(maxwellTime, viscousStrainPrev, totalStrain, strain, dt, &viscousStrain);
+        pylith::fekernels::IsotropicLinearMaxwell::viscousStrain(maxwellTime, viscousStrainPrev, totalStrain, strain, dt, &viscousStrain);
 
-        //deviatoricStress(isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearMaxwellContext->shearModulus, viscousStrain, stress);
-        deviatoricStress(isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearPoroelasticityContext->shearModulus, strain, stress);
+        deviatoricStress(isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearMaxwellContext->shearModulus, viscousStrain, stress);
+        //deviatoricStress(isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearPoroelasticityContext->shearModulus, strain, stress);
 
 
     } // cauchyStress
@@ -1340,20 +1340,20 @@ public:
          */
 
         /* Nonzero Jacobian entries. */
-        // Jf3[0] -= C1111; /* j0000 */
-        // Jf3[3] -= C1212; /* j0011 */
-        // Jf3[5] -= C1122; /* j0101 */
-        // Jf3[6] -= C1212; /* j0110 */
-        // Jf3[9] -= C1212; /* j1001 */
-        // Jf3[10] -= C1122; /* j1010 */
-        // Jf3[12] -= C1212; /* j1100 */
-        // Jf3[15] -= C1111; /* j1111 */
-        for (PylithInt i = 0; i < _dim; ++i) {
-            for (PylithInt j = 0; j < _dim; ++j) {
-                Jf3[((i * _dim + i) * _dim + j) * _dim + j] -= shearModulus;
-                Jf3[((i * _dim + j) * _dim + j) * _dim + i] -= shearModulus;
-            }
-        }
+        Jf3[0] -= C1111; /* j0000 */
+        Jf3[3] -= C1212; /* j0011 */
+        Jf3[5] -= C1122; /* j0101 */
+        Jf3[6] -= C1212; /* j0110 */
+        Jf3[9] -= C1212; /* j1001 */
+        Jf3[10] -= C1122; /* j1010 */
+        Jf3[12] -= C1212; /* j1100 */
+        Jf3[15] -= C1111; /* j1111 */
+        // for (PylithInt i = 0; i < _dim; ++i) {
+        //     for (PylithInt j = 0; j < _dim; ++j) {
+        //         Jf3[((i * _dim + i) * _dim + j) * _dim + j] -= shearModulus;
+        //         Jf3[((i * _dim + j) * _dim + j) * _dim + i] -= shearModulus;
+        //     }
+        // }
     }
 
     // ----------------------------------------------------------------------

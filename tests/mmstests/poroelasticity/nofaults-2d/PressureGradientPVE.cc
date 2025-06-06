@@ -575,7 +575,7 @@ public:
         mmsKernels[1] = ResidualKernels("pressure", pylith::feassemble::Integrator::LHS, source_density_kernel, NULL);
 
         data->material.setFormulation(pylith::problems::Physics::QUASISTATIC);
-        data->material.setMMSBodyForceKernels(mmsKernels);
+        //data->material.setMMSBodyForceKernels(mmsKernels);
         data->rheology.useReferenceState(false);
 
         data->material.setIdentifier("poroviscoelasticity");
