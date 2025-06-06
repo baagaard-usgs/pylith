@@ -425,7 +425,7 @@ public:
         const pylith::fekernels::Tensor& totalStrain = isotropicLinearMaxwellContext->totalStrain;
         const pylith::fekernels::Tensor& viscousStrainPrev = isotropicLinearMaxwellContext->viscousStrain;
         pylith::fekernels::Tensor viscousStrain;
-        pylith::fekernels::IsotropicLinearMaxwell::viscousStrain(maxwellTime, viscousStrainPrev, totalStrain, strain, dt, &viscousStrain);
+        // pylith::fekernels::IsotropicLinearMaxwell::viscousStrain(maxwellTime, viscousStrainPrev, totalStrain, strain, dt, &viscousStrain);
 
         deviatoricStress(isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearMaxwellContext->shearModulus, viscousStrain, stress);
 
