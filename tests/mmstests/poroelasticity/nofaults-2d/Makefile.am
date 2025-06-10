@@ -14,7 +14,8 @@ MMS_DRIVER = mmstest_linearporoelasticity_nofaults2d
 
 TESTS = \
 	run_PressureGradient.sh \
-	run_PressureGradientPVE.sh
+	run_PressureGradientPVE.sh \
+	run_TerzaghiPVE.sh
 
 check_SCRIPTS = $(TESTS)
 
@@ -27,7 +28,8 @@ mmstest_linearporoelasticity_nofaults2d_SOURCES = \
 	TestLinearPoroviscoelasticity.cc \
 	TestCases.cc \
 	PressureGradient.cc \
-	PressureGradientPVE.cc
+	PressureGradientPVE.cc \
+	TerzaghiPVE.cc
 
 run_%.sh:
 	echo "#!/bin/bash" > $@
@@ -38,7 +40,8 @@ dist_noinst_HEADERS = \
 	TestLinearPoroelasticity.hh	\
 	TestLinearPoroviscoelasticity.hh \
 	PressureGradient.hh \
-	PressureGradientPVE.hh
+	PressureGradientPVE.hh \
+	TerzaghiPVE.hh
 
 
 dist_noinst_DATA = \

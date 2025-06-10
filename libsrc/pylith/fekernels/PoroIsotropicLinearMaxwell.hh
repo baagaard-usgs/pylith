@@ -1315,9 +1315,9 @@ public:
         const PylithScalar dq = pylith::fekernels::IsotropicLinearMaxwell::viscousStrainCoeff(dt, maxwellTime);
 
         //Unique components of Jacobian.
-        const PylithReal C1111 = drainedBulkModulus + 4.0/3.0 * shearModulus * dq;
-        const PylithReal C1122 = drainedBulkModulus - 2.0/3.0 * shearModulus * dq;
-        const PylithReal C1212 = shearModulus * dq;
+        const PylithReal C1111 = drainedBulkModulus + 4.0/3.0 * shearModulus * dq - 5.0/3.0 * shearModulus; //drainedBulkModulus + 4.0/3.0 * shearModulus * dq;
+        const PylithReal C1122 = drainedBulkModulus - 2.0/3.0 * shearModulus * dq - 5.0/3.0 * shearModulus; // drainedBulkModulus - 2.0/3.0 * shearModulus * dq
+        const PylithReal C1212 = shearModulus * dq - shearModulus; //shearModulus * dq;
 
         /* j(f,g,df,dg) = C(f,df,g,dg)
          *
@@ -1340,14 +1340,14 @@ public:
          */
 
         /* Nonzero Jacobian entries. */
-        Jf3[0] -= C1111; /* j0000 */
-        Jf3[3] -= C1212; /* j0011 */
+        Jf3[0] -= C1111;// - 2.6666 * shearModulus; /* j0000 */
+        Jf3[3] -= C1212;// - shearModulus; /* j0011 */
         Jf3[5] -= C1122; /* j0101 */
-        Jf3[6] -= C1212; /* j0110 */
-        Jf3[9] -= C1212; /* j1001 */
+        Jf3[6] -= C1212;// - shearModulus; /* j0110 */
+        Jf3[9] -= C1212;// - shearModulus; /* j1001 */
         Jf3[10] -= C1122; /* j1010 */
-        Jf3[12] -= C1212; /* j1100 */
-        Jf3[15] -= C1111; /* j1111 */
+        Jf3[12] -= C1212;// - shearModulus; /* j1100 */
+        Jf3[15] -= C1111;// - 2.6666 * shearModulus; /* j1111 */
         // for (PylithInt i = 0; i < _dim; ++i) {
         //     for (PylithInt j = 0; j < _dim; ++j) {
         //         Jf3[((i * _dim + i) * _dim + j) * _dim + j] -= shearModulus;
@@ -1753,15 +1753,14 @@ public:
         pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
             &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
-        // Using dynamic formulation for trace strain, assuming that it will be equal to the variable
-        // for QS
-        // pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextDynamic(
-        //     &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
-        //     t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextQuasistatic(
+            &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
         pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearMaxwellContext(
             &rheologyContextIsotropicLinearMaxwell, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
+
 
         Tensor strain;
         pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain(strainContext, &strain);

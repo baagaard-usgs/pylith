@@ -178,8 +178,8 @@ pylith::materials::PoroIsotropicLinearMaxwell::getKernelf0p_implicit(const spati
         break;
     case 0x3:
         f0p = (3 == spaceDim) ? pylith::fekernels::IsotropicLinearPoroelasticity3D::f0p_implicit :
-              (2 == spaceDim) ? pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit :
-            //   (2 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwellPlaneStrain::f0p_implicit :
+            //   (2 == spaceDim) ? pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::f0p_implicit :
+              (2 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwellPlaneStrain::f0p_implicit :
               NULL;
         break;
     case 0x5:

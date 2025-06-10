@@ -19,6 +19,7 @@
 // ------------------------------------------------------------------------------------------------
 #include "PressureGradient.hh"
 #include "PressureGradientPVE.hh"
+#include "TerzaghiPVE.hh"
 
 /// Poroelasticity Pressure Gradient
 
@@ -248,5 +249,18 @@ TEST_CASE("PressureGradientPVE::QuadQ3Q2Q2::testJacobianFiniteDiff", "[PressureG
 //     pylith::TestLinearPoroviscoelasticity(pylith::PressureGradientPVE::QuadQ3Q2Q2_StateVars()).testJacobianFiniteDiff();
 // }
 
+// Poroviscoelasticity Terzaghi Problem
+TEST_CASE("TerzaghiPVE::QuadQ2Q1Q1::testDiscretization", "[TerzaghiPVE][QuadQ2Q1Q1][discretization]") {
+    pylith::TestLinearPoroviscoelasticity(pylith::TerzaghiPVE::QuadQ2Q1Q1()).testDiscretization();
+}
+TEST_CASE("TerzaghiPVE::QuadQ2Q1Q1::testResidual", "[TerzaghiPVE][QuadQ2Q1Q1][residual]") {
+    pylith::TestLinearPoroviscoelasticity(pylith::TerzaghiPVE::QuadQ2Q1Q1()).testResidual();
+}
+TEST_CASE("TerzaghiPVE::QuadQ2Q1Q1::testJacobianTaylorSeries", "[TerzaghiPVE][QuadQ2Q1Q1][Jacobian Taylor series]") {
+    pylith::TestLinearPoroviscoelasticity(pylith::TerzaghiPVE::QuadQ2Q1Q1()).testJacobianTaylorSeries();
+}
+TEST_CASE("TerzaghiPVE::QuadQ2Q1Q1::testJacobianFiniteDiff", "[TerzaghiPVE][QuadQ2Q1Q1][Jacobian finite difference]") {
+    pylith::TestLinearPoroviscoelasticity(pylith::TerzaghiPVE::QuadQ2Q1Q1()).testJacobianFiniteDiff();
+}
 
 // End of file
