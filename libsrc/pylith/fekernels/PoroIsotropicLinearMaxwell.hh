@@ -1314,17 +1314,10 @@ public:
 
         const PylithScalar dq = pylith::fekernels::IsotropicLinearMaxwell::viscousStrainCoeff(dt, maxwellTime);
 
-        const PylithScalar lambda = drainedBulkModulus - 2.0/3.0 * shearModulus;
-
         //Unique components of Jacobian.
-        const PylithReal C1111 = 4.0/3.0 * shearModulus * dq;// - 5.0/3.0 * shearModulus; //drainedBulkModulus + 4.0/3.0 * shearModulus * dq;
-        const PylithReal C1122 = -2.0/3.0 * shearModulus * dq;// - 5.0/3.0 * shearModulus; // drainedBulkModulus - 2.0/3.0 * shearModulus * dq
-        const PylithReal C1212 = shearModulus * dq;// - shearModulus; //shearModulus * dq;
-
-        // Test
-        // const PylithReal C1111 = lambda + 2.0 * shearModulus + 4.0/3.0 * shearModulus * dq;
-        // const PylithReal C1122 = lambda - 2.0/3.0 * shearModulus * dq;
-        // const PylithReal C1212 = shearModulus + shearModulus * dq;
+        const PylithReal C1111 = 4.0/3.0 * shearModulus * dq;
+        const PylithReal C1122 = -2.0/3.0 * shearModulus * dq;
+        const PylithReal C1212 = shearModulus * dq;
 
         /* j(f,g,df,dg) = C(f,df,g,dg)
          *
@@ -1355,12 +1348,7 @@ public:
         Jf3[10] -= C1122; /* j1010 */
         Jf3[12] -= C1212;// - shearModulus; /* j1100 */
         Jf3[15] -= C1111;// - 2.6666 * shearModulus; /* j1111 */
-        // for (PylithInt i = 0; i < _dim; ++i) {
-        //     for (PylithInt j = 0; j < _dim; ++j) {
-        //         Jf3[((i * _dim + i) * _dim + j) * _dim + j] -= shearModulus;
-        //         Jf3[((i * _dim + j) * _dim + j) * _dim + i] -= shearModulus;
-        //     }
-        // }
+
     }
 
     // ----------------------------------------------------------------------
