@@ -784,7 +784,7 @@ public:
         tensorOps.toTensor(stress, stressTensor);
 
         for (PylithInt i = 0; i < _dim*_dim; ++i) {
-            f1[i] -= stressTensor[i];
+                f1[i] -= stressTensor[i];
         } // for
 
     } // f1u
@@ -1314,10 +1314,17 @@ public:
 
         const PylithScalar dq = pylith::fekernels::IsotropicLinearMaxwell::viscousStrainCoeff(dt, maxwellTime);
 
+        const PylithScalar lambda = drainedBulkModulus - 2.0/3.0 * shearModulus;
+
         //Unique components of Jacobian.
-        const PylithReal C1111 = drainedBulkModulus + 4.0/3.0 * shearModulus * dq - 5.0/3.0 * shearModulus; //drainedBulkModulus + 4.0/3.0 * shearModulus * dq;
-        const PylithReal C1122 = drainedBulkModulus - 2.0/3.0 * shearModulus * dq - 5.0/3.0 * shearModulus; // drainedBulkModulus - 2.0/3.0 * shearModulus * dq
-        const PylithReal C1212 = shearModulus * dq - shearModulus; //shearModulus * dq;
+        const PylithReal C1111 = 4.0/3.0 * shearModulus * dq;// - 5.0/3.0 * shearModulus; //drainedBulkModulus + 4.0/3.0 * shearModulus * dq;
+        const PylithReal C1122 = -2.0/3.0 * shearModulus * dq;// - 5.0/3.0 * shearModulus; // drainedBulkModulus - 2.0/3.0 * shearModulus * dq
+        const PylithReal C1212 = shearModulus * dq;// - shearModulus; //shearModulus * dq;
+
+        // Test
+        // const PylithReal C1111 = lambda + 2.0 * shearModulus + 4.0/3.0 * shearModulus * dq;
+        // const PylithReal C1122 = lambda - 2.0/3.0 * shearModulus * dq;
+        // const PylithReal C1212 = shearModulus + shearModulus * dq;
 
         /* j(f,g,df,dg) = C(f,df,g,dg)
          *
