@@ -2126,7 +2126,7 @@ public:
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
 
         Tensor strain;
-        pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain(strainContext, &strain);
+        pylith::fekernels::Elasticity3D::infinitesimalStrain(strainContext, &strain);
 
         Tensor stress;
         TensorOps tensorOps = pylith::fekernels::Tensor::ops3D;
@@ -3008,7 +3008,7 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf0pe_context(
+        pylith::fekernels::IsotropicLinearPoroelasticity3D::Jf0pe_context(
             _dim, s_tshift, &rheologyContext, Jf0);
 
     } // Jf0pe
