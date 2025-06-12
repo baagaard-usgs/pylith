@@ -640,22 +640,6 @@ public:
             bc->setUserFn(solnkernel_fluid_pressure);
             data->bcs[5] = bc;
         }
-        // { // Source density -x
-        //     pylith::bc::NeumannUserFn*bc = new pylith::bc::NeumannUserFn();assert(bc);
-        //     bc->setSubfieldName("sourceDensity");
-        //     bc->setLabelName("boundary_xneg");
-        //     bc->setLabelValue(1);
-        //     bc->setUserFn(source_density);
-        //     data->bcs[6] = bc;
-        // }
-        // { // Source density +x
-        //     pylith::bc::NeumannUserFn*bc = new pylith::bc::NeumannUserFn();assert(bc);
-        //     bc->setSubfieldName("sourceDensity");
-        //     bc->setLabelName("boundary_xpos");
-        //     bc->setLabelValue(1);
-        //     bc->setUserFn(source_density);
-        //     data->bcs[7] = bc;
-        // }
 
         static const pylith::testing::MMSTest::solution_fn _exactSolnFns[3] = {
             solnkernel_disp,
@@ -777,7 +761,7 @@ pylith::TestLinearPoroviscoelasticity_Data*
 pylith::PressureGradientPVE::QuadQ2Q1Q1(void) {
     TestLinearPoroviscoelasticity_Data* data = pylith::_PressureGradientPVE::createData();assert(data);
 
-    data->meshFilename = "data/quad_simple.mesh";
+    data->meshFilename = "data/quad.mesh";
 
     data->numSolnSubfields = 3;
     static const pylith::topology::Field::Discretization _solnDiscretizations[3] = {
