@@ -51,7 +51,7 @@ class pylith::_SimpleShearPVE {
 
     static double solid_viscosity(const double x,
                                   const double y) {
-            return 1.0e21;
+        return 1.0e21;
     } // solid viscosity
 
     static const char* viscosity_units(void) {
@@ -134,7 +134,7 @@ class pylith::_SimpleShearPVE {
 
     static double viscous_strain_xy(const double x,
                                     const double y) {
-        return 0.0;
+        return -0.5;
     } // viscous_strain_xy
 
     static double viscous_strain_xz(const double x,
@@ -179,8 +179,7 @@ class pylith::_SimpleShearPVE {
 
     static const char* strain_units(void) {
         return "none";
-    } //strain_units
-
+    } // strain_units
 
     // Solution subfields (nondimensional)
 
@@ -194,7 +193,7 @@ class pylith::_SimpleShearPVE {
     static double disp_y(const double x,
                          const double y,
                          const double t) {
-       return x;
+        return x;
     }
 
     // Velocity
@@ -205,11 +204,10 @@ class pylith::_SimpleShearPVE {
     } // vel_x
 
     static double vel_y(const double x,
-                         const double y,
-                         const double t) {
+                        const double y,
+                        const double t) {
         return 0.0;
     } // vel_y
-
 
     // Pressure
     static double fluid_pressure(const double x,
@@ -227,9 +225,8 @@ class pylith::_SimpleShearPVE {
     static double trace_strain_dot(const double x,
                                    const double y,
                                    const double t) {
-       return 0.0;
+        return 0.0;
     } // trace_strain_dot
-
 
     static PetscErrorCode solnkernel_disp(PetscInt spaceDim,
                                           PetscReal t,
@@ -261,7 +258,7 @@ class pylith::_SimpleShearPVE {
         s[1] = 0.0;
 
         return 0;
-    } //solnkernel_fixed_disp
+    } // solnkernel_fixed_disp
 
     static PetscErrorCode solnkernel_fluid_pressure(PetscInt spaceDim,
                                                     PetscReal t,
@@ -338,7 +335,6 @@ class pylith::_SimpleShearPVE {
 
         return 0;
     } // solnkernel_trace_strain_dot
-
 
 public:
 
@@ -427,18 +423,16 @@ public:
         data->material.setName("material-id=24");
         data->material.setLabelValue(24);
 
-        static const PylithInt constrainedX[1] = { 0 };
-        static const PylithInt constrainedY[1] = { 1 };
         static const PylithInt constrainedXY[2] = { 0, 1 };
-        static const PylithInt numConstrained = 1;
+        static const PylithInt numConstrained = 2;
         data->bcs.resize(4);
         { // Displacement -x
             pylith::bc::DirichletUserFn*bc = new pylith::bc::DirichletUserFn();assert(bc);
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_xneg");
             bc->setLabelValue(1);
-            bc->setConstrainedDOF(constrainedX, numConstrained);
-            bc->setUserFn(solnkernel_fixed_disp);
+            bc->setConstrainedDOF(constrainedXY, numConstrained);
+            bc->setUserFn(solnkernel_disp);
             data->bcs[0] = bc;
         }
         { // Displacement +x
@@ -446,16 +440,16 @@ public:
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_xpos");
             bc->setLabelValue(1);
-            bc->setConstrainedDOF(constrainedX, numConstrained);
+            bc->setConstrainedDOF(constrainedXY, numConstrained);
             bc->setUserFn(solnkernel_disp);
             data->bcs[1] = bc;
         }
-        { // Displacement -y
+        { // Displacement -ys
             pylith::bc::DirichletUserFn*bc = new pylith::bc::DirichletUserFn();assert(bc);
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_yneg");
             bc->setLabelValue(1);
-            bc->setConstrainedDOF(constrainedY, numConstrained);
+            bc->setConstrainedDOF(constrainedXY, numConstrained);
             bc->setUserFn(solnkernel_disp);
             data->bcs[2] = bc;
         }
@@ -464,7 +458,7 @@ public:
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_ypos");
             bc->setLabelValue(1);
-            bc->setConstrainedDOF(constrainedY, numConstrained);
+            bc->setConstrainedDOF(constrainedXY, numConstrained);
             bc->setUserFn(solnkernel_disp);
             data->bcs[3] = bc;
         }
@@ -480,24 +474,21 @@ public:
             solnkernel_fluid_pressure_dot,
             solnkernel_trace_strain_dot,
         };
-        
 
         data->exactSolnFns = const_cast<pylith::testing::MMSTest::solution_fn*>(_exactSolnFns);
-        data->exactSolnDotFns = const_cast<pylith::testing::MMSTest::solution_fn*>(_exactSolnDotFns);;
+        data->exactSolnDotFns = const_cast<pylith::testing::MMSTest::solution_fn*>(_exactSolnDotFns);
 
         return data;
-    
+
     } // createData
 
-
-}; //SimpleShearPVE
+}; // SimpleShearPVE
 const double pylith::_SimpleShearPVE::LENGTH_SCALE = 1.0e+3;
 const double pylith::_SimpleShearPVE::TIME_SCALE = 2.0;
 const double pylith::_SimpleShearPVE::PRESSURE_SCALE = 2.25e+10;
 
 const double pylith::_SimpleShearPVE::PRESSURE0 = 4.0e+6;
 const double pylith::_SimpleShearPVE::XMAX = 8.0e+3;
-
 
 // ------------------------------------------------------------------------------------------------
 pylith::TestLinearPoroviscoelasticity_Data*
