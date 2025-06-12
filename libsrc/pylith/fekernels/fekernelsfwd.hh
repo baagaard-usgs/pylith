@@ -44,13 +44,15 @@ namespace pylith {
 
         class Poroelasticity;
         class PoroelasticityPlaneStrain;
-        class PoroIsotropicLinearMaxwell;
-        class PoroIsotropicLinearMaxwellPlaneStrain;
         class Poroelasticity3D;
 
         class IsotropicLinearPoroelasticity;
         class IsotropicLinearPoroelasticityPlaneStrain;
         class IsotropicLinearPoroelasticity3D;
+
+        class PoroIsotropicLinearMaxwell;
+        class PoroIsotropicLinearMaxwellPlaneStrain;
+        class PoroIsotropicLinearMaxwell3D;
 
         class TimeDependentFn;
         class NeumannTimeDependent;

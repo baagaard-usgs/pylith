@@ -428,8 +428,6 @@ public:
         pylith::fekernels::IsotropicLinearMaxwell::viscousStrain(maxwellTime, viscousStrainPrev, totalStrain, strain, dt, &viscousStrain);
 
         deviatoricStress(isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearMaxwellContext->shearModulus, viscousStrain, stress);
-        //deviatoricStress(isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearPoroelasticityContext->shearModulus, strain, stress);
-
 
     } // cauchyStress
 
@@ -1091,7 +1089,7 @@ public:
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
         pylith::fekernels::Poroelasticity::setContextQuasistatic(
             &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
-        pylith::fekernels::Poroelasticity::setContextBodyForce(
+        pylith::fekernels::Poroelasticity::setContextGravity(
             &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
 
         // Rheology Context
@@ -1143,7 +1141,7 @@ public:
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
         pylith::fekernels::Poroelasticity::setContextQuasistatic(
             &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
-        pylith::fekernels::Poroelasticity::setContextBodyForce(
+        pylith::fekernels::Poroelasticity::setContextGravity(
             &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
 
         // Rheology Context
@@ -1308,7 +1306,6 @@ public:
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
         const PylithScalar shearModulus = isotropicLinearPoroelasticityRheologyContext.shearModulus;
-        const PylithScalar drainedBulkModulus = isotropicLinearPoroelasticityRheologyContext.drainedBulkModulus;
         const PylithScalar maxwellTime = isotropicLinearMaxwellRheologyContext.maxwellTime;
         const PylithScalar dt = isotropicLinearMaxwellRheologyContext.dt;
 
@@ -1389,7 +1386,7 @@ public:
     } // Jf2up
 
     // -----------------------------------------------------------------------------
-    // Jf2ue function for isotropic linear poroelasticity.
+    // Jf2ue function for isotropic linear poroviscoelasticity.
     static inline
     void Jf2ue(const PylithInt dim,
                const PylithInt numS,
@@ -1423,7 +1420,7 @@ public:
     } // Jf2ue
 
     // ----------------------------------------------------------------------
-    /** Jf3pp entry function for isotropic linear poroelasticity.
+    /** Jf3pp entry function for isotropic linear poroviscoelasticity.
      *
      * Solution fields: [...]
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
@@ -1465,7 +1462,7 @@ public:
     } // Jf3pp
 
        // ----------------------------------------------------------------------
-    /** Jf3pp entry function for isotropic linear poroelasticity.
+    /** Jf3pp entry function for isotropic linear poroviscoelasticity.
      *
      * Solution fields: [...]
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
@@ -1500,10 +1497,6 @@ public:
         pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextTensorPerm(
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
-
-        // Rheological Auxiliaries
-        PylithScalar tensorPermeability[4] = {0.0, 0.0, 0.0, 0.0};
-        pylith::fekernels::Tensor::ops2D.toTensor(rheologyContext.permeability, tensorPermeability);
 
         pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf3pp_context(
             dim, &rheologyContext, Jf3);
@@ -1880,3 +1873,1427 @@ public:
     } // waterContent_asScalar
 
 };// PoroIsotropicLinearMaxwellPlaneStrain
+
+class pylith::fekernels::PoroIsotropicLinearMaxwell3D {
+            // PUBLIC MEMBERS ///////////////////////////////////////////////////////
+public:
+
+    // ================================= LHS =======================================
+
+     // ----------------------------------------------------------------------
+    // f0p function for generic poroelasticity terms.
+    static inline
+    void f0p_implicit(const PylithInt dim,
+                      const PylithInt numS,
+                      const PylithInt numA,
+                      const PylithInt sOff[],
+                      const PylithInt sOff_x[],
+                      const PylithScalar s[],
+                      const PylithScalar s_t[],
+                      const PylithScalar s_x[],
+                      const PylithInt aOff[],
+                      const PylithInt aOff_x[],
+                      const PylithScalar a[],
+                      const PylithScalar a_t[],
+                      const PylithScalar a_x[],
+                      const PylithReal t,
+                      const PylithScalar x[],
+                      const PylithInt numConstants,
+                      const PylithScalar constants[],
+                      PylithScalar f0[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+        // Poroelastic Context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        // Rheological Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::IsotropicLinearPoroelasticity3D::f0p_implicit_context(
+            _dim, s_t, &poroelasticContext, &rheologyContext, f0);
+
+    } // f0p_implicit
+
+    // ----------------------------------------------------------------------
+    // f0p function for generic poroelasticity terms (source density).
+    static inline
+    void f0p_implicit_source(const PylithInt dim,
+                             const PylithInt numS,
+                             const PylithInt numA,
+                             const PylithInt sOff[],
+                             const PylithInt sOff_x[],
+                             const PylithScalar s[],
+                             const PylithScalar s_t[],
+                             const PylithScalar s_x[],
+                             const PylithInt aOff[],
+                             const PylithInt aOff_x[],
+                             const PylithScalar a[],
+                             const PylithScalar a_t[],
+                             const PylithScalar a_x[],
+                             const PylithReal t,
+                             const PylithScalar x[],
+                             const PylithInt numConstants,
+                             const PylithScalar constants[],
+                             PylithScalar f0[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+        // Poroelastic Context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        pylith::fekernels::Poroelasticity::setContextSourceDensity(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        // Rheological Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::IsotropicLinearPoroelasticity3D::f0p_implicit_source_context(
+            _dim, &poroelasticContext, &rheologyContext, f0);
+
+    } // f0p_implicit_source
+
+    // ----------------------------------------------------------------------
+    // f0p function for generic poroelasticity terms (source density).
+    static
+    void f0p_implicit_source_body(const PylithInt dim,
+                                  const PylithInt numS,
+                                  const PylithInt numA,
+                                  const PylithInt sOff[],
+                                  const PylithInt sOff_x[],
+                                  const PylithScalar s[],
+                                  const PylithScalar s_t[],
+                                  const PylithScalar s_x[],
+                                  const PylithInt aOff[],
+                                  const PylithInt aOff_x[],
+                                  const PylithScalar a[],
+                                  const PylithScalar a_t[],
+                                  const PylithScalar a_x[],
+                                  const PylithReal t,
+                                  const PylithScalar x[],
+                                  const PylithInt numConstants,
+                                  const PylithScalar constants[],
+                                  PylithScalar f0[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+        // Poroelastic Context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        pylith::fekernels::Poroelasticity::setContextBodyForceSourceDensity(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        // Rheological Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::IsotropicLinearPoroelasticity3D::f0p_implicit_source_body_context(
+            _dim, &poroelasticContext, &rheologyContext, f0);
+    } // f0p_implicit_source_body
+
+    // ----------------------------------------------------------------------
+    // f0p function for generic poroelasticity terms (source density).
+    static inline
+    void f0p_implicit_source_grav(const PylithInt dim,
+                                  const PylithInt numS,
+                                  const PylithInt numA,
+                                  const PylithInt sOff[],
+                                  const PylithInt sOff_x[],
+                                  const PylithScalar s[],
+                                  const PylithScalar s_t[],
+                                  const PylithScalar s_x[],
+                                  const PylithInt aOff[],
+                                  const PylithInt aOff_x[],
+                                  const PylithScalar a[],
+                                  const PylithScalar a_t[],
+                                  const PylithScalar a_x[],
+                                  const PylithReal t,
+                                  const PylithScalar x[],
+                                  const PylithInt numConstants,
+                                  const PylithScalar constants[],
+                                  PylithScalar f0[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+        // Poroelastic Context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        pylith::fekernels::Poroelasticity::setContextGravitySourceDensity(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        // Rheological Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::IsotropicLinearPoroelasticity3D::f0p_implicit_source_grav_context(
+            _dim, &poroelasticContext, &rheologyContext, f0);
+       
+    } // f0p_implicit_source_grav
+
+        // ----------------------------------------------------------------------
+    // f0p function for generic poroelasticity terms (source density).
+    static inline
+    void f0p_implicit_source_grav_body(const PylithInt dim,
+                                       const PylithInt numS,
+                                       const PylithInt numA,
+                                       const PylithInt sOff[],
+                                       const PylithInt sOff_x[],
+                                       const PylithScalar s[],
+                                       const PylithScalar s_t[],
+                                       const PylithScalar s_x[],
+                                       const PylithInt aOff[],
+                                       const PylithInt aOff_x[],
+                                       const PylithScalar a[],
+                                       const PylithScalar a_t[],
+                                       const PylithScalar a_x[],
+                                       const PylithReal t,
+                                       const PylithScalar x[],
+                                       const PylithInt numConstants,
+                                       const PylithScalar constants[],
+                                       PylithScalar f0[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+        // Poroelastic Context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        pylith::fekernels::Poroelasticity::setContextGravityBodyForceSourceDensity(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        // Rheological Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::IsotropicLinearPoroelasticity3D::f0p_implicit_source_grav_body_context(
+            _dim, &poroelasticContext, &rheologyContext, f0);
+    } // f0p_implicit_source_grav_body
+
+    // -----------------------------------------------------------------------------
+    /** f1u function for isotropic linear visco-poroelasticity plane strain WITHOUT reference stress and reference strain.
+     * Quasi - Static Case
+     * Solution fields: [disp(dim), pore_pres(dim), vel(dim, optional)]
+     * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), ...]
+     */
+    static inline
+    void f1u(const PylithInt dim,
+             const PylithInt numS,
+             const PylithInt numA,
+             const PylithInt sOff[],
+             const PylithInt sOff_x[],
+             const PylithScalar s[],
+             const PylithScalar s_t[],
+             const PylithScalar s_x[],
+             const PylithInt aOff[],
+             const PylithInt aOff_x[],
+             const PylithScalar a[],
+             const PylithScalar a_t[],
+             const PylithScalar a_x[],
+             const PylithReal t,
+             const PylithScalar x[],
+             const PylithInt numConstants,
+             const PylithScalar constants[],
+             PylithScalar f1[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+
+        // Strain Context
+        pylith::fekernels::Elasticity::StrainContext strainContext;
+        pylith::fekernels::Elasticity::setStrainContext(&strainContext, _dim, numS, sOff, sOff_x, s, s_t, s_x, x);
+
+        // Rheological Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContextIsotropicLinearPoroelasticity;
+        pylith::fekernels::IsotropicLinearMaxwell::Context rheologyContextIsotropicLinearMaxwell;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextQuasistatic(
+            &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearMaxwellContext(
+            &rheologyContextIsotropicLinearMaxwell, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        Tensor strain;
+        pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain(strainContext, &strain);
+
+        Tensor stress;
+        TensorOps tensorOps = pylith::fekernels::Tensor::ops3D;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::cauchyStress(&rheologyContextIsotropicLinearPoroelasticity, &rheologyContextIsotropicLinearMaxwell, strain, tensorOps, &stress);
+
+        PylithScalar stressTensor[9] = {0.0, 0.0, 0.0,  0.0, 0.0, 0.0,  0.0, 0.0, 0.0 };
+        tensorOps.toTensor(stress, stressTensor);
+
+        for (PylithInt i = 0; i < _dim*_dim; ++i) {
+                f1[i] -= stressTensor[i];
+        } // for
+
+    } // f1u
+
+     // -----------------------------------------------------------------------------
+    /** f1u function for isotropic linear poroelasticity plane strain WITH reference stress and reference strain.
+     *
+     * Solution fields: [disp(dim), pres(dim), vel(dim, optional)]
+     * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), ..., refstress(4), refstrain(4)]
+     */
+    static inline
+    void f1u_refstate(const PylithInt dim,
+                      const PylithInt numS,
+                      const PylithInt numA,
+                      const PylithInt sOff[],
+                      const PylithInt sOff_x[],
+                      const PylithScalar s[],
+                      const PylithScalar s_t[],
+                      const PylithScalar s_x[],
+                      const PylithInt aOff[],
+                      const PylithInt aOff_x[],
+                      const PylithScalar a[],
+                      const PylithScalar a_t[],
+                      const PylithScalar a_x[],
+                      const PylithReal t,
+                      const PylithScalar x[],
+                      const PylithInt numConstants,
+                      const PylithScalar constants[],
+                      PylithScalar f1[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+
+        // Strain Context
+        pylith::fekernels::Elasticity::StrainContext strainContext;
+        pylith::fekernels::Elasticity::setStrainContext(&strainContext, _dim, numS, sOff, sOff_x, s, s_t, s_x, x);
+
+        // Rheological Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContextIsotropicLinearPoroelasticity;
+        pylith::fekernels::IsotropicLinearMaxwell::Context rheologyContextIsotropicLinearMaxwell;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextQuasistatic(
+            &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextRefState(
+            &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearMaxwellContext(
+            &rheologyContextIsotropicLinearMaxwell, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearMaxwellContextRefState(
+            &rheologyContextIsotropicLinearMaxwell, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        Tensor strain;
+        pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain(strainContext, &strain);
+
+        Tensor stress;
+        TensorOps tensorOps = pylith::fekernels::Tensor::ops3D;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::cauchyStress_refState(&rheologyContextIsotropicLinearPoroelasticity, &rheologyContextIsotropicLinearMaxwell, strain, tensorOps, &stress);
+
+        PylithScalar stressTensor[9] = {0.0, 0.0, 0.0,  0.0, 0.0, 0.0,  0.0, 0.0, 0.0 };
+        tensorOps.toTensor(stress, stressTensor);
+
+        for (PylithInt i = 0; i < _dim*_dim; ++i) {
+            f1[i] -= stressTensor[i];
+        } // for
+
+
+    } // f1u_refstate
+
+    // -----------------------------------------------------------------------------
+    /** f1p / darcy flow / without gravity
+     *
+     */
+    static inline
+    void f1p(const PylithInt dim,
+             const PylithInt numS,
+             const PylithInt numA,
+             const PylithInt sOff[],
+             const PylithInt sOff_x[],
+             const PylithScalar s[],
+             const PylithScalar s_t[],
+             const PylithScalar s_x[],
+             const PylithInt aOff[],
+             const PylithInt aOff_x[],
+             const PylithScalar a[],
+             const PylithScalar a_t[],
+             const PylithScalar a_x[],
+             const PylithReal t,
+             const PylithScalar x[],
+             const PylithInt numConstants,
+             const PylithScalar constants[],
+             PylithScalar f1[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+        // Poroelastic Context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, _dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        // Rheological Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextIsotropicPerm(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        // Use f1p / fluxrate / darcy function
+        pylith::fekernels::Poroelasticity::f1p(
+            poroelasticContext, &rheologyContext,
+            pylith::fekernels::IsotropicLinearPoroelasticity::darcyFluxRate,
+            pylith::fekernels::Tensor::ops3D,
+            f1);
+
+    } // f1p
+
+    // -----------------------------------------------------------------------------
+    /** f1p / darcy flow / without gravity, tensor permeability
+     *
+     * Solution fields: [...]
+     * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
+     */
+    static inline
+    void f1p_tensor_permeability(const PylithInt dim,
+                                 const PylithInt numS,
+                                 const PylithInt numA,
+                                 const PylithInt sOff[],
+                                 const PylithInt sOff_x[],
+                                 const PylithScalar s[],
+                                 const PylithScalar s_t[],
+                                 const PylithScalar s_x[],
+                                 const PylithInt aOff[],
+                                 const PylithInt aOff_x[],
+                                 const PylithScalar a[],
+                                 const PylithScalar a_t[],
+                                 const PylithScalar a_x[],
+                                 const PylithReal t,
+                                 const PylithScalar x[],
+                                 const PylithInt numConstants,
+                                 const PylithScalar constants[],
+                                 PylithScalar f1[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+        // Poroelastic Context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        // Rheological Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextTensorPerm(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        // Use f1p / fluxrate / darcy function
+        pylith::fekernels::Poroelasticity::f1p(
+            poroelasticContext, &rheologyContext,
+            pylith::fekernels::IsotropicLinearPoroelasticity::darcyFluxRate,
+            pylith::fekernels::Tensor::ops3D,
+            f1);
+
+    } // f1p_tensor_permeability
+
+    // -----------------------------------------------------------------------------
+    /** f1p / darcy flow / including body forces
+     *
+     * Solution fields: [...]
+     * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
+     */
+    static inline
+    void f1p_body(const PylithInt dim,
+                  const PylithInt numS,
+                  const PylithInt numA,
+                  const PylithInt sOff[],
+                  const PylithInt sOff_x[],
+                  const PylithScalar s[],
+                  const PylithScalar s_t[],
+                  const PylithScalar s_x[],
+                  const PylithInt aOff[],
+                  const PylithInt aOff_x[],
+                  const PylithScalar a[],
+                  const PylithScalar a_t[],
+                  const PylithScalar a_x[],
+                  const PylithReal t,
+                  const PylithScalar x[],
+                  const PylithInt numConstants,
+                  const PylithScalar constants[],
+                  PylithScalar f1[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+        // Poroelastic Context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        pylith::fekernels::Poroelasticity::setContextBodyForce(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        // Rheology Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextIsotropicPerm(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        // Use f1p / fluxrate / darcy function
+        pylith::fekernels::Poroelasticity::f1p(
+            poroelasticContext, &rheologyContext,
+            pylith::fekernels::IsotropicLinearPoroelasticity::darcyFluxRate,
+            pylith::fekernels::Tensor::ops3D,
+            f1);
+
+    } // f1p_body
+
+    // -----------------------------------------------------------------------------
+    /** f1p / darcy flow / including body forces, tensor permeability
+     *
+     * Solution fields: [...]
+     * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
+     */
+    static inline
+    void f1p_body_tensor_permeability(const PylithInt dim,
+                                      const PylithInt numS,
+                                      const PylithInt numA,
+                                      const PylithInt sOff[],
+                                      const PylithInt sOff_x[],
+                                      const PylithScalar s[],
+                                      const PylithScalar s_t[],
+                                      const PylithScalar s_x[],
+                                      const PylithInt aOff[],
+                                      const PylithInt aOff_x[],
+                                      const PylithScalar a[],
+                                      const PylithScalar a_t[],
+                                      const PylithScalar a_x[],
+                                      const PylithReal t,
+                                      const PylithScalar x[],
+                                      const PylithInt numConstants,
+                                      const PylithScalar constants[],
+                                      PylithScalar f1[]) {
+        const PylithInt _dim = 2;assert(_dim == dim);
+        // Poroelastic Context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        pylith::fekernels::Poroelasticity::setContextBodyForce(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        // Rheology Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextTensorPerm(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        // Use f1p / fluxrate / darcy function
+        pylith::fekernels::Poroelasticity::f1p(
+            poroelasticContext, &rheologyContext,
+            pylith::fekernels::IsotropicLinearPoroelasticity::darcyFluxRate,
+            pylith::fekernels::Tensor::ops3D,
+            f1);
+
+    } // f1p_body_tensor_permeability
+
+    // -----------------------------------------------------------------------------
+    /** f1p / darcy flow / including gravity
+     *
+     * Solution fields: [...]
+     * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
+     */
+    static inline
+    void f1p_gravity(const PylithInt dim,
+                     const PylithInt numS,
+                     const PylithInt numA,
+                     const PylithInt sOff[],
+                     const PylithInt sOff_x[],
+                     const PylithScalar s[],
+                     const PylithScalar s_t[],
+                     const PylithScalar s_x[],
+                     const PylithInt aOff[],
+                     const PylithInt aOff_x[],
+                     const PylithScalar a[],
+                     const PylithScalar a_t[],
+                     const PylithScalar a_x[],
+                     const PylithReal t,
+                     const PylithScalar x[],
+                     const PylithInt numConstants,
+                     const PylithScalar constants[],
+                     PylithScalar f1[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+        // Poroelastic Context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+        pylith::fekernels::Poroelasticity::setContextGravity(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        // Rheology Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextIsotropicPerm(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        // Use f1p / fluxrate / darcy function
+        pylith::fekernels::Poroelasticity::f1p(
+            poroelasticContext, &rheologyContext,
+            pylith::fekernels::IsotropicLinearPoroelasticity::darcyFluxRate,
+            pylith::fekernels::Tensor::ops3D,
+            f1);
+
+    } // f1p_gravity
+
+         // -----------------------------------------------------------------------------
+    /** f1p / darcy flow / including gravity, tensor permeability
+     *
+     * Solution fields: [...]
+     * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
+     */
+    static inline
+    void f1p_gravity_tensor_permeability(const PylithInt dim,
+                                         const PylithInt numS,
+                                         const PylithInt numA,
+                                         const PylithInt sOff[],
+                                         const PylithInt sOff_x[],
+                                         const PylithScalar s[],
+                                         const PylithScalar s_t[],
+                                         const PylithScalar s_x[],
+                                         const PylithInt aOff[],
+                                         const PylithInt aOff_x[],
+                                         const PylithScalar a[],
+                                         const PylithScalar a_t[],
+                                         const PylithScalar a_x[],
+                                         const PylithReal t,
+                                         const PylithScalar x[],
+                                         const PylithInt numConstants,
+                                         const PylithScalar constants[],
+                                         PylithScalar f1[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+
+        // Poroelastic Context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+        pylith::fekernels::Poroelasticity::setContextGravity(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        // Rheology Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextTensorPerm(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        // Use f1p / fluxrate / darcy function
+        pylith::fekernels::Poroelasticity::f1p(
+            poroelasticContext, &rheologyContext,
+            pylith::fekernels::IsotropicLinearPoroelasticity::darcyFluxRate,
+            pylith::fekernels::Tensor::ops3D,
+            f1);
+
+    } // f1p_gravity_tensor_permeability
+
+     // -----------------------------------------------------------------------------
+    /** f1p / darcy flow / including body forces and gravity
+     *
+     * Solution fields: [...]
+     * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
+     */
+    static inline
+    void f1p_body_gravity(const PylithInt dim,
+                          const PylithInt numS,
+                          const PylithInt numA,
+                          const PylithInt sOff[],
+                          const PylithInt sOff_x[],
+                          const PylithScalar s[],
+                          const PylithScalar s_t[],
+                          const PylithScalar s_x[],
+                          const PylithInt aOff[],
+                          const PylithInt aOff_x[],
+                          const PylithScalar a[],
+                          const PylithScalar a_t[],
+                          const PylithScalar a_x[],
+                          const PylithReal t,
+                          const PylithScalar x[],
+                          const PylithInt numConstants,
+                          const PylithScalar constants[],
+                          PylithScalar f1[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+
+        // Poroelastic Context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+        pylith::fekernels::Poroelasticity::setContextGravityBodyForce(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        // Rheology Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextIsotropicPerm(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        // Use f1p / fluxrate / darcy function
+        pylith::fekernels::Poroelasticity::f1p(
+            poroelasticContext, &rheologyContext,
+            pylith::fekernels::IsotropicLinearPoroelasticity::darcyFluxRate,
+            pylith::fekernels::Tensor::ops3D,
+            f1);
+
+    } // f1p_body_gravity
+
+        // -----------------------------------------------------------------------------
+    /** f1p / darcy flow / including body forces and gravity, tensor permeability
+     *
+     * Solution fields: [...]
+     * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
+     */
+    static inline
+    void f1p_body_gravity_tensor_permeability(const PylithInt dim,
+                                              const PylithInt numS,
+                                              const PylithInt numA,
+                                              const PylithInt sOff[],
+                                              const PylithInt sOff_x[],
+                                              const PylithScalar s[],
+                                              const PylithScalar s_t[],
+                                              const PylithScalar s_x[],
+                                              const PylithInt aOff[],
+                                              const PylithInt aOff_x[],
+                                              const PylithScalar a[],
+                                              const PylithScalar a_t[],
+                                              const PylithScalar a_x[],
+                                              const PylithReal t,
+                                              const PylithScalar x[],
+                                              const PylithInt numConstants,
+                                              const PylithScalar constants[],
+                                              PylithScalar f1[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+
+        // Poroelastic Context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+        pylith::fekernels::Poroelasticity::setContextGravityBodyForce(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        // Rheology Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextTensorPerm(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        // Use f1p / fluxrate / darcy function
+        pylith::fekernels::Poroelasticity::f1p(
+            poroelasticContext, &rheologyContext,
+            pylith::fekernels::IsotropicLinearPoroelasticity::darcyFluxRate,
+            pylith::fekernels::Tensor::ops3D,
+            f1);
+
+    } // f1p_body_gravity_tensor_permeability
+
+        // =========================== LHS Jacobian ============================
+
+    // ----------------------------------------------------------------------
+    /* Jf3_uu entry function for isotropic linear visco-poroelasticity.
+     */
+    static inline
+    void Jf3uu(const PylithInt dim,
+               const PylithInt numS,
+               const PylithInt numA,
+               const PylithInt sOff[],
+               const PylithInt sOff_x[],
+               const PylithScalar s[],
+               const PylithScalar s_t[],
+               const PylithScalar s_x[],
+               const PylithInt aOff[],
+               const PylithInt aOff_x[],
+               const PylithScalar a[],
+               const PylithScalar a_t[],
+               const PylithScalar a_x[],
+               const PylithReal t,
+               const PylithReal s_tshift,
+               const PylithScalar x[],
+               const PylithInt numConstants,
+               const PylithScalar constants[],
+               PylithScalar Jf3[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+
+        // Rheology Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context isotropicLinearPoroelasticityRheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &isotropicLinearPoroelasticityRheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::IsotropicLinearMaxwell::Context isotropicLinearMaxwellRheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearMaxwellContext(
+            &isotropicLinearMaxwellRheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        const PylithScalar shearModulus = isotropicLinearPoroelasticityRheologyContext.shearModulus;
+        const PylithScalar maxwellTime = isotropicLinearMaxwellRheologyContext.maxwellTime;
+        const PylithScalar dt = isotropicLinearMaxwellRheologyContext.dt;
+
+        const PylithScalar dq = pylith::fekernels::IsotropicLinearMaxwell::viscousStrainCoeff(dt, maxwellTime);
+
+        //Unique components of Jacobian.
+        const PylithReal C1111 = 4.0/3.0 * shearModulus * dq;
+        const PylithReal C1122 = -2.0/3.0 * shearModulus * dq;
+        const PylithReal C1212 = shearModulus * dq;
+
+                /* j(f,g,df,dg) = C(f,df,g,dg)
+         *
+         * 0:  j0000 = C1111 = bulkModulus + 4*dq*shearModulus/3
+         * 1:  j0001 = C1112 = 0
+         * 2:  j0002 = C1113 = 0
+         * 3:  j0010 = C1211 = 0
+         * 4:  j0011 = C1212 = dq*shearModulus
+         * 5:  j0012 = C1213 = 0
+         * 6:  j0020 = C1311 = 0
+         * 7:  j0021 = C1312 = 0
+         * 8:  j0022 = C1313 = dq*shearModulus
+         * 9:  j0100 = C1121 = 0
+         * 10:  j0101 = C1122 = bulkModulus - 2*dq*shearModulus/3
+         * 11:  j0102 = C1123 = 0
+         * 12:  j0110 = C1221 = dq*shearModulus
+         * 13:  j0111 = C1222 = 0
+         * 14:  j0112 = C1223 = 0
+         * 15:  j0120 = C1321 = 0
+         * 16:  j0121 = C1322 = 0
+         * 17:  j0122 = C1323 = 0
+         * 18:  j0200 = C1131 = 0
+         * 19:  j0201 = C1132 = 0
+         * 20:  j0202 = C1133 = bulkModulus - 2*dq*shearModulus/3
+         * 21:  j0210 = C1231 = 0
+         * 22:  j0211 = C1232 = 0
+         * 23:  j0212 = C1233 = 0
+         * 24:  j0220 = C1331 = dq*shearModulus
+         * 25:  j0221 = C1332 = 0
+         * 26:  j0222 = C1333 = 0
+         * 27:  j1000 = C2111 = 0
+         * 28:  j1001 = C2112 = dq*shearModulus
+         * 29:  j1002 = C2113 = 0
+         * 30:  j1010 = C2211 = bulkModulus - 2*dq*shearModulus/3
+         * 31:  j1011 = C2212 = 0
+         * 32:  j1012 = C2213 = 0
+         * 33:  j1020 = C2311 = 0
+         * 34:  j1021 = C2312 = 0
+         * 35:  j1022 = C2313 = 0
+         * 36:  j1100 = C2121 = dq*shearModulus
+         * 37:  j1101 = C2122 = 0
+         * 38:  j1102 = C2123 = 0
+         * 39:  j1110 = C2221 = 0
+         * 40:  j1111 = C2222 = bulkModulus + 4*dq*shearModulus/3
+         * 41:  j1112 = C2223 = 0
+         * 42:  j1120 = C2321 = 0
+         * 43:  j1121 = C2322 = 0
+         * 44:  j1122 = C2323 = dq*shearModulus
+         * 45:  j1200 = C2131 = 0
+         * 46:  j1201 = C2132 = 0
+         * 47:  j1202 = C2133 = 0
+         * 48:  j1210 = C2231 = 0
+         * 49:  j1211 = C2232 = 0
+         * 50:  j1212 = C2233 = bulkModulus - 2*dq*shearModulus/3
+         * 51:  j1220 = C2331 = 0
+         * 52:  j1221 = C2332 = dq*shearModulus
+         * 53:  j1222 = C2333 = 0
+         * 54:  j2000 = C3111 = 0
+         * 55:  j2001 = C3112 = 0
+         * 56:  j2002 = C3113 = dq*shearModulus
+         * 57:  j2010 = C3211 = 0
+         * 58:  j2011 = C3212 = 0
+         * 59:  j2012 = C3213 = 0
+         * 60:  j2020 = C3311 = bulkModulus - 2*dq*shearModulus/3
+         * 61:  j2021 = C3312 = 0
+         * 62:  j2022 = C3313 = 0
+         * 63:  j2100 = C3121 = 0
+         * 64:  j2101 = C3122 = 0
+         * 65:  j2102 = C3123 = 0
+         * 66:  j2110 = C3221 = 0
+         * 67:  j2111 = C3222 = 0
+         * 68:  j2112 = C3223 = dq*shearModulus
+         * 69:  j2120 = C3321 = 0
+         * 70:  j2121 = C3322 = bulkModulus - 2*dq*shearModulus/3
+         * 71:  j2122 = C3323 = 0
+         * 72:  j2200 = C3131 = dq*shearModulus
+         * 73:  j2201 = C3132 = 0
+         * 74:  j2202 = C3133 = 0
+         * 75:  j2210 = C3231 = 0
+         * 76:  j2211 = C3232 = dq*shearModulus
+         * 77:  j2212 = C3233 = 0
+         * 78:  j2220 = C3331 = 0
+         * 79:  j2221 = C3332 = 0
+         * 80:  j2222 = C3333 = bulkModulus + 4*dq*shearModulus/3
+         */
+
+        /* Nonzero Jacobian entries. */
+        Jf3[0] -= C1111; /* j0000 */
+        Jf3[4] -= C1212; /* j0011 */
+        Jf3[8] -= C1212; /* j0022 */
+        Jf3[10] -= C1122; /* j0101 */
+        Jf3[12] -= C1212; /* j0110 */
+        Jf3[20] -= C1122; /* j0202 */
+        Jf3[24] -= C1212; /* j0220 */
+        Jf3[28] -= C1212; /* j1001 */
+        Jf3[30] -= C1122; /* j1010 */
+        Jf3[36] -= C1212; /* j1100 */
+        Jf3[40] -= C1111; /* j1111 */
+        Jf3[44] -= C1212; /* j1122 */
+        Jf3[50] -= C1122; /* j1212 */
+        Jf3[52] -= C1212; /* j1221 */
+        Jf3[56] -= C1212; /* j2002 */
+        Jf3[60] -= C1122; /* j2020 */
+        Jf3[68] -= C1212; /* j2112 */
+        Jf3[70] -= C1122; /* j2121 */
+        Jf3[72] -= C1212; /* j2200 */
+        Jf3[76] -= C1212; /* j2211 */
+        Jf3[80] -= C1111; /* j2222 */
+
+    }
+
+    // ----------------------------------------------------------------------
+    /** Jf2_up entry function for isotropic linear poroviscoelasticity.
+     * Solution fields: [...]
+     * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
+     */
+    static inline
+    void Jf2up(const PylithInt dim,
+               const PylithInt numS,
+               const PylithInt numA,
+               const PylithInt sOff[],
+               const PylithInt sOff_x[],
+               const PylithScalar s[],
+               const PylithScalar s_t[],
+               const PylithScalar s_x[],
+               const PylithInt aOff[],
+               const PylithInt aOff_x[],
+               const PylithScalar a[],
+               const PylithScalar a_t[],
+               const PylithScalar a_x[],
+               const PylithReal t,
+               const PylithReal s_tshift,
+               const PylithScalar x[],
+               const PylithInt numConstants,
+               const PylithScalar constants[],
+               PylithScalar Jf2[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+
+        // Rheology Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::IsotropicLinearPoroelasticity3D::Jf2up_context(
+            dim, &rheologyContext, Jf2);
+    } // Jf2up
+
+        // -----------------------------------------------------------------------------
+    // Jf2ue function for isotropic linear poroviscoelasticity.
+    static inline
+    void Jf2ue(const PylithInt dim,
+               const PylithInt numS,
+               const PylithInt numA,
+               const PylithInt sOff[],
+               const PylithInt sOff_x[],
+               const PylithScalar s[],
+               const PylithScalar s_t[],
+               const PylithScalar s_x[],
+               const PylithInt aOff[],
+               const PylithInt aOff_x[],
+               const PylithScalar a[],
+               const PylithScalar a_t[],
+               const PylithScalar a_x[],
+               const PylithReal t,
+               const PylithReal s_tshift,
+               const PylithScalar x[],
+               const PylithInt numConstants,
+               const PylithScalar constants[],
+               PylithScalar Jf2[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+
+        // Rheology Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::IsotropicLinearPoroelasticity3D::Jf2ue_context(
+            dim, &rheologyContext, Jf2);
+    } // Jf2ue
+
+        // ----------------------------------------------------------------------
+    /** Jf3pp entry function for isotropic linear poroviscoelasticity.
+     *
+     * Solution fields: [...]
+     * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
+     */
+    static inline
+    void Jf3pp(const PylithInt dim,
+               const PylithInt numS,
+               const PylithInt numA,
+               const PylithInt sOff[],
+               const PylithInt sOff_x[],
+               const PylithScalar s[],
+               const PylithScalar s_t[],
+               const PylithScalar s_x[],
+               const PylithInt aOff[],
+               const PylithInt aOff_x[],
+               const PylithScalar a[],
+               const PylithScalar a_t[],
+               const PylithScalar a_x[],
+               const PylithReal t,
+               const PylithReal s_tshift,
+               const PylithScalar x[],
+               const PylithInt numConstants,
+               const PylithScalar constants[],
+               PylithScalar Jf3[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+
+        // Rheology Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextIsotropicPerm(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::IsotropicLinearPoroelasticity3D::Jf3pp_context(
+            dim, &rheologyContext, Jf3);
+
+    } // Jf3pp
+
+       // ----------------------------------------------------------------------
+    /** Jf3pp entry function for isotropic linear poroviscoelasticity.
+     *
+     * Solution fields: [...]
+     * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
+     */
+    static inline
+    void Jf3pp_tensor_permeability(const PylithInt dim,
+                                   const PylithInt numS,
+                                   const PylithInt numA,
+                                   const PylithInt sOff[],
+                                   const PylithInt sOff_x[],
+                                   const PylithScalar s[],
+                                   const PylithScalar s_t[],
+                                   const PylithScalar s_x[],
+                                   const PylithInt aOff[],
+                                   const PylithInt aOff_x[],
+                                   const PylithScalar a[],
+                                   const PylithScalar a_t[],
+                                   const PylithScalar a_x[],
+                                   const PylithReal t,
+                                   const PylithReal s_tshift,
+                                   const PylithScalar x[],
+                                   const PylithInt numConstants,
+                                   const PylithScalar constants[],
+                                   PylithScalar Jf3[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+
+        // Rheology Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextTensorPerm(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::IsotropicLinearPoroelasticity3D::Jf3pp_context(
+            dim, &rheologyContext, Jf3);
+
+    } // Jf3pp_tensor_permeability
+
+     // ----------------------------------------------------------------------
+    /** Jf0_pp entry function for isotropic linear poroelasticity.
+     *
+     * Solution fields: [...]
+     * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
+     */
+    static inline
+    void Jf0pp(const PylithInt dim,
+               const PylithInt numS,
+               const PylithInt numA,
+               const PylithInt sOff[],
+               const PylithInt sOff_x[],
+               const PylithScalar s[],
+               const PylithScalar s_t[],
+               const PylithScalar s_x[],
+               const PylithInt aOff[],
+               const PylithInt aOff_x[],
+               const PylithScalar a[],
+               const PylithScalar a_t[],
+               const PylithScalar a_x[],
+               const PylithReal t,
+               const PylithReal s_tshift,
+               const PylithScalar x[],
+               const PylithInt numConstants,
+               const PylithScalar constants[],
+               PylithScalar Jf0[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+
+        // Rheology Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::IsotropicLinearPoroelasticity3D::Jf0pp_context(
+            _dim, s_tshift, &rheologyContext, Jf0);
+        
+    } // Jf0pp
+
+     // ----------------------------------------------------------------------
+    /** Jf0_pe entry function for isotropic linear poroelasticity.
+     *
+     * Solution fields: [...]
+     * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
+     */
+    static inline
+    void Jf0pe(const PylithInt dim,
+               const PylithInt numS,
+               const PylithInt numA,
+               const PylithInt sOff[],
+               const PylithInt sOff_x[],
+               const PylithScalar s[],
+               const PylithScalar s_t[],
+               const PylithScalar s_x[],
+               const PylithInt aOff[],
+               const PylithInt aOff_x[],
+               const PylithScalar a[],
+               const PylithScalar a_t[],
+               const PylithScalar a_x[],
+               const PylithReal t,
+               const PylithReal s_tshift,
+               const PylithScalar x[],
+               const PylithInt numConstants,
+               const PylithScalar constants[],
+               PylithScalar Jf0[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+
+        // Rheology Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf0pe_context(
+            _dim, s_tshift, &rheologyContext, Jf0);
+
+    } // Jf0pe
+
+    // ===========================================================================================
+    // Kernels for updating state variables
+    // ===========================================================================================
+
+    // Use pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain_asVector() to update total strain.
+
+    // --------------------------------------------------------------------------------------------
+    /** Entry function for calculating viscous strain as a vector for 2D plane strain isotropic
+     * linear Maxwell viscoelasticity.
+     *
+     * Used to output viscous strain.
+     *
+     * Solution fields: [disp(dim)]
+     * Auxiliary fields: [..., shear_modulus(1), bulk_modulus(1), maxwell_time(1), viscous_strain(4), total_strain(4)]
+     */
+    static inline
+    void viscousStrain_infinitesimalStrain_asVector(const PylithInt dim,
+                                                    const PylithInt numS,
+                                                    const PylithInt numA,
+                                                    const PylithInt sOff[],
+                                                    const PylithInt sOff_x[],
+                                                    const PylithScalar s[],
+                                                    const PylithScalar s_t[],
+                                                    const PylithScalar s_x[],
+                                                    const PylithInt aOff[],
+                                                    const PylithInt aOff_x[],
+                                                    const PylithScalar a[],
+                                                    const PylithScalar a_t[],
+                                                    const PylithScalar a_x[],
+                                                    const PylithReal t,
+                                                    const PylithScalar x[],
+                                                    const PylithInt numConstants,
+                                                    const PylithScalar constants[],
+                                                    PylithScalar viscousStrain[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+
+        pylith::fekernels::Elasticity::StrainContext strainContext;
+        pylith::fekernels::Elasticity::setStrainContext(&strainContext, _dim, numS, sOff, sOff_x, s, s_t, s_x, x);
+
+        pylith::fekernels::IsotropicLinearMaxwell::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearMaxwellContext(
+            &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::IsotropicLinearMaxwell::viscousStrain_asVector(
+            strainContext, rheologyContext,
+            pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain,
+            pylith::fekernels::Tensor::ops3D,
+            viscousStrain);
+    }
+
+// ---------------------------------------------------------------------------------------------------------------------
+    /* Update porosity for a linear poroelastic material, implicit.
+     */
+    static inline
+    void updatePorosityImplicit(const PylithInt dim,
+                                const PylithInt numS,
+                                const PylithInt numA,
+                                const PylithInt sOff[],
+                                const PylithInt sOff_x[],
+                                const PylithScalar s[],
+                                const PylithScalar s_t[],
+                                const PylithScalar s_x[],
+                                const PylithInt aOff[],
+                                const PylithInt aOff_x[],
+                                const PylithScalar a[],
+                                const PylithScalar a_t[],
+                                const PylithScalar a_x[],
+                                const PylithReal t,
+                                const PylithScalar x[],
+                                const PylithInt numConstants,
+                                const PylithScalar constants[],
+                                PylithScalar porosity[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+
+        // Incoming solution fields.
+        const PylithInt i_pressure_t = 4;
+        const PylithInt i_trace_strain_t = 5;
+
+        // Incoming re-packed auxiliary field.
+
+        // Poroelasticity
+        const PylithInt i_porosityPrev = 3;
+
+        // IsotropicLinearPoroelasticity
+        const PylithInt i_drainedBulkModulus = numA - 7;
+        const PylithInt i_biotCoefficient = numA - 6;
+
+        // Constants
+        const PylithScalar dt = constants[0];
+
+        // Run Checks
+        assert(_dim == dim);
+        assert(numS >= 6);
+        assert(numA >= 12);
+        assert(aOff);
+        assert(aOff[i_porosityPrev] >= 0);
+        assert(porosity);
+
+        // Do stuff
+        const PylithScalar pressure_t = s ? s[sOff[i_pressure_t]] : 0.0;
+        const PylithScalar trace_strain_t = s ? s[sOff[i_trace_strain_t]] : 0.0;
+
+        const PylithScalar drainedBulkModulus = a[aOff[i_drainedBulkModulus]];
+        const PylithScalar biotCoefficient = a[aOff[i_biotCoefficient]];
+        const PylithScalar porosityPrev = a[aOff[i_porosityPrev]];
+
+        // Update porosity
+        porosity[0] = porosityPrev + dt * ((biotCoefficient - porosityPrev) * trace_strain_t +
+                                           ((1.0 - biotCoefficient) * (biotCoefficient - porosityPrev)) /
+                                           drainedBulkModulus * pressure_t);
+        porosity[0] = std::max(0.0, std::min(1.0, porosity[0]));
+
+
+    } // updatePorosityImplicit
+
+    // ===========================================================================================
+    // Kernels for output
+    // ===========================================================================================
+
+    // --------------------------------------------------------------------------------------------
+    /** Entry function for calculating Cauchy stress for 2D isotropic linear poroelasticity with
+     * infinitesimal strain WITHOUT reference stress and strain.
+     *
+     * Used to output of Cauchy stress.
+     *
+     * Solution fields: [disp(dim)]
+     * Auxiliary fields: [..., biot_coefficient(1), shear_modulus(1), drained_bulk_modulus(1)]
+     */
+    static inline
+    void cauchyStress_infinitesimalStrain_asVector(const PylithInt dim,
+                                                   const PylithInt numS,
+                                                   const PylithInt numA,
+                                                   const PylithInt sOff[],
+                                                   const PylithInt sOff_x[],
+                                                   const PylithScalar s[],
+                                                   const PylithScalar s_t[],
+                                                   const PylithScalar s_x[],
+                                                   const PylithInt aOff[],
+                                                   const PylithInt aOff_x[],
+                                                   const PylithScalar a[],
+                                                   const PylithScalar a_t[],
+                                                   const PylithScalar a_x[],
+                                                   const PylithReal t,
+                                                   const PylithScalar x[],
+                                                   const PylithInt numConstants,
+                                                   const PylithScalar constants[],
+                                                   PylithScalar stressVector[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+
+        // Strain Context
+        pylith::fekernels::Elasticity::StrainContext strainContext;
+        pylith::fekernels::Elasticity::setStrainContext(&strainContext, _dim, numS, sOff, sOff_x, s, s_t, s_x, x);
+
+        // Rheological Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContextIsotropicLinearPoroelasticity;
+        pylith::fekernels::IsotropicLinearMaxwell::Context rheologyContextIsotropicLinearMaxwell;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextQuasistatic(
+            &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearMaxwellContext(
+            &rheologyContextIsotropicLinearMaxwell, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+
+        Tensor strain;
+        pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain(strainContext, &strain);
+
+        Tensor stress;
+        TensorOps tensorOps = pylith::fekernels::Tensor::ops3D;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::cauchyStress(&rheologyContextIsotropicLinearPoroelasticity, &rheologyContextIsotropicLinearMaxwell, strain, tensorOps, &stress);
+
+        tensorOps.toVector(stress, stressVector);
+
+    } // cauchyStress_infinitesimalStrain_asVector
+
+    // --------------------------------------------------------------------------------------------
+    /** Entry function for calculating Cauchy stress for DD isotropic linear poroelasticity with
+     * infinitesimal strain WITH reference stress and strain.
+     *
+     * Used to output of Cauchy stress.
+     *
+     * Solution fields: [disp(dim)]
+     * Auxiliary fields: [..., biot_coefficient(1), shear_modulus(1), drained_bulk_modulus(1)]
+     */
+    static inline
+    void cauchyStress_infinitesimalStrain_refState_asVector(const PylithInt dim,
+                                                   const PylithInt numS,
+                                                   const PylithInt numA,
+                                                   const PylithInt sOff[],
+                                                   const PylithInt sOff_x[],
+                                                   const PylithScalar s[],
+                                                   const PylithScalar s_t[],
+                                                   const PylithScalar s_x[],
+                                                   const PylithInt aOff[],
+                                                   const PylithInt aOff_x[],
+                                                   const PylithScalar a[],
+                                                   const PylithScalar a_t[],
+                                                   const PylithScalar a_x[],
+                                                   const PylithReal t,
+                                                   const PylithScalar x[],
+                                                   const PylithInt numConstants,
+                                                   const PylithScalar constants[],
+                                                   PylithScalar stressVector[]) {
+        const PylithInt _dim = 3;assert(_dim == dim);
+
+        // Strain Context
+        pylith::fekernels::Elasticity::StrainContext strainContext;
+        pylith::fekernels::Elasticity::setStrainContext(&strainContext, _dim, numS, sOff, sOff_x, s, s_t, s_x, x);
+
+        // Rheological Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContextIsotropicLinearPoroelasticity;
+        pylith::fekernels::IsotropicLinearMaxwell::Context rheologyContextIsotropicLinearMaxwell;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextRefState(
+            &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+        // Using dynamic formulation for trace strain, assuming that it will be equal to the variable
+        // for QS
+        // pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextDynamic(
+        //     &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+        //     t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
+
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearMaxwellContext(
+            &rheologyContextIsotropicLinearMaxwell, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearMaxwellContextRefState(
+            &rheologyContextIsotropicLinearMaxwell, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        Tensor strain;
+        pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain(strainContext, &strain);
+
+        Tensor stress;
+        TensorOps tensorOps = pylith::fekernels::Tensor::ops3D;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::cauchyStress_refState(&rheologyContextIsotropicLinearPoroelasticity, &rheologyContextIsotropicLinearMaxwell, strain, tensorOps, &stress);
+
+        tensorOps.toVector(stress, stressVector);
+
+    } // cauchyStress_infinitesimalStrain_refState_asVector
+
+        // Calculate water content
+    static inline
+    void waterContent_asScalar(const PylithInt dim,
+                               const PylithInt numS,
+                               const PylithInt numA,
+                               const PylithInt sOff[],
+                               const PylithInt sOff_x[],
+                               const PylithScalar s[],
+                               const PylithScalar s_t[],
+                               const PylithScalar s_x[],
+                               const PylithInt aOff[],
+                               const PylithInt aOff_x[],
+                               const PylithScalar a[],
+                               const PylithScalar a_t[],
+                               const PylithScalar a_x[],
+                               const PylithReal t,
+                               const PylithScalar x[],
+                               const PylithInt numConstants,
+                               const PylithScalar constants[],
+                               PylithReal* waterContent) {
+        // Poroelastic Context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
+        // Rheological Context
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContext, dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::waterContent_asScalar_context(
+            dim, &poroelasticContext, &rheologyContext, waterContent);
+
+    } // waterContent_asScalar
+
+};// PoroIsotropicLinearMaxwell3D
