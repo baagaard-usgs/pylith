@@ -38,7 +38,12 @@ class App(GenerateMesh):
             material.create_physical_group()
 
         boundary_groups = (
-            BoundaryGroup(name="boundary", tag=1, dim=2, entities=self.boundaries),
+            BoundaryGroup(name="boundary_xneg", tag=1, dim=2, entities=[1]),
+            BoundaryGroup(name="boundary_xpos", tag=2, dim=2, entities=[2]),
+            BoundaryGroup(name="boundary_yneg", tag=3, dim=2, entities=[3]),
+            BoundaryGroup(name="boundary_ypos", tag=4, dim=2, entities=[4]),
+            BoundaryGroup(name="boundary_zpos", tag=5, dim=2, entities=[6]),
+            BoundaryGroup(name="boundary_zneg", tag=6, dim=2, entities=[5]),
         )
         for group in boundary_groups:
             group.create_physical_group()
