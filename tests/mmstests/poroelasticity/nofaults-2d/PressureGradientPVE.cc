@@ -316,33 +316,6 @@ class pylith::_PressureGradientPVE {
         * (1.0 / (XMAX / LENGTH_SCALE)) * (1.0 / etaN) * (1.0 / (lambdaN + 2.0 * muN));
     } // trace_strain_dot
 
-    static double source_density(const double x,
-                                 const double y,
-                                 const double t) {
-        const double alpha = biot_coefficient(x, y);
-        const double etaN = solid_viscosity(x, y) / (PRESSURE_SCALE * TIME_SCALE);
-        const double muN = shear_modulus(x, y) / PRESSURE_SCALE;
-        const double lambdaN = drained_bulk_modulus(x, y) / PRESSURE_SCALE - 2.0/3.0 * muN;
-        return  2 * (PRESSURE0 / PRESSURE_SCALE) * alpha * alpha * (-(XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + x * muN)
-        / ((XMAX / LENGTH_SCALE) * etaN * (lambdaN + 2.0 * muN));
-    } // source_density
-
-    static double body_force_x(const double x,
-                               const double y,
-                               const double t) {
-        const double alpha = biot_coefficient(x, y);
-        const double etaN = solid_viscosity(x, y) / (PRESSURE_SCALE * TIME_SCALE);
-        const double muN = shear_modulus(x, y) / PRESSURE_SCALE;
-        const double lambdaN = drained_bulk_modulus(x, y) / PRESSURE_SCALE - 2.0/3.0 * muN;
-        return -2.0 * (PRESSURE0 / PRESSURE_SCALE) * alpha * lambdaN * muN * t / ((XMAX / LENGTH_SCALE) * etaN * (lambdaN + 2.0 * muN));
-    } // body_force_x
-
-    static double body_force_y(const double x,
-                               const double y,
-                               const double t) {
-        return 0.0;
-    } // body_force_y
-
     static PetscErrorCode solnkernel_disp(PetscInt spaceDim,
                                           PetscReal t,
                                           const PetscReal x[],
@@ -436,58 +409,7 @@ class pylith::_PressureGradientPVE {
         return 0;
     } // solnkernel_trace_strain_dot
 
-    static
-    void source_density_kernel(const PylithInt dim,
-                                const PylithInt numS,
-                                const PylithInt numA,
-                                const PylithInt sOff[],
-                                const PylithInt sOff_x[],
-                                const PylithScalar s[],
-                                const PylithScalar s_t[],
-                                const PylithScalar s_x[],
-                                const PylithInt aOff[],
-                                const PylithInt aOff_x[],
-                                const PylithScalar a[],
-                                const PylithScalar a_t[],
-                                const PylithScalar a_x[],
-                                const PylithReal t,
-                                const PylithScalar x[],
-                                const PylithInt numConstants,
-                                const PylithScalar constants[],
-                                PylithScalar f0[]) {
 
-        assert(2 == dim);
-
-        f0[0] = source_density(x[0], x[1], t); 
-
-    } // source_density_kernel
-
-    static
-    void body_force_kernel(const PylithInt dim,
-                            const PylithInt numS,
-                            const PylithInt numA,
-                            const PylithInt sOff[],
-                            const PylithInt sOff_x[],
-                            const PylithScalar s[],
-                            const PylithScalar s_t[],
-                            const PylithScalar s_x[],
-                            const PylithInt aOff[],
-                            const PylithInt aOff_x[],
-                            const PylithScalar a[],
-                            const PylithScalar a_t[],
-                            const PylithScalar a_x[],
-                            const PylithReal t,
-                            const PylithScalar x[],
-                            const PylithInt numConstants,
-                            const PylithScalar constants[],
-                            PylithScalar f0[]) {
-
-        assert(2 == dim);
-
-        f0[0] = body_force_x(x[0], x[1], t); 
-        f0[1] = body_force_y(x[0], x[1], t); 
-
-    } // source_density_kernel
 
 public:
 
@@ -569,13 +491,7 @@ public:
         data->auxDB.addValue("isotropic_permeability", isotropic_permeability, permeability_units());
         data->auxDB.setCoordSys(data->cs);
 
-        std::vector<pylith::feassemble::IntegratorDomain::ResidualKernels> mmsKernels(2);
-        typedef pylith::feassemble::IntegratorDomain::ResidualKernels ResidualKernels;
-        mmsKernels[0] = ResidualKernels("displacement", pylith::feassemble::Integrator::LHS, body_force_kernel, NULL);
-        mmsKernels[1] = ResidualKernels("pressure", pylith::feassemble::Integrator::LHS, source_density_kernel, NULL);
-
         data->material.setFormulation(pylith::problems::Physics::QUASISTATIC);
-        //data->material.setMMSBodyForceKernels(mmsKernels);
         data->rheology.useReferenceState(false);
 
         data->material.setIdentifier("poroviscoelasticity");

@@ -18,6 +18,7 @@
 // ------------------------------------------------------------------------------------------------
 #include "SimpleShearPVE3D.hh"
 #include "TerzaghiPVE3D.hh"
+#include "PressureGradientPVE3D.hh"
 
 // Poroviscoelasticity Simple Shear Problem
 TEST_CASE("SimpleShearPVE3D::TetP2P1P1::testDiscretization", "[SimpleShearPVE3D][TetP2P1P1][discretization]") {
@@ -71,6 +72,33 @@ TEST_CASE("TerzaghiPVE3D::HexQ2Q1Q1::testJacobianTaylorSeries", "[TerzaghiPVE3D]
 }
 TEST_CASE("TerzaghiPVE3D::HexQ2Q1Q1::testJacobianFiniteDiff", "[TerzaghiPVE3D][HexQ2Q1Q1][Jacobian finite difference]") {
     pylith::TestLinearPoroviscoelasticity(pylith::TerzaghiPVE3D::HexQ2Q1Q1()).testJacobianFiniteDiff();
+}
+
+//Poroviscoelasticity Pressure gradient problem
+TEST_CASE("PressureGradientPVE3D::TetP2P1P1::testDiscretization", "[PressureGradientPVE3D][TetP2P1P1][discretization]") {
+    pylith::TestLinearPoroviscoelasticity(pylith::PressureGradientPVE3D::TetP2P1P1()).testDiscretization();
+}
+TEST_CASE("PressureGradientPVE3D::TetP2P1P1::testResidual", "[PressureGradientPVE3D][TetP2P1P1][residual]") {
+    pylith::TestLinearPoroviscoelasticity(pylith::PressureGradientPVE3D::TetP2P1P1()).testResidual();
+}
+TEST_CASE("PressureGradientPVE3D::TetP2P1P1::testJacobianTaylorSeries", "[PressureGradientPVE3D][TetP2P1P1][Jacobian Taylor series]") {
+    pylith::TestLinearPoroviscoelasticity(pylith::PressureGradientPVE3D::TetP2P1P1()).testJacobianTaylorSeries();
+}
+TEST_CASE("PressureGradientPVE3D::TetP2P1P1::testJacobianFiniteDiff", "[PressureGradientPVE3D][TetP2P1P1][Jacobian finite difference]") {
+    pylith::TestLinearPoroviscoelasticity(pylith::PressureGradientPVE3D::TetP2P1P1()).testJacobianFiniteDiff();
+}
+
+TEST_CASE("PressureGradientPVE3D::HexQ2Q1Q1::testDiscretization", "[PressureGradientPVE3D][HexQ2Q1Q1][discretization]") {
+    pylith::TestLinearPoroviscoelasticity(pylith::PressureGradientPVE3D::HexQ2Q1Q1()).testDiscretization();
+}
+TEST_CASE("PressureGradientPVE3D::HexQ2Q1Q1::testResidual", "[PressureGradientPVE3D][HexQ2Q1Q1][residual]") {
+    pylith::TestLinearPoroviscoelasticity(pylith::PressureGradientPVE3D::HexQ2Q1Q1()).testResidual();
+}
+TEST_CASE("PressureGradientPVE3D::HexQ2Q1Q1::testJacobianTaylorSeries", "[PressureGradientPVE3D][HexQ2Q1Q1][Jacobian Taylor series]") {
+    pylith::TestLinearPoroviscoelasticity(pylith::PressureGradientPVE3D::HexQ2Q1Q1()).testJacobianTaylorSeries();
+}
+TEST_CASE("PressureGradientPVE3D::HexQ2Q1Q1::testJacobianFiniteDiff", "[PressureGradientPVE3D][HexQ2Q1Q1][Jacobian finite difference]") {
+    pylith::TestLinearPoroviscoelasticity(pylith::PressureGradientPVE3D::HexQ2Q1Q1()).testJacobianFiniteDiff();
 }
 
 // End of file

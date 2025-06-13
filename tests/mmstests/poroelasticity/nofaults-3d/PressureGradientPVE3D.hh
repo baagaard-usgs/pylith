@@ -13,10 +13,10 @@
 #include "TestLinearPoroviscoelasticity.hh" // USES TestLinearPoroelasticity_Data
 
 namespace pylith {
-    class TerzaghiPVE3D;
+    class PressureGradientPVE3D;
 }
 
-class pylith::TerzaghiPVE3D {
+class pylith::PressureGradientPVE3D {
 public:
 
     // Data factory methods
@@ -27,7 +27,7 @@ public:
 
 private:
 
-    TerzaghiPVE3D(void); ///< Not implemented
-}; // PressureGradient
+    PressureGradientPVE3D(void); ///< Not implemented
+}; // PressureGradientPVE3D
 
 // End of file
