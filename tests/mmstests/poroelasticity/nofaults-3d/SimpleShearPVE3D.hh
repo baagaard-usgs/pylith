@@ -21,7 +21,7 @@ public:
 
     // Data factory methods
 
-    static TestLinearPoroviscoelasticity_Data* TetQ2Q1Q1(void);
+    static TestLinearPoroviscoelasticity_Data* TetP2P1P1(void);
 
     static TestLinearPoroviscoelasticity_Data* HexQ2Q1Q1(void);
 
