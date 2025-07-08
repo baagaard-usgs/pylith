@@ -27,6 +27,7 @@
 #include "pylith/materials/Poroelasticity.hh"
 #include "pylith/materials/RheologyPoroelasticity.hh"
 #include "pylith/materials/IsotropicLinearPoroelasticity.hh"
+#include "pylith/materials/PoroIsotropicLinearMaxwell.hh"
 
 #include "pylith/utils/arrayfwd.hh"
 %}
@@ -71,5 +72,5 @@ import_array();
 %include "Poroelasticity.i"
 %include "RheologyPoroelasticity.i"
 %include "IsotropicLinearPoroelasticity.i"
-
+%include "PoroIsotropicLinearMaxwell.i"
 // End of file
