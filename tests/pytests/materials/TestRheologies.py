@@ -21,6 +21,8 @@ import pylith.materials.IsotropicLinearIncompElasticity
 
 import pylith.materials.IsotropicLinearPoroelasticity
 
+import pylith.materials.PoroIsotropicLinearMaxwell
+
 
 class TestIsotropicLinearElasticity(TestComponent):
     """Unit testing of IsotropicLinearElasticity object.
@@ -63,6 +65,12 @@ class TestIsotropicLinearPoroelasticity(TestComponent):
     _class = pylith.materials.IsotropicLinearPoroelasticity.IsotropicLinearPoroelasticity
     _factory = pylith.materials.IsotropicLinearPoroelasticity.poroelasticity_rheology
 
+class TestPoroIsotropicLinearMaxwell(TestComponent):
+    """Unit testing of IsotropicLinearPoroelasticity object.
+    """
+    _class = pylith.materials.PoroIsotropicLinearMaxwell.PoroIsotropicLinearMaxwell
+    _factory = pylith.materials.PoroIsotropicLinearMaxwell.poroviscoelasticity_rheology
+
 
 def load_tests(loader, tests, pattern):
     TEST_CLASSES = [
@@ -72,6 +80,7 @@ def load_tests(loader, tests, pattern):
         TestIsotropicPowerLaw, 
         TestIsotropicLinearIncompElasticity,
         TestIsotropicLinearPoroelasticity, 
+        TestPoroIsotropicLinearMaxwell,
     ]
     return make_suite(TEST_CLASSES, loader)
 

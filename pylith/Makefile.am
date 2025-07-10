@@ -59,6 +59,7 @@ EXTRA_DIST = \
 	materials/AuxSubfieldsIsotropicLinearPoroelasticity.py \
 	materials/AuxSubfieldsIsotropicPowerLaw.py \
 	materials/AuxSubfieldsPoroelasticity.py \
+	materials/AuxSubfieldsPoroIsotropicLinearMaxwell.py \
 	materials/DerivedSubfieldsElasticity.py \
 	materials/DerivedSubfieldsPoroelasticity.py \
 	materials/Elasticity.py \
@@ -72,6 +73,7 @@ EXTRA_DIST = \
 	materials/IsotropicPowerLaw.py \
 	materials/Material.py \
 	materials/Poroelasticity.py \
+	materials/PoroIsotropicLinearMaxwell.py \
 	materials/RheologyElasticity.py \
 	materials/RheologyIncompressibleElasticity.py \
 	materials/RheologyPoroelasticity.py \
