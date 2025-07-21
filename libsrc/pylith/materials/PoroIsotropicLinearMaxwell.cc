@@ -117,16 +117,14 @@ pylith::materials::PoroIsotropicLinearMaxwell::addAuxiliarySubfields(void) {
     _auxiliaryFactory->addDrainedBulkModulus(); // K_d, numA - 7
     _auxiliaryFactory->addBiotCoefficient(); // alpha, numA - 6
     _auxiliaryFactory->addBiotModulus(); // M, numA - 5
-    _auxiliaryFactory->addMaxwellTime(); //numA - 4
-    _auxiliaryFactory->addViscousStrain(); //numA - 3
-    _auxiliaryFactory->addTotalStrain(); //numA - 2
+    _auxiliaryFactory->addMaxwellTime(); // numA - 4
+    _auxiliaryFactory->addViscousStrain(); // numA - 3
+    _auxiliaryFactory->addTotalStrain(); // numA - 2
     if (_useTensorPermeability) {
         _auxiliaryFactory->addTensorPermeability(); // k, numA - 1
     } else {
         _auxiliaryFactory->addIsotropicPermeability(); // k, numA - 1
     }
-    
-    
 
     PYLITH_METHOD_END;
 } // addAuxiliarySubfields
@@ -136,11 +134,11 @@ pylith::materials::PoroIsotropicLinearMaxwell::addAuxiliarySubfields(void) {
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Select implicit f0p function.
-PetscPointFunc
+PetscPointFn*
 pylith::materials::PoroIsotropicLinearMaxwell::getKernelf0p_implicit(const spatialdata::geocoords::CoordSys* coordsys,
-                                                                        const bool _useBodyForce,
-                                                                        const bool _gravityField,
-                                                                        const bool _useSourceDensity) const {
+                                                                     const bool _useBodyForce,
+                                                                     const bool _gravityField,
+                                                                     const bool _useSourceDensity) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("getKernelf0p="<<typeid(coordsys).name()<<")");
 
@@ -150,7 +148,7 @@ pylith::materials::PoroIsotropicLinearMaxwell::getKernelf0p_implicit(const spati
     const int bitSourceDensity = _useSourceDensity ? 0x4 : 0x0;
     const int bitUse = bitBodyForce | bitGravity | bitSourceDensity;
 
-    PetscPointFunc f0p = NULL;
+    PetscPointFn* f0p = NULL;
     switch (bitUse) {
     case 0x0:
         f0p = (3 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwell3D::f0p_implicit :
@@ -201,7 +199,7 @@ pylith::materials::PoroIsotropicLinearMaxwell::getKernelf0p_implicit(const spati
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Get stress kernel for LHS residual, F(t,s,\dot{s}).
-PetscPointFunc
+PetscPointFn*
 pylith::materials::PoroIsotropicLinearMaxwell::getKernelf1u_implicit(const spatialdata::geocoords::CoordSys* coordsys) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("getKernelf1u(coordsys="<<typeid(coordsys).name()<<")");
@@ -210,7 +208,7 @@ pylith::materials::PoroIsotropicLinearMaxwell::getKernelf1u_implicit(const spati
     const int bitReferenceState = _useReferenceState ? 0x1 : 0x0;
     const int bitUse = bitReferenceState;
 
-    PetscPointFunc f1u = NULL;
+    PetscPointFn* f1u = NULL;
     switch (bitUse) {
     case 0x0:
         f1u = (3 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwell3D::f1u :
@@ -232,10 +230,10 @@ pylith::materials::PoroIsotropicLinearMaxwell::getKernelf1u_implicit(const spati
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Get darcy velocity kernel
-PetscPointFunc
+PetscPointFn*
 pylith::materials::PoroIsotropicLinearMaxwell::getKernelf1p_implicit(const spatialdata::geocoords::CoordSys* coordsys,
-                                                                        const bool _useBodyForce,
-                                                                        const bool _gravityField) const {
+                                                                     const bool _useBodyForce,
+                                                                     const bool _gravityField) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("getKernelf1p_implicit="<<typeid(coordsys).name()<<")");
 
@@ -245,7 +243,7 @@ pylith::materials::PoroIsotropicLinearMaxwell::getKernelf1p_implicit(const spati
     const int bitGravityField = _gravityField ? 0x4 : 0x0;
     const int bitUse = bitTensorPermeability | bitBodyForce | bitGravityField;
 
-    PetscPointFunc f1p = NULL;
+    PetscPointFn* f1p = NULL;
     switch (bitUse) {
     case 0x0:
         f1p = (3 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwell3D::f1p :
@@ -298,87 +296,87 @@ pylith::materials::PoroIsotropicLinearMaxwell::getKernelf1p_implicit(const spati
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Get poroelastic constants kernel for LHS Jacobian
-PetscPointJac
+PetscPointJacFn*
 pylith::materials::PoroIsotropicLinearMaxwell::getKernelJf3uu(const spatialdata::geocoords::CoordSys* coordsys) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("getKernelJf3uu(coordsys="<<typeid(coordsys).name()<<")");
 
     const int spaceDim = coordsys->getSpaceDim();
-    PetscPointJac Jf3uu =
+    PetscPointJacFn* Jf3uu =
         (3 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwell3D::Jf3uu :
         (2 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwellPlaneStrain::Jf3uu :
         NULL;
 
     PYLITH_METHOD_RETURN(Jf3uu);
-    //PYLITH_METHOD_RETURN(NULL);
+    // PYLITH_METHOD_RETURN(NULL);
 
 } // getKernelLHSJacobianElasticConstants
 
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Get biot coefficient kernel for LHS Jacobian
-PetscPointJac
+PetscPointJacFn*
 pylith::materials::PoroIsotropicLinearMaxwell::getKernelJf2up(const spatialdata::geocoords::CoordSys* coordsys) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("getKernelJf2up(coordsys="<<typeid(coordsys).name()<<")");
 
     const int spaceDim = coordsys->getSpaceDim();
-    PetscPointJac Jf2up =
+    PetscPointJacFn* Jf2up =
         (3 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwell3D::Jf2up :
         (2 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwellPlaneStrain::Jf2up :
         NULL;
 
     PYLITH_METHOD_RETURN(Jf2up);
-    //PYLITH_METHOD_RETURN(NULL);
+    // PYLITH_METHOD_RETURN(NULL);
 
 } // getKernelJf2up
 
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Get lambda kernel for LHS Jacobian
-PetscPointJac
+PetscPointJacFn*
 pylith::materials::PoroIsotropicLinearMaxwell::getKernelJf2ue(const spatialdata::geocoords::CoordSys* coordsys) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("getKernelJf2ue(coordsys="<<typeid(coordsys).name()<<")");
 
     const int spaceDim = coordsys->getSpaceDim();
-    PetscPointJac Jf2ue =
+    PetscPointJacFn* Jf2ue =
         (2 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwellPlaneStrain::Jf2ue :
         (3 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwell3D::Jf2ue :
         NULL;
 
     PYLITH_METHOD_RETURN(Jf2ue);
-    //PYLITH_METHOD_RETURN(NULL);
+    // PYLITH_METHOD_RETURN(NULL);
 } // getKernelJf2ue
 
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Get Specific storage kernel for LHS Jacobian F(t,s, \dot{s}).
-PetscPointJac
+PetscPointJacFn*
 pylith::materials::PoroIsotropicLinearMaxwell::getKernelJf0pp(const spatialdata::geocoords::CoordSys* coordsys) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("getKernelJf0pp(coordsys="<<typeid(coordsys).name()<<")");
 
     const int spaceDim = coordsys->getSpaceDim();
-    PetscPointJac Jf0pp =
+    PetscPointJacFn* Jf0pp =
         (3 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwell3D::Jf0pp :
         (2 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwellPlaneStrain::Jf0pp :
         NULL;
 
     PYLITH_METHOD_RETURN(Jf0pp);
-    //PYLITH_METHOD_RETURN(NULL);
+    // PYLITH_METHOD_RETURN(NULL);
 } // getKernelJf0pp
 
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Get Darcy Conductivity kernel for LHS Jacobian
-PetscPointJac
+PetscPointJacFn*
 pylith::materials::PoroIsotropicLinearMaxwell::getKernelJf3pp(const spatialdata::geocoords::CoordSys* coordsys) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("getKernelJf3pp(coordsys="<<typeid(coordsys).name()<<")");
 
     const int spaceDim = coordsys->getSpaceDim();
-    PetscPointJac Jf3pp =
+    PetscPointJacFn* Jf3pp =
         (!_useTensorPermeability && 3 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwell3D::Jf3pp :
         (!_useTensorPermeability && 2 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwellPlaneStrain::Jf3pp :
         (_useTensorPermeability && 3 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwell3D::Jf3pp_tensor_permeability :
@@ -386,26 +384,26 @@ pylith::materials::PoroIsotropicLinearMaxwell::getKernelJf3pp(const spatialdata:
         NULL;
 
     PYLITH_METHOD_RETURN(Jf3pp);
-    //PYLITH_METHOD_RETURN(NULL);
+    // PYLITH_METHOD_RETURN(NULL);
 
 } // getKerneJf3pp
 
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Get biot coefficient kernel for LHS Jacobian F(t,s, \dot{s}).
-PetscPointJac
+PetscPointJacFn*
 pylith::materials::PoroIsotropicLinearMaxwell::getKernelJf0pe(const spatialdata::geocoords::CoordSys* coordsys) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("getKernelJf0pe(coordsys="<<typeid(coordsys).name()<<")");
 
     const int spaceDim = coordsys->getSpaceDim();
-    PetscPointJac Jf0pe =
+    PetscPointJacFn* Jf0pe =
         (3 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwell3D::Jf0pe :
         (2 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwellPlaneStrain::Jf0pe :
         NULL;
 
     PYLITH_METHOD_RETURN(Jf0pe);
-    //PYLITH_METHOD_RETURN(NULL);
+    // PYLITH_METHOD_RETURN(NULL);
 } // getKernelJf0pe
 
 
@@ -413,13 +411,13 @@ pylith::materials::PoroIsotropicLinearMaxwell::getKernelJf0pe(const spatialdata:
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Get stress kernel for derived field.
-PetscPointFunc
+PetscPointFn*
 pylith::materials::PoroIsotropicLinearMaxwell::getKernelCauchyStressVector(const spatialdata::geocoords::CoordSys* coordsys) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("getKernelCauchyStressVector(coordsys="<<typeid(coordsys).name()<<")");
 
     const int spaceDim = coordsys->getSpaceDim();
-    PetscPointFunc kernel =
+    PetscPointFn* kernel =
         (!_useReferenceState && 3 == spaceDim) ?  pylith::fekernels::PoroIsotropicLinearMaxwell3D::cauchyStress_infinitesimalStrain_asVector :
         (!_useReferenceState && 2 == spaceDim) ?  pylith::fekernels::PoroIsotropicLinearMaxwellPlaneStrain::cauchyStress_infinitesimalStrain_asVector :
         (_useReferenceState && 3 == spaceDim) ?  pylith::fekernels::PoroIsotropicLinearMaxwell3D::cauchyStress_infinitesimalStrain_refState_asVector :
@@ -432,13 +430,13 @@ pylith::materials::PoroIsotropicLinearMaxwell::getKernelCauchyStressVector(const
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Get water content kernel for derived field.
-PetscPointFunc
+PetscPointFn*
 pylith::materials::PoroIsotropicLinearMaxwell::getKernelWaterContent(const spatialdata::geocoords::CoordSys* coordsys) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("getKernelWaterContent(coordsys="<<typeid(coordsys).name()<<")");
 
     const int spaceDim = coordsys->getSpaceDim();
-    PetscPointFunc kernel =
+    PetscPointFn* kernel =
         (3 == spaceDim) ?  pylith::fekernels::PoroIsotropicLinearMaxwell3D::waterContent_asScalar :
         (2 == spaceDim) ?  pylith::fekernels::PoroIsotropicLinearMaxwellPlaneStrain::waterContent_asScalar :
         NULL;
@@ -451,7 +449,7 @@ pylith::materials::PoroIsotropicLinearMaxwell::getKernelWaterContent(const spati
 // Update kernel constants.
 void
 pylith::materials::PoroIsotropicLinearMaxwell::updateKernelConstants(pylith::real_array* kernelConstants,
-                                                                        const PylithReal dt) const {
+                                                                     const PylithReal dt) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("updateKernelConstants(kernelConstants"<<kernelConstants<<", dt="<<dt<<")");
 
@@ -468,22 +466,22 @@ pylith::materials::PoroIsotropicLinearMaxwell::updateKernelConstants(pylith::rea
 // Add kernels for updating state variables, implicit.
 void
 pylith::materials::PoroIsotropicLinearMaxwell::addKernelsUpdateStateVarsImplicit(std::vector<ProjectKernels>* kernels,
-                                                                                    const spatialdata::geocoords::CoordSys* coordsys,
-                                                                                    const bool _useStateVars) const {
+                                                                                 const spatialdata::geocoords::CoordSys* coordsys,
+                                                                                 const bool _useStateVars) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("addKernelsUpdateStateVarsImplicit(kernels="<<kernels<<", coordsys="<<coordsys<<")");
     if (_useStateVars) {
         const int spaceDim = coordsys->getSpaceDim();
 
-        const PetscPointFunc funcPorosity =
+        const PetscPointFn* funcPorosity =
             (3 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwell3D::updatePorosityImplicit :
             (2 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwellPlaneStrain::updatePorosityImplicit :
             NULL;
-        const PetscPointFunc funcViscousStrain =
+        const PetscPointFn* funcViscousStrain =
             (3 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwell3D::viscousStrain_infinitesimalStrain_asVector :
             (2 == spaceDim) ? pylith::fekernels::PoroIsotropicLinearMaxwellPlaneStrain::viscousStrain_infinitesimalStrain_asVector :
             NULL;
-        const PetscPointFunc funcTotalStrain =
+        const PetscPointFn* funcTotalStrain =
             (3 == spaceDim) ? pylith::fekernels::Elasticity3D::infinitesimalStrain_asVector :
             (2 == spaceDim) ? pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain_asVector :
             NULL;
