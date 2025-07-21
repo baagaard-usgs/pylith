@@ -69,14 +69,14 @@ public:
 
             // ---------------------------------------------------------------------------------------------------------------------
             // Select implicit f0p function.
-            PetscPointFunc getKernelf0p_implicit(const spatialdata::geocoords::CoordSys* coordsys,
-                                                const bool _useBodyForce,
-                                                const bool _gravityField,
-                                                const bool _useSourceDensity) const;
+            PetscPointFnWrapper getKernelf0p_implicit(const spatialdata::geocoords::CoordSys* coordsys,
+                                                      const bool _useBodyForce,
+                                                      const bool _gravityField,
+                                                      const bool _useSourceDensity) const;
 
             // ---------------------------------------------------------------------------------------------------------------------
             // Get stress kernel for LHS residual, F(t,s,\dot{s})
-            PetscPointFunc getKernelf1u_implicit(const spatialdata::geocoords::CoordSys* coordsys) const;
+            PetscPointFnWrapper getKernelf1u_implicit(const spatialdata::geocoords::CoordSys* coordsys) const;
 
             // ---------------------------------------------------------------------------------------------------------------------
             /** Get pressure kernel for LHS residual.
@@ -85,33 +85,33 @@ public:
              *
              * @return LHS residual kernel for Darcy velocity.
              */
-            PetscPointFunc getKernelf1p_implicit(const spatialdata::geocoords::CoordSys* coordsys,
-                                                const bool _useBodyForce,
-                                                const bool _gravityField) const;
+            PetscPointFnWrapper getKernelf1p_implicit(const spatialdata::geocoords::CoordSys* coordsys,
+                                                      const bool _useBodyForce,
+                                                      const bool _gravityField) const;
 
             // ---------------------------------------------------------------------------------------------------------------------
             // Get poroelastic constants kernel for LHS Jacobian
-            PetscPointJac getKernelJf3uu(const spatialdata::geocoords::CoordSys* coordsys) const;
+            PetscPointJacFnWrapper getKernelJf3uu(const spatialdata::geocoords::CoordSys* coordsys) const;
 
             // ---------------------------------------------------------------------------------------------------------------------
             // Get biot coefficient kernel for LHS Jacobian
-            PetscPointJac getKernelJf2up(const spatialdata::geocoords::CoordSys* coordsys) const;
+            PetscPointJacFnWrapper getKernelJf2up(const spatialdata::geocoords::CoordSys* coordsys) const;
 
             // ---------------------------------------------------------------------------------------------------------------------
             // Get lambda kernel for LHS Jacobian
-            PetscPointJac getKernelJf2ue(const spatialdata::geocoords::CoordSys* coordsys) const;
+            PetscPointJacFnWrapper getKernelJf2ue(const spatialdata::geocoords::CoordSys* coordsys) const;
 
             // ---------------------------------------------------------------------------------------------------------------------
             // Get Specific storage kernel for LHS Jacobian F(t,s, \dot{s}).
-            PetscPointJac getKernelJf0pp(const spatialdata::geocoords::CoordSys* coordsys) const;
+            PetscPointJacFnWrapper getKernelJf0pp(const spatialdata::geocoords::CoordSys* coordsys) const;
 
             // ---------------------------------------------------------------------------------------------------------------------
             // Get Darcy Conductivity kernel for LHS Jacobian
-            PetscPointJac getKernelJf3pp(const spatialdata::geocoords::CoordSys* coordsys) const;
+            PetscPointJacFnWrapper getKernelJf3pp(const spatialdata::geocoords::CoordSys* coordsys) const;
 
             // ---------------------------------------------------------------------------------------------------------------------
             // Get biot coefficient kernel for LHS Jacobian F(t,s, \dot{s}).
-            PetscPointJac getKernelJf0pe(const spatialdata::geocoords::CoordSys* coordsys) const;
+            PetscPointJacFnWrapper getKernelJf0pe(const spatialdata::geocoords::CoordSys* coordsys) const;
 
             // ============================ DERIVED FIELDS ========================== //
 
@@ -121,7 +121,7 @@ public:
              *
              * @return Project kernel for computing stress subfield in derived field.
              */
-            PetscPointFunc getKernelCauchyStressVector(const spatialdata::geocoords::CoordSys* coordsys) const;
+            PetscPointFnWrapper getKernelCauchyStressVector(const spatialdata::geocoords::CoordSys* coordsys) const;
 
             /** Get water content kernel for derived field.
              *
@@ -129,7 +129,7 @@ public:
              *
              * @return Project kernel for computing water content subfield in derived field.
              */
-            PetscPointFunc getKernelWaterContent(const spatialdata::geocoords::CoordSys* coordsys) const;
+            PetscPointFnWrapper getKernelWaterContent(const spatialdata::geocoords::CoordSys* coordsys) const;
 
             /** Update kernel constants.
              *
@@ -137,7 +137,7 @@ public:
              * @param[in] dt Current time step.
              */
             void updateKernelConstants(pylith::real_array* kernelConstants,
-                                    const PylithReal dt) const;
+                                       const PylithReal dt) const;
 
             /** Add kernels for updating state variables, implicit.
              *
@@ -145,9 +145,9 @@ public:
              * @param[in] coordsys Coordinate system.
              * @param[in] _useStateVars Update kernels?
              */
-            void addKernelsUpdateStateVarsImplicit(std::vector<pylith::feassemble::IntegratorDomain::ProjectKernels>* kernels,
-                                                const spatialdata::geocoords::CoordSys* coordsys,
-                                                const bool _useStateVars) const;
+            void addKernelsUpdateStateVarsImplicit(std::vector < pylith::feassemble::IntegratorDomain::ProjectKernels > * kernels,
+                                                   const spatialdata::geocoords::CoordSys* coordsys,
+                                                   const bool _useStateVars) const;
 
         };      // class PoroIsotropicLinearMaxwell
 

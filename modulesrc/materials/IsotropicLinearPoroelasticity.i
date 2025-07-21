@@ -150,6 +150,14 @@ public:
              */
             PetscPointFnWrapper getKernelCauchyStressVector(const spatialdata::geocoords::CoordSys* coordsys) const;
 
+            /** Get water content kernel for derived field.
+             *
+             * @param[in] coordsys Coordinate system.
+             *
+             * @return Project kernel for computing water content subfield in derived field.
+             */
+            PetscPointFnWrapper getKernelWaterContent(const spatialdata::geocoords::CoordSys* coordsys) const;
+
             /** Update kernel constants.
              *
              * @param[inout] kernelConstants Array of constants used in integration kernels.

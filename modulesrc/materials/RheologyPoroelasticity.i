@@ -47,7 +47,7 @@ public:
             PetscPointFnWrapper getKernelg0p(const spatialdata::geocoords::CoordSys* coordsys,
                                              const bool _useBodyForce,
                                              const bool _gravityField,
-                                             const bool _useSourceDensity) const = 0;
+                                             const bool _useSourceDensity) const;
 
             // ---------------------------------------------------------------------------------------------------------------------
             /** Get pressure kernel for RHS residual.
@@ -58,14 +58,14 @@ public:
              */
             virtual
             PetscPointFnWrapper getKernelg1p_explicit(const spatialdata::geocoords::CoordSys* coordsys,
-                                                      const bool _gravityField) const = 0;
+                                                      const bool _gravityField) const;
 
             // ============================= LHS ==================================== //
 
             // ---------------------------------------------------------------------------------------------------------------------
             // Get variation in fluid content kernel for LHS residual, F(t,s,\dot{s})
             virtual
-            PetscPointFnWrapper getKernelf0p_explicit(const spatialdata::geocoords::CoordSys* coordsys) const = 0;
+            PetscPointFnWrapper getKernelf0p_explicit(const spatialdata::geocoords::CoordSys* coordsys) const;
 
             // ---------------------------------------------------------------------------------------------------------------------
             // Select implicit f0p function.
@@ -74,6 +74,11 @@ public:
                                                       const bool _useBodyForce,
                                                       const bool _gravityField,
                                                       const bool _useSourceDensity) const = 0;
+
+            // ---------------------------------------------------------------------------------------------------------------------
+            // Get stress kernel for LHS residual, F(t,s,\dot{s})
+            virtual
+            PetscPointFnWrapper getKernelf1u_implicit(const spatialdata::geocoords::CoordSys* coordsys) const = 0;
 
             // ---------------------------------------------------------------------------------------------------------------------
             /** Get pressure kernel for LHS residual.
@@ -128,6 +133,24 @@ public:
             virtual
             PetscPointFnWrapper getKernelCauchyStressVector(const spatialdata::geocoords::CoordSys* coordsys) const = 0;
 
+            /** Get water content kernel for derived field.
+            *
+            * @param[in] coordsys Coordinate system.
+            *
+            * @return Project kernel for computing stress subfield in derived field.
+            */
+            virtual
+            PetscPointFnWrapper getKernelWaterContent(const spatialdata::geocoords::CoordSys* coordsys) const = 0;
+
+            /** Update kernel constants.
+             *
+             * @param[inout] kernelConstants Array of constants used in integration kernels.
+             * @param[in] dt Current time step.
+             */
+            virtual
+            void updateKernelConstants(pylith::real_array* kernelConstants,
+                                       const PylithReal dt) const;
+
             /** Add kernels for updating state variables.
              *
              * @param[inout] kernels Array of kernels for updating state variables.
@@ -138,14 +161,15 @@ public:
                                                    const spatialdata::geocoords::CoordSys* coordsys,
                                                    const bool _useStateVars) const;
 
-            /** Update kernel constants.
-             *
-             * @param[inout] kernelConstants Array of constants used in integration kernels.
-             * @param[in] dt Current time step.
-             */
+            /** Add kernels for updating state variables, explicit.
+            *
+            * @param[inout] kernels Array of kernels for updating state variables.
+            * @param[in] coordsys Coordinate system.
+            */
             virtual
-            void updateKernelConstants(pylith::real_array* kernelConstants,
-                                       const PylithReal dt) const;
+            void addKernelsUpdateStateVarsExplicit(std::vector<pylith::feassemble::IntegratorDomain::ProjectKernels>* kernels,
+                                                const spatialdata::geocoords::CoordSys* coordsys,
+                                                const bool _useStateVars) const;
 
         };
 
