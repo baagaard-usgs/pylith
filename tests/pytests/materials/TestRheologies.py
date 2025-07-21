@@ -69,7 +69,7 @@ class TestPoroIsotropicLinearMaxwell(TestComponent):
     """Unit testing of IsotropicLinearPoroelasticity object.
     """
     _class = pylith.materials.PoroIsotropicLinearMaxwell.PoroIsotropicLinearMaxwell
-    _factory = pylith.materials.PoroIsotropicLinearMaxwell.poroviscoelasticity_rheology
+    _factory = pylith.materials.PoroIsotropicLinearMaxwell.poroelasticity_rheology
 
 
 def load_tests(loader, tests, pattern):

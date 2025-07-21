@@ -7,7 +7,7 @@
 #
 # See https://mit-license.org/ and LICENSE.md and for license information. 
 # =================================================================================================
-# @file pylith/materials/IsotropicLinearPoroelasticity.py
+# @file pylith/materials/PoroIsotropicLinearMaxwell.py
 #
 # @brief Python material for isotropic, linearly elastic, plane
 # strain material.
@@ -15,10 +15,10 @@
 # Factory: poroelasticity_rheology
 
 from .RheologyPoroelasticity import RheologyPoroelasticity
-from .materials import PoroIsotropicLinearMaxwell as ModulePoroIsotropicLinearMaxwell
+from .materials import PoroIsotropicLinearMaxwell as ModuleLinearPoroelasticity
 
 
-class PoroIsotropicLinearMaxwell(RheologyPoroelasticity, ModulePoroIsotropicLinearMaxwell):
+class PoroIsotropicLinearMaxwell(RheologyPoroelasticity, ModuleLinearPoroelasticity):
     """
     Poroelasticity bulk rheology.
 
@@ -60,8 +60,8 @@ class PoroIsotropicLinearMaxwell(RheologyPoroelasticity, ModulePoroIsotropicLine
     def preinitialize(self, mesh):
         RheologyPoroelasticity.preinitialize(self, mesh)
 
-        ModulePoroIsotropicLinearMaxwell.useReferenceState(self, self.useReferenceState)
-        ModulePoroIsotropicLinearMaxwell.useTensorPermeability(self, self.useTensorPermeability)
+        ModuleLinearPoroelasticity.useReferenceState(self, self.useReferenceState)
+        ModuleLinearPoroelasticity.useTensorPermeability(self, self.useTensorPermeability)
         return
 
     # PRIVATE METHODS ////////////////////////////////////////////////////
@@ -69,12 +69,12 @@ class PoroIsotropicLinearMaxwell(RheologyPoroelasticity, ModulePoroIsotropicLine
     def _createModuleObj(self):
         """Call constructor for module object for access to C++ object.
         """
-        ModulePoroIsotropicLinearMaxwell.__init__(self)
+        ModuleLinearPoroelasticity.__init__(self)
 
 
 # FACTORIES ////////////////////////////////////////////////////////////
 
-def poroviscoelasticity_rheology():
+def poroelasticity_rheology():
     """Factory associated with PoroIsotropicLinearMaxwell.
     """
     return PoroIsotropicLinearMaxwell()
