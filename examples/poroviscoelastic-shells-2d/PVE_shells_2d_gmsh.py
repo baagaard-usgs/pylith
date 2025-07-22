@@ -98,9 +98,21 @@ class App(GenerateMesh):
             VertexGroup(name="boundary_ypos", tag=4, dim=1, entities=[self.y_pos_boundary]),
             VertexGroup(name="boundary_outer_chamber", tag=5, dim=1, entities=[self.outer_chamber_boundary]),
             VertexGroup(name="boundary_inner_chamber", tag=6, dim=1, entities=[self.inner_chamber_boundary]),
+            VertexGroup(tag=7, name="crust", dim=2, entities=[self.domain_surface]),
+            VertexGroup(tag=8, name="outer_chamber", dim=2, entities=[self.outer_chamber_surface]),
+            VertexGroup(tag=9, name="inner_chamber", dim=2, entities=[self.inner_chamber_surface])
         )
         for group in boundary_groups:
             group.create_physical_group()
+
+        # materials_vertex = (
+        #     VertexGroup(tag=7, name="crust", dim=2, entities=[self.domain_surface]),
+        #     VertexGroup(tag=8, name="outer_chamber", dim=2, entities=[self.outer_chamber_surface]),
+        #     VertexGroup(tag=9, name="inner_chamber", dim=2, entities=[self.inner_chamber_surface])
+        # )
+        # for materials_vertex in materials_vertex:
+        #     materials_vertex.create_physical_group()
+
 
     def generate_mesh(self, cell):
         """Generate the mesh. Should also include optimizing the mesh quality.
