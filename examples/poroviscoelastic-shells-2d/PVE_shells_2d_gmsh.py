@@ -8,13 +8,15 @@ class App(GenerateMesh):
     """
     Domain is a 30km x 30 km square.
     Outer shell is a 5 km radius circle.
-    Innter shell is a 1 km radius circle.
+    Inner shell is a 2 km radius circle.
+    Pressure Cavity is a 0.25 km radius circle
     """
     DOMAIN_X = DOMAIN_Y = 30e3
-    INNER_SHELL_RAD = 1e3
+    INNER_SHELL_RAD = 2e3
     OUTER_SHELL_RAD = 5e3
+    CAVITY_RAD = 0.25e3
     SHELL_CENTER = (DOMAIN_X/2, -DOMAIN_Y/2, 0)
-    DX_CHAMBER = 250
+    DX_CHAMBER = 150
     DX_BIAS = 1.1
 
     def __init__(self):
@@ -34,15 +36,23 @@ class App(GenerateMesh):
         domain_box = gmsh.model.occ.add_rectangle(0, -self.DOMAIN_Y, 0, self.DOMAIN_X, self.DOMAIN_Y)
         gmsh.model.occ.add_plane_surface([domain_box])
 
+        # Create cavity surface
+        cavity_ellipse = gmsh.model.occ.add_ellipse(self.SHELL_CENTER[0], self.SHELL_CENTER[1], self.SHELL_CENTER[2], self.CAVITY_RAD, self.CAVITY_RAD)
+        cavity_loop = gmsh.model.occ.add_curve_loop([cavity_ellipse])
+        self.cavity_surface = gmsh.model.occ.add_plane_surface([cavity_loop])
+
         # Create inner chamber surface
         inner_chamber_ellipse = gmsh.model.occ.add_ellipse(self.SHELL_CENTER[0], self.SHELL_CENTER[1], self.SHELL_CENTER[2], self.INNER_SHELL_RAD, self.INNER_SHELL_RAD)
         inner_chamber_loop = gmsh.model.occ.add_curve_loop([inner_chamber_ellipse])
-        self.inner_chamber_surface = gmsh.model.occ.add_plane_surface([inner_chamber_loop])
+        inner_chamber_surface_temp = gmsh.model.occ.add_plane_surface([inner_chamber_loop])
 
         # Create outer chamber surface
         outer_chamber_ellipse = gmsh.model.occ.add_ellipse(self.SHELL_CENTER[0], self.SHELL_CENTER[1], self.SHELL_CENTER[2], self.OUTER_SHELL_RAD, self.OUTER_SHELL_RAD)
         outer_chamber_loop = gmsh.model.occ.add_curve_loop([outer_chamber_ellipse])
         outer_chamber_surface_temp = gmsh.model.occ.add_plane_surface([outer_chamber_loop])
+
+        # embed cavity to inner chamber
+        self.inner_chamber_surface = gmsh.model.occ.fragment([(2, inner_chamber_surface_temp)], [(2, self.cavity_surface)])[0][1][1]
         
         # embed inner chamber to outer chamber
         self.outer_chamber_surface = gmsh.model.occ.fragment([(2, outer_chamber_surface_temp)], [(2, self.inner_chamber_surface)])[0][1][1]
@@ -66,6 +76,9 @@ class App(GenerateMesh):
         _, inner_chamber_curves = gmsh.model.occ.get_curve_loops(self.inner_chamber_surface)
         self.inner_chamber_boundary = inner_chamber_curves[0][0]
 
+        _, cavity_curves = gmsh.model.occ.get_curve_loops(self.cavity_surface)
+        self.cavity_boundary = cavity_curves[0][0]
+
         # dim_tags = gmsh.model.occ.get_entities(dim=2)
         # self.boundaries = [tag for dim, tag in dim_tags]
 
@@ -81,7 +94,8 @@ class App(GenerateMesh):
         materials = (
             MaterialGroup(tag=1, entities=[self.domain_surface]),
             MaterialGroup(tag=2, entities=[self.outer_chamber_surface]),
-            MaterialGroup(tag=3, entities=[self.inner_chamber_surface])
+            MaterialGroup(tag=3, entities=[self.inner_chamber_surface]),
+            MaterialGroup(tag=4, entities=[self.cavity_surface]),
         )
         for material in materials:
             material.create_physical_group()
@@ -98,20 +112,11 @@ class App(GenerateMesh):
             VertexGroup(name="boundary_ypos", tag=4, dim=1, entities=[self.y_pos_boundary]),
             VertexGroup(name="boundary_outer_chamber", tag=5, dim=1, entities=[self.outer_chamber_boundary]),
             VertexGroup(name="boundary_inner_chamber", tag=6, dim=1, entities=[self.inner_chamber_boundary]),
-            VertexGroup(tag=7, name="crust", dim=2, entities=[self.domain_surface]),
-            VertexGroup(tag=8, name="outer_chamber", dim=2, entities=[self.outer_chamber_surface]),
-            VertexGroup(tag=9, name="inner_chamber", dim=2, entities=[self.inner_chamber_surface])
+            VertexGroup(name="boundary_cavity", tag=7, dim=1, entities=[self.cavity_boundary]),
+
         )
         for group in boundary_groups:
             group.create_physical_group()
-
-        # materials_vertex = (
-        #     VertexGroup(tag=7, name="crust", dim=2, entities=[self.domain_surface]),
-        #     VertexGroup(tag=8, name="outer_chamber", dim=2, entities=[self.outer_chamber_surface]),
-        #     VertexGroup(tag=9, name="inner_chamber", dim=2, entities=[self.inner_chamber_surface])
-        # )
-        # for materials_vertex in materials_vertex:
-        #     materials_vertex.create_physical_group()
 
 
     def generate_mesh(self, cell):
@@ -126,7 +131,7 @@ class App(GenerateMesh):
 
         # First, we setup a field `field_distance` with the distance from the reservoir boundary.
         distance = gmsh.model.mesh.field.add("Distance")
-        gmsh.model.mesh.field.setNumbers(distance, "CurvesList", [self.inner_chamber_boundary, self.outer_chamber_boundary])
+        gmsh.model.mesh.field.setNumbers(distance, "CurvesList", [self.cavity_boundary, self.inner_chamber_boundary, self.outer_chamber_boundary])
 
         # Second, we setup a field `field_size`, which is the mathematical expression
         # for the cell size as a function of the cell size on the boundary, the distance from

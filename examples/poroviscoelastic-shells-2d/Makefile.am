@@ -13,5 +13,6 @@ dist_noinst_PYTHON = \
 
 dist_noinst_DATA = \
     pve_mesh_tri.msh \
+    pve_shells_2d.timedb
     pylithapp.cfg \
     step01_inflation.cfg \
