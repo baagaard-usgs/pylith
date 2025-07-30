@@ -12,9 +12,9 @@ class App(GenerateMesh):
     Pressure Cavity is a 0.25 km radius circle
     """
     DOMAIN_X = DOMAIN_Y = 30e3
-    INNER_SHELL_RAD = 2e3
+    INNER_SHELL_RAD = (2e3, 1e3)
     OUTER_SHELL_RAD = 5e3
-    CAVITY_RAD = 0.25e3
+    CAVITY_RAD = (0.25e3, 0.15e3)
     SHELL_CENTER = (DOMAIN_X/2, -DOMAIN_Y/2, 0)
     DX_CHAMBER = 150
     DX_BIAS = 1.1
@@ -37,12 +37,12 @@ class App(GenerateMesh):
         gmsh.model.occ.add_plane_surface([domain_box])
 
         # Create cavity surface
-        cavity_ellipse = gmsh.model.occ.add_ellipse(self.SHELL_CENTER[0], self.SHELL_CENTER[1], self.SHELL_CENTER[2], self.CAVITY_RAD, self.CAVITY_RAD)
+        cavity_ellipse = gmsh.model.occ.add_ellipse(self.SHELL_CENTER[0], self.SHELL_CENTER[1], self.SHELL_CENTER[2], self.CAVITY_RAD[0], self.CAVITY_RAD[1])
         cavity_loop = gmsh.model.occ.add_curve_loop([cavity_ellipse])
         self.cavity_surface = gmsh.model.occ.add_plane_surface([cavity_loop])
 
         # Create inner chamber surface
-        inner_chamber_ellipse = gmsh.model.occ.add_ellipse(self.SHELL_CENTER[0], self.SHELL_CENTER[1], self.SHELL_CENTER[2], self.INNER_SHELL_RAD, self.INNER_SHELL_RAD)
+        inner_chamber_ellipse = gmsh.model.occ.add_ellipse(self.SHELL_CENTER[0], self.SHELL_CENTER[1], self.SHELL_CENTER[2], self.INNER_SHELL_RAD[0], self.INNER_SHELL_RAD[1])
         inner_chamber_loop = gmsh.model.occ.add_curve_loop([inner_chamber_ellipse])
         inner_chamber_surface_temp = gmsh.model.occ.add_plane_surface([inner_chamber_loop])
 
