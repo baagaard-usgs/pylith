@@ -149,6 +149,7 @@ libpylith_la_SOURCES = \
 	utils/PylithVersion.cc \
 	utils/PetscVersion.cc \
 	utils/DependenciesVersion.cc \
+	utils/TSAdaptImpulse.cc \
 	utils/TestArray.cc
 
 
