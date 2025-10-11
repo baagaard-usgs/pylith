@@ -11,17 +11,15 @@
 
 #include "pylith/topology/topologyfwd.hh" // forward declarations
 
-#include "pylith/utils/GenericComponent.hh" // ISA GenericComponent
+#include "pylith/utils/PyreComponent.hh" // ISA PyreComponent
 
 #include "pylith/meshio/meshiofwd.hh" // USES DataWriter
 #include "pylith/faults/faultsfwd.hh" // USES FaultCohesive
 
-// Distributor ----------------------------------------------------------
-/// Distribute mesh among processors.
-class pylith::topology::Distributor : public pylith::utils::GenericComponent {
+class pylith::topology::Distributor : public pylith::utils::PyreComponent {
     friend class TestDistributor; // unit testing
 
-    // PUBLIC MEMBERS ///////////////////////////////////////////////////////
+    // PUBLIC MEMBERS /////////////////////////////////////////////////////////////////////////////
 public:
 
     /// Constructor
@@ -30,34 +28,40 @@ public:
     /// Destructor
     ~Distributor(void);
 
-    /** Distribute mesh among processors.
+    /** Set data writer.
      *
-     * @param[in] newMesh Distributed mesh (result).
-     * @param[in] origMesh Mesh to distribute.
-     * @param[in] faults Array of fault interfaces.
-     * @param[in] numFaults Number of fault interfaces.
-     * @param[in] partitionerName Name of PETSc partitioner to use in distributing mesh.
-     * @param[in] useEdgeWeighting Use edge weighting when partitioning (parmetis only).
+     * @param[in] writer Data writer.
      */
-    static
-    void distribute(pylith::topology::Mesh* const newMesh,
-                    const pylith::topology::Mesh& origMesh,
-                    pylith::faults::FaultCohesive* faults[],
-                    const int numFaults,
-                    const char* partitionerName,
-                    const bool useEdgeWeighting);
+    void setDataWriter(pylith::meshio::DataWriter* writer);
 
-    /** Write partitioning info for distributed mesh.
+    /** Set edge weighting.
      *
-     * @param writer Data writer for partition information.
-     * @param mesh Distributed mesh.
-     * @param cs Coordinate system for mesh.
+     * @param[in] useEdgeWeighting If true, weight edges in distribution.
      */
-    static
-    void write(meshio::DataWriter* const writer,
-               const topology::Mesh& mesh);
+    void setUseEdgeWeighting(const bool flag);
 
-    // NOT IMPLEMENTED //////////////////////////////////////////////////////
+    /** Set partitioner.
+     *
+     * @param[in] partitioner Name of mesh partitioner.
+     */
+    void setPartitioner(const char* partitioner);
+
+    /** Distribute mesh.
+     *
+     * @param[in] mesh Original mesh.
+     * @param[in] faults Fault interfaces.
+     */
+    pylith::topology::Mesh* distribute(const pylith::topology::Mesh& mesh,
+                                       const std::vector<pylith::faults::FaultCohesive*>& faults) const;
+
+    // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
+private:
+
+    pylith::meshio::DataWriter* _writer; ///< Data writer for partition.
+    std::string _partitioner; ///< Name of mesh partitioner
+    bool _useEdgeWeighting; ///< Use edge weighting in partitioning.
+
+    // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
     Distributor(const Distributor&); ///< Not implemented

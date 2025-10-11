@@ -8,23 +8,24 @@
 # See https://mit-license.org/ and LICENSE.md and for license information. 
 # =================================================================================================
 
-from .topology import ReverseCuthillMcKee as ModuleReverseCuthillMcKee
+
+subpackage = initializers
+include $(top_srcdir)/subpackage.am
+
+subpkginclude_HEADERS = \
+	Initializer.hh \
+	InitializePhase.hh \
+	MeshReader.hh \
+	MeshWriter.hh \
+    MeshRefiner.hh \
+    MeshReordering.hh \
+    MeshDistributor.hh \
+    MeshInsertInterfaces.hh \
+	initializersfwd.hh
 
 
-class ReverseCuthillMcKee(ModuleReverseCuthillMcKee):
-    """
-    Interface to PETSc reverse Cuthill-McKee reordering of mesh cells and vertices.
-    """
+dist_noinst_HEADERS =
 
-    def __init__(self):
-        """Constructor.
-        """
-        return
-
-    def reorder(self, mesh):
-        """Set communicator.
-        """
-        ModuleReverseCuthillMcKee.reorder(mesh)
 
 
 # End of file

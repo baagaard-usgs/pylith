@@ -9,6 +9,7 @@
 # =================================================================================================
 
 from .InitializePhase import InitializePhase
+from .initializers import MeshInsertInterfaces as ModuleMeshInsertInterfaces
 
 
 class MeshInsertInterfaces(InitializePhase):
@@ -20,7 +21,8 @@ class MeshInsertInterfaces(InitializePhase):
 
     DOC_CONFIG = {
         "cfg": """
-            [pylithapp.problem.mesh_initializer.insert_interfaces]
+            [pylithapp.problem.mesh_initializer.phases.insert_interfaces]
+            # No parameters
         """
     }
 
@@ -28,29 +30,16 @@ class MeshInsertInterfaces(InitializePhase):
         """Constructor."""
         InitializePhase.__init__(self, name)
 
-    def initialize(self, mesh, problem):
-        """Do mesh initialize phase."""
-        cohesiveLabelValue = 100
-        for material in problem.materials.components():
-            labelValue = material.labelValue
-            cohesiveLabelValue = max(cohesiveLabelValue, labelValue + 1)
-        for interface in problem.interfaces:
-            if mpi_is_root():
-                self._info.log("Inserting fault interface '%s'." % interface.labelName)
-            interface.preinitialize(problem)
-            interface.setCohesiveLabelValue(cohesiveLabelValue)
-            mesh = interface.transformTopology(mesh)
-            cohesiveLabelValue += 1
-        return mesh
-
     def _configure(self):
         """Set members based on inventory."""
         InitializePhase._configure(self)
 
+    def _createModuleObj(self):
+        """Create handle to C++ object."""
+        ModuleMeshInsertInterfaces.__init__(self)
+
 
 # FACTORIES ////////////////////////////////////////////////////////////
-
-
 def initialize_phase():
     """Factory associated with MeshInsertInterfaces."""
     return MeshInsertInterfaces()

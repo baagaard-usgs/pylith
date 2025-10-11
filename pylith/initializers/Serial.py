@@ -11,39 +11,36 @@
 from pythia.pyre.components.Component import Component
 
 
-class SerialPhases(Component):
+class Serial(Component):
     """
     Mesh initialization phases for reading in serial.
 
     :::{seealso}
-    See [`MeshInitializer` Component](../problems/Problem.md).
+    See [`Initializer` Component](Initializer.md).
     :::
     """
 
     import pythia.pyre.inventory
 
     from .MeshReader import MeshReader
+    from .MeshReordering import MeshReordering
+    from .MeshInsertInterfaces import MeshInsertInterfaces
+    from .MeshDistributor import MeshDistributor
 
     read_mesh = pythia.pyre.inventory.facility(
         "read_mesh", family="initialize_phase", factory=MeshReader
     )
     read_mesh.meta["tip"] = "Read mesh in serial."
 
-    from .MeshReordering import MeshReordering
-
     reorder_mesh = pythia.pyre.inventory.facility(
         "reorder_mesh", family="initialize_phase", factory=MeshReordering
     )
     reorder_mesh.meta["tip"] = "Reorder mesh using reverse Cuthill-McKee algorithm."
 
-    from .MeshDistributor import MeshDistributor
-
     distribute_mesh = pythia.pyre.inventory.facility(
         "distribute_mesh", family="initialize_phase", factory=MeshDistributor
     )
     distribute_mesh.meta["tip"] = "Distribute mesh among processes."
-
-    from .MeshInsertInterfaces import MeshInsertInterfaces
 
     insert_interfaces = pythia.pyre.inventory.facility(
         "insert_interfaces", family="initialize_phase", factory=MeshInsertInterfaces
@@ -70,52 +67,6 @@ class SerialPhases(Component):
             self.insert_interfaces,
         ]
 
-
-def phasesFactory(name):
-    """Factory for output items."""
-    from pythia.pyre.inventory import facility
-    from pylith.meshio.InitializePhase import InitializePhase
-
-    return facility(name, family="initialize_phase", factory=InitializePhase)
-
-
-class MeshInitializer(Component):
-    """
-    Manager for reading and setting up a finite-element mesh.
-    """
-
-    DOC_CONFIG = {
-        "cfg": """
-            [pylithapp.mesh_initializer]
-            phases = [read_mesh, reorder_mesh, distribute_mesh, insert_interfaces]
-            read_mesh = pylith.meshio.MeshReader
-            reorder_mesh = pylith.meshio.MeshReordering
-            distribute_mesh = pylith.meshio.MeshDistributor
-            insert_interfaces = pylith.meshio.MeshInsertInterfaces
-        """
-    }
-
-    import pythia.pyre.inventory
-
-    phases = pythia.pyre.inventory.facilityArray(
-        "phases", itemFactory=phasesFactory, factory=SerialPhases
-    )
-    phases.meta["tip"] = "Phases for mesh initialization."
-
-    def __init__(self, name="mesh_initializer"):
-        """Constructor."""
-        Component.__init__(self, name, facility="mesh_initializer")
-
-    def initialize(self):
-        """Read and setup a finite-element mesh."""
-        mesh = None
-        for phase in self.phases:
-            mesh = phase.initializer(mesh)
-        return mesh
-
-    def _configure(self):
-        """Set members based using inventory."""
-        Component._configure(self)
 
 
 # End of file

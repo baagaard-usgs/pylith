@@ -9,8 +9,7 @@
 # =================================================================================================
 
 from .InitializePhase import InitializePhase
-
-from .topology import ReverseCuthillMcKee
+from .initializers import MeshReordering as ModuleMeshReordering
 
 
 class MeshReordering(InitializePhase):
@@ -22,7 +21,8 @@ class MeshReordering(InitializePhase):
 
     DOC_CONFIG = {
         "cfg": """
-            [pylithapp.problem.mesh_initializer.reorder_mesh]
+            [pylithapp.problem.mesh_initializer.phases.reorder_mesh]
+            # No parameters
         """
     }
 
@@ -30,19 +30,16 @@ class MeshReordering(InitializePhase):
         """Constructor."""
         InitializePhase.__init__(self, name)
 
-    def initialize(self, mesh, problem):
-        """Do mesh initialize phase."""
-        ReverseCuthillMcKee.reorder(mesh)
-        return mesh
-
     def _configure(self):
         """Set members based on inventory."""
         InitializePhase._configure(self)
 
+    def _createModuleObj(self):
+        """Create handle to C++ object."""
+        ModuleMeshReordering.__init__(self)
+
 
 # FACTORIES ////////////////////////////////////////////////////////////
-
-
 def initialize_phase():
     """Factory associated with MeshReordering."""
     return MeshReordering()

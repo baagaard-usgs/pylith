@@ -33,6 +33,10 @@ namespace pylith {
         class _Distributor {
 public:
 
+            static
+            void write(pylith::meshio::DataWriter* writer,
+                       const pylith::topology::Mesh& mesh);
+
             /** Distribute custom overlap based on PETSc labels.
              *
              * The overlap excludes cohesive cells but includes cells adjacent to faults.
@@ -41,20 +45,15 @@ public:
              * @param[out] dmOverlap PETSc DM for the overlap.
              * @param[in] dmMesh PETSc DM for the current mesh.
              * @param[in] faults Array of fault interfaces.
-             * @param[in] numFaults Number of fault interfaces.
              *
              * @returns PETSc error code (0==success).
              */
             static
             PetscErrorCode distributeOverlap(PetscDM* dmOverlap,
                                              PetscDM dmMesh,
-                                             pylith::faults::FaultCohesive* faults[],
-                                             const int numFaults);
-
-            static const char* componentName;
+                                             const std::vector<pylith::faults::FaultCohesive*>& faults);
 
         }; // _Distributor
-        const char* _Distributor::componentName = "distributor";
     } // topology
 } // pylith
 
@@ -81,83 +80,106 @@ DMPlexGetAdjacency_SupportOnly_Internal(DM dm,
 
 // ------------------------------------------------------------------------------------------------
 // Constructor
-pylith::topology::Distributor::Distributor(void) {
-    GenericComponent::setName(_Distributor::componentName);
-}
+pylith::topology::Distributor::Distributor(void) :
+    _writer(nullptr),
+    _partitioner("parmetis"),
+    _useEdgeWeighting(true) {}
 
 
 // ------------------------------------------------------------------------------------------------
 // Destructor
-pylith::topology::Distributor::~Distributor(void) {}
+pylith::topology::Distributor::~Distributor(void) {
+    _writer = nullptr; // :KLUDGE: Use shared pointer
+}
 
 
 // ------------------------------------------------------------------------------------------------
-// Distribute mesh among processors.
+// Set data writer.
 void
-pylith::topology::Distributor::distribute(pylith::topology::Mesh* const newMesh,
-                                          const pylith::topology::Mesh& origMesh,
-                                          pylith::faults::FaultCohesive* faults[],
-                                          const int numFaults,
-                                          const char* partitionerName,
-                                          const bool useEdgeWeighting) {
+pylith::topology::Distributor::setDataWriter(pylith::meshio::DataWriter* writer) {
+    _writer = writer;
+} // setDataWriter
+
+
+// ------------------------------------------------------------------------------------------------
+// Set edge weighting.
+void
+pylith::topology::Distributor::setUseEdgeWeighting(const bool flag) {
+    _useEdgeWeighting = flag;
+} // setUseEdgeWeighting
+
+
+// ------------------------------------------------------------------------------------------------
+// Set partitioner.
+void
+pylith::topology::Distributor::setPartitioner(const char* partitioner) {
+    if ((0 == strcasecmp(partitioner, "parmetis")) || (0 == strcasecmp(partitioner, "chaco")) || (0 == strcasecmp(partitioner, "simple"))) {
+        _partitioner = partitioner;
+    } else {
+        std::ostringstream msg;
+        msg << "Unknown partitioner '" << partitioner << "'. Partitioner must be 'parmetis', 'chaco', or 'simple'.";
+        throw std::runtime_error(msg.str());
+    } // if/else
+} // setPartitioner
+
+
+// ------------------------------------------------------------------------------------------------
+// Distribute mesh.
+pylith::topology::Mesh*
+pylith::topology::Distributor::distribute(const pylith::topology::Mesh& mesh,
+                                          const std::vector<pylith::faults::FaultCohesive*>& faults) const {
     PYLITH_METHOD_BEGIN;
-    pythia::journal::info_t info(_Distributor::componentName);
 
-    assert(newMesh);
-    newMesh->setCoordSys(origMesh.getCoordSys());
+    pylith::topology::Mesh* newMesh = new pylith::topology::Mesh();assert(newMesh);
+    newMesh->setCoordSys(mesh.getCoordSys());
 
-    const int commRank = origMesh.getCommRank();
+    const int commRank = mesh.getCommRank();
     if (0 == commRank) {
-        info << pythia::journal::at(__HERE__)
-             << "Partitioning mesh using PETSc '" << partitionerName << "' partitioner." << pythia::journal::endl;
+        PYLITH_COMPONENT_INFO("Partitioning mesh using PETSc '" << _partitioner << "' partitioner.");
     } // if
 
-    PetscPartitioner partitioner = 0;
-    PetscDM dmOrig = origMesh.getDM();assert(dmOrig);
+    PetscPartitioner partitioner = nullptr;
+    PetscDM dmOrig = mesh.getDM();assert(dmOrig);
     PylithCallPetsc(DMPlexGetPartitioner(dmOrig, &partitioner));
-    PylithCallPetsc(PetscPartitionerSetType(partitioner, partitionerName));
-    if ((std::string(partitionerName) == std::string("parmetis")) && useEdgeWeighting) {
+    PylithCallPetsc(PetscPartitionerSetType(partitioner, _partitioner.c_str()));
+    if ((_partitioner == std::string("parmetis")) && _useEdgeWeighting) {
         PylithCallPetsc(PetscOptionsSetValue(NULL, "-petscpartitioner_use_vertex_weights", "true"));
         PylithCallPetsc(PetscPartitionerSetFromOptions(partitioner));
     } // if
 
     if (0 == commRank) {
-        info << pythia::journal::at(__HERE__)
-             << "Distributing partitioned mesh." << pythia::journal::endl;
+        PYLITH_COMPONENT_INFO("Distributing partitioner mesh.");
     } // if
 
     PetscDM dmTmp = NULL, dmNew = NULL;
     const PetscInt overlap = 0;
-    PylithCallPetsc(DMPlexDistribute(origMesh.getDM(), overlap, NULL, &dmTmp));
-    PylithCallPetsc(_Distributor::distributeOverlap(&dmNew, dmTmp, faults, numFaults));
+    PylithCallPetsc(DMPlexDistribute(dmOrig, overlap, NULL, &dmTmp));
+    PylithCallPetsc(_Distributor::distributeOverlap(&dmNew, dmTmp, faults));
     PylithCallPetsc(DMDestroy(&dmTmp));
     PylithCallPetsc(DMPlexDistributeSetDefault(dmNew, PETSC_FALSE));
     PylithCallPetsc(DMPlexReorderCohesiveSupports(dmNew));
     PylithCallPetsc(DMViewFromOptions(dmNew, NULL, "-pylith_dist_dm_view"));
     newMesh->setDM(dmNew, "domain");
 
-    pythia::journal::debug_t debug(_Distributor::componentName);
+    pythia::journal::debug_t debug(PyreComponent::getName());
     if (debug.state()) {
         newMesh->view(":mesh_distributed.txt:ascii_info_detail");
         newMesh->view(":mesh_distributed.tex:ascii_latex");
     } // if
+    if (_writer) {
+        _Distributor::write(_writer, *newMesh);
+    } // if
 
-    PYLITH_METHOD_END;
+    PYLITH_METHOD_RETURN(newMesh);
 } // distribute
 
 
 // ------------------------------------------------------------------------------------------------
 // Write partitioning info for distributed mesh.
 void
-pylith::topology::Distributor::write(meshio::DataWriter* const writer,
-                                     const topology::Mesh& mesh) {
+pylith::topology::_Distributor::write(meshio::DataWriter* const writer,
+                                      const topology::Mesh& mesh) {
     PYLITH_METHOD_BEGIN;
-
-    if (pylith::utils::MPI::isRoot()) {
-        pythia::journal::info_t info(_Distributor::componentName);
-        info << pythia::journal::at(__HERE__)
-             << "Writing partition." << pythia::journal::endl;
-    } // if
 
     // Setup and allocate PETSc vector
     const int commRank = mesh.getCommRank();
@@ -226,8 +248,7 @@ pylith::topology::Distributor::write(meshio::DataWriter* const writer,
 PetscErrorCode
 pylith::topology::_Distributor::distributeOverlap(PetscDM* dmOverlap,
                                                   PetscDM dmMesh,
-                                                  pylith::faults::FaultCohesive* faults[],
-                                                  const int numFaults) {
+                                                  const std::vector<pylith::faults::FaultCohesive*>& faults) {
     PYLITH_METHOD_BEGIN;
     assert(dmOverlap);
 
@@ -239,8 +260,8 @@ pylith::topology::_Distributor::distributeOverlap(PetscDM* dmOverlap,
     PetscDMLabel lblOverlap;
     PetscSF sfOverlap, sfStratified, sfPoint;
     PetscInt dim;
-    PetscBool useConeOld, useClosureOld;
 
+    const size_t numFaults = faults.size();
     if (0 == numFaults) {
         PylithCallPetsc(PetscObjectReference((PetscObject)dmMesh));
         *dmOverlap = dmMesh;

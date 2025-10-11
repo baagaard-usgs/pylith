@@ -11,18 +11,35 @@
 
 #include "pylith/topology/topologyfwd.hh" // forward declarations
 
-class pylith::topology::ReverseCuthillMcKee {
+#include "pylith/utils/PyreComponent.hh" // ISA PyreComponent
+
+class pylith::topology::RefineMesh : public pylith::utils::PyreComponent {
     // PUBLIC MEMBERS ///////////////////////////////////////////////////////
 public:
 
-    /** Reorder vertices and cells of mesh using PETSc routines
-     * implementing reverse Cuthill-McKee algorithm.
-     *
-     * @param mesh PyLith finite-element mesh.
-     */
-    static
-    void reorder(topology::Mesh* mesh);
+    /// Constructor
+    RefineMesh(void);
 
-}; // ReverseCuthillMcKee
+    /// Destructor
+    ~RefineMesh(void);
+
+    /// Deallocate data structures.
+    void deallocate(void);
+
+    /** Refine mesh.
+     *
+     * @param mesh Mesh to refine.
+     * @returns Mesh after refinement.
+     */
+    virtual
+    pylith::topology::Mesh* refine(pylith::topology::Mesh* const mesh) = 0;
+
+    // NOT IMPLEMENTED //////////////////////////////////////////////////////
+private:
+
+    RefineMesh(const RefineMesh&); ///< Not implemented
+    const RefineMesh& operator=(const RefineMesh&); ///< Not implemented
+
+}; // RefineMesh
 
 // End of file

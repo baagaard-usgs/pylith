@@ -8,21 +8,28 @@
 # See https://mit-license.org/ and LICENSE.md and for license information.
 # =================================================================================================
 
-from pythia.pyre.components.Component import Component
+from pylith.utils.PetscComponent import PetscComponent
 
 
-class InitializePhase(Component):
+class InitializePhase(PetscComponent):
     """
     Abstract base class for mesh initialization phases.
     """
 
     def __init__(self, name="initialize_phase"):
         """Constructor."""
-        Component.__init__(self, name, facility="initialize_phase")
+        PetscComponent.__init__(self, name, facility="initialize_phase")
 
-    def initialize(self, mesh, problem):
-        """Do mesh initialization phase."""
-        raise NotImplementedError()
+    def preinitialize(self):
+        """Preinitialize mesh initialization phase."""
+        self._createModuleObj()
 
+    def _configure(self):
+        """Set members based using inventory.
+        """
+        PetscComponent._configure(self)
+
+    def _createModuleObj(self):
+        raise NotImplementedError("Implement _createModuleObj().")
 
 # End of file

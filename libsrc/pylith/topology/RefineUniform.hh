@@ -9,11 +9,9 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/topology/topologyfwd.hh" // forward declarations
+#include "pylith/topology/RefineMesh.hh" // ISA RefineMesh
 
-// RefineUniform --------------------------------------------------------
-/// Object for managing uniform global mesh refinement.
-class pylith::topology::RefineUniform { // RefineUniform
+class pylith::topology::RefineUniform : public pylith::topology::RefineMesh {
     friend class TestRefineUniform; // unit testing
 
     // PUBLIC MEMBERS ///////////////////////////////////////////////////////
@@ -28,17 +26,25 @@ public:
     /// Deallocate data structures.
     void deallocate(void);
 
+    /** Set number of levels of refinement.
+     *
+     * @param[in] numLevels Number of levels.
+     */
+    void setNumLevels(const size_t numLevels);
+
     /** Refine mesh.
      *
-     * @param newMesh Refined mesh (result).
      * @param mesh Mesh to refine.
-     * @param levels Number of levels to refine.
+     * @returns Mesh after refinement.
      */
-    void refine(Mesh* const newMesh,
-                const Mesh& mesh,
-                const int levels=1);
+    pylith::topology::Mesh* refine(pylith::topology::Mesh* const mesh);
 
-    // NOT IMPLEMENTED //////////////////////////////////////////////////////
+    // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
+private:
+
+    int _numLevels; ///< Number of levels of refinement
+
+    // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
     RefineUniform(const RefineUniform&); ///< Not implemented

@@ -10,7 +10,7 @@
 
 #include <portinfo>
 
-#include "pylith/topology/RefineInterpolator.hh" // implementation of class methods
+#include "pylith/topology/RefineOutputInterpolator.hh" // implementation of class methods
 
 #include "pylith/topology/Mesh.hh" // USES Mesh
 #include "pylith/topology/MeshOps.hh" // USES MeshOps
@@ -25,7 +25,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace pylith {
     namespace topology {
-        class _RefineInterpolator {
+        class _RefineOutputInterpolator {
 public:
 
             class Events {
@@ -39,34 +39,34 @@ public:
                 static PylithInt interpolate;
             };
 
-        }; // _RefineInterpolator
+        }; // _RefineOutputInterpolator
     } // topology
 } // pylith
 
-pylith::utils::EventLogger pylith::topology::_RefineInterpolator::Events::logger;
-PylithInt pylith::topology::_RefineInterpolator::Events::initialize;
-PylithInt pylith::topology::_RefineInterpolator::Events::interpolate;
+pylith::utils::EventLogger pylith::topology::_RefineOutputInterpolator::Events::logger;
+PylithInt pylith::topology::_RefineOutputInterpolator::Events::initialize;
+PylithInt pylith::topology::_RefineOutputInterpolator::Events::interpolate;
 
 // ------------------------------------------------------------------------------------------------
 void
-pylith::topology::_RefineInterpolator::Events::init(void) {
-    logger.setClassName("RefineInterpolator");
+pylith::topology::_RefineOutputInterpolator::Events::init(void) {
+    logger.setClassName("RefineOutputInterpolator");
     logger.initialize();
-    initialize = logger.registerEvent("PL:RefineInterpolator:initialize");
-    interpolate = logger.registerEvent("PL:RefineInterpolator:interpolate");
+    initialize = logger.registerEvent("PL:RefineOutputInterpolator:initialize");
+    interpolate = logger.registerEvent("PL:RefineOutputInterpolator:interpolate");
 }
 
 
 // ------------------------------------------------------------------------------------------------
 // Constructor
-pylith::topology::RefineInterpolator::RefineInterpolator(void) {
-    _RefineInterpolator::Events::init();
+pylith::topology::RefineOutputInterpolator::RefineOutputInterpolator(void) {
+    _RefineOutputInterpolator::Events::init();
 }
 
 
 // ------------------------------------------------------------------------------------------------
 // Destructor
-pylith::topology::RefineInterpolator::~RefineInterpolator(void) {
+pylith::topology::RefineOutputInterpolator::~RefineOutputInterpolator(void) {
     deallocate();
 }
 
@@ -74,7 +74,7 @@ pylith::topology::RefineInterpolator::~RefineInterpolator(void) {
 // ------------------------------------------------------------------------------------------------
 // Deallocate data structures.
 void
-pylith::topology::RefineInterpolator::deallocate(void) {
+pylith::topology::RefineOutputInterpolator::deallocate(void) {
     for (auto level : _levels) {
         DMDestroy(&level.dm);
         MatDestroy(&level.interpolateMatrix);
@@ -87,7 +87,7 @@ pylith::topology::RefineInterpolator::deallocate(void) {
 // ------------------------------------------------------------------------------------------------
 // Get PETSc DM for input (coarsest level)
 PetscDM
-pylith::topology::RefineInterpolator::getInputDM(void) {
+pylith::topology::RefineOutputInterpolator::getInputDM(void) {
     PetscDM dmStart = PETSC_NULLPTR;
     if (_levels.size() > 0) {
         PylithCallPetsc(DMGetCoarseDM(_levels[0].dm, &dmStart));
@@ -99,7 +99,7 @@ pylith::topology::RefineInterpolator::getInputDM(void) {
 // ------------------------------------------------------------------------------------------------
 // Get PETSc DM for output (finest level)
 PetscDM
-pylith::topology::RefineInterpolator::getOutputDM(void) {
+pylith::topology::RefineOutputInterpolator::getOutputDM(void) {
     return (_levels.size() > 0) ? _levels[_levels.size()-1].dm : PETSC_NULLPTR;
 }
 
@@ -107,13 +107,13 @@ pylith::topology::RefineInterpolator::getOutputDM(void) {
 // ------------------------------------------------------------------------------------------------
 // Initialize interpolation to refined mesh.
 void
-pylith::topology::RefineInterpolator::initialize(const PetscDM& dmMesh,
-                                                 const int refineLevels,
-                                                 const int outputBasisOrder,
-                                                 const pylith::topology::FieldBase::Description& description,
-                                                 const pylith::topology::FieldBase::Discretization& discretization) {
+pylith::topology::RefineOutputInterpolator::initialize(const PetscDM& dmMesh,
+                                                       const int refineLevels,
+                                                       const int outputBasisOrder,
+                                                       const pylith::topology::FieldBase::Description& description,
+                                                       const pylith::topology::FieldBase::Discretization& discretization) {
     PYLITH_METHOD_BEGIN;
-    _RefineInterpolator::Events::logger.eventBegin(_RefineInterpolator::Events::initialize);
+    _RefineOutputInterpolator::Events::logger.eventBegin(_RefineOutputInterpolator::Events::initialize);
 
     _levels.resize(refineLevels);
 
@@ -159,7 +159,7 @@ pylith::topology::RefineInterpolator::initialize(const PetscDM& dmMesh,
     } // for
     PylithCallPetsc(DMDestroy(&dmStart));
 
-    _RefineInterpolator::Events::logger.eventEnd(_RefineInterpolator::Events::initialize);
+    _RefineOutputInterpolator::Events::logger.eventEnd(_RefineOutputInterpolator::Events::initialize);
     PYLITH_METHOD_END;
 } // initialize
 
@@ -167,10 +167,10 @@ pylith::topology::RefineInterpolator::initialize(const PetscDM& dmMesh,
 // ------------------------------------------------------------------------------------------------
 // Interpolate field to fine mesh level.
 void
-pylith::topology::RefineInterpolator::interpolate(const PetscVec* vectorOut,
-                                                  const PetscVec& vectorIn) {
+pylith::topology::RefineOutputInterpolator::interpolate(const PetscVec* vectorOut,
+                                                        const PetscVec& vectorIn) {
     PYLITH_METHOD_BEGIN;
-    _RefineInterpolator::Events::logger.eventBegin(_RefineInterpolator::Events::interpolate);
+    _RefineOutputInterpolator::Events::logger.eventBegin(_RefineOutputInterpolator::Events::interpolate);
     assert(vectorOut);
 
     PetscVec vectorPrev = vectorIn;
@@ -180,7 +180,7 @@ pylith::topology::RefineInterpolator::interpolate(const PetscVec* vectorOut,
     } // for
     PylithCallPetsc(VecCopy(vectorPrev, *vectorOut));
 
-    _RefineInterpolator::Events::logger.eventEnd(_RefineInterpolator::Events::interpolate);
+    _RefineOutputInterpolator::Events::logger.eventEnd(_RefineOutputInterpolator::Events::interpolate);
     PYLITH_METHOD_END;
 } // interpolate
 

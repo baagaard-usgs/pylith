@@ -11,7 +11,7 @@
 from pylith.utils.PetscComponent import PetscComponent
 
 
-class MeshRefiner(PetscComponent):
+class RefineMesh(PetscComponent):
     """
     Abstract base class for refining a mesh in parallel.
     """
@@ -23,31 +23,15 @@ class MeshRefiner(PetscComponent):
 
     def preinitialize(self):
         """Do minimal initialization."""
-        return
-
-    def refine(self, mesh):
-        """Refine mesh.
-        """
-        return mesh
+        self._createModuleObj()
 
     def _configure(self):
         """Set members based using inventory.
         """
         PetscComponent._configure(self)
 
-    def _setupLogging(self):
-        """Setup event logging.
-        """
-        self._loggingPrefix = "PL.MeshRefiner."
-        from pylith.utils.EventLogger import EventLogger
-        logger = EventLogger()
-        logger.setClassName("MeshRefiner")
-        logger.initialize()
-        events = ["refine"]
-        for event in events:
-            logger.registerEvent(f"{self._loggingPrefix}{event}")
-
-        self._eventLogger = logger
+    def _createModuleObj(self):
+        raise NotImplementedError("Implement _createModuleObj().")
 
 
 # End of file

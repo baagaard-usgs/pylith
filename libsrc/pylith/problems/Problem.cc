@@ -329,6 +329,14 @@ pylith::problems::Problem::setMaterials(pylith::materials::Material* materials[]
 
 
 // ------------------------------------------------------------------------------------------------
+// Get materials.
+const std::vector<pylith::materials::Material*>&
+pylith::problems::Problem::getMaterials(void) const {
+    return _materials;
+} // getMaterials
+
+
+// ------------------------------------------------------------------------------------------------
 // Set boundary conditions.
 void
 pylith::problems::Problem::setBoundaryConditions(pylith::bc::BoundaryCondition* bc[],
@@ -348,7 +356,15 @@ pylith::problems::Problem::setBoundaryConditions(pylith::bc::BoundaryCondition* 
 
 
 // ------------------------------------------------------------------------------------------------
-// Set materials.
+// Get boundary conditions.
+const std::vector<pylith::bc::BoundaryCondition*>&
+pylith::problems::Problem::getBoundaryConditions(void) const {
+    return _bc;
+} // getBoundaryConditions
+
+
+// ------------------------------------------------------------------------------------------------
+// Set fault interfaces.
 void
 pylith::problems::Problem::setInterfaces(pylith::faults::FaultCohesive* interfaces[],
                                          const int numInterfaces) {
@@ -364,6 +380,14 @@ pylith::problems::Problem::setInterfaces(pylith::faults::FaultCohesive* interfac
 
     PYLITH_METHOD_END;
 } // setInterfaces
+
+
+// ------------------------------------------------------------------------------------------------
+// Get fault interfaces.
+const std::vector<pylith::faults::FaultCohesive*>&
+pylith::problems::Problem::getInterfaces(void) const {
+    return _interfaces;
+} // getInterfaces
 
 
 // ----------------------------------------------------------------------

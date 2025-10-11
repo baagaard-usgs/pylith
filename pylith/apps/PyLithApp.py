@@ -22,9 +22,6 @@ class PyLithApp(PetscApplication):
 
     import pythia.pyre.inventory
 
-    pdbOn = pythia.pyre.inventory.bool("start_python_debugger", default=False)
-    pdbOn.meta['tip'] = "Start python debugger at beginning of main()."
-
     typos = pythia.pyre.inventory.str("typos", default="pedantic",
                                       validator=pythia.pyre.inventory.choice(['relaxed', 'strict', 'pedantic']))
     typos.meta['tip'] = "Specifies the handling of unknown properties and facilities"
@@ -42,14 +39,13 @@ class PyLithApp(PetscApplication):
         "dump_parameters", family="dump_parameters", factory=DumpParametersJson)
     parameters.meta['tip'] = "Dump parameters used and version information to file."
 
-    from pylith.topology.MeshImporter import MeshImporter
-    mesher = pythia.pyre.inventory.facility(
-        "mesh_generator", family="mesh_generator", factory=MeshImporter)
-    mesher.meta['tip'] = "Generates or imports the computational mesh."
-
     from pylith.problems.TimeDependent import TimeDependent
     problem = pythia.pyre.inventory.facility("problem", family="problem", factory=TimeDependent)
     problem.meta['tip'] = "Boundary value problem to solve."
+
+    from pylith.initializers.MeshInitializer import MeshInitializer
+    meshInitializer = pythia.pyre.inventory.facility("mesh_initializer", family="mesh_nitializer", factory=MeshInitializer)
+    meshInitializer.meta['tip'] = "Mesh initializer (read mesh, insert fault interfaces, etc)."
 
     # PUBLIC METHODS /////////////////////////////////////////////////////
 
@@ -58,15 +54,10 @@ class PyLithApp(PetscApplication):
         """
         PetscApplication.__init__(self, name)
         self._loggingPrefix = "PL.PyLithApp."
-        return
 
     def main(self, *args, **kwds):
         """Run the application.
         """
-        if self.pdbOn:
-            import pdb
-            pdb.set_trace()
-
         # Dump parameters and version information
         self.parameters.preinitialize()
         self.parameters.write(self)
@@ -76,33 +67,18 @@ class PyLithApp(PetscApplication):
             comm = mpi_comm_world()
             self._info.log("Running on %d process(es)." % comm.size)
 
-        from pylith.utils.profiling import resourceUsageString
-        self._debug.log(resourceUsageString())
-
         self._setupLogging()
 
-        # Create mesh (adjust to account for interfaces (faults) if necessary)
-        self._eventLogger.stagePush("Meshing")
-        interfaces = None
-        if "interfaces" in dir(self.problem):
-            interfaces = self.problem.interfaces.components()
-        self.mesher.preinitialize(self.problem)
-        mesh = self.mesher.create(self.problem, interfaces)
-        del interfaces
-        self.mesher = None
-        self._debug.log(resourceUsageString())
+        # Initializer mesh
+        self._eventLogger.stagePush("MeshSetup")
+        mesh = self.meshInitializer.initialize(self)
         self._eventLogger.stagePop()
 
         # Setup problem, verify configuration, and then initialize
-        self._eventLogger.stagePush("Setup")
+        self._eventLogger.stagePush("Initialize")
         self.problem.preinitialize(mesh)
-        self._debug.log(resourceUsageString())
-
         self.problem.verifyConfiguration()
-
         self.problem.initialize()
-        self._debug.log(resourceUsageString())
-
         self._eventLogger.stagePop()
 
         # If initializing only, stop before running problem
@@ -112,15 +88,12 @@ class PyLithApp(PetscApplication):
         # Run problem
         self._eventLogger.stagePush("Run")
         self.problem.run(self)
-        self._debug.log(resourceUsageString())
         self._eventLogger.stagePop()
 
         # Cleanup
         self._eventLogger.stagePush("Finalize")
         self.problem.finalize()
         self._eventLogger.stagePop()
-
-        return
 
     def version(self):
         from pylith.utils.CollectVersionInfo import CollectVersionInfo

@@ -200,6 +200,7 @@ AC_CONFIG_FILES([Makefile
 		libsrc/pylith/fekernels/Makefile
 		libsrc/pylith/faults/Makefile
 		libsrc/pylith/friction/Makefile
+		libsrc/pylith/initializers/Makefile
 		libsrc/pylith/materials/Makefile
 		libsrc/pylith/meshio/Makefile
 		libsrc/pylith/problems/Makefile

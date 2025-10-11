@@ -17,17 +17,17 @@
 #include <vector> // HASA std::vector
 
 /// @brief  Interpolate fields to uniformly refined mesh.
-class pylith::topology::RefineInterpolator {
+class pylith::topology::RefineOutputInterpolator {
     friend class TestRefineUniform; // unit testing
 
     // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 
     /// Constructor
-    RefineInterpolator(void);
+    RefineOutputInterpolator(void);
 
     /// Destructor
-    ~RefineInterpolator(void);
+    ~RefineOutputInterpolator(void);
 
     /// Deallocate data structures.
     void deallocate(void);
@@ -76,9 +76,9 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    RefineInterpolator(const RefineInterpolator&); ///< Not implemented
-    const RefineInterpolator& operator=(const RefineInterpolator&); ///< Not implemented
+    RefineOutputInterpolator(const RefineOutputInterpolator&); ///< Not implemented
+    const RefineOutputInterpolator& operator=(const RefineOutputInterpolator&); ///< Not implemented
 
-}; // RefineInterpolator
+}; // RefineOutputInterpolator
 
 // End of file
