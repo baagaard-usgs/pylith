@@ -14,6 +14,8 @@
 #include "pylith/topology/topologyfwd.hh" // HOLDSA Distributor
 
 class pylith::initializers::MeshDistributor : public pylith::initializers::InitializePhase {
+    friend class TestMeshDistributor;
+
     // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 

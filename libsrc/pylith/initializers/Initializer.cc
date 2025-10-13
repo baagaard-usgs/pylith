@@ -13,6 +13,7 @@
 #include "pylith/initializers/Initializer.hh" // implementation of class methods
 
 #include "pylith/initializers/InitializePhase.hh" // HASA InitializePhase
+#include "pylith/topology/Mesh.hh" // HASA Mesh
 #include "pylith/utils/error.hh" // USES PYLITH_CHECK_ERROR
 #include "pylith/utils/journals.hh" // USES PYLITH_COMPONENT_*
 
@@ -63,7 +64,6 @@ pylith::initializers::Initializer::initialize(pylith::topology::Mesh* mesh,
                                               const pylith::problems::Problem& problem) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("Initializer::initialize(mesh="<<typeid(mesh).name()<<")");
-    assert(mesh);
 
     pylith::topology::Mesh* newMesh = nullptr;
     pylith::topology::Mesh* phaseMesh = mesh;
@@ -72,6 +72,9 @@ pylith::initializers::Initializer::initialize(pylith::topology::Mesh* mesh,
         assert(_phases[i]);
 
         newMesh = _phases[i]->run(phaseMesh, problem);
+        if (newMesh != phaseMesh) {
+            delete phaseMesh;
+        } // if
         phaseMesh = newMesh;
     } // for
 

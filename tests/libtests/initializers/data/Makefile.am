@@ -9,18 +9,13 @@
 # =================================================================================================
 
 
-SUBDIRS = \
-	bc \
-	faults \
-	feassemble \
-	initializers \
-	materials \
-	meshio \
-	problems \
-    scales \
-	topology \
-	testing \
-	utils
+
+dist_noinst_DATA = \
+	quad_small.mesh
 
 
-# End of file 
+export_datadir = $(abs_builddir)
+include $(top_srcdir)/tests/data.am
+
+
+# End of file

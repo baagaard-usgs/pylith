@@ -13,6 +13,8 @@
 
 
 class pylith::initializers::MeshInsertInterfaces : public pylith::initializers::InitializePhase {
+    friend class TestMeshInsertInterfaces;
+
     // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 

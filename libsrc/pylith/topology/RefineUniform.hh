@@ -32,6 +32,12 @@ public:
      */
     void setNumLevels(const size_t numLevels);
 
+    /** Get number of levels of refinement.
+     *
+     * @returns Number of levels.
+     */
+    size_t getNumLevels(void) const;
+
     /** Refine mesh.
      *
      * @param mesh Mesh to refine.

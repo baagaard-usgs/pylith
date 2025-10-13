@@ -156,10 +156,15 @@ pylith::topology::Distributor::distribute(const pylith::topology::Mesh& mesh,
     PylithCallPetsc(DMPlexDistribute(dmOrig, overlap, NULL, &dmTmp));
     PylithCallPetsc(_Distributor::distributeOverlap(&dmNew, dmTmp, faults));
     PylithCallPetsc(DMDestroy(&dmTmp));
-    PylithCallPetsc(DMPlexDistributeSetDefault(dmNew, PETSC_FALSE));
-    PylithCallPetsc(DMPlexReorderCohesiveSupports(dmNew));
-    PylithCallPetsc(DMViewFromOptions(dmNew, NULL, "-pylith_dist_dm_view"));
-    newMesh->setDM(dmNew, "domain");
+    if (dmNew) {
+        PylithCallPetsc(DMPlexDistributeSetDefault(dmNew, PETSC_FALSE));
+        PylithCallPetsc(DMPlexReorderCohesiveSupports(dmNew));
+        PylithCallPetsc(DMViewFromOptions(dmNew, NULL, "-pylith_dist_dm_view"));
+        newMesh->setDM(dmNew, "domain");
+    } else {
+        PetscObjectReference(PetscObject(dmOrig));
+        newMesh->setDM(dmOrig);
+    } // if/else
 
     pythia::journal::debug_t debug(PyreComponent::getName());
     if (debug.state()) {

@@ -103,13 +103,18 @@ pylith::topology::RefineUniform::deallocate(void) {
 
 
 // ------------------------------------------------------------------------------------------------
-/** Set number of levels of refinement.
- *
- * @param[in] numLevels Number of levels.
- */
+// Set number of levels of refinement.
 void
 pylith::topology::RefineUniform::setNumLevels(const size_t numLevels) {
     _numLevels = numLevels;
+}
+
+
+// ------------------------------------------------------------------------------------------------
+// Get number of levels of refinement.
+size_t
+pylith::topology::RefineUniform::getNumLevels(void) const {
+    return _numLevels;
 }
 
 

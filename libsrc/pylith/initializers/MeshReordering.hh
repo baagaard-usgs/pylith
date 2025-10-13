@@ -13,6 +13,8 @@
 
 
 class pylith::initializers::MeshReordering : public pylith::initializers::InitializePhase {
+    friend class TestMeshReordering;
+
     // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 

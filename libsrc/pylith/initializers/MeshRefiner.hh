@@ -14,6 +14,8 @@
 #include "pylith/topology/topologyfwd.hh" // HASA MeshRefiner
 
 class pylith::initializers::MeshRefiner : public pylith::initializers::InitializePhase {
+    friend class TestMeshRefiner;
+
     // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 

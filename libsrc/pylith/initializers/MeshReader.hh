@@ -14,6 +14,8 @@
 #include "pylith/meshio/meshiofwd.hh" // HOLDSA MeshIO
 
 class pylith::initializers::MeshReader : public pylith::initializers::InitializePhase {
+    friend class TestMeshReader;
+
     // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 

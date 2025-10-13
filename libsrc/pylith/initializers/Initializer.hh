@@ -17,6 +17,8 @@
 #include "pylith/topology/topologyfwd.hh"
 
 class pylith::initializers::Initializer : public pylith::utils::PyreComponent {
+    friend class TestInitializer;
+
     // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 
