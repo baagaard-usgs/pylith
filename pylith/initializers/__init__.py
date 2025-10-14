@@ -5,25 +5,18 @@
 # Copyright (c) 2010-2025, University of California, Davis and the PyLith Development Team.
 # All rights reserved.
 #
-# See https://mit-license.org/ and LICENSE.md and for license information.
+# See https://mit-license.org/ and LICENSE.md and for license information. 
 # =================================================================================================
 
-__version__ = "5.0.0dev"
-
 __all__ = [
-    "apps",
-    "bc",
-    "faults",
-    "feassemble",
-    "initializers",
-    "materials",
-    "meshio",
-    "mpi",
-    "problems",
-    "testing",
-    "topology",
-    "utils",
-    "viz",
+    "Initializer",
+    "Serial",
+    "MeshReader",
+    "MeshWriter",
+    "MeshReordering",
+    "MeshRefiner",
+    "MeshDistributor",
+    "MeshInsertInterfaces",
 ]
 
 

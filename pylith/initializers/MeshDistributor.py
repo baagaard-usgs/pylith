@@ -45,7 +45,8 @@ class MeshDistributor(InitializePhase):
         """Preinitialize.
         """
         InitializePhase.preinitialize(self)
-        ModuleMeshDistributor.setDistributor(self.distributor)
+        self.distributor.preinitialize()
+        ModuleMeshDistributor.setDistributor(self, self.distributor)
 
     def _configure(self):
         """Set members based using inventory.

@@ -41,7 +41,7 @@ pylith::initializers::Initializer::deallocate(void) {
 // ------------------------------------------------------------------------------------------------
 // Set phases.
 void
-pylith::initializers::Initializer::setPhases(pylith::initializers::InitializePhase** phases,
+pylith::initializers::Initializer::setPhases(pylith::initializers::InitializePhase* phases[],
                                              const size_t numPhases) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("Initializer::setPhases("<<phases<<", numPhases="<<numPhases<<")");
@@ -60,13 +60,12 @@ pylith::initializers::Initializer::setPhases(pylith::initializers::InitializePha
 // ------------------------------------------------------------------------------------------------
 // Run initialization phase.
 pylith::topology::Mesh*
-pylith::initializers::Initializer::initialize(pylith::topology::Mesh* mesh,
-                                              const pylith::problems::Problem& problem) {
+pylith::initializers::Initializer::runPhases(const pylith::problems::Problem& problem) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("Initializer::initialize(mesh="<<typeid(mesh).name()<<")");
+    PYLITH_COMPONENT_DEBUG("Initializer::initialize(problem)");
 
     pylith::topology::Mesh* newMesh = nullptr;
-    pylith::topology::Mesh* phaseMesh = mesh;
+    pylith::topology::Mesh* phaseMesh = nullptr;
     const size_t numPhases = _phases.size();
     for (size_t i = 0; i < numPhases; ++i) {
         assert(_phases[i]);
@@ -79,7 +78,7 @@ pylith::initializers::Initializer::initialize(pylith::topology::Mesh* mesh,
     } // for
 
     PYLITH_METHOD_RETURN(newMesh);
-} // initialize
+} // runPhases
 
 
 // End of file

@@ -35,17 +35,15 @@ public:
      *
      * @param[in] phases Initialization phases.
      */
-    void setPhases(pylith::initializers::InitializePhase** phases,
+    void setPhases(pylith::initializers::InitializePhase* phases[],
                    const size_t numPhases);
 
     /** Run initialization phase.
      *
-     * @param[in] mesh Input mesh.
      * @param[in] problem Problem specification.
      * @returns Mesh after initialization phase.
      */
-    pylith::topology::Mesh* initialize(pylith::topology::Mesh* mesh,
-                                       const pylith::problems::Problem& problem);
+    pylith::topology::Mesh* runPhases(const pylith::problems::Problem& problem);
 
 
     // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////

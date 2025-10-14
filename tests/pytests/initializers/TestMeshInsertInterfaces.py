@@ -8,15 +8,26 @@
 # See https://mit-license.org/ and LICENSE.md and for license information. 
 # =================================================================================================
 
-SUBDIRS = \
-	cornercases \
-	linearelasticity \
-	incompressibleelasticity \
-	viscoelasticity \
-	poroelasticity \
-	petsc \
-	convert \
-	eqinfo
+import unittest
+
+from pylith.testing.TestCases import TestComponent, make_suite
+from pylith.initializers.MeshInsertInterfaces import (MeshInsertInterfaces, initialize_phase)
+
+
+class TestMeshInsertInterfaces(TestComponent):
+    """Unit testing of MeshInsertInterfaces object.
+    """
+    _class = MeshInsertInterfaces
+    _factory = initialize_phase
+
+
+def load_tests(loader, tests, pattern):
+    TEST_CLASSES = [TestMeshInsertInterfaces]
+    return make_suite(TEST_CLASSES, loader)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
 
 
 # End of file

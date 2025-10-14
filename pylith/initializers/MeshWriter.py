@@ -12,7 +12,7 @@ from .InitializePhase import InitializePhase
 from .initializers import MeshWriter as ModuleMeshWriter
 
 
-class MeshWriteer(InitializePhase):
+class MeshWriter(InitializePhase):
     """
     Write mesh.
 
@@ -45,7 +45,8 @@ class MeshWriteer(InitializePhase):
         """Preinitialize.
         """
         InitializePhase.preinitialize(self)
-        ModuleMeshWriter.setWriter(self.writer)
+        self.writer.preinitialize()
+        ModuleMeshWriter.setWriter(self, self.writer)
 
     def _configure(self):
         """Set members based using inventory.
@@ -59,8 +60,8 @@ class MeshWriteer(InitializePhase):
 
 # FACTORIES ////////////////////////////////////////////////////////////
 def initialize_phase():
-    """Factory associated with MeshWriteer."""
-    return MeshWriteer()
+    """Factory associated with MeshWriter."""
+    return MeshWriter()
 
 
 # End of file

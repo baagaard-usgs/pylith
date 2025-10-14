@@ -16,39 +16,28 @@
 
 namespace pylith {
     namespace topology {
-        class RefineUniform : public pylith::topology::RefineMesh {
-            // PUBLIC MEMBERS /////////////////////////////////////////////////////////////////////
+        class pylith::topology::RefineMesh : public pylith::utils::PyreComponent {
+            // PUBLIC MEMBERS ///////////////////////////////////////////////////////
 public:
 
             /// Constructor
-            RefineUniform(void);
+            RefineMesh(void);
 
             /// Destructor
-            ~RefineUniform(void);
+            virtual ~RefineMesh(void);
 
             /// Deallocate data structures.
             void deallocate(void);
-
-            /** Set number of levels of refinement.
-             *
-             * @param[in] numLevels Number of levels.
-             */
-            void setNumLevels(const size_t numLevels);
-
-            /** Get number of levels of refinement.
-             *
-             * @returns Number of levels.
-             */
-            size_t getNumLevels(void) const;
 
             /** Refine mesh.
              *
              * @param mesh Mesh to refine.
              * @returns Mesh after refinement.
              */
-            pylith::topology::Mesh* refine(pylith::topology::Mesh* const mesh);
+            virtual
+            pylith::topology::Mesh* refine(pylith::topology::Mesh* const mesh) = 0;
 
-        }; // RefineUniform
+        }; // RefineMesh
 
     } // topology
 } // pylith

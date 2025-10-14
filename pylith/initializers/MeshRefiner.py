@@ -45,7 +45,8 @@ class MeshRefiner(InitializePhase):
         """Preinitialize.
         """
         InitializePhase.preinitialize(self)
-        ModuleMeshRefiner.setRefiner(self.refiner)
+        self.refiner.preinitialize()
+        ModuleMeshRefiner.setRefiner(self, self.refiner)
 
     def _configure(self):
         """Set members based using inventory.

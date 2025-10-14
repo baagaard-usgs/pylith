@@ -214,6 +214,7 @@ AC_CONFIG_FILES([Makefile
 		modulesrc/faults/Makefile
 		modulesrc/feassemble/Makefile
 		modulesrc/friction/Makefile
+		modulesrc/initializers/Makefile
 		modulesrc/materials/Makefile
 		modulesrc/meshio/Makefile
 		modulesrc/mpi/Makefile
@@ -279,6 +280,7 @@ AC_CONFIG_FILES([Makefile
 		tests/fullscale/poroelasticity/cryer/Makefile
 		tests/fullscale/petsc/Makefile
 		tests/fullscale/eqinfo/Makefile
+		tests/fullscale/convert/Makefile
 		tests/manual/Makefile
 		tests/manual/powerlaw-2d/Makefile
 		tests/manual/powerlaw-3d/Makefile

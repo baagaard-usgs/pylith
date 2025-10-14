@@ -45,7 +45,8 @@ class MeshReader(InitializePhase, ModuleMeshReader):
         """Preinitialize.
         """
         InitializePhase.preinitialize(self)
-        ModuleMeshReader.setReader(self.reader)
+        self.reader.preinitialize()
+        ModuleMeshReader.setReader(self, self.reader)
 
     def _configure(self):
         """Set members based using inventory.

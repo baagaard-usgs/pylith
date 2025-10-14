@@ -8,13 +8,26 @@
 # See https://mit-license.org/ and LICENSE.md and for license information. 
 # =================================================================================================
 
+import unittest
 
-TESTS = testmpi.py
-dist_check_SCRIPTS = testmpi.py
+from pylith.testing.TestCases import TestAbstractComponent, make_suite
+import pylith.initializers.InitializePhase
 
-noinst_PYTHON = \
-	TestCommunicator.py \
-	TestReduce.py
+class TestInitializePhase(TestAbstractComponent):
+    """Unit testing of InitializePhase object.
+    """
+    _class = pylith.initializers.InitializePhase.InitializePhase
 
 
-# End of file 
+def load_tests(loader, tests, pattern):
+    TEST_CLASSES = [
+        TestInitializePhase,
+    ]
+    return make_suite(TEST_CLASSES, loader)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
+
+
+# End of file

@@ -8,9 +8,9 @@
 # See https://mit-license.org/ and LICENSE.md and for license information.
 # =================================================================================================
 
-from pythia.pyre.components.PetscComponent import PetscComponent
+from pylith.utils.PetscComponent import PetscComponent
 
-from .initializers import MeshInitializer as ModuleMeshInitializer
+from .initializers import Initializer as ModuleInitializer
 
 
 def phaseFactory(name):
@@ -21,7 +21,7 @@ def phaseFactory(name):
     return facility(name, family="initialize_phase", factory=InitializePhase)
 
 
-class MeshInitializer(PetscComponent, ModuleMeshInitializer):
+class Initializer(PetscComponent, ModuleInitializer):
     """
     Manager for reading and setting up a finite-element mesh.
     """
@@ -54,12 +54,20 @@ class MeshInitializer(PetscComponent, ModuleMeshInitializer):
 
     def preinitialize(self):
         """Read and setup a finite-element mesh."""
-        ModuleMeshInitializer.__init__(self)
-        ModuleMeshInitializer.setPhases(self.phases)
+        for phase in self.phases.components():
+            phase.preinitialize()
+        ModuleInitializer.__init__(self)
+        ModuleInitializer.setPhases(self, self.phases.components())
 
     def _configure(self):
         """Set members based using inventory."""
         PetscComponent._configure(self)
+
+
+# FACTORIES ////////////////////////////////////////////////////////////
+def mesh_initializer():
+    """Factory associated with Initializer."""
+    return Initializer()
 
 
 # End of file

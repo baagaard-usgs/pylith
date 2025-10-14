@@ -8,21 +8,26 @@
 # See https://mit-license.org/ and LICENSE.md and for license information. 
 # =================================================================================================
 
-SUBDIRS = \
-	include \
-	bc \
-	faults \
-	feassemble \
-	friction \
-	initializers \
-	materials \
-	meshio \
-	mpi \
-	problems \
-	scales \
-	topology \
-	utils
+import unittest
 
-#	friction 
+from pylith.testing.TestCases import TestComponent, make_suite
+from pylith.initializers.Initializer import (Initializer, mesh_initializer)
 
-# End of file 
+
+class TestInitializer(TestComponent):
+    """Unit testing of Initializer object.
+    """
+    _class = Initializer
+    _factory = mesh_initializer
+
+
+def load_tests(loader, tests, pattern):
+    TEST_CLASSES = [TestInitializer]
+    return make_suite(TEST_CLASSES, loader)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
+
+
+# End of file

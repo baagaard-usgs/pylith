@@ -5,26 +5,27 @@
 # Copyright (c) 2010-2025, University of California, Davis and the PyLith Development Team.
 # All rights reserved.
 #
-# See https://mit-license.org/ and LICENSE.md and for license information.
+# See https://mit-license.org/ and LICENSE.md and for license information. 
 # =================================================================================================
 
-__version__ = "5.0.0dev"
+TESTS = test_convert.py
 
-__all__ = [
-    "apps",
-    "bc",
-    "faults",
-    "feassemble",
-    "initializers",
-    "materials",
-    "meshio",
-    "mpi",
-    "problems",
-    "testing",
-    "topology",
-    "utils",
-    "viz",
-]
+dist_check_SCRIPTS = test_convert.py
+
+dist_noinst_PYTHON = \
+	TestConvert.py
+
+dist_noinst_DATA = \
+	quad_small.mesh
+
+noinst_TMP = \
+	quad_small.h5
+
+
+TESTS_ENVIRONMENT = PYTHONPATH='$(PYTHONPATH):$(abs_builddir)'
+
+export_datadir = $(abs_builddir)
+include $(top_srcdir)/tests/data.am
 
 
 # End of file

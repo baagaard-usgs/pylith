@@ -22,7 +22,7 @@ public:
     InitializePhase(void);
 
     /// Default destructor
-    ~InitializePhase(void);
+    virtual ~InitializePhase(void);
 
     /// Deallocate PETSc and local data structures.
     void deallocate(void);

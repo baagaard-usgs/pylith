@@ -130,9 +130,8 @@ pylith::initializers::TestInitializer::testRun(void) {
     Initializer initializer;
     initializer.setPhases(phases, numPhases);
 
-    pylith::topology::Mesh* meshNull = nullptr;
     pylith::problems::Problem problem;
-    pylith::topology::Mesh* meshNew = initializer.initialize(meshNull, problem);
+    pylith::topology::Mesh* meshNew = initializer.runPhases(problem);
 
     CHECK(meshNew);
     CHECK(dim == meshNew->getDimension());

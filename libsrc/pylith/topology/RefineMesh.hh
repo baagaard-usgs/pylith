@@ -21,7 +21,7 @@ public:
     RefineMesh(void);
 
     /// Destructor
-    ~RefineMesh(void);
+    virtual ~RefineMesh(void);
 
     /// Deallocate data structures.
     void deallocate(void);

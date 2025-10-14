@@ -8,20 +8,26 @@
 # See https://mit-license.org/ and LICENSE.md and for license information. 
 # =================================================================================================
 
+import unittest
 
-SUBDIRS = data
+from pylith.testing.TestCases import TestComponent, make_suite
+from pylith.initializers.MeshReordering import (MeshReordering, initialize_phase)
 
-TESTS = testmaterials.py
-dist_check_SCRIPTS = testmaterials.py
 
-noinst_PYTHON = \
-	TestHomogeneous.py \
-	TestIsotropicLinearElasticityPlaneStrain.py \
-	TestIsotropicLinearMaxwellPlaneStrain.py \
-	TestIsotropicLinearGenMaxwellPlaneStrain.py \
-	TestIsotropicLinearElasticity3D.py \
-	TestIsotropicLinearMaxwell3D.py \
-	TestIsotropicLinearGenMaxwell3D.py
+class TestMeshReordering(TestComponent):
+    """Unit testing of MeshReordering object.
+    """
+    _class = MeshReordering
+    _factory = initialize_phase
+
+
+def load_tests(loader, tests, pattern):
+    TEST_CLASSES = [TestMeshReordering]
+    return make_suite(TEST_CLASSES, loader)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
 
 
 # End of file

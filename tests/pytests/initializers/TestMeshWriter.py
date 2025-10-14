@@ -8,21 +8,26 @@
 # See https://mit-license.org/ and LICENSE.md and for license information. 
 # =================================================================================================
 
-SUBDIRS = \
-	include \
-	bc \
-	faults \
-	feassemble \
-	friction \
-	initializers \
-	materials \
-	meshio \
-	mpi \
-	problems \
-	scales \
-	topology \
-	utils
+import unittest
 
-#	friction 
+from pylith.testing.TestCases import TestComponent, make_suite
+from pylith.initializers.MeshWriter import (MeshWriter, initialize_phase)
 
-# End of file 
+
+class TestMeshWriter(TestComponent):
+    """Unit testing of MeshWriter object.
+    """
+    _class = MeshWriter
+    _factory = initialize_phase
+
+
+def load_tests(loader, tests, pattern):
+    TEST_CLASSES = [TestMeshWriter]
+    return make_suite(TEST_CLASSES, loader)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
+
+
+# End of file

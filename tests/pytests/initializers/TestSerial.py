@@ -8,21 +8,26 @@
 # See https://mit-license.org/ and LICENSE.md and for license information. 
 # =================================================================================================
 
-SUBDIRS = \
-	include \
-	bc \
-	faults \
-	feassemble \
-	friction \
-	initializers \
-	materials \
-	meshio \
-	mpi \
-	problems \
-	scales \
-	topology \
-	utils
+import unittest
 
-#	friction 
+from pylith.testing.TestCases import TestAbstractComponent, make_suite
+import pylith.initializers.Serial
 
-# End of file 
+class TestSerial(TestAbstractComponent):
+    """Unit testing of Serial object.
+    """
+    _class = pylith.initializers.Serial.Serial
+
+
+def load_tests(loader, tests, pattern):
+    TEST_CLASSES = [
+        TestSerial,
+    ]
+    return make_suite(TEST_CLASSES, loader)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
+
+
+# End of file
