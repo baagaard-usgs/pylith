@@ -13,6 +13,8 @@
 #include "pylith/initializers/MeshReader.hh" // implementation of class methods
 
 #include "pylith/meshio/MeshIO.hh" // HOLDSA MeshIO
+#include "pylith/problems/Problem.hh" // USES Problem
+#include "pylith/topology/MeshOps.hh" // USES MeshOps
 #include "pylith/utils/error.hh" // USES PYLITH_CHECK_ERROR
 #include "pylith/utils/journals.hh" // USES PYLITH_COMPONENT_*
 
@@ -55,10 +57,11 @@ pylith::initializers::MeshReader::run(pylith::topology::Mesh* mesh,
     PYLITH_METHOD_BEGIN;
     assert(_reader);
 
-    pylith::topology::Mesh* newMesh = new pylith::topology::Mesh();
-    _reader->read(newMesh);
+    pylith::topology::Mesh* meshNew = new pylith::topology::Mesh();
+    _reader->read(meshNew);
+    pylith::topology::MeshOps::nondimensionalize(meshNew, problem.getScales());
 
-    PYLITH_METHOD_RETURN(newMesh);
+    PYLITH_METHOD_RETURN(meshNew);
 } // run
 
 

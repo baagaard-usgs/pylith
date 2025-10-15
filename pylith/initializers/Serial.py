@@ -26,6 +26,7 @@ class Serial(Component):
     from .MeshReordering import MeshReordering
     from .MeshInsertInterfaces import MeshInsertInterfaces
     from .MeshDistributor import MeshDistributor
+    from .MeshRefiner import MeshRefiner
 
     read_mesh = pythia.pyre.inventory.facility(
         "read_mesh", family="initialize_phase", factory=MeshReader
@@ -49,6 +50,13 @@ class Serial(Component):
         "Insert interfaces using PETSc mesh transform operation."
     )
 
+    refine_mesh = pythia.pyre.inventory.facility(
+        "refine_mesh", family="initialize_phase", factory=MeshRefiner
+    )
+    refine_mesh.meta["tip"] = (
+        "Refine mesh."
+    )
+
     # PUBLIC METHODS /////////////////////////////////////////////////////
 
     def __init__(self, name="serial_phases"):
@@ -57,14 +65,15 @@ class Serial(Component):
 
     def components(self):
         """Order of facilities in Inventory is ambiguous, so overwrite
-        components() to insure order is [displacement, pressure, trace_strain].
+        components() to guarantee order.
 
         """
         return [
             self.read_mesh,
             self.reorder_mesh,
-            self.distribute_mesh,
             self.insert_interfaces,
+            self.distribute_mesh,
+            self.refine_mesh,
         ]
 
 

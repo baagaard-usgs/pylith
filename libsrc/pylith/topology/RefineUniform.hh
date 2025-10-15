@@ -43,7 +43,7 @@ public:
      * @param mesh Mesh to refine.
      * @returns Mesh after refinement.
      */
-    pylith::topology::Mesh* refine(pylith::topology::Mesh* const mesh);
+    pylith::topology::Mesh* refine(const pylith::topology::Mesh& mesh);
 
     // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:

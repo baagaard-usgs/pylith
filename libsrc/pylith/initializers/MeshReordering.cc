@@ -42,10 +42,11 @@ pylith::topology::Mesh*
 pylith::initializers::MeshReordering::run(pylith::topology::Mesh* mesh,
                                           const pylith::problems::Problem& problem) {
     PYLITH_METHOD_BEGIN;
+    assert(mesh);
 
-    pylith::topology::ReverseCuthillMcKee::reorder(mesh);
+    pylith::topology::Mesh* meshNew = pylith::topology::ReverseCuthillMcKee::reorder(*mesh);
 
-    PYLITH_METHOD_RETURN(mesh);
+    PYLITH_METHOD_RETURN(meshNew);
 } // run
 
 

@@ -32,7 +32,7 @@ public:
      * @returns Mesh after refinement.
      */
     virtual
-    pylith::topology::Mesh* refine(pylith::topology::Mesh* const mesh) = 0;
+    pylith::topology::Mesh* refine(const pylith::topology::Mesh& mesh) = 0;
 
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:

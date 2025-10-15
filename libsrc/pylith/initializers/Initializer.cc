@@ -71,10 +71,7 @@ pylith::initializers::Initializer::runPhases(const pylith::problems::Problem& pr
         assert(_phases[i]);
 
         newMesh = _phases[i]->run(phaseMesh, problem);
-        if (newMesh != phaseMesh) {
-            delete phaseMesh;
-        } // if
-        phaseMesh = newMesh;
+        delete phaseMesh;phaseMesh = newMesh;
     } // for
 
     PYLITH_METHOD_RETURN(newMesh);

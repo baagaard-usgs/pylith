@@ -53,6 +53,10 @@ class MeshDistributor(InitializePhase):
         """
         InitializePhase._configure(self)
 
+    def _createModuleObj(self):
+        """Create handle to C++ object."""
+        ModuleMeshDistributor.__init__(self)
+
 
 # FACTORIES ////////////////////////////////////////////////////////////
 def initialize_phase():

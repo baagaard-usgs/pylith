@@ -50,10 +50,10 @@ class Distributor(PetscComponent, ModuleDistributor):
     def preinitialize(self):
         """Do minimal initialization."""
         ModuleDistributor.__init__(self)
-        ModuleDistributor.setPartitioner(self.partitioner)
-        ModuleDistributor.setUseEdgeWeighting(self.useEdgeWeighting)
+        ModuleDistributor.setPartitioner(self, self.partitioner)
+        ModuleDistributor.setUseEdgeWeighting(self, self.useEdgeWeighting)
         if self.writePartition:
-            ModuleDistributor.setWriter(self.dataWriter)
+            ModuleDistributor.setWriter(self, self.dataWriter)
 
     def _configure(self):
         """Set members based using inventory.

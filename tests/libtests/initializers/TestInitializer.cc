@@ -21,6 +21,7 @@
 #include "pylith/topology/MeshOps.hh" // USES MeshOps
 #include "pylith/topology/RefineUniform.hh" // USES RefineUniform
 #include "pylith/problems/Problem.hh" // USES Problem
+#include "pylith/scales/Scales.hh" // USES Scales
 
 #include "catch2/catch_test_macros.hpp"
 #include "catch2/matchers/catch_matchers_floating_point.hpp"
@@ -131,6 +132,8 @@ pylith::initializers::TestInitializer::testRun(void) {
     initializer.setPhases(phases, numPhases);
 
     pylith::problems::Problem problem;
+    pylith::scales::Scales scales;
+    problem.setScales(scales);
     pylith::topology::Mesh* meshNew = initializer.runPhases(problem);
 
     CHECK(meshNew);

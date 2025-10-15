@@ -54,6 +54,7 @@ pylith::initializers::MeshWriter::run(pylith::topology::Mesh* mesh,
                                       const pylith::problems::Problem& problem) {
     PYLITH_METHOD_BEGIN;
     assert(_writer);
+    assert(mesh);
 
     _writer->write(mesh);
 

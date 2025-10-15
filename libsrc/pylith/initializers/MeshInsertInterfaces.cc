@@ -13,6 +13,7 @@
 #include "pylith/initializers/MeshInsertInterfaces.hh" // implementation of class methods
 
 #include "pylith/problems/Problem.hh" // USES Problem
+#include "pylith/topology/Mesh.hh" // USES Mesh
 #include "pylith/materials/Material.hh" // USES Material
 #include "pylith/faults/FaultCohesive.hh" // USES FaultCohesive
 #include "pylith/utils/error.hh" // USES PYLITH_CHECK_ERROR
@@ -44,6 +45,15 @@ pylith::topology::Mesh*
 pylith::initializers::MeshInsertInterfaces::run(pylith::topology::Mesh* mesh,
                                                 const pylith::problems::Problem& problem) {
     PYLITH_METHOD_BEGIN;
+    assert(mesh);
+
+    if (!problem.getInterfaces().size()) {
+        PetscErrorCode err = PETSC_SUCCESS;
+        PetscDM dmOrig = mesh->getDM();assert(dmOrig);
+        err = PetscObjectReference((PetscObject) dmOrig);PYLITH_CHECK_ERROR(err);
+        pylith::topology::Mesh* meshNew = new pylith::topology::Mesh(dmOrig, *mesh);
+        PYLITH_METHOD_RETURN(meshNew);
+    } // if
 
     PylithInt cohesiveLabelValue = 100;
     for (auto material : problem.getMaterials()) {
@@ -51,13 +61,19 @@ pylith::initializers::MeshInsertInterfaces::run(pylith::topology::Mesh* mesh,
         cohesiveLabelValue = std::max(cohesiveLabelValue, materialLabelValue);
     } // for
 
+    pylith::topology::Mesh* meshTmp = mesh;
+    pylith::topology::Mesh* meshNew = nullptr;
     for (auto interface : problem.getInterfaces()) {
         interface->setCohesiveLabelValue(cohesiveLabelValue);
-        interface->transformTopology(mesh);
+        meshNew = interface->transformTopology(meshTmp);
+        if (meshTmp != mesh) {
+            delete meshTmp;meshTmp = nullptr;
+        } // if
+        meshTmp = meshNew;
         cohesiveLabelValue += 1;
     } // for
 
-    PYLITH_METHOD_RETURN(mesh);
+    PYLITH_METHOD_RETURN(meshNew);
 } // run
 
 

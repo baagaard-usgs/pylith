@@ -57,7 +57,7 @@ pylith::initializers::MeshRefiner::run(pylith::topology::Mesh* mesh,
     assert(_refiner);
     assert(mesh);
 
-    pylith::topology::Mesh* newMesh = _refiner->refine(mesh);
+    pylith::topology::Mesh* newMesh = _refiner->refine(*mesh);
 
     PYLITH_METHOD_RETURN(newMesh);
 } // run

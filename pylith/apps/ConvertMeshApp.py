@@ -11,6 +11,7 @@
 from .PetscApplication import PetscApplication
 
 from pylith.problems.TimeDependent import TimeDependent
+from pylith.scales.General import General
 
 class ConvertMeshApp(PetscApplication):
     """Application for pre-initializing mesh (reordering, conerting formats).
@@ -31,8 +32,12 @@ class ConvertMeshApp(PetscApplication):
     def main(self, *args, **kwds):
         """Run the application.
         """
+        scales = General()
+        scales._configure()
+
         problem = TimeDependent()
         problem._createModuleObj()
+        problem.setScales(scales)
         self.meshInitializer.preinitialize()
         self.meshInitializer.runPhases(problem)
                 

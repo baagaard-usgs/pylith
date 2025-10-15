@@ -43,10 +43,6 @@ class PyLithApp(PetscApplication):
     problem = pythia.pyre.inventory.facility("problem", family="problem", factory=TimeDependent)
     problem.meta['tip'] = "Boundary value problem to solve."
 
-    from pylith.initializers.MeshInitializer import MeshInitializer
-    meshInitializer = pythia.pyre.inventory.facility("mesh_initializer", family="mesh_nitializer", factory=MeshInitializer)
-    meshInitializer.meta['tip'] = "Mesh initializer (read mesh, insert fault interfaces, etc)."
-
     # PUBLIC METHODS /////////////////////////////////////////////////////
 
     def __init__(self, name="pylithapp"):
@@ -69,14 +65,9 @@ class PyLithApp(PetscApplication):
 
         self._setupLogging()
 
-        # Initializer mesh
-        self._eventLogger.stagePush("MeshSetup")
-        mesh = self.meshInitializer.initialize(self)
-        self._eventLogger.stagePop()
-
         # Setup problem, verify configuration, and then initialize
         self._eventLogger.stagePush("Initialize")
-        self.problem.preinitialize(mesh)
+        self.problem.preinitialize()
         self.problem.verifyConfiguration()
         self.problem.initialize()
         self._eventLogger.stagePop()

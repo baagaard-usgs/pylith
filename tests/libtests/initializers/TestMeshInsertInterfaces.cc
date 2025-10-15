@@ -88,10 +88,12 @@ pylith::initializers::TestMeshInsertInterfaces::testRun(void) {
     pylith::initializers::MeshInsertInterfaces initializer;
     pylith::topology::Mesh* meshNew = initializer.run(&meshOrig, problem);
 
-    CHECK(meshNew == &meshOrig);
+    CHECK(meshNew);
     CHECK(dim == meshNew->getDimension());
     CHECK(numCells == pylith::topology::MeshOps::getNumCells(*meshNew));
     CHECK(numVertices == pylith::topology::MeshOps::getNumVertices(*meshNew));
+
+    delete meshNew;meshNew = nullptr;
 } // testRun
 
 

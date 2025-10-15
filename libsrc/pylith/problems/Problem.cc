@@ -109,10 +109,10 @@ pylith::problems::_Problem::Events::init(void) {
     preinitialize = logger.registerEvent("PL:Problem:preinitialize");
     verifyConfiguration = logger.registerEvent("PL:Problem:verifyConfiguration");
     initialize = logger.registerEvent("PL:Problem:initialize");
-    checkMaterials = logger.registerEvent("PL:Problem:initialize");
-    createIntegrators = logger.registerEvent("PL:Problem:initialize");
-    createConstraints = logger.registerEvent("PL:Problem:initialize");
-    setupSolution = logger.registerEvent("PL:Problem:initialize");
+    checkMaterials = logger.registerEvent("PL:Problem:checkMaterials");
+    createIntegrators = logger.registerEvent("PL:Problem:createIntegrators");
+    createConstraints = logger.registerEvent("PL:Problem:createConstraints");
+    setupSolution = logger.registerEvent("PL:Problem:setupSolution");
 } // init
 
 
@@ -214,15 +214,24 @@ pylith::problems::Problem::setPetscDefaults(const int flags) {
 // ------------------------------------------------------------------------------------------------
 // Set manager of scales used to nondimensionalize problem.
 void
-pylith::problems::Problem::setScales(const pylith::scales::Scales& dim) {
-    PYLITH_COMPONENT_DEBUG("Problem::setScales(dim="<<typeid(dim).name()<<")");
+pylith::problems::Problem::setScales(const pylith::scales::Scales& scales) {
+    PYLITH_COMPONENT_DEBUG("Problem::setScales(scales="<<typeid(scales).name()<<")");
 
     if (!_scales) {
-        _scales = new pylith::scales::Scales(dim);
+        _scales = new pylith::scales::Scales(scales);
     } else {
-        *_scales = dim;
+        *_scales = scales;
     } // if/else
 } // setScales
+
+
+// ------------------------------------------------------------------------------------------------
+// Get manager of scales used to nondimensionalize problem.
+const pylith::scales::Scales&
+pylith::problems::Problem::getScales(void) const {
+    assert(_scales);
+    return *_scales;
+}
 
 
 // ------------------------------------------------------------------------------------------------
@@ -662,7 +671,7 @@ void
 pylith::problems::Problem::_setupSolution(void) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("Problem::_setupSolution()");
-    _Problem::Events::logger.eventBegin(_Problem::Events::createConstraints);
+    _Problem::Events::logger.eventBegin(_Problem::Events::setupSolution);
 
     assert(_integrationData);
     pylith::topology::Field* solution = _integrationData->getField("solution");

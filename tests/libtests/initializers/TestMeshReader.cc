@@ -16,6 +16,7 @@
 #include "pylith/topology/Mesh.hh" // USES Mesh
 #include "pylith/topology/MeshOps.hh" // USES MeshOps
 #include "pylith/problems/Problem.hh" // USES Problem
+#include "pylith/scales/Scales.hh" // USES Scales
 
 #include "catch2/catch_test_macros.hpp"
 #include "catch2/matchers/catch_matchers_floating_point.hpp"
@@ -101,6 +102,8 @@ pylith::initializers::TestMeshReader::testRun(void) {
 
     pylith::topology::Mesh* nullMesh = nullptr;
     pylith::problems::Problem problem;
+    pylith::scales::Scales scales;
+    problem.setScales(scales);
     pylith::topology::Mesh* mesh = initializer.run(nullMesh, problem);
 
     REQUIRE(mesh);

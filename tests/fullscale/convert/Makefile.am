@@ -16,6 +16,7 @@ dist_noinst_PYTHON = \
 	TestConvert.py
 
 dist_noinst_DATA = \
+	convert_quad.cfg \
 	quad_small.mesh
 
 noinst_TMP = \

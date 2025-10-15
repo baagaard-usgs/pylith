@@ -13,6 +13,7 @@
 #include "pylith/topology/Distributor.hh" // implementation of class methods
 
 #include "pylith/topology/Mesh.hh" // USES Mesh
+#include "pylith/topology/MeshOps.hh" // USES MeshOps
 #include "pylith/topology/Field.hh" // USES Field
 #include "pylith/meshio/OutputSubfield.hh" // USES OutputSubfield
 #include "pylith/topology/Stratum.hh" // USES Stratum
@@ -130,8 +131,6 @@ pylith::topology::Distributor::distribute(const pylith::topology::Mesh& mesh,
                                           const std::vector<pylith::faults::FaultCohesive*>& faults) const {
     PYLITH_METHOD_BEGIN;
 
-    pylith::topology::Mesh* newMesh = new pylith::topology::Mesh();assert(newMesh);
-    newMesh->setCoordSys(mesh.getCoordSys());
 
     const int commRank = mesh.getCommRank();
     if (0 == commRank) {
@@ -154,28 +153,29 @@ pylith::topology::Distributor::distribute(const pylith::topology::Mesh& mesh,
     PetscDM dmTmp = NULL, dmNew = NULL;
     const PetscInt overlap = 0;
     PylithCallPetsc(DMPlexDistribute(dmOrig, overlap, NULL, &dmTmp));
-    PylithCallPetsc(_Distributor::distributeOverlap(&dmNew, dmTmp, faults));
-    PylithCallPetsc(DMDestroy(&dmTmp));
-    if (dmNew) {
+    pylith::topology::Mesh* meshNew = nullptr;
+    if (dmTmp) {
+        PylithCallPetsc(_Distributor::distributeOverlap(&dmNew, dmTmp, faults));
+        PylithCallPetsc(DMDestroy(&dmTmp));
         PylithCallPetsc(DMPlexDistributeSetDefault(dmNew, PETSC_FALSE));
         PylithCallPetsc(DMPlexReorderCohesiveSupports(dmNew));
         PylithCallPetsc(DMViewFromOptions(dmNew, NULL, "-pylith_dist_dm_view"));
-        newMesh->setDM(dmNew, "domain");
+        meshNew = new pylith::topology::Mesh(dmNew, mesh);assert(meshNew);
     } else {
         PetscObjectReference(PetscObject(dmOrig));
-        newMesh->setDM(dmOrig);
+        meshNew = new pylith::topology::Mesh(dmOrig, mesh);assert(meshNew);
     } // if/else
 
     pythia::journal::debug_t debug(PyreComponent::getName());
     if (debug.state()) {
-        newMesh->view(":mesh_distributed.txt:ascii_info_detail");
-        newMesh->view(":mesh_distributed.tex:ascii_latex");
+        meshNew->view(":mesh_distributed.txt:ascii_info_detail");
+        meshNew->view(":mesh_distributed.tex:ascii_latex");
     } // if
     if (_writer) {
-        _Distributor::write(_writer, *newMesh);
+        _Distributor::write(_writer, *meshNew);
     } // if
 
-    PYLITH_METHOD_RETURN(newMesh);
+    PYLITH_METHOD_RETURN(meshNew);
 } // distribute
 
 

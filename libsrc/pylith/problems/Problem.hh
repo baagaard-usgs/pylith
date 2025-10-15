@@ -92,9 +92,15 @@ public:
 
     /** Set manager of scales used to nondimensionalize problem.
      *
-     * @param[in] dim Nondimensionalizer.
+     * @param[in] scales Scales for nondimensionalization.
      */
-    void setScales(const pylith::scales::Scales& dim);
+    void setScales(const pylith::scales::Scales& scales);
+
+    /** Get manager of scales used to nondimensionalize problem.
+     *
+     * @returns Scales for nondimensionalization.
+     */
+    const pylith::scales::Scales& getScales(void) const;
 
     /** Set gravity field.
      *

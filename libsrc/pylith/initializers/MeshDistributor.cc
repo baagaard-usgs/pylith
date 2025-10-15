@@ -55,6 +55,7 @@ pylith::initializers::MeshDistributor::run(pylith::topology::Mesh* mesh,
                                            const pylith::problems::Problem& problem) {
     PYLITH_METHOD_BEGIN;
     assert(_distributor);
+    assert(mesh);
 
     pylith::topology::Mesh* newMesh = _distributor->distribute(*mesh, problem.getInterfaces());
 

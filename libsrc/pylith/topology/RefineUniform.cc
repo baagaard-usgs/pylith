@@ -83,7 +83,7 @@ pylith::topology::_RefineUniform::Events::init(void) {
 
 // ------------------------------------------------------------------------------------------------
 // Constructor
-pylith::topology::RefineUniform::RefineUniform(void) : _numLevels(1) {
+pylith::topology::RefineUniform::RefineUniform(void) : _numLevels(0) {
     _RefineUniform::Events::init();
 }
 
@@ -121,21 +121,23 @@ pylith::topology::RefineUniform::getNumLevels(void) const {
 // ----------------------------------------------------------------------
 // Refine mesh->
 pylith::topology::Mesh*
-pylith::topology::RefineUniform::refine(pylith::topology::Mesh* const mesh) {
+pylith::topology::RefineUniform::refine(const pylith::topology::Mesh& mesh) {
     PYLITH_METHOD_BEGIN;
     _RefineUniform::Events::logger.eventBegin(_RefineUniform::Events::refine);
-    assert(mesh);
+
+    PetscErrorCode err = PETSC_SUCCESS;
+    PetscDM dmOrig = mesh.getDM();assert(dmOrig);
 
     if (_numLevels < 1) {
-        PYLITH_METHOD_RETURN(mesh);
+        err = PetscObjectReference((PetscObject) dmOrig);PYLITH_CHECK_ERROR(err);
+        pylith::topology::Mesh* meshNew = new pylith::topology::Mesh(dmOrig, mesh);
+        PYLITH_METHOD_RETURN(meshNew);
     } // if
-
-    PetscDM dmOrig = mesh->getDM();assert(dmOrig);
 
     PetscInt meshDepth = 0;
     PylithCallPetsc(DMPlexGetDepth(dmOrig, &meshDepth));
 
-    const int meshDim = mesh->getDimension();
+    const int meshDim = mesh.getDimension();
     if (( meshDim > 0) && ( meshDepth != meshDim) ) {
         std::ostringstream msg;
         msg << "Mesh refinement for uninterpolated meshes not supported.\n"
@@ -146,34 +148,32 @@ pylith::topology::RefineUniform::refine(pylith::topology::Mesh* const mesh) {
     // Refine, keeping original mesh intact.
     PetscDM dmNew = NULL;
     PylithCallPetsc(DMPlexSetRefinementUniform(dmOrig, PETSC_TRUE));
-    PylithCallPetsc(DMRefine(dmOrig, mesh->getComm(), &dmNew));
+    PylithCallPetsc(DMRefine(dmOrig, mesh.getComm(), &dmNew));
 
     for (int i = 1; i < _numLevels; ++i) {
         PetscDM dmCur = dmNew;dmNew = NULL;
         PylithCallPetsc(DMPlexSetRefinementUniform(dmCur, PETSC_TRUE));
-        PylithCallPetsc(DMRefine(dmCur, mesh->getComm(), &dmNew));
+        PylithCallPetsc(DMRefine(dmCur, mesh.getComm(), &dmNew));
 
         PylithCallPetsc(DMDestroy(&dmCur));
     } // for
     PylithCallPetsc(DMPlexReorderCohesiveSupports(dmNew));
 
-    pylith::topology::Mesh* newMesh = new pylith::topology::Mesh();assert(newMesh);
-    newMesh->setDM(dmNew, "domain");
+    pylith::topology::Mesh* meshNew = new pylith::topology::Mesh(dmNew, mesh);assert(meshNew);
 
-    _RefineUniform::cleanCellsLabel(newMesh);
+    _RefineUniform::cleanCellsLabel(meshNew);
     pylith::string_vector faceLabelNames;
-    pylith::meshio::MeshBuilder::getFaceGroupNames(&faceLabelNames, *mesh);
-    _RefineUniform::cleanFaceLabels(newMesh, faceLabelNames);
+    pylith::meshio::MeshBuilder::getFaceGroupNames(&faceLabelNames, mesh);
+    _RefineUniform::cleanFaceLabels(meshNew, faceLabelNames);
 
     _RefineUniform::Events::logger.eventBegin(_RefineUniform::Events::refineCheckTopology);
-    // Check consistency
-    pylith::topology::MeshOps::checkTopology(*newMesh);
+    pylith::topology::MeshOps::checkTopology(*meshNew);
     _RefineUniform::Events::logger.eventEnd(_RefineUniform::Events::refineCheckTopology);
 
-    // newMesh->view("REFINED_MESH", "::ascii_info_detail");
+    // meshNew->view("REFINED_MESH", "::ascii_info_detail");
 
     _RefineUniform::Events::logger.eventEnd(_RefineUniform::Events::refine);
-    PYLITH_METHOD_RETURN(newMesh);
+    PYLITH_METHOD_RETURN(meshNew);
 } // refine
 
 

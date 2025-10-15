@@ -19,9 +19,10 @@ public:
      * implementing reverse Cuthill-McKee algorithm.
      *
      * @param mesh PyLith finite-element mesh.
+     * @returns Mesh after reordering.
      */
     static
-    void reorder(topology::Mesh* mesh);
+    pylith::topology::Mesh* reorder(const pylith::topology::Mesh& mesh);
 
 }; // ReverseCuthillMcKee
 
