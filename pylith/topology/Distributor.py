@@ -53,7 +53,7 @@ class Distributor(PetscComponent, ModuleDistributor):
         ModuleDistributor.setPartitioner(self, self.partitioner)
         ModuleDistributor.setUseEdgeWeighting(self, self.useEdgeWeighting)
         if self.writePartition:
-            ModuleDistributor.setWriter(self, self.dataWriter)
+            ModuleDistributor.setDataWriter(self, self.dataWriter)
 
     def _configure(self):
         """Set members based using inventory.
