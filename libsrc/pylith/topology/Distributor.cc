@@ -292,7 +292,7 @@ pylith::topology::_Distributor::distributeOverlap(PetscDM* dmOverlap,
     PylithCallPetsc(PetscObjectGetComm((PetscObject)dmMesh,&comm));
     PetscCallMPI(MPI_Comm_size(comm, &size));
     PetscCallMPI(MPI_Comm_rank(comm, &rank));
-    /* Compute point overlap with neighbouring processes on the distributed DM */
+    /* Compute point overlap with neighboring processes on the distributed DM */
     PylithCallPetsc(PetscSectionCreate(comm, &rootSection));
     PylithCallPetsc(PetscSectionCreate(comm, &leafSection));
     PylithCallPetsc(DMPlexSetAdjacencyUser(dmMesh, DMPlexGetAdjacency_SupportOnly_Internal, NULL));
