@@ -488,9 +488,16 @@ pylith::faults::TopologyOps::setCohesiveCellLabel(PetscDM dmMeshNew,
     const PylithInt pEnd = newStratum.end();
     const PylithInt cohesiveLabelValue = labelValue;
     PetscDMLabel dmLabel = NULL;
+    PetscSF sf = NULL;
+    const PetscInt *leaves = NULL;
+    PetscInt Nl = 0;
     err = DMGetLabel(dmMeshNew, labelName, &dmLabel);PYLITH_CHECK_ERROR(err);
+    err = DMGetPointSF(dmMeshNew, &sf);PYLITH_CHECK_ERROR(err);
+    err = PetscSFGetGraph(sf, NULL, &Nl, &leaves, NULL);PYLITH_CHECK_ERROR(err);
     for (PylithInt point = pStart; point < pEnd; ++point) {
-        DMLabelSetValue(dmLabel, point, cohesiveLabelValue);
+        PetscInt loc;
+        err = PetscFindInt(point, Nl, leaves, &loc);PYLITH_CHECK_ERROR(err);
+        if (loc < 0) DMLabelSetValue(dmLabel, point, cohesiveLabelValue);
     } // for
 
     PYLITH_METHOD_END;
