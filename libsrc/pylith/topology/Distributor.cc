@@ -38,22 +38,6 @@ public:
             void write(pylith::meshio::DataWriter* writer,
                        const pylith::topology::Mesh& mesh);
 
-            /** Distribute custom overlap based on PETSc labels.
-             *
-             * The overlap excludes cohesive cells but includes cells adjacent to faults.
-             * This is a custom version of DMPlexDistributeOverlap()
-             *
-             * @param[out] dmOverlap PETSc DM for the overlap.
-             * @param[in] dmMesh PETSc DM for the current mesh.
-             * @param[in] faults Array of fault interfaces.
-             *
-             * @returns PETSc error code (0==success).
-             */
-            static
-            PetscErrorCode distributeOverlap(PetscDM* dmOverlap,
-                                             PetscDM dmMesh,
-                                             const std::vector<pylith::faults::FaultCohesive*>& faults);
-
         }; // _Distributor
     } // topology
 } // pylith
@@ -155,7 +139,7 @@ pylith::topology::Distributor::distribute(const pylith::topology::Mesh& mesh,
     PylithCallPetsc(DMPlexDistribute(dmOrig, overlap, NULL, &dmTmp));
     pylith::topology::Mesh* meshNew = nullptr;
     if (dmTmp) {
-        PylithCallPetsc(_Distributor::distributeOverlap(&dmNew, dmTmp, faults));
+        PylithCallPetsc(Distributor::distributeOverlap(&dmNew, dmTmp, faults));
         PylithCallPetsc(DMDestroy(&dmTmp));
         PylithCallPetsc(DMPlexDistributeSetDefault(dmNew, PETSC_FALSE));
         PylithCallPetsc(DMPlexReorderCohesiveSupports(dmNew));
@@ -180,80 +164,11 @@ pylith::topology::Distributor::distribute(const pylith::topology::Mesh& mesh,
 
 
 // ------------------------------------------------------------------------------------------------
-// Write partitioning info for distributed mesh.
-void
-pylith::topology::_Distributor::write(meshio::DataWriter* const writer,
-                                      const topology::Mesh& mesh) {
-    PYLITH_METHOD_BEGIN;
-
-    // Setup and allocate PETSc vector
-    const int commRank = mesh.getCommRank();
-    PylithScalar rankReal = PylithReal(commRank);
-
-    pylith::topology::Field partitionField(mesh);
-    partitionField.setLabel("partition");
-
-    pylith::topology::Field::Description description;
-    description.label = "partition";
-    description.alias = "partition";
-    description.vectorFieldType = pylith::topology::Field::SCALAR;
-    description.numComponents = 1;
-    description.componentNames.resize(1);
-    description.componentNames[0] = "rank";
-    description.scale = 1.0;
-    description.validator = NULL;
-
-    pylith::topology::Field::Discretization discretization(0, 1);
-
-    partitionField.subfieldAdd(description, discretization);
-    partitionField.subfieldsSetup();
-    partitionField.createDiscretization();
-    partitionField.allocate();
-    partitionField.zeroLocal();
-    partitionField.createOutputVector();
-
-    PetscDM dmMesh = mesh.getDM();assert(dmMesh);
-    topology::Stratum cellsStratum(dmMesh, pylith::topology::Stratum::HEIGHT, 0);
-    const PetscInt cStart = cellsStratum.begin();
-    const PetscInt cEnd = cellsStratum.end();
-
-    VecVisitorMesh partitionVisitor(partitionField);
-    PetscScalar* partitionArray = partitionVisitor.localArray();
-    for (PetscInt point = cStart; point < cEnd; ++point) {
-        const PetscInt off = partitionVisitor.sectionOffset(point);
-        if (partitionVisitor.sectionDof(point) > 0) {
-            partitionArray[off] = rankReal;
-        } // if
-    } // for
-    partitionVisitor.clear();
-    partitionField.scatterLocalToOutput();
-
-    const int basisOrder = 0;
-    const int refineLevels = 0;
-    pylith::meshio::OutputSubfield* outputField =
-        pylith::meshio::OutputSubfield::create(partitionField, mesh, "partition", basisOrder, refineLevels);
-    outputField->project(partitionField.getOutputVector());
-
-    const PylithScalar t = 0.0;
-    const bool isInfo = true;
-    writer->open(mesh, isInfo);
-    writer->openTimeStep(t, mesh);
-    writer->writeCellField(t, *outputField);
-    writer->closeTimeStep();
-    writer->close();
-
-    delete outputField;outputField = NULL;
-
-    PYLITH_METHOD_END;
-} // write
-
-
-// ------------------------------------------------------------------------------------------------
 // This is a copy of DMPlexDistributeOverlap()
 PetscErrorCode
-pylith::topology::_Distributor::distributeOverlap(PetscDM* dmOverlap,
-                                                  PetscDM dmMesh,
-                                                  const std::vector<pylith::faults::FaultCohesive*>& faults) {
+pylith::topology::Distributor::distributeOverlap(PetscDM* dmOverlap,
+                                                 PetscDM dmMesh,
+                                                 const std::vector<pylith::faults::FaultCohesive*>& faults) {
     PYLITH_METHOD_BEGIN;
     assert(dmOverlap);
 
@@ -337,6 +252,75 @@ pylith::topology::_Distributor::distributeOverlap(PetscDM* dmOverlap,
 
     PYLITH_METHOD_RETURN(0);
 } // distributeOverlap
+
+
+// ------------------------------------------------------------------------------------------------
+// Write partitioning info for distributed mesh.
+void
+pylith::topology::_Distributor::write(meshio::DataWriter* const writer,
+                                      const topology::Mesh& mesh) {
+    PYLITH_METHOD_BEGIN;
+
+    // Setup and allocate PETSc vector
+    const int commRank = mesh.getCommRank();
+    PylithScalar rankReal = PylithReal(commRank);
+
+    pylith::topology::Field partitionField(mesh);
+    partitionField.setLabel("partition");
+
+    pylith::topology::Field::Description description;
+    description.label = "partition";
+    description.alias = "partition";
+    description.vectorFieldType = pylith::topology::Field::SCALAR;
+    description.numComponents = 1;
+    description.componentNames.resize(1);
+    description.componentNames[0] = "rank";
+    description.scale = 1.0;
+    description.validator = NULL;
+
+    pylith::topology::Field::Discretization discretization(0, 1);
+
+    partitionField.subfieldAdd(description, discretization);
+    partitionField.subfieldsSetup();
+    partitionField.createDiscretization();
+    partitionField.allocate();
+    partitionField.zeroLocal();
+    partitionField.createOutputVector();
+
+    PetscDM dmMesh = mesh.getDM();assert(dmMesh);
+    topology::Stratum cellsStratum(dmMesh, pylith::topology::Stratum::HEIGHT, 0);
+    const PetscInt cStart = cellsStratum.begin();
+    const PetscInt cEnd = cellsStratum.end();
+
+    VecVisitorMesh partitionVisitor(partitionField);
+    PetscScalar* partitionArray = partitionVisitor.localArray();
+    for (PetscInt point = cStart; point < cEnd; ++point) {
+        const PetscInt off = partitionVisitor.sectionOffset(point);
+        if (partitionVisitor.sectionDof(point) > 0) {
+            partitionArray[off] = rankReal;
+        } // if
+    } // for
+    partitionVisitor.clear();
+    partitionField.scatterLocalToOutput();
+
+    const int basisOrder = 0;
+    const int refineLevels = 0;
+    pylith::meshio::OutputSubfield* outputField =
+        pylith::meshio::OutputSubfield::create(partitionField, mesh, "partition", basisOrder, refineLevels);
+    outputField->project(partitionField.getOutputVector());
+
+    const PylithScalar t = 0.0;
+    const bool isInfo = true;
+    writer->open(mesh, isInfo);
+    writer->openTimeStep(t, mesh);
+    writer->writeCellField(t, *outputField);
+    writer->closeTimeStep();
+    writer->close();
+
+    delete outputField;outputField = NULL;
+
+    PYLITH_METHOD_END;
+} // write
 
 
 // End of file

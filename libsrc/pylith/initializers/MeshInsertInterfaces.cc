@@ -14,6 +14,7 @@
 
 #include "pylith/problems/Problem.hh" // USES Problem
 #include "pylith/topology/Mesh.hh" // USES Mesh
+#include "pylith/topology/Distributor.hh" // USES Distributor
 #include "pylith/materials/Material.hh" // USES Material
 #include "pylith/faults/FaultCohesive.hh" // USES FaultCohesive
 #include "pylith/utils/error.hh" // USES PYLITH_CHECK_ERROR
@@ -72,6 +73,11 @@ pylith::initializers::MeshInsertInterfaces::run(pylith::topology::Mesh* mesh,
         meshTmp = meshNew;
         cohesiveLabelValue += 1;
     } // for
+#if 0
+    PetscDM dmNew = nullptr;
+    pylith::topology::Distributor::distributeOverlap(&dmNew, meshNew->getDM(), problem.getInterfaces());
+    meshNew->setDM(dmNew);
+#endif
 
     PYLITH_METHOD_RETURN(meshNew);
 } // run

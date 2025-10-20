@@ -15,6 +15,7 @@
 
 #include "pylith/meshio/meshiofwd.hh" // USES DataWriter
 #include "pylith/faults/faultsfwd.hh" // USES FaultCohesive
+#include "pylith/utils/petscfwd.h" // USES PetscDM
 
 class pylith::topology::Distributor : public pylith::utils::PyreComponent {
     friend class TestDistributor; // unit testing
@@ -53,6 +54,22 @@ public:
      */
     pylith::topology::Mesh* distribute(const pylith::topology::Mesh& mesh,
                                        const std::vector<pylith::faults::FaultCohesive*>& faults) const;
+
+    /** Distribute custom overlap based on PETSc labels.
+     *
+     * The overlap excludes cohesive cells but includes cells adjacent to faults.
+     * This is a custom version of DMPlexDistributeOverlap()
+     *
+     * @param[out] dmOverlap PETSc DM for the overlap.
+     * @param[in] dmMesh PETSc DM for the current mesh.
+     * @param[in] faults Array of fault interfaces.
+     *
+     * @returns PETSc error code (0==success).
+     */
+    static
+    PetscErrorCode distributeOverlap(PetscDM* dmOverlap,
+                                     PetscDM dmMesh,
+                                     const std::vector<pylith::faults::FaultCohesive*>& faults);
 
     // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:
