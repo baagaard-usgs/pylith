@@ -22,6 +22,8 @@
 #include "pylith/meshio/DataWriter.hh" // USES DataWriter
 #include "pylith/utils/journals.hh" // pythia::journal
 
+#include "petsc/private/dmpleximpl.h"
+
 #include <cstring> // USES strlen()
 #include <strings.h> // USES strcasecmp()
 #include <stdexcept> // USES std::runtime_error
@@ -37,6 +39,14 @@ public:
             static
             void write(pylith::meshio::DataWriter* writer,
                        const pylith::topology::Mesh& mesh);
+
+            // :KLUDGE: Local copy of DMPlexCopy_Internal()
+            static
+            PetscErrorCode DMPlexCopy(DM dmin,
+                                      PetscBool copyPeriodicity,
+                                      PetscBool copyOverlap,
+                                      DM dmout);
+
 
         }; // _Distributor
     } // topology
@@ -180,9 +190,13 @@ pylith::topology::Distributor::distributeOverlap(PetscDM* dmOverlap,
     PetscDMLabel lblOverlap;
     PetscSF sfOverlap, sfStratified, sfPoint;
     PetscInt dim;
+    const char* meshName;
 
     const size_t numFaults = faults.size();
-    if (0 == numFaults) {
+    PylithCallPetsc(PetscObjectGetComm((PetscObject)dmMesh,&comm));
+    PetscCallMPI(MPI_Comm_size(comm, &size));
+    PetscCallMPI(MPI_Comm_rank(comm, &rank));
+    if ((0 == numFaults) || (1 == size)) {
         PylithCallPetsc(PetscObjectReference((PetscObject)dmMesh));
         *dmOverlap = dmMesh;
         PYLITH_METHOD_RETURN(0);
@@ -204,9 +218,6 @@ pylith::topology::Distributor::distributeOverlap(PetscDM* dmOverlap,
         ovExcludeLabelValues[i] = faults[i]->getCohesiveLabelValue();
     } // for
 
-    PylithCallPetsc(PetscObjectGetComm((PetscObject)dmMesh,&comm));
-    PetscCallMPI(MPI_Comm_size(comm, &size));
-    PetscCallMPI(MPI_Comm_rank(comm, &rank));
     /* Compute point overlap with neighboring processes on the distributed DM */
     PylithCallPetsc(PetscSectionCreate(comm, &rootSection));
     PylithCallPetsc(PetscSectionCreate(comm, &leafSection));
@@ -236,8 +247,10 @@ pylith::topology::Distributor::distributeOverlap(PetscDM* dmOverlap,
 
     /* Build the overlapping DM */
     PylithCallPetsc(DMPlexCreate(comm, dmOverlap));
-    PylithCallPetsc(PetscObjectSetName((PetscObject) *dmOverlap, "Parallel Mesh"));
+    PylithCallPetsc(PetscObjectGetName((PetscObject) dmMesh, &meshName));
+    PylithCallPetsc(PetscObjectSetName((PetscObject) *dmOverlap, meshName));
     PylithCallPetsc(DMPlexMigrate(dmMesh, sfOverlap, *dmOverlap));
+    PylithCallPetsc(_Distributor::DMPlexCopy(dmMesh, PETSC_TRUE, PETSC_FALSE, *dmOverlap));
     /* Store the overlap in the new DM */
     PylithCallPetsc(DMPlexSetOverlap(*dmOverlap, dmMesh, 1));
     /* Build the new point SF */
@@ -321,6 +334,57 @@ pylith::topology::_Distributor::write(meshio::DataWriter* const writer,
 
     PYLITH_METHOD_END;
 } // write
+
+
+// ------------------------------------------------------------------------------------------------
+PetscErrorCode
+pylith::topology::_Distributor::DMPlexCopy(DM dmin,
+                                           PetscBool copyPeriodicity,
+                                           PetscBool copyOverlap,
+                                           DM dmout) {
+    const PetscReal     *maxCell, *Lstart, *L;
+    VecType vecType;
+    MatType matType;
+    PetscBool dist, useCeed, balance_partition;
+    DMReorderDefaultFlag reorder;
+    MatOrderingType otype;
+
+
+    PetscFunctionBegin;
+    if (dmin == dmout) { PetscFunctionReturn(PETSC_SUCCESS);}
+    PylithCallPetsc(DMGetVecType(dmin, &vecType));
+    PylithCallPetsc(DMSetVecType(dmout, vecType));
+    PylithCallPetsc(DMGetMatType(dmin, &matType));
+    PylithCallPetsc(DMSetMatType(dmout, matType));
+    if (copyPeriodicity) {
+        PylithCallPetsc(DMGetPeriodicity(dmin, &maxCell, &Lstart, &L));
+        PylithCallPetsc(DMSetPeriodicity(dmout, maxCell, Lstart, L));
+        PylithCallPetsc(DMLocalizeCoordinates(dmout));
+    }
+    PylithCallPetsc(DMPlexDistributeGetDefault(dmin, &dist));
+    PylithCallPetsc(DMPlexDistributeSetDefault(dmout, dist));
+    PylithCallPetsc(DMPlexReorderGetDefault(dmin, &reorder));
+    PylithCallPetsc(DMPlexReorderSetDefault(dmout, reorder));
+
+    PylithCallPetsc(DMReorderSectionGetDefault(dmin, &reorder));
+    PylithCallPetsc(DMReorderSectionSetDefault(dmout, reorder));
+    PylithCallPetsc(DMReorderSectionGetType(dmin, &otype));
+    PylithCallPetsc(DMReorderSectionSetType(dmout, otype));
+
+    PylithCallPetsc(DMPlexGetUseCeed(dmin, &useCeed));
+    PylithCallPetsc(DMPlexSetUseCeed(dmout, useCeed));
+    PylithCallPetsc(DMPlexGetPartitionBalance(dmin, &balance_partition));
+    PylithCallPetsc(DMPlexSetPartitionBalance(dmout, balance_partition));
+    ((DM_Plex *)dmout->data)->useHashLocation = ((DM_Plex *)dmin->data)->useHashLocation;
+    ((DM_Plex *)dmout->data)->printSetValues = ((DM_Plex *)dmin->data)->printSetValues;
+    ((DM_Plex *)dmout->data)->printFEM = ((DM_Plex *)dmin->data)->printFEM;
+    ((DM_Plex *)dmout->data)->printFVM = ((DM_Plex *)dmin->data)->printFVM;
+    ((DM_Plex *)dmout->data)->printL2 = ((DM_Plex *)dmin->data)->printL2;
+    ((DM_Plex *)dmout->data)->printLocate = ((DM_Plex *)dmin->data)->printLocate;
+    ((DM_Plex *)dmout->data)->printProject = ((DM_Plex *)dmin->data)->printProject;
+    ((DM_Plex *)dmout->data)->printTol = ((DM_Plex *)dmin->data)->printTol;
+    PetscFunctionReturn(PETSC_SUCCESS);
+}
 
 
 // End of file
