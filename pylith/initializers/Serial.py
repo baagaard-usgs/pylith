@@ -82,8 +82,8 @@ class Serial(Component):
         return [
             self.read_mesh,
             self.reorder_mesh,
-            self.insert_interfaces,
             self.distribute_mesh,
+            self.insert_interfaces,
             self.refine_mesh,
         ]
 

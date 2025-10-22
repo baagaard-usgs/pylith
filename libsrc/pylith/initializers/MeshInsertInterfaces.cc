@@ -56,6 +56,7 @@ pylith::initializers::MeshInsertInterfaces::run(pylith::topology::Mesh* mesh,
         PYLITH_METHOD_RETURN(meshNew);
     } // if
 
+    // Determine starting label value for cohesive cells.
     PylithInt cohesiveLabelValue = 100;
     for (auto material : problem.getMaterials()) {
         const PylithInt materialLabelValue = material->getLabelValue();
@@ -73,11 +74,9 @@ pylith::initializers::MeshInsertInterfaces::run(pylith::topology::Mesh* mesh,
         meshTmp = meshNew;
         cohesiveLabelValue += 1;
     } // for
-#if 0
     PetscDM dmNew = nullptr;
     pylith::topology::Distributor::distributeOverlap(&dmNew, meshNew->getDM(), problem.getInterfaces());
     meshNew->setDM(dmNew);
-#endif
 
     PYLITH_METHOD_RETURN(meshNew);
 } // run

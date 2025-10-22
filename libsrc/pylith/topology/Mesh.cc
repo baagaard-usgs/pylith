@@ -223,12 +223,14 @@ pylith::topology::Mesh::view(const char* viewOption) const {
         const char* label = 0;
         PylithCallPetsc(PetscObjectGetName((PetscObject) _dm, &label));
 
-        std::ostringstream optionname, optionprefix;
-        optionprefix << label << "_";
-        optionname << "-" << label << "_dm_view";
+        if (strlen(label) > 0) {
+            std::ostringstream optionname, optionprefix;
+            optionprefix << label << "_";
+            PylithCallPetsc(DMSetOptionsPrefix(_dm, optionprefix.str().c_str()));
 
-        PylithCallPetsc(DMSetOptionsPrefix(_dm, optionprefix.str().c_str()));
-        PylithCallPetsc(PetscOptionsSetValue(NULL, optionname.str().c_str(), viewOption));
+            optionname << "-" << label << "_dm_view";
+            PylithCallPetsc(PetscOptionsSetValue(NULL, optionname.str().c_str(), viewOption));
+        } // if
         PylithCallPetsc(DMViewFromOptions(_dm, NULL, "-dm_view"));
 
     } else {
