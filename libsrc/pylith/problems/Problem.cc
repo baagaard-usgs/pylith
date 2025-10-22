@@ -208,6 +208,8 @@ pylith::problems::Problem::getSolverType(void) const {
 void
 pylith::problems::Problem::setPetscDefaults(const int flags) {
     _petscDefaults = flags;
+    const bool hasFault = _interfaces.size() > 0;
+    pylith::utils::PetscDefaults::set(_materials[0], hasFault, _petscDefaults);
 } // setPetscDefaults
 
 
@@ -492,8 +494,6 @@ pylith::problems::Problem::initialize(void) {
     assert(solution);
 
     // Initialize solution field.
-    pylith::utils::PetscDefaults::set(*solution, _materials[0], _petscDefaults);
-    PylithCallPetsc(DMSetFromOptions(solution->getDM()));
     _setupSolution();
     pylith::topology::CoordsVisitor::optimizeClosure(solution->getDM());
 

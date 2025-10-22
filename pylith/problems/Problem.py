@@ -172,7 +172,6 @@ class Problem(PetscComponent, ModuleProblem):
             ModuleProblem.setSolverType(self, ModuleProblem.NONLINEAR)
         else:
             raise ValueError("Unknown solver choice '%s'." % self.solverChoice)
-        ModuleProblem.setPetscDefaults(self, self.petscDefaults.flags())
         ModuleProblem.setScales(self, self.scales)
         if not isinstance(self.gravityField, NullComponent):
             ModuleProblem.setGravityField(self, self.gravityField)
@@ -193,6 +192,7 @@ class Problem(PetscComponent, ModuleProblem):
         ModuleProblem.setInterfaces(self, self.interfaces.components())
 
         # Initialize mesh
+        ModuleProblem.setPetscDefaults(self, self.petscDefaults.flags())
         self.meshInitializer.preinitialize()
         self.mesh = self.meshInitializer.runPhases(self)
 
