@@ -5,7 +5,7 @@
 # Copyright (c) 2010-2025, University of California, Davis and the PyLith Development Team.
 # All rights reserved.
 #
-# See https://mit-license.org/ and LICENSE.md and for license information. 
+# See https://mit-license.org/ and LICENSE.md and for license information.
 # =================================================================================================
 # @file pylith/apps/PyLithApp.py
 #
@@ -17,48 +17,56 @@ from .PetscApplication import PetscApplication
 
 
 class PyLithApp(PetscApplication):
-    """Python PyLithApp application.
-    """
+    """Python PyLithApp application."""
 
     import pythia.pyre.inventory
 
-    typos = pythia.pyre.inventory.str("typos", default="pedantic",
-                                      validator=pythia.pyre.inventory.choice(['relaxed', 'strict', 'pedantic']))
-    typos.meta['tip'] = "Specifies the handling of unknown properties and facilities"
+    typos = pythia.pyre.inventory.str(
+        "typos",
+        default="pedantic",
+        validator=pythia.pyre.inventory.choice(["relaxed", "strict", "pedantic"]),
+    )
+    typos.meta["tip"] = "Specifies the handling of unknown properties and facilities"
 
     initializeOnly = pythia.pyre.inventory.bool("initialize_only", default=False)
-    initializeOnly.meta['tip'] = "Stop simulation after initializing problem."
+    initializeOnly.meta["tip"] = "Stop simulation after initializing problem."
 
     from pylith.utils.SimulationMetadata import SimulationMetadata
+
     metadata = pythia.pyre.inventory.facility(
-        "metadata", family="simulation_metadata", factory=SimulationMetadata)
+        "metadata", family="simulation_metadata", factory=SimulationMetadata
+    )
     metadata.meta["tip"] = "Simulation metadata."
 
     from pylith.utils.DumpParametersJson import DumpParametersJson
+
     parameters = pythia.pyre.inventory.facility(
-        "dump_parameters", family="dump_parameters", factory=DumpParametersJson)
-    parameters.meta['tip'] = "Dump parameters used and version information to file."
+        "dump_parameters", family="dump_parameters", factory=DumpParametersJson
+    )
+    parameters.meta["tip"] = "Dump parameters used and version information to file."
 
     from pylith.problems.TimeDependent import TimeDependent
-    problem = pythia.pyre.inventory.facility("problem", family="problem", factory=TimeDependent)
-    problem.meta['tip'] = "Boundary value problem to solve."
+
+    problem = pythia.pyre.inventory.facility(
+        "problem", family="problem", factory=TimeDependent
+    )
+    problem.meta["tip"] = "Boundary value problem to solve."
 
     # PUBLIC METHODS /////////////////////////////////////////////////////
 
     def __init__(self, name="pylithapp"):
-        """Constructor.
-        """
+        """Constructor."""
         PetscApplication.__init__(self, name)
         self._loggingPrefix = "PL.PyLithApp."
 
     def main(self, *args, **kwds):
-        """Run the application.
-        """
+        """Run the application."""
         # Dump parameters and version information
         self.parameters.preinitialize()
         self.parameters.write(self)
 
         from pylith.mpi.Communicator import mpi_is_root, mpi_comm_world
+
         if mpi_is_root():
             comm = mpi_comm_world()
             self._info.log("Running on %d process(es)." % comm.size)
@@ -74,6 +82,7 @@ class PyLithApp(PetscApplication):
 
         # If initializing only, stop before running problem
         if self.initializeOnly:
+            self.problem.finalize()
             return
 
         # Run problem
@@ -88,12 +97,15 @@ class PyLithApp(PetscApplication):
 
     def version(self):
         from pylith.utils.CollectVersionInfo import CollectVersionInfo
+
         msg = CollectVersionInfo.asString()
         msg += "\n"
 
         # Citation information
-        msg += "If you publish results based on computations with PyLith please cite the following:\n" \
+        msg += (
+            "If you publish results based on computations with PyLith please cite the following:\n"
             "(use --include-citations during your simulations to display a list specific to your computation):\n\n"
+        )
         for citation in self.citations():
             msg += citation + "\n"
 
@@ -102,6 +114,7 @@ class PyLithApp(PetscApplication):
 
     def citations(self):
         import pylith.utils.utils as utils
+
         v = utils.PylithVersion()
         verNum = v.version()
         verYear = 2023
@@ -116,7 +129,7 @@ class PyLithApp(PetscApplication):
             "  year         = {%d},\n"
             "  doi         = {%s}\n"
             "}\n" % (verNum, verYear, verDOI)
-            )
+        )
 
         manual = (
             "@Manual{PyLith:manual,\n"
@@ -127,19 +140,20 @@ class PyLithApp(PetscApplication):
             "  year         = {%d},\n"
             "  note         = {https://pylith.readthedocs.io/en/v%s}\n"
             "}\n" % (verNum, verYear, verNum)
-            )
+        )
 
-        faultRup = ("@Article{Aagaard:Knepley:Williams:JGR:2013,\n"
-                    "  author   = {Aagaard, B.~T. and Knepley, M.~G. and Williams, C.~A.},\n"
-                    "  title    = {A domain decomposition approach to implementing fault slip "
-                    "in finite-element models of quasi-static and dynamic crustal deformation},\n"
-                    "  journal  = {Journal of Geophysical Research Solid Earth},\n"
-                    "  year     = {2013},\n"
-                    "  volume   = {118},\n"
-                    "  pages    = {3059--3079},\n"
-                    "  doi      = {10.1002/jgrb.50217}\n"
-                    "}\n"
-                    )
+        faultRup = (
+            "@Article{Aagaard:Knepley:Williams:JGR:2013,\n"
+            "  author   = {Aagaard, B.~T. and Knepley, M.~G. and Williams, C.~A.},\n"
+            "  title    = {A domain decomposition approach to implementing fault slip "
+            "in finite-element models of quasi-static and dynamic crustal deformation},\n"
+            "  journal  = {Journal of Geophysical Research Solid Earth},\n"
+            "  year     = {2013},\n"
+            "  volume   = {118},\n"
+            "  pages    = {3059--3079},\n"
+            "  doi      = {10.1002/jgrb.50217}\n"
+            "}\n"
+        )
 
         entries = (software, manual, faultRup)
         return entries
@@ -193,15 +207,14 @@ class PyLithApp(PetscApplication):
     # PRIVATE METHODS ////////////////////////////////////////////////////
 
     def _configure(self):
-        """Setup members using inventory.
-        """
+        """Setup members using inventory."""
         PetscApplication._configure(self)
         return
 
     def _setupLogging(self):
-        """Setup event logging.
-        """
+        """Setup event logging."""
         from pylith.utils.EventLogger import EventLogger
+
         logger = EventLogger()
         logger.setClassName("PyLith")
         logger.initialize()
@@ -219,15 +232,13 @@ class PyLithApp(PetscApplication):
 class InfoApp(PyLithApp):
 
     def __init__(self, args, name="pylithapp"):
-        """Constructor.
-        """
+        """Constructor."""
         PyLithApp.__init__(self, name)
         self.pylithargs = args
         return
 
     def onLoginNode(self, *args, **kwds):
-        """Instead of scheduling job, do nothing.
-        """
+        """Instead of scheduling job, do nothing."""
         return
 
     def getArgv(self, *args, **kwds):
@@ -235,12 +246,12 @@ class InfoApp(PyLithApp):
         only the ones relevant to PyLith which are specified in the arg to
         the constructor.
         """
-        argv = kwds.get('argv')
+        argv = kwds.get("argv")
         if argv is None:
             argv = self.pylithargs
         else:
             self.arg0 = argv[0]
-            self._requires = kwds.get('requires')
+            self._requires = kwds.get("requires")
             argv = argv[1:]
         return argv
 
