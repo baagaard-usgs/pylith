@@ -251,6 +251,11 @@ pylith::topology::Distributor::distributeOverlap(PetscDM* dmOverlap,
     PylithCallPetsc(PetscObjectSetName((PetscObject) *dmOverlap, meshName));
     PylithCallPetsc(DMPlexMigrate(dmMesh, sfOverlap, *dmOverlap));
     PylithCallPetsc(_Distributor::DMPlexCopy(dmMesh, PETSC_TRUE, PETSC_FALSE, *dmOverlap));
+
+    PetscReal scale = 0.0;
+    PylithCallPetsc(DMPlexGetScale(dmMesh, PETSC_UNIT_LENGTH, &scale));
+    PylithCallPetsc(DMPlexSetScale(*dmOverlap, PETSC_UNIT_LENGTH, scale));
+
     /* Store the overlap in the new DM */
     PylithCallPetsc(DMPlexSetOverlap(*dmOverlap, dmMesh, 1));
     /* Build the new point SF */
