@@ -14,6 +14,7 @@
 
 #include "pylith/initializers/InitializePhase.hh" // HASA InitializePhase
 #include "pylith/topology/Mesh.hh" // HASA Mesh
+#include "pylith/topology/MeshOps.hh" // USES MeshOps
 #include "pylith/utils/error.hh" // USES PYLITH_CHECK_ERROR
 #include "pylith/utils/journals.hh" // USES PYLITH_COMPONENT_*
 
@@ -64,17 +65,24 @@ pylith::initializers::Initializer::runPhases(const pylith::problems::Problem& pr
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("Initializer::initialize(problem)");
 
-    pylith::topology::Mesh* newMesh = nullptr;
-    pylith::topology::Mesh* phaseMesh = nullptr;
+    pylith::topology::Mesh* meshNew = nullptr;
+    pylith::topology::Mesh* meshPhase = nullptr;
     const size_t numPhases = _phases.size();
     for (size_t i = 0; i < numPhases; ++i) {
         assert(_phases[i]);
-
-        newMesh = _phases[i]->run(phaseMesh, problem);
-        delete phaseMesh;phaseMesh = newMesh;
+        meshNew = _phases[i]->run(meshPhase, problem);
+        pylith::topology::MeshOps::checkTopology(*meshNew); // TEMPORARY
+        delete meshPhase;meshPhase = meshNew;
     } // for
 
-    PYLITH_METHOD_RETURN(newMesh);
+    pythia::journal::debug_t debug("initialize_mesh");
+    if (debug.state()) {
+        meshNew->view("mesh_domain_after_initialize.txt:ascii_info_detail");
+        meshNew->view(":mesh_domain_after_initialize.tex:ascii_latex");
+    } // of
+    pylith::topology::MeshOps::checkTopology(*meshNew);
+
+    PYLITH_METHOD_RETURN(meshNew);
 } // runPhases
 
 
