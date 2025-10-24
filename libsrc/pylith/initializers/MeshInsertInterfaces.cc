@@ -40,6 +40,7 @@ pylith::initializers::MeshInsertInterfaces::deallocate(void) {
 } // deallocate
 
 
+#include <iostream>
 // ------------------------------------------------------------------------------------------------
 // Run initialization phase.
 pylith::topology::Mesh*
@@ -74,9 +75,18 @@ pylith::initializers::MeshInsertInterfaces::run(pylith::topology::Mesh* mesh,
         meshTmp = meshNew;
         cohesiveLabelValue += 1;
     } // for
+
+    std::cout << "BEFORE OVERLAP" << std::endl;
+    meshNew->view();
+    meshNew->view(":before_overlap.tex:ascii_latex");
+
     PetscDM dmNew = nullptr;
     pylith::topology::Distributor::distributeOverlap(&dmNew, meshNew->getDM(), problem.getInterfaces());
     meshNew->setDM(dmNew);
+
+    std::cout << std::endl << "AFTER OVERLAP" << std::endl;
+    meshNew->view();
+    meshNew->view(":after_overlap.tex:ascii_latex");
 
     PYLITH_METHOD_RETURN(meshNew);
 } // run
