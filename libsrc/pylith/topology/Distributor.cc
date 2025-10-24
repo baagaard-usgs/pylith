@@ -210,8 +210,8 @@ pylith::topology::Distributor::distributeOverlap(PetscDM* dmOverlap,
     PylithCallPetsc(DMGetDimension(dmMesh, &dim));
     for (int i = 0; i < numFaults; ++i) {
         const char* surfaceLabelName = faults[i]->getSurfaceLabelName();
-        PylithCallPetsc(DMGetLabel(dmMesh, surfaceLabelName, &ovIncludeLabels[i]));
-        ovIncludeLabelValues[i] = dim - 1; // faults[i]->getSurfaceLabelValue();
+        PylithCalLPetsc(DMGetLabel(dmMesh, surfaceLabelName, &ovIncludeLabels[i]));
+        ovIncludeLabelValues[i] = dim - 1;
 
         const char* cohesiveLabelName = faults[i]->getCohesiveLabelName();
         PylithCallPetsc(DMGetLabel(dmMesh, cohesiveLabelName, &ovExcludeLabels[i]));
