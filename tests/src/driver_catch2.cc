@@ -168,10 +168,10 @@ pylith::testing::TestDriver::_initializePetsc(char* programName,
         if (pos < petscOptions[i].length()) {
             const std::string& arg = std::string("-") + petscOptions[i].substr(0, pos);
             const std::string& value = petscOptions[i].substr(pos+1);
-            err = PetscOptionsSetValue(NULL, arg.c_str(), value.c_str());CHKERRQ(err);
+            err = PetscOptionsSetValue(nullptr, arg.c_str(), value.c_str());CHKERRQ(err);
         } else {
             const std::string& arg = std::string("-") + petscOptions[i];
-            err = PetscOptionsSetValue(NULL, arg.c_str(), "");CHKERRQ(err);
+            err = PetscOptionsSetValue(nullptr, arg.c_str(), "");CHKERRQ(err);
         } // if/else
     } // for
 
