@@ -451,7 +451,7 @@ protected:
         _mymaterial->useBodyForce(true);
         _mymaterial->useReferenceState(false);
 
-        _mymaterial->setLabel("Isotropic Linear Maxwell Plane Strain");
+        _mymaterial->setName("Isotropic Linear Maxwell Plane Strain");
         _mymaterial->id(24);
 
     } // setUp

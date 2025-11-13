@@ -207,9 +207,9 @@ pylith::meshio::TestDataWriterHDF5::checkFile(const char* filename) {
 // ------------------------------------------------------------------------------------------------
 // Constructor
 pylith::meshio::TestDataWriterHDF5_Data::TestDataWriterHDF5_Data(void) :
-    opencloseFilename(NULL),
-    vertexFilename(NULL),
-    cellFilename(NULL) {}
+    opencloseFilename(nullptr),
+    vertexFilename(nullptr),
+    cellFilename(nullptr) {}
 
 
 // ------------------------------------------------------------------------------------------------

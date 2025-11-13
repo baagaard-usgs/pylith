@@ -12,13 +12,14 @@
 
 #include "pylith/bc/AbsorbingDampers.hh" // implementation of object methods
 
-#include "pylith/bc/AbsorbingDampersAuxiliaryFactory.hh" // USES AuxiliaryFactory
+#include "pylith/bc/SubfieldFactory.hh" // USES SubfieldFactory
 
 #include "pylith/fekernels/AbsorbingDampers.hh" // USES AbsorbingDampers kernels
 
 #include "pylith/feassemble/IntegratorBoundary.hh" // USES IntegratorBoundary
 #include "pylith/topology/Mesh.hh" // USES Mesh
 #include "pylith/topology/Field.hh" // USES Field
+#include "pylith/topology/FieldQuery.hh" // USES FieldQuery
 #include "pylith/topology/FieldOps.hh" // USES FieldOps
 #include "spatialdata/units/Nondimensional.hh" // USES Nondimensional
 
@@ -31,14 +32,21 @@
 #include <sstream> // USES std::ostringstream
 #include <typeinfo> // USES typeid
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 typedef pylith::feassemble::IntegratorBoundary::ResidualKernels ResidualKernels;
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 namespace pylith {
     namespace bc {
+        class AbsorbingDampersWrap : public AbsorbingDampers {
+public:
+
+            AbsorbingDampersWrap(void) : AbsorbingDampers() {}
+
+
+        };
+
         class _AbsorbingDampers {
-            // PUBLIC MEMBERS //////////////////////////////////////////////////////////////////////////////////////////
 public:
 
             /** Set kernels for RHS residual.
@@ -59,24 +67,31 @@ public:
     } // bc
 } // pylith
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Default constructor.
-pylith::bc::AbsorbingDampers::AbsorbingDampers(void) :
-    _auxiliaryFactory(new pylith::bc::AbsorbingDampersAuxiliaryFactory) {
+pylith::bc::AbsorbingDampers::AbsorbingDampers(void) {
     PyreComponent::setName(_AbsorbingDampers::pyreComponent);
 
     _subfieldName = "velocity";
 } // constructor
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
+// Factory for std::shared_ptr.
+std::shared_ptr<pylith::bc::AbsorbingDampers>
+pylith::bc::AbsorbingDampers::create(void) {
+    return std::make_shared<AbsorbingDampersWrap>();
+}
+
+
+// ------------------------------------------------------------------------------------------------
 // Destructor.
 pylith::bc::AbsorbingDampers::~AbsorbingDampers(void) {
     deallocate();
 } // destructor
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Deallocate PETSc and local data structures.
 void
 pylith::bc::AbsorbingDampers::deallocate(void) {
@@ -84,18 +99,16 @@ pylith::bc::AbsorbingDampers::deallocate(void) {
 
     BoundaryCondition::deallocate();
 
-    delete _auxiliaryFactory;_auxiliaryFactory = NULL;
-
     PYLITH_METHOD_END;
 } // deallocate
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Verify configuration is acceptable.
 void
 pylith::bc::AbsorbingDampers::verifyConfiguration(const pylith::topology::Field& solution) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("verifyConfiguration(solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("verifyConfiguration(solution="<<solution.getName()<<")");
 
     BoundaryCondition::verifyConfiguration(solution);
 
@@ -110,63 +123,57 @@ pylith::bc::AbsorbingDampers::verifyConfiguration(const pylith::topology::Field&
 } // verifyConfiguration
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Create integrator and set kernels.
-pylith::feassemble::Integrator*
+std::shared_ptr<pylith::feassemble::Integrator>
 pylith::bc::AbsorbingDampers::createIntegrator(const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createIntegrator(solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("createIntegrator(solution="<<solution.getName()<<")");
 
-    pylith::feassemble::IntegratorBoundary* integrator = new pylith::feassemble::IntegratorBoundary(this);assert(integrator);
+    std::shared_ptr<pylith::feassemble::IntegratorBoundary> integrator = pylith::feassemble::IntegratorBoundary::create(shared_from_this());assert(integrator);
     integrator->setSubfieldName(getSubfieldName());
     integrator->setLabelName(getLabelName());
     integrator->setLabelValue(getLabelValue());
 
-    _AbsorbingDampers::setKernelsResidual(integrator, *this, solution);
-    BoundaryCondition::_setKernelsDiagnosticField(integrator, solution);
+    _AbsorbingDampers::setKernelsResidual(integrator.get(), *this, solution);
+    BoundaryCondition::_setKernelsDiagnosticField(integrator.get(), solution);
 
     PYLITH_METHOD_RETURN(integrator);
 } // createIntegrator
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Create constraint and set kernels.
-std::vector<pylith::feassemble::Constraint*>
+std::vector<std::shared_ptr<pylith::feassemble::Constraint> >
 pylith::bc::AbsorbingDampers::createConstraints(const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createConstraints(solution="<<solution.getLabel()<<") empty method");
-    std::vector<pylith::feassemble::Constraint*> constraintArray;
+    PYLITH_COMPONENT_DEBUG("createConstraints(solution="<<solution.getName()<<") empty method");
+    std::vector<std::shared_ptr<pylith::feassemble::Constraint> > constraints;
 
-    PYLITH_METHOD_RETURN(constraintArray);
+    PYLITH_METHOD_RETURN(constraints);
 } // createConstraints
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Create auxiliary field.
-pylith::topology::Field*
+std::shared_ptr<pylith::topology::Field>
 pylith::bc::AbsorbingDampers::createAuxiliaryField(const pylith::topology::Field& solution,
                                                    const pylith::topology::Mesh& domainMesh) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createAuxiliaryField(solution="<<solution.getLabel()<<", domainMesh=)"<<typeid(domainMesh).name()<<")");
+    PYLITH_COMPONENT_DEBUG("createAuxiliaryField(solution="<<solution.getName()<<", domainMesh=)"<<typeid(domainMesh).name()<<")");
 
-    pylith::topology::Field* auxiliaryField = new pylith::topology::Field(domainMesh);assert(auxiliaryField);
-    auxiliaryField->setLabel("auxiliary field");
+    std::shared_ptr<pylith::topology::Field> auxiliaryField(new pylith::topology::Field(domainMesh));assert(auxiliaryField);
+    auxiliaryField->setName("auxiliary field");
 
-    assert(_auxiliaryFactory);
+    assert(_subfieldFactory);
     assert(_normalizer);
-    _auxiliaryFactory->initialize(auxiliaryField, *_normalizer, domainMesh.getDimension());
 
     // :ATTENTION: The order for adding subfields must match the order of the auxiliary fields in the FE kernels.
-
-    // :ATTENTION: In quasi-static problems, the time scale is usually quite large
-    // (order of tens to hundreds of years), which means that the density scale is very large,
-    // and the acceleration scale is very small. Nevertheless, density times gravitational
-    // acceleration will have a scale of pressure divided by length and should be within a few orders
-    // of magnitude of 1.
-
-    _auxiliaryFactory->addDensity(); // 0
-    _auxiliaryFactory->addVp(); // 1
-    _auxiliaryFactory->addVs(); // 2
+    _subfieldFactory->open(auxiliaryField, _normalizer);
+    _subfieldFactory->addSubfield(_subfieldFactory->density); // 0
+    _subfieldFactory->addSubfield(_subfieldFactory->vp); // 1
+    _subfieldFactory->addSubfield(_subfieldFactory->vs); // 2
+    _subfieldFactory->close();
 
     auxiliaryField->subfieldsSetup();
     auxiliaryField->createDiscretization();
@@ -174,22 +181,19 @@ pylith::bc::AbsorbingDampers::createAuxiliaryField(const pylith::topology::Field
     auxiliaryField->allocate();
     auxiliaryField->createOutputVector();
 
-    assert(_auxiliaryFactory);
-    _auxiliaryFactory->setValuesFromDB();
+    pylith::topology::FieldQuery fieldQuery(auxiliaryField);
+    fieldQuery.addSubfield(_subfieldFactory->density);
+    fieldQuery.addSubfield(_subfieldFactory->vp);
+    fieldQuery.addSubfield(_subfieldFactory->vs);
+    fieldQuery.open(_auxiliaryFieldDB, _normalizer->getLengthScale());
+    fieldQuery.query();
+    fieldQuery.close();
 
     PYLITH_METHOD_RETURN(auxiliaryField);
 } // createAuxiliaryField
 
 
-// ---------------------------------------------------------------------------------------------------------------------
-// Get auxiliary field factory associated with physics.
-pylith::feassemble::AuxiliaryFactory*
-pylith::bc::AbsorbingDampers::_getAuxiliaryFactory(void) {
-    return _auxiliaryFactory;
-} // _getAuxiliaryFactory
-
-
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Set kernels for residual.
 void
 pylith::bc::_AbsorbingDampers::setKernelsResidual(pylith::feassemble::IntegratorBoundary* integrator,
@@ -199,10 +203,10 @@ pylith::bc::_AbsorbingDampers::setKernelsResidual(pylith::feassemble::Integrator
     pythia::journal::debug_t debug(_AbsorbingDampers::pyreComponent);
     debug << pythia::journal::at(__HERE__)
           << "_AbsorbingDampers::_setKernelsRHSResidual(integrator="<<integrator<<", bc="<<typeid(bc).name()
-          <<", solution="<<solution.getLabel()<<")"<<pythia::journal::endl;
+          <<", solution="<<solution.getName()<<")"<<pythia::journal::endl;
 
     PetscBdPointFunc g0 = pylith::fekernels::AbsorbingDampers::g0;
-    PetscBdPointFunc g1 = NULL;
+    PetscBdPointFunc g1 = nullptr;
 
     std::vector<ResidualKernels> kernels(1);
     kernels[0] = ResidualKernels(bc.getSubfieldName(), pylith::feassemble::Integrator::RHS, g0, g1);

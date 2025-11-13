@@ -200,8 +200,8 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////
 private:
 
-    ViscousFriction(const ViscousFriction&); ///< Not implemented.
-    const ViscousFriction& operator=(const ViscousFriction&); ///< Not implemented
+    ViscousFriction(const ViscousFriction&) = delete;
+    const ViscousFriction& operator=(const ViscousFriction&) = delete;
 
 }; // class ViscousFriction
 

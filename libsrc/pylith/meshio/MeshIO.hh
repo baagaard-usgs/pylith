@@ -17,9 +17,8 @@
 
 #include "pylith/topology/topologyfwd.hh" // forward declarations
 #include "spatialdata/units/unitsfwd.hh" // forward declarations
-#include "pylith/utils/arrayfwd.hh" // USES scalar_array, int_array, string_vector
+#include "pylith/utils/arrayfwd.hh" // USES scalar_array, pylith::integer_array, string_vector
 
-// ------------------------------------------------------------------------------------------------
 class pylith::meshio::MeshIO : public pylith::utils::PyreComponent {
     // PUBLIC MEMBERS /////////////////////////////////////////////////////////////////////////////
 public:

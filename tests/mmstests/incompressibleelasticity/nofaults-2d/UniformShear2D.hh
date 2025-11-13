@@ -40,7 +40,7 @@ public:
 
 private:
 
-    UniformShear2D(void); ///< Not implemented
+    UniformShear2D(void) = delete;
 }; // UniformShear2D
 
 // End of file

@@ -31,7 +31,7 @@ public:
 
 private:
 
-    BodyForce2D(void); ///< Not implemented
+    BodyForce2D(void) = delete;
 }; // BodyForce2D
 
 // End of file

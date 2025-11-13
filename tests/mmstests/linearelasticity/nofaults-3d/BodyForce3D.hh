@@ -31,7 +31,7 @@ public:
 
 private:
 
-    BodyForce3D(void); ///< Not implemented
+    BodyForce3D(void) = delete;
 }; // BodyForce3D
 
 // End of file

@@ -16,7 +16,7 @@
 #include "pylith/utils/GenericComponent.hh" // ISA GenericComponent
 
 #include "pylith/topology/topologyfwd.hh" // USES Field
-#include "pylith/utils/types.hh" // USES PylithReal, PylithInt
+#include "pylith/utils/types.hh" // USES pylith::real, pylith::integer
 
 #include <set> // USES std::set
 
@@ -41,19 +41,19 @@ public:
      *
      * @param[in] observer Observer to receive notifications.
      */
-    void registerObserver(std::shared_ptr<pylith::problems::ObserverSoln>& observer);
+    void registerObserver(const std::shared_ptr<pylith::problems::ObserverSoln>& observer);
 
     /** Remove observer from receiving notifications.
      *
      * @param[in] observer Observer to remove.
      */
-    void removeObserver(std::shared_ptr<pylith::problems::ObserverSoln>& observer);
+    void removeObserver(const std::shared_ptr<pylith::problems::ObserverSoln>& observer);
 
     /** Set time scale in observers.
      *
      * @param[in] value Time scale for dimensionalizing time.
      */
-    void setTimeScale(const PylithReal value);
+    void setTimeScale(const pylith::real value);
 
     /** Verify observers are compatible.
      *
@@ -68,8 +68,8 @@ public:
      * @param[in] solution Solution at time t.
      * @param[in] notification Type of notification.
      */
-    void notifyObservers(const PylithReal t,
-                         const PylithInt tindex,
+    void notifyObservers(const pylith::real t,
+                         const pylith::integer tindex,
                          const pylith::topology::Field& solution,
                          const pylith::problems::Observer::NotificationType notification);
 
@@ -83,8 +83,8 @@ private:
      * @returns True if a->index < b->index, False otherwise.
      */
     struct _compare {
-        bool operator()(const ObserverSoln* a,
-                        const ObserverSoln* b) const;
+        bool operator()(const std::shared_ptr<ObserverSoln>& a,
+                        const std::shared_ptr<ObserverSoln>& b) const;
 
     };
 
@@ -96,8 +96,8 @@ private:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    ObserversSoln(const ObserversSoln&); ///< Not implemented.
-    const ObserversSoln& operator=(const ObserversSoln&); ///< Not implemented
+    ObserversSoln(const ObserversSoln&) = delete;
+    const ObserversSoln& operator=(const ObserversSoln&) = delete;
 
 };
 

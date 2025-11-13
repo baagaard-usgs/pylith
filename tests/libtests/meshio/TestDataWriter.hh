@@ -35,20 +35,20 @@ public:
     const char* faultLabel; ///< Name of group of vertices for fault.
     int faultId; ///< Material identifier for fault.
     int spaceDim; ///< Spatial dimension.
-    PylithReal lengthScale; ///< Length scale for mesh.
+    pylith::real lengthScale; ///< Length scale for mesh.
 
     PylithScalar time; ///< Time for fields.
     const char* timeFormat; ///< Format for time stamp.
 
-    PylithInt vertexNumPoints; ///< Number of points in vertex field.
+    pylith::integer vertexNumPoints; ///< Number of points in vertex field.
     pylith::topology::FieldBase::Discretization vertexDiscretization; ///< Discretization for vertex fields.
     PylithScalar* vertexValues; ///< Values for vertex field (vertexNumPoints, vertexNumDOF).
-    PylithInt vertexNumDOF; ///< Number of values per vertex.
+    pylith::integer vertexNumDOF; ///< Number of values per vertex.
 
-    PylithInt cellNumPoints; ///< Number of points in cell field.
+    pylith::integer cellNumPoints; ///< Number of points in cell field.
     pylith::topology::FieldBase::Discretization cellDiscretization; ///< Discretization for cell fields.
     PylithScalar* cellValues; ///< Values for cell field (cellNumPoints, cellNumDOF).
-    PylithInt cellNumDOF; ///< Number of values per cell.
+    pylith::integer cellNumDOF; ///< Number of values per cell.
 
 }; // class TestDataWriter_Data
 

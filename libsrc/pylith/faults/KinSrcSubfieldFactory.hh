@@ -58,8 +58,8 @@ public:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    KinSrcSubfieldFactory(const KinSrcSubfieldFactory&); ///< Not implemented.
-    const KinSrcSubfieldFactory& operator=(const KinSrcSubfieldFactory&); ///< Not implemented
+    KinSrcSubfieldFactory(const KinSrcSubfieldFactory&) = delete;
+    const KinSrcSubfieldFactory& operator=(const KinSrcSubfieldFactory&) = delete;
 
 }; // class KinSrcSubfieldFactory
 

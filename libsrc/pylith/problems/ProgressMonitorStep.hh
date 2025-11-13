@@ -26,7 +26,7 @@ public:
     virtual ~ProgressMonitorStep(void);
 
     /// Deallocate PETSc and local data structures.
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Update progress.
      *
@@ -42,10 +42,10 @@ public:
 protected:
 
     /// Open progress monitor.
-    void _open(void);
+    void _open(void) override;
 
     /// Close progress monitor.
-    void _close(void);
+    void _close(void) override;
 
     /** Update progress.
      *
@@ -56,7 +56,7 @@ protected:
      */
     void _update(const size_t step,
                  const time_t& now,
-                 const double percentComplete,
+                 const float percentComplete,
                  const char* finished);
 
     // PRIVATE MEMBERS //////////////////////////////////////////////////////
@@ -67,8 +67,8 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    ProgressMonitorStep(const ProgressMonitorStep&); ///< Not implemented.
-    const ProgressMonitorStep& operator=(const ProgressMonitorStep&); ///< Not implemented.
+    ProgressMonitorStep(const ProgressMonitorStep&) = delete;
+    const ProgressMonitorStep& operator=(const ProgressMonitorStep&) = delete;
 
 }; // ProgressMonitorStep
 

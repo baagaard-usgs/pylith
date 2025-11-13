@@ -42,21 +42,21 @@ public:
      *
      * @returns Local array.
      */
-    PetscScalar* localArray(void) const;
+    pylith::scalar* localArray(void) const;
 
     /** Get fiber dimension of coordinates for point.
      *
      * @param point Point in mesh.
      * @returns Fiber dimension.
      */
-    PetscInt sectionDof(const PetscInt point) const;
+    pylith::integer sectionDof(const pylith::integer point) const;
 
     /** Get offset into coordinates array for point.
      *
      * @param point Point in mesh.
      * @returns Offset.
      */
-    PetscInt sectionOffset(const PetscInt point) const;
+    pylith::integer sectionOffset(const pylith::integer point) const;
 
     /** Get coordinates array associated with closure.
      *
@@ -66,9 +66,9 @@ public:
      * @param coordsSize Size of coordinates array.
      * @param cell Finite-element cell.
      */
-    void getClosure(PetscScalar** coordsCell,
-                    PetscInt* coordsSize,
-                    const PetscInt cell) const;
+    void getClosure(pylith::scalar** coordsCell,
+                    pylith::integer* coordsSize,
+                    const pylith::integer cell) const;
 
     /** Get coordinates array associated with closure.
      *
@@ -76,7 +76,7 @@ public:
      * @param cell Finite-element cell.
      */
     void getClosure(scalar_array* coordsCell,
-                    const PetscInt cell) const;
+                    const pylith::integer cell) const;
 
     /** Restore coordinates array associated with closure.
      *
@@ -86,9 +86,9 @@ public:
      * @param coordsSize Size of coordinates array.
      * @param cell Finite-element cell.
      */
-    void restoreClosure(PetscScalar** coordsCell,
-                        PetscInt* coordsSize,
-                        const PetscInt cell) const;
+    void restoreClosure(pylith::scalar** coordsCell,
+                        pylith::integer* coordsSize,
+                        const pylith::integer cell) const;
 
     /** Optimize the closure operator by creating index for closures.
      *
@@ -103,13 +103,13 @@ private:
     const PetscDM _dm; ///< Cached PETSc dm for mesh.
     PetscSection _section; ///< Cached PETSc section.
     PetscVec _localVec; ///< Cached local PETSc Vec.
-    PetscScalar* _localArray; ///< Cached local array.
+    pylith::scalar* _localArray; ///< Cached local array.
 
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    CoordsVisitor(const CoordsVisitor&); ///< Not implemented
-    const CoordsVisitor& operator=(const CoordsVisitor&); ///< Not implemented
+    CoordsVisitor(const CoordsVisitor&) = delete;
+    const CoordsVisitor& operator=(const CoordsVisitor&) = delete;
 
 }; // CoordsVisitor
 

@@ -14,7 +14,7 @@
 #include "pylith/problems/Observer.hh" // ISA Observer
 
 #include "pylith/topology/topologyfwd.hh" // USES Field
-#include "pylith/utils/types.hh" // USES PylithReal, PylithInt
+#include "pylith/utils/types.hh" // USES pylith::real, pylith::integer
 
 class pylith::problems::ObserverSoln : public pylith::problems::Observer {
     friend ObserversSoln; ///< Access to ordering index.
@@ -63,13 +63,13 @@ public:
     // PRIVATE ////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    size_t index; ///< Index for keeing set of observers ordered.
+    size_t index; ///< Index for keeping set of observers ordered.
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    ObserverSoln(const ObserverSoln&); ///< Not implemented.
-    const ObserverSoln& operator=(const ObserverSoln&); ///< Not implemented
+    ObserverSoln(const ObserverSoln&) = delete;
+    const ObserverSoln& operator=(const ObserverSoln&) = delete;
 
 }; // ObserverSoln
 

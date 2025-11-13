@@ -78,8 +78,8 @@ public:
     // PRIVATE METHODS //////////////////////////////////////////////////////
 private:
 
-    PylithVersion(const PylithVersion&); ///< Not implemented
-    const PylithVersion& operator=(const PylithVersion&); ///< Not implemented
+    PylithVersion(const PylithVersion&) = delete;
+    const PylithVersion& operator=(const PylithVersion&) = delete;
 
     // PRIVATE MEMBERS //////////////////////////////////////////////////////
 private:

@@ -71,23 +71,23 @@ public:
      * Solution fields: [disp(dim), ..., lagrange(dim)]
      */
     static inline
-    void f0u_neg(const PylithInt dim,
-                 const PylithInt numS,
-                 const PylithInt numA,
-                 const PylithInt sOff[],
-                 const PylithInt sOff_x[],
+    void f0u_neg(const pylith::integer dim,
+                 const pylith::integer numS,
+                 const pylith::integer numA,
+                 const pylith::integer sOff[],
+                 const pylith::integer sOff_x[],
                  const PylithScalar s[],
                  const PylithScalar s_t[],
                  const PylithScalar s_x[],
-                 const PylithInt aOff[],
-                 const PylithInt aOff_x[],
+                 const pylith::integer aOff[],
+                 const pylith::integer aOff_x[],
                  const PylithScalar a[],
                  const PylithScalar a_t[],
                  const PylithScalar a_x[],
-                 const PylithReal t,
+                 const pylith::real t,
                  const PylithScalar x[],
-                 const PylithReal n[],
-                 const PylithInt numConstants,
+                 const pylith::real n[],
+                 const pylith::integer numConstants,
                  const PylithScalar constants[],
                  PylithScalar f0[]) {
         assert(sOff);
@@ -96,13 +96,13 @@ public:
 
         assert(numS >= 2);
 
-        const PylithInt spaceDim = dim + 1; // :KLUDGE: dim passed in is spaceDim-1
+        const pylith::integer spaceDim = dim + 1; // :KLUDGE: dim passed in is spaceDim-1
 
-        const PylithInt fOffN = 0;
-        const PylithInt sOffLagrange = sOff[numS-1];
+        const pylith::integer fOffN = 0;
+        const pylith::integer sOffLagrange = sOff[numS-1];
         const PylithScalar* lagrange = &s[sOffLagrange];
 
-        for (PylithInt i = 0; i < spaceDim; ++i) {
+        for (pylith::integer i = 0; i < spaceDim; ++i) {
             f0[fOffN+i] += +lagrange[i];
         } // for
     }
@@ -113,23 +113,23 @@ public:
      * Solution fields: [disp(dim), ..., lagrange(dim)]
      */
     static inline
-    void f0u_pos(const PylithInt dim,
-                 const PylithInt numS,
-                 const PylithInt numA,
-                 const PylithInt sOff[],
-                 const PylithInt sOff_x[],
+    void f0u_pos(const pylith::integer dim,
+                 const pylith::integer numS,
+                 const pylith::integer numA,
+                 const pylith::integer sOff[],
+                 const pylith::integer sOff_x[],
                  const PylithScalar s[],
                  const PylithScalar s_t[],
                  const PylithScalar s_x[],
-                 const PylithInt aOff[],
-                 const PylithInt aOff_x[],
+                 const pylith::integer aOff[],
+                 const pylith::integer aOff_x[],
                  const PylithScalar a[],
                  const PylithScalar a_t[],
                  const PylithScalar a_x[],
-                 const PylithReal t,
+                 const pylith::real t,
                  const PylithScalar x[],
-                 const PylithReal n[],
-                 const PylithInt numConstants,
+                 const pylith::real n[],
+                 const pylith::integer numConstants,
                  const PylithScalar constants[],
                  PylithScalar f0[]) {
         assert(sOff);
@@ -138,13 +138,13 @@ public:
 
         assert(numS >= 2);
 
-        const PylithInt spaceDim = dim + 1; // :KLUDGE: dim passed in is spaceDim-1
+        const pylith::integer spaceDim = dim + 1; // :KLUDGE: dim passed in is spaceDim-1
 
-        const PylithInt fOffP = 0;
-        const PylithInt sOffLagrange = sOff[numS-1];
+        const pylith::integer fOffP = 0;
+        const pylith::integer sOffLagrange = sOff[numS-1];
         const PylithScalar* lagrange = &s[sOffLagrange];
 
-        for (PylithInt i = 0; i < spaceDim; ++i) {
+        for (pylith::integer i = 0; i < spaceDim; ++i) {
             f0[fOffP+i] += -lagrange[i];
         } // for
     }
@@ -155,23 +155,23 @@ public:
      * Solution fields: [disp(dim), ..., lagrange(dim)]
      */
     static inline
-    void f0l_slip(const PylithInt dim,
-                  const PylithInt numS,
-                  const PylithInt numA,
-                  const PylithInt sOff[],
-                  const PylithInt sOff_x[],
+    void f0l_slip(const pylith::integer dim,
+                  const pylith::integer numS,
+                  const pylith::integer numA,
+                  const pylith::integer sOff[],
+                  const pylith::integer sOff_x[],
                   const PylithScalar s[],
                   const PylithScalar s_t[],
                   const PylithScalar s_x[],
-                  const PylithInt aOff[],
-                  const PylithInt aOff_x[],
+                  const pylith::integer aOff[],
+                  const pylith::integer aOff_x[],
                   const PylithScalar a[],
                   const PylithScalar a_t[],
                   const PylithScalar a_x[],
-                  const PylithReal t,
+                  const pylith::real t,
                   const PylithScalar x[],
-                  const PylithReal n[],
-                  const PylithInt numConstants,
+                  const pylith::real n[],
+                  const pylith::integer numConstants,
                   const PylithScalar constants[],
                   PylithScalar f0[]) {
         assert(sOff);
@@ -183,37 +183,37 @@ public:
         assert(numS >= 2);
         assert(numA >= 1);
 
-        const PylithInt spaceDim = dim + 1; // :KLUDGE: dim passed in is spaceDim-1
-        const PylithInt i_slip = 0;
-        const PylithInt i_disp = 0;
+        const pylith::integer spaceDim = dim + 1; // :KLUDGE: dim passed in is spaceDim-1
+        const pylith::integer i_slip = 0;
+        const pylith::integer i_disp = 0;
 
         const PylithScalar* slip = &a[aOff[i_slip]];
 
-        const PylithInt sOffDispN = sOff[i_disp];
-        const PylithInt sOffDispP = sOffDispN+spaceDim;
-        const PylithInt fOffLagrange = 0;
+        const pylith::integer sOffDispN = sOff[i_disp];
+        const pylith::integer sOffDispP = sOffDispN+spaceDim;
+        const pylith::integer fOffLagrange = 0;
 
         const PylithScalar* dispN = &s[sOffDispN];
         const PylithScalar* dispP = &s[sOffDispP];
 
         switch (spaceDim) {
         case 2: {
-            const PylithInt _spaceDim = 2;
+            const pylith::integer _spaceDim = 2;
             const PylithScalar tanDir[2] = {-n[1], n[0] };
-            for (PylithInt i = 0; i < _spaceDim; ++i) {
+            for (pylith::integer i = 0; i < _spaceDim; ++i) {
                 const PylithScalar slipXY = n[i]*slip[0] + tanDir[i]*slip[1];
                 f0[fOffLagrange+i] += -dispP[i] + dispN[i] + slipXY;
             } // for
             break;
         } // case 2
         case 3: {
-            const PylithInt _spaceDim = 3;
+            const pylith::integer _spaceDim = 3;
             const PylithScalar* refDir1 = &constants[0];
             const PylithScalar* refDir2 = &constants[3];
             PylithScalar tanDir1[3], tanDir2[3];
             pylith::fekernels::BoundaryDirections::tangential_directions(tanDir1, tanDir2, refDir1, refDir2, n);
 
-            for (PylithInt i = 0; i < _spaceDim; ++i) {
+            for (pylith::integer i = 0; i < _spaceDim; ++i) {
                 const PylithScalar slipXYZ = n[i]*slip[0] + tanDir1[i]*slip[1] + tanDir2[i]*slip[2];
                 f0[fOffLagrange+i] += -dispP[i] + dispN[i] + slipXYZ;
             } // for
@@ -230,23 +230,23 @@ public:
      * Solution fields: [disp(dim), vel(dim), ..., lagrange(dim)]
      */
     static inline
-    void f0l_slipAcc(const PylithInt dim,
-                     const PylithInt numS,
-                     const PylithInt numA,
-                     const PylithInt sOff[],
-                     const PylithInt sOff_x[],
+    void f0l_slipAcc(const pylith::integer dim,
+                     const pylith::integer numS,
+                     const pylith::integer numA,
+                     const pylith::integer sOff[],
+                     const pylith::integer sOff_x[],
                      const PylithScalar s[],
                      const PylithScalar s_t[],
                      const PylithScalar s_x[],
-                     const PylithInt aOff[],
-                     const PylithInt aOff_x[],
+                     const pylith::integer aOff[],
+                     const pylith::integer aOff_x[],
                      const PylithScalar a[],
                      const PylithScalar a_t[],
                      const PylithScalar a_x[],
-                     const PylithReal t,
+                     const pylith::real t,
                      const PylithScalar x[],
-                     const PylithReal n[],
-                     const PylithInt numConstants,
+                     const pylith::real n[],
+                     const pylith::integer numConstants,
                      const PylithScalar constants[],
                      PylithScalar f0[]) {
         assert(sOff);
@@ -258,29 +258,29 @@ public:
         assert(numS >= 3);
         assert(numA >= 1);
 
-        const PylithInt spaceDim = dim + 1; // :KLUDGE: dim passed in is spaceDim-1
-        const PylithInt i_slipAcc = numA-1;
+        const pylith::integer spaceDim = dim + 1; // :KLUDGE: dim passed in is spaceDim-1
+        const pylith::integer i_slipAcc = numA-1;
 
         const PylithScalar* slipAcc = &a[aOff[i_slipAcc]];
 
         switch (spaceDim) {
         case 2: {
-            const PylithInt _spaceDim = 2;
+            const pylith::integer _spaceDim = 2;
             const PylithScalar tanDir[2] = {-n[1], n[0] };
-            for (PylithInt i = 0; i < _spaceDim; ++i) {
+            for (pylith::integer i = 0; i < _spaceDim; ++i) {
                 const PylithScalar slipAccXY = n[i]*slipAcc[0] + tanDir[i]*slipAcc[1];
                 f0[i] -= slipAccXY;
             } // for
             break;
         } // case 2
         case 3: {
-            const PylithInt _spaceDim = 3;
+            const pylith::integer _spaceDim = 3;
             const PylithScalar* refDir1 = &constants[0];
             const PylithScalar* refDir2 = &constants[3];
             PylithScalar tanDir1[3], tanDir2[3];
             pylith::fekernels::BoundaryDirections::BoundaryDirections::tangential_directions(tanDir1, tanDir2, refDir1, refDir2, n);
 
-            for (PylithInt i = 0; i < _spaceDim; ++i) {
+            for (pylith::integer i = 0; i < _spaceDim; ++i) {
                 const PylithScalar slipAccXYZ = n[i]*slipAcc[0] + tanDir1[i]*slipAcc[1] + tanDir2[i]*slipAcc[2];
                 f0[i] -= slipAccXYZ;
             } // for
@@ -295,24 +295,24 @@ public:
     /** Jf0 function for displacement equation: -\lambda (neg side).
      */
     static inline
-    void Jf0ul_neg(const PylithInt dim,
-                   const PylithInt numS,
-                   const PylithInt numA,
-                   const PylithInt sOff[],
-                   const PylithInt sOff_x[],
+    void Jf0ul_neg(const pylith::integer dim,
+                   const pylith::integer numS,
+                   const pylith::integer numA,
+                   const pylith::integer sOff[],
+                   const pylith::integer sOff_x[],
                    const PylithScalar s[],
                    const PylithScalar s_t[],
                    const PylithScalar s_x[],
-                   const PylithInt aOff[],
-                   const PylithInt aOff_x[],
+                   const pylith::integer aOff[],
+                   const pylith::integer aOff_x[],
                    const PylithScalar a[],
                    const PylithScalar a_t[],
                    const PylithScalar a_x[],
-                   const PylithReal t,
-                   const PylithReal s_tshift,
+                   const pylith::real t,
+                   const pylith::real s_tshift,
                    const PylithScalar x[],
-                   const PylithReal n[],
-                   const PylithInt numConstants,
+                   const pylith::real n[],
+                   const pylith::integer numConstants,
                    const PylithScalar constants[],
                    PylithScalar Jf0[]) {
         assert(numS >= 2);
@@ -320,12 +320,12 @@ public:
         assert(sOff);
         assert(n);
 
-        const PylithInt spaceDim = dim + 1; // :KLUDGE: dim passed in is spaceDim-1
+        const pylith::integer spaceDim = dim + 1; // :KLUDGE: dim passed in is spaceDim-1
 
-        const PylithInt gOffN = 0;
-        const PylithInt ncols = spaceDim;
+        const pylith::integer gOffN = 0;
+        const pylith::integer ncols = spaceDim;
 
-        for (PylithInt i = 0; i < spaceDim; ++i) {
+        for (pylith::integer i = 0; i < spaceDim; ++i) {
             Jf0[(gOffN+i)*ncols+i] += +1.0;
         } // for
     }
@@ -334,24 +334,24 @@ public:
     /** Jf0 function for displacement equation: +\lambda (pos side).
      */
     static inline
-    void Jf0ul_pos(const PylithInt dim,
-                   const PylithInt numS,
-                   const PylithInt numA,
-                   const PylithInt sOff[],
-                   const PylithInt sOff_x[],
+    void Jf0ul_pos(const pylith::integer dim,
+                   const pylith::integer numS,
+                   const pylith::integer numA,
+                   const pylith::integer sOff[],
+                   const pylith::integer sOff_x[],
                    const PylithScalar s[],
                    const PylithScalar s_t[],
                    const PylithScalar s_x[],
-                   const PylithInt aOff[],
-                   const PylithInt aOff_x[],
+                   const pylith::integer aOff[],
+                   const pylith::integer aOff_x[],
                    const PylithScalar a[],
                    const PylithScalar a_t[],
                    const PylithScalar a_x[],
-                   const PylithReal t,
-                   const PylithReal s_tshift,
+                   const pylith::real t,
+                   const pylith::real s_tshift,
                    const PylithScalar x[],
-                   const PylithReal n[],
-                   const PylithInt numConstants,
+                   const pylith::real n[],
+                   const pylith::integer numConstants,
                    const PylithScalar constants[],
                    PylithScalar Jf0[]) {
         assert(numS >= 2);
@@ -359,11 +359,11 @@ public:
         assert(sOff);
         assert(n);
 
-        const PylithInt spaceDim = dim + 1; // :KLUDGE: dim passed in is spaceDim-1
+        const pylith::integer spaceDim = dim + 1; // :KLUDGE: dim passed in is spaceDim-1
 
-        const PylithInt ncols = spaceDim;
+        const pylith::integer ncols = spaceDim;
 
-        for (PylithInt i = 0; i < spaceDim; ++i) {
+        for (pylith::integer i = 0; i < spaceDim; ++i) {
             Jf0[i*ncols+i] += -1.0;
         } // for
     }
@@ -374,24 +374,24 @@ public:
      * Solution fields: [disp(dim), ..., lagrange(dim)]
      */
     static inline
-    void Jf0lu(const PylithInt dim,
-               const PylithInt numS,
-               const PylithInt numA,
-               const PylithInt sOff[],
-               const PylithInt sOff_x[],
+    void Jf0lu(const pylith::integer dim,
+               const pylith::integer numS,
+               const pylith::integer numA,
+               const pylith::integer sOff[],
+               const pylith::integer sOff_x[],
                const PylithScalar s[],
                const PylithScalar s_t[],
                const PylithScalar s_x[],
-               const PylithInt aOff[],
-               const PylithInt aOff_x[],
+               const pylith::integer aOff[],
+               const pylith::integer aOff_x[],
                const PylithScalar a[],
                const PylithScalar a_t[],
                const PylithScalar a_x[],
-               const PylithReal t,
-               const PylithReal s_tshift,
+               const pylith::real t,
+               const pylith::real s_tshift,
                const PylithScalar x[],
-               const PylithReal n[],
-               const PylithInt numConstants,
+               const pylith::real n[],
+               const pylith::integer numConstants,
                const PylithScalar constants[],
                PylithScalar Jf0[]) {
         assert(numS >= 2);
@@ -399,13 +399,13 @@ public:
         assert(sOff);
         assert(n);
 
-        const PylithInt spaceDim = dim+1; // :KLUDGE: dim passed in is spaceDim-1
+        const pylith::integer spaceDim = dim+1; // :KLUDGE: dim passed in is spaceDim-1
 
-        const PylithInt gOffN = 0;
-        const PylithInt gOffP = gOffN+spaceDim*spaceDim;
-        const PylithInt ncols = spaceDim;
+        const pylith::integer gOffN = 0;
+        const pylith::integer gOffP = gOffN+spaceDim*spaceDim;
+        const pylith::integer ncols = spaceDim;
 
-        for (PylithInt i = 0; i < spaceDim; ++i) {
+        for (pylith::integer i = 0; i < spaceDim; ++i) {
             Jf0[gOffN+i*ncols+i] += +1.0;
             Jf0[gOffP+i*ncols+i] += -1.0;
         } // for
@@ -417,11 +417,11 @@ public:
      *  Solution fields: [disp(dim), vel(dim), lagrange(dim)]
      */
     static inline
-    void f0l_neg(const PylithInt dim,
-                 const PylithInt numS,
-                 const PylithInt sOff[],
+    void f0l_neg(const pylith::integer dim,
+                 const pylith::integer numS,
+                 const pylith::integer sOff[],
                  const PylithScalar s[],
-                 const PylithReal n[],
+                 const pylith::real n[],
                  const pylith::fekernels::Elasticity::StrainContext& strainContext,
                  void* rheologyContext,
                  pylith::fekernels::Elasticity::strainfn_type strainFn,
@@ -430,7 +430,7 @@ public:
                  const pylith::fekernels::TensorOps& tensorOps,
                  PylithScalar f0[]) {
         // Incoming solution fields.
-        const PylithInt i_lagrange = 2;
+        const pylith::integer i_lagrange = 2;
 
         assert(numS >= 1);
         assert(sOff);
@@ -443,11 +443,11 @@ public:
         pylith::fekernels::Tensor stress;
         stressFn(rheologyContext, strain, tensorOps, &stress);
 
-        PylithReal traction[3] = { 0.0, 0.0, 0.0 };
+        pylith::real traction[3] = { 0.0, 0.0, 0.0 };
         tractionFn(stress, n, traction);
 
         const PylithScalar* lagrange = &s[sOff[i_lagrange]];
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             f0[i] += lagrange[i] - traction[i];
         } // for
     } // f0l_neg
@@ -458,11 +458,11 @@ public:
      *  Solution fields: [disp(dim), vel(dim), lagrange(dim)]
      */
     static inline
-    void f0l_pos(const PylithInt dim,
-                 const PylithInt numS,
-                 const PylithInt sOff[],
+    void f0l_pos(const pylith::integer dim,
+                 const pylith::integer numS,
+                 const pylith::integer sOff[],
                  const PylithScalar s[],
-                 const PylithReal n[],
+                 const pylith::real n[],
                  const pylith::fekernels::Elasticity::StrainContext& strainContext,
                  void* rheologyContext,
                  pylith::fekernels::Elasticity::strainfn_type strainFn,
@@ -471,7 +471,7 @@ public:
                  const pylith::fekernels::TensorOps& tensorOps,
                  PylithScalar f0[]) {
         // Incoming solution fields.
-        const PylithInt i_lagrange = 2;
+        const pylith::integer i_lagrange = 2;
 
         assert(numS >= 1);
         assert(sOff);
@@ -484,11 +484,11 @@ public:
         pylith::fekernels::Tensor stress;
         stressFn(rheologyContext, strain, tensorOps, &stress);
 
-        PylithReal traction[3] = { 0.0, 0.0, 0.0 };
+        pylith::real traction[3] = { 0.0, 0.0, 0.0 };
         tractionFn(stress, n, traction);
 
         const PylithScalar* lagrange = &s[sOff[i_lagrange]];
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             f0[i] += lagrange[i] + traction[i];
         } // for
     } // f0l_pos
@@ -496,24 +496,24 @@ public:
     // ------------------------------------------------------------------------------------------------
     // Jf0 function for dynamic slip constraint equation for negative side of the fault.
     static inline
-    void Jf0ll_neg(const PylithInt dim,
-                   const PylithInt numS,
-                   const PylithInt numA,
-                   const PylithInt sOff[],
-                   const PylithInt sOff_x[],
+    void Jf0ll_neg(const pylith::integer dim,
+                   const pylith::integer numS,
+                   const pylith::integer numA,
+                   const pylith::integer sOff[],
+                   const pylith::integer sOff_x[],
                    const PylithScalar s[],
                    const PylithScalar s_t[],
                    const PylithScalar s_x[],
-                   const PylithInt aOff[],
-                   const PylithInt aOff_x[],
+                   const pylith::integer aOff[],
+                   const pylith::integer aOff_x[],
                    const PylithScalar a[],
                    const PylithScalar a_t[],
                    const PylithScalar a_x[],
-                   const PylithReal t,
-                   const PylithReal s_tshift,
+                   const pylith::real t,
+                   const pylith::real s_tshift,
                    const PylithScalar x[],
-                   const PylithReal n[],
-                   const PylithInt numConstants,
+                   const pylith::real n[],
+                   const pylith::integer numConstants,
                    const PylithScalar constants[],
                    PylithScalar Jf0[]) {
         assert(numS >= 1);
@@ -523,9 +523,9 @@ public:
         assert(Jf0);
         assert(sOff);
 
-        const PylithInt spaceDim = dim+1; // :KLUDGE: dim passed in is spaceDim-1
+        const pylith::integer spaceDim = dim+1; // :KLUDGE: dim passed in is spaceDim-1
 
-        for (PylithInt i = 0; i < spaceDim; ++i) {
+        for (pylith::integer i = 0; i < spaceDim; ++i) {
             Jf0[i*spaceDim+i] += +1.0;
         } // for
     } // Jf0ll_neg
@@ -533,24 +533,24 @@ public:
     // ------------------------------------------------------------------------------------------------
     // Jf0 function for dynamic slip constraint equation for positive side of the fault.
     static inline
-    void Jf0ll_pos(const PylithInt dim,
-                   const PylithInt numS,
-                   const PylithInt numA,
-                   const PylithInt sOff[],
-                   const PylithInt sOff_x[],
+    void Jf0ll_pos(const pylith::integer dim,
+                   const pylith::integer numS,
+                   const pylith::integer numA,
+                   const pylith::integer sOff[],
+                   const pylith::integer sOff_x[],
                    const PylithScalar s[],
                    const PylithScalar s_t[],
                    const PylithScalar s_x[],
-                   const PylithInt aOff[],
-                   const PylithInt aOff_x[],
+                   const pylith::integer aOff[],
+                   const pylith::integer aOff_x[],
                    const PylithScalar a[],
                    const PylithScalar a_t[],
                    const PylithScalar a_x[],
-                   const PylithReal t,
-                   const PylithReal s_tshift,
+                   const pylith::real t,
+                   const pylith::real s_tshift,
                    const PylithScalar x[],
-                   const PylithReal n[],
-                   const PylithInt numConstants,
+                   const pylith::real n[],
+                   const pylith::integer numConstants,
                    const PylithScalar constants[],
                    PylithScalar Jf0[]) {
         assert(numS >= 1);
@@ -560,9 +560,9 @@ public:
         assert(Jf0);
         assert(sOff);
 
-        const PylithInt spaceDim = dim+1; // :KLUDGE: dim passed in is spaceDim-1
+        const pylith::integer spaceDim = dim+1; // :KLUDGE: dim passed in is spaceDim-1
 
-        for (PylithInt i = 0; i < spaceDim; ++i) {
+        for (pylith::integer i = 0; i < spaceDim; ++i) {
             Jf0[i*spaceDim+i] += +1.0;
         } // for
     } // Jf0ll_pos
@@ -575,29 +575,29 @@ public:
      *  Solution fields: [disp(dim), vel(dim), lagrange(dim)]
      */
     static inline
-    void tractionChange_asVector(const PylithInt dim,
-                                 const PylithInt numS,
-                                 const PylithInt numA,
-                                 const PylithInt sOff[],
-                                 const PylithInt sOff_x[],
+    void tractionChange_asVector(const pylith::integer dim,
+                                 const pylith::integer numS,
+                                 const pylith::integer numA,
+                                 const pylith::integer sOff[],
+                                 const pylith::integer sOff_x[],
                                  const PylithScalar s[],
                                  const PylithScalar s_t[],
                                  const PylithScalar s_x[],
-                                 const PylithInt aOff[],
-                                 const PylithInt aOff_x[],
+                                 const pylith::integer aOff[],
+                                 const pylith::integer aOff_x[],
                                  const PylithScalar a[],
                                  const PylithScalar a_t[],
                                  const PylithScalar a_x[],
-                                 const PylithReal t,
+                                 const pylith::real t,
                                  const PylithScalar x[],
                                  const PylithScalar n[],
-                                 const PylithInt numConstants,
+                                 const pylith::integer numConstants,
                                  const PylithScalar constants[],
                                  PylithScalar tractionChange[]) {
-        const PylithInt spaceDim = dim; // dim passed in is embedded dimension (spaceDim).
+        const pylith::integer spaceDim = dim; // dim passed in is embedded dimension (spaceDim).
 
         // Incoming solution fields.
-        const PylithInt i_lagrange = numS-1;
+        const pylith::integer i_lagrange = numS-1;
 
         assert(numS >= 1);
         assert(sOff);

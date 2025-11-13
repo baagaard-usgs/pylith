@@ -18,7 +18,7 @@
 class pylith::feassemble::IntegratorDomain : public pylith::feassemble::Integrator {
     friend class TestIntegratorDomain; // unit testing
 
-    // PUBLIC STRUCTS //////////////////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC STRUCTS /////////////////////////////////////////////////////////////////////////////
 public:
 
     /// Kernels (point-wise functions) for residual.
@@ -31,8 +31,8 @@ public:
         ResidualKernels(void) :
             subfield(""),
             part(LHS),
-            r0(NULL),
-            r1(NULL) {}
+            r0(nullptr),
+            r1(nullptr) {}
 
 
         ResidualKernels(const char* subfieldValue,
@@ -61,10 +61,10 @@ public:
             subfieldTrial(""),
             subfieldBasis(""),
             part(LHS),
-            j0(NULL),
-            j1(NULL),
-            j2(NULL),
-            j3(NULL) {}
+            j0(nullptr),
+            j1(nullptr),
+            j2(nullptr),
+            j3(nullptr) {}
 
 
         JacobianKernels(const char* subfieldTrialValue,
@@ -85,24 +85,28 @@ public:
 
     }; // JacobianKernels
 
-    // PUBLIC MEMBERS //////////////////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC MEMBERS /////////////////////////////////////////////////////////////////////////////
 public:
 
-    /// Constructor
-    IntegratorDomain(std::shared_ptr<pylith::problems::Physics>& physics);
+    /** Factory for std::shared_ptr.
+     *
+     * @param[in] physics Physics implemented by constraint.
+     */
+    static
+    std::shared_ptr<IntegratorDomain> create(const std::shared_ptr<pylith::problems::Physics>& physics);
 
     /// Destructor
-    virtual ~IntegratorDomain(void);
+    virtual ~IntegratorDomain(void) override;
 
     /// Deallocate PETSc and local data structures.
     virtual
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Get mesh associated with integrator domain.
      *
      * @returns Mesh associated with integrator domain.
      */
-    const pylith::topology::Mesh& getPhysicsDomainMesh(void) const;
+    const pylith::topology::Mesh& getPhysicsDomainMesh(void) const override;
 
     /** Set kernels for residual.
      *
@@ -145,7 +149,7 @@ public:
      *
      * @param[in] solution Solution field (layout).
      */
-    void initialize(const pylith::topology::Field& solution);
+    void initialize(const pylith::topology::Field& solution) override;
 
     /** Set data needed for integrating faces on interior interfaces.
      *
@@ -159,7 +163,7 @@ public:
      *
      * @param[in] t Current time.
      */
-    void setState(const pylith::real t);
+    void setState(const pylith::real t) override;
 
     /** Compute RHS residual for G(t,s).
      *
@@ -167,7 +171,7 @@ public:
      * @param[in] integrationData Data needed to integrate governing equations.
      */
     void computeRHSResidual(pylith::topology::Field* residual,
-                            const pylith::feassemble::IntegrationData& integrationData);
+                            const pylith::feassemble::IntegrationData& integrationData) override;
 
     /** Compute LHS residual for F(t,s,\dot{s}).
      *
@@ -175,7 +179,7 @@ public:
      * @param[in] integrationData Data needed to integrate governing equations.
      */
     void computeLHSResidual(pylith::topology::Field* residual,
-                            const pylith::feassemble::IntegrationData& integrationData);
+                            const pylith::feassemble::IntegrationData& integrationData) override;
 
     /** Compute LHS Jacobian and preconditioner for F(t,s,\dot{s}) with implicit time-stepping.
      *
@@ -185,7 +189,7 @@ public:
      */
     void computeLHSJacobian(PetscMat jacobianMat,
                             PetscMat precondMat,
-                            const pylith::feassemble::IntegrationData& integrationData);
+                            const pylith::feassemble::IntegrationData& integrationData) override;
 
     /** Compute inverse of lumped LHS Jacobian for F(t,s,\dot{s}) with explicit time-stepping.
      *
@@ -193,10 +197,13 @@ public:
      * @param[in] integrationData Data needed to integrate governing equations.
      */
     void computeLHSJacobianLumpedInv(pylith::topology::Field* jacobianInv,
-                                     const pylith::feassemble::IntegrationData& integrationData);
+                                     const pylith::feassemble::IntegrationData& integrationData) override;
 
-    // PROTECTED METHODS ///////////////////////////////////////////////////////////////////////////////////////////////
+    // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
 protected:
+
+    /// Constructor
+    IntegratorDomain(const std::shared_ptr<pylith::problems::Physics>& physics);
 
     /** Update state variables as needed.
      *
@@ -206,7 +213,7 @@ protected:
      */
     void _updateStateVars(const pylith::real t,
                           const pylith::real dt,
-                          const pylith::topology::Field& solution);
+                          const pylith::topology::Field& solution) override;
 
     /** Compute field derived from solution and auxiliary field.
      *
@@ -216,7 +223,7 @@ protected:
      */
     void _computeDerivedField(const pylith::real t,
                               const pylith::real dt,
-                              const pylith::topology::Field& solution);
+                              const pylith::topology::Field& solution) override;
 
     // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
@@ -224,21 +231,22 @@ private:
     std::vector<ProjectKernels> _kernelsUpdateStateVars; ///< kernels for updating state variables.
     std::vector<ProjectKernels> _kernelsDerivedField; ///< kernels for computing derived field.
 
-    pylith::topology::Mesh* _materialMesh; ///< Mesh associated with material.
+    std::unique_ptr<pylith::topology::Mesh> _materialMesh; ///< Mesh associated with material.
 
-    std::unique_ptr<pylith::feassemble::UpdateStateVars> _updateState; ///< Data structure for layout needed to update
-                                                                       ///< state vars.
-    std::unique_ptr<pylith::feassemble::JacobianValues> _jacobianValues; ///< Jacobian values without finite-element
-                                                                         ///< integration.
-    std::unique_ptr<pylith::feassemble::DSLabelAccess> _dsLabel; ///< Information about integration (PETSc DS, Label,
-                                                                 ///< label value, etc).
+    /// Data structure for layout needed to update state vars.
+    std::unique_ptr<pylith::feassemble::UpdateStateVars> _updateState;
+
+    /// Jacobian values without finite-element integration.
+    std::unique_ptr<pylith::feassemble::JacobianValues> _jacobianValues;
+
+    /// Information about integration (PETSc DS, Label, label value, etc).
+    std::unique_ptr<pylith::feassemble::DSLabelAccess> _dsLabel;
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    IntegratorDomain(void); ///< Not implemented.
-    IntegratorDomain(const IntegratorDomain&); ///< Not implemented.
-    const IntegratorDomain& operator=(const IntegratorDomain&); ///< Not implemented.
+    IntegratorDomain(void) = delete;IntegratorDomain(const IntegratorDomain&) = delete;
+    const IntegratorDomain& operator=(const IntegratorDomain&) = delete;
 
 }; // IntegratorDomain
 

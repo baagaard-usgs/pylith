@@ -51,8 +51,8 @@ private:
     // PRIVATE METHODS //////////////////////////////////////////////////////
 private:
 
-    GenericComponent(const GenericComponent&); ///< Not implemented
-    const GenericComponent& operator=(const GenericComponent&); ///< Not implemented
+    GenericComponent(const GenericComponent&) = delete;
+    const GenericComponent& operator=(const GenericComponent&) = delete;
 
 }; // GenericComponent
 

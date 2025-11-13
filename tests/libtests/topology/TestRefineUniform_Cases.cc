@@ -80,8 +80,8 @@ pylith::topology::TestRefineUniform_Cases::Tri_2xNoFault(void) {
 
     data->filename = "data/fourtri3.mesh";
     data->refineLevel = 1;
-    data->faultA = NULL;
-    data->faultB = NULL;
+    data->faultA = nullptr;
+    data->faultB = nullptr;
     data->isSimplexMesh = true;
 
     data->numVertices = 13;
@@ -133,7 +133,7 @@ pylith::topology::TestRefineUniform_Cases::Tri_2xFault(void) {
     data->filename = "data/fourtri3.mesh";
     data->refineLevel = 1;
     data->faultA = "fault";
-    data->faultB = NULL;
+    data->faultB = nullptr;
     data->isSimplexMesh = true;
 
     data->numVertices = 18;
@@ -178,8 +178,8 @@ pylith::topology::TestRefineUniform_Cases::Quad_2xNoFault(void) {
 
     data->filename = "data/fourquad4.mesh";
     data->refineLevel = 1;
-    data->faultA = NULL;
-    data->faultB = NULL;
+    data->faultA = nullptr;
+    data->faultB = nullptr;
     data->isSimplexMesh = false;
 
     data->numVertices = 25;
@@ -227,7 +227,7 @@ pylith::topology::TestRefineUniform_Cases::Quad_2xFault(void) {
     data->filename = "data/fourquad4.mesh";
     data->refineLevel = 1;
     data->faultA = "fault";
-    data->faultB = NULL;
+    data->faultB = nullptr;
     data->isSimplexMesh = false;
 
     data->numVertices = 30;
@@ -274,8 +274,8 @@ pylith::topology::TestRefineUniform_Cases::Tet_2xNoFault(void) {
 
     data->filename = "data/twotet4.mesh";
     data->refineLevel = 1;
-    data->faultA = NULL;
-    data->faultB = NULL;
+    data->faultA = nullptr;
+    data->faultB = nullptr;
     data->isSimplexMesh = true;
 
     data->numVertices = 14;
@@ -326,7 +326,7 @@ pylith::topology::TestRefineUniform_Cases::Tet_2xFault(void) {
     data->filename = "data/twotet4.mesh";
     data->refineLevel = 1;
     data->faultA = "fault";
-    data->faultB = NULL;
+    data->faultB = nullptr;
     data->isSimplexMesh = true;
 
     data->numVertices = 20;
@@ -378,8 +378,8 @@ pylith::topology::TestRefineUniform_Cases::Hex_2xNoFault(void) {
 
     data->filename = "data/twohex8.mesh";
     data->refineLevel = 1;
-    data->faultA = NULL;
-    data->faultB = NULL;
+    data->faultA = nullptr;
+    data->faultB = nullptr;
     data->isSimplexMesh = true;
 
     data->numVertices = 45;
@@ -429,7 +429,7 @@ pylith::topology::TestRefineUniform_Cases::Hex_2xFault(void) {
     data->filename = "data/twohex8.mesh";
     data->refineLevel = 1;
     data->faultA = "fault";
-    data->faultB = NULL;
+    data->faultB = nullptr;
     data->isSimplexMesh = true;
 
     data->numVertices = 54;

@@ -31,8 +31,8 @@ public:
         ResidualKernels(void) :
             subfield(""),
             part(pylith::feassemble::Integrator::LHS),
-            r0(NULL),
-            r1(NULL) {}
+            r0(nullptr),
+            r1(nullptr) {}
 
 
         ResidualKernels(const char* subfieldValue,
@@ -54,7 +54,7 @@ public:
 
         ProjectKernels(void) :
             subfield(""),
-            f(NULL) {}
+            f(nullptr) {}
 
 
         ProjectKernels(const char* subfieldValue,
@@ -68,15 +68,19 @@ public:
     // PUBLIC MEMBERS //////////////////////////////////////////////////////////////////////////////////////////////////
 public:
 
-    /// Constructor
-    IntegratorBoundary(std::shared_ptr<pylith::problems::Physics>& physics);
+    /** Factory for std::shared_ptr.
+     *
+     * @param[in] physics Physics implemented by constraint.
+     */
+    static
+    std::shared_ptr<IntegratorBoundary> create(const std::shared_ptr<pylith::problems::Physics>& physics);
 
     /// Destructor
-    virtual ~IntegratorBoundary(void);
+    virtual ~IntegratorBoundary(void) override;
 
     /// Deallocate PETSc and local data structures.
     virtual
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set name of solution subfield associated with boundary condition.
      *
@@ -94,7 +98,7 @@ public:
      *
      * @returns Mesh associated with integrator domain.
      */
-    const pylith::topology::Mesh& getPhysicsDomainMesh(void) const;
+    const pylith::topology::Mesh& getPhysicsDomainMesh(void) const override;
 
     /** Set kernels for RHS residual.
      *
@@ -114,13 +118,13 @@ public:
      *
      * @param[in] solution Solution field (layout).
      */
-    void initialize(const pylith::topology::Field& solution);
+    void initialize(const pylith::topology::Field& solution) override;
 
     /** Set auxiliary field for current time.
      *
      * @param[in] t Current time.
      */
-    void setState(const pylith::real t);
+    void setState(const pylith::real t) override;
 
     /** Compute RHS residual for G(t,s).
      *
@@ -128,7 +132,7 @@ public:
      * @param[in] integrationData Data needed to integrate governing equations.
      */
     void computeRHSResidual(pylith::topology::Field* residual,
-                            const pylith::feassemble::IntegrationData& integrationData);
+                            const pylith::feassemble::IntegrationData& integrationData) override;
 
     /** Compute LHS residual for F(t,s,\dot{s}).
      *
@@ -136,7 +140,7 @@ public:
      * @param[in] integrationData Data needed to integrate governing equations.
      */
     void computeLHSResidual(pylith::topology::Field* residual,
-                            const pylith::feassemble::IntegrationData& integrationData);
+                            const pylith::feassemble::IntegrationData& integrationData) override;
 
     /** Compute LHS Jacobian and preconditioner for F(t,s,\dot{s}) with implicit time-stepping.
      *
@@ -146,7 +150,7 @@ public:
      */
     void computeLHSJacobian(PetscMat jacobianMat,
                             PetscMat precondMat,
-                            const pylith::feassemble::IntegrationData& integrationData);
+                            const pylith::feassemble::IntegrationData& integrationData) override;
 
     /** Compute inverse of lumped LHS Jacobian for F(t,s,\dot{s}) with explicit time-stepping.
      *
@@ -154,14 +158,17 @@ public:
      * @param[in] integrationData Data needed to integrate governing equations.
      */
     void computeLHSJacobianLumpedInv(pylith::topology::Field* jacobianInv,
-                                     const pylith::feassemble::IntegrationData& integrationData);
+                                     const pylith::feassemble::IntegrationData& integrationData) override;
 
     // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
 protected:
 
+    /// Constructor only used by factory.
+    IntegratorBoundary(const std::shared_ptr<pylith::problems::Physics>& physics);
+
     /// Compute diagnostic field from auxiliary field.
     virtual
-    void _computeDiagnosticField(void);
+    void _computeDiagnosticField(void) override;
 
     // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
@@ -175,9 +182,9 @@ private:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    IntegratorBoundary(void); ///< Not implemented.
-    IntegratorBoundary(const IntegratorBoundary&); ///< Not implemented.
-    const IntegratorBoundary& operator=(const IntegratorBoundary&); ///< Not implemented.
+    IntegratorBoundary(void) = delete;
+    IntegratorBoundary(const IntegratorBoundary&) = delete;
+    const IntegratorBoundary& operator=(const IntegratorBoundary&) = delete;
 
 }; // IntegratorBoundary
 

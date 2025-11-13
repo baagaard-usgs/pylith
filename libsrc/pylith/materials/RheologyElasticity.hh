@@ -125,8 +125,8 @@ protected:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    RheologyElasticity(const RheologyElasticity&); ///< Not implemented.
-    const RheologyElasticity& operator=(const RheologyElasticity&); /// Not implemented.
+    RheologyElasticity(const RheologyElasticity&) = delete;
+    const RheologyElasticity& operator=(const RheologyElasticity&) = delete;
 
 }; // class RheologyElasticity
 

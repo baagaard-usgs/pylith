@@ -35,7 +35,7 @@ public:
 
         ProjectKernels(void) :
             subfield(""),
-            f(NULL) {}
+            f(nullptr) {}
 
 
         ProjectKernels(const char* subfieldValue,
@@ -61,8 +61,8 @@ public:
             subfield(""),
             part(pylith::feassemble::Integrator::LHS),
             face(FAULT_FACE),
-            r0(NULL),
-            r1(NULL) {}
+            r0(nullptr),
+            r1(nullptr) {}
 
 
         ResidualKernels(const char* subfieldValue,
@@ -95,10 +95,10 @@ public:
             subfieldBasis(""),
             part(LHS),
             face(FAULT_FACE),
-            j0(NULL),
-            j1(NULL),
-            j2(NULL),
-            j3(NULL) {}
+            j0(nullptr),
+            j1(nullptr),
+            j2(nullptr),
+            j3(nullptr) {}
 
 
         JacobianKernels(const char* subfieldTrialValue,
@@ -124,15 +124,19 @@ public:
     // PUBLIC MEMBERS /////////////////////////////////////////////////////////////////////////////
 public:
 
-    /// Constructor
-    IntegratorInterface(pylith::problems::Physics* const physics);
+    /** Factory for std::shared_ptr.
+     *
+     * @param[in] physics Physics implemented by constraint.
+     */
+    static
+    std::shared_ptr<IntegratorInterface> create(const std::shared_ptr<pylith::problems::Physics>& physics);
 
     /// Destructor
-    virtual ~IntegratorInterface(void);
+    virtual ~IntegratorInterface(void) override;
 
     /// Deallocate PETSc and local data structures.
     virtual
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set name of label marking interior interface surface.
      *
@@ -150,19 +154,19 @@ public:
      *
      * @returns Mesh associated with integrator domain.
      */
-    const pylith::topology::Mesh& getPhysicsDomainMesh(void) const;
+    const pylith::topology::Mesh& getPhysicsDomainMesh(void) const override;
 
     /** Set integration patches.
      *
      * @param[in] patches Interface integration patches.
      */
-    void setIntegrationPatches(pylith::feassemble::InterfacePatches* patches);
+    void setIntegrationPatches(std::unique_ptr<pylith::feassemble::InterfacePatches>& patches);
 
     /** Get integration patches.
      *
      * @returns Interface integration patches.
      */
-    const pylith::feassemble::InterfacePatches* getIntegrationPatches(void) const;
+    const pylith::feassemble::InterfacePatches& getIntegrationPatches(void) const;
 
     /** Set kernels for residual.
      *
@@ -211,21 +215,21 @@ public:
      * @param[in] face Negative, positive, or fault face.
      * @param[in] patch Interface patch label value.
      */
-    PetscInt getWeakFormPart(const PetscInt eqnPart,
-                             const PetscInt face,
-                             const PetscInt patch) const;
+    pylith::integer getWeakFormPart(const pylith::integer eqnPart,
+                                    const pylith::integer face,
+                                    const pylith::integer patch) const;
 
     /** Initialize integration domain, auxiliary field, and derived field. Update observers.
      *
      * @param[in] solution Solution field (layout).
      */
-    void initialize(const pylith::topology::Field& solution);
+    void initialize(const pylith::topology::Field& solution) override;
 
     /** Set auxiliary field values for current time.
      *
      * @param[in] t Current time.
      */
-    void setState(const pylith::real t);
+    void setState(const pylith::real t) override;
 
     /** Compute RHS residual for G(t,s).
      *
@@ -233,7 +237,7 @@ public:
      * @param[in] integrationData Data needed to integrate governing equations.
      */
     void computeRHSResidual(pylith::topology::Field* residual,
-                            const pylith::feassemble::IntegrationData& integrationData);
+                            const pylith::feassemble::IntegrationData& integrationData) override;
 
     /** Compute LHS residual for F(t,s,\dot{s}).
      *
@@ -241,7 +245,7 @@ public:
      * @param[in] integrationData Data needed to integrate governing equations.
      */
     void computeLHSResidual(pylith::topology::Field* residual,
-                            const pylith::feassemble::IntegrationData& integrationData);
+                            const pylith::feassemble::IntegrationData& integrationData) override;
 
     /** Compute LHS Jacobian and preconditioner for F(t,s,\dot{s}) with implicit time-stepping.
      *
@@ -251,7 +255,7 @@ public:
      */
     void computeLHSJacobian(PetscMat jacobianMat,
                             PetscMat precondMat,
-                            const pylith::feassemble::IntegrationData& integrationData);
+                            const pylith::feassemble::IntegrationData& integrationData) override;
 
     /** Compute inverse of lumped LHS Jacobian for F(t,s,\dot{s}) with explicit time-stepping.
      *
@@ -259,10 +263,13 @@ public:
      * @param[in] integrationData Data needed to integrate governing equations.
      */
     void computeLHSJacobianLumpedInv(pylith::topology::Field* jacobianInv,
-                                     const pylith::feassemble::IntegrationData& integrationData);
+                                     const pylith::feassemble::IntegrationData& integrationData) override;
 
     // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
 protected:
+
+    /// Constructor
+    IntegratorInterface(const std::shared_ptr<pylith::problems::Physics>& physics);
 
     /** Update state variables as needed.
      *
@@ -272,10 +279,10 @@ protected:
      */
     void _updateStateVars(const pylith::real t,
                           const pylith::real dt,
-                          const pylith::topology::Field& solution);
+                          const pylith::topology::Field& solution) override;
 
     /// Compute diagnostic field from auxiliary field.
-    void _computeDiagnosticField(void);
+    void _computeDiagnosticField(void) override;
 
     /** Compute field derived from solution and auxiliary field.
      *
@@ -285,7 +292,7 @@ protected:
      */
     void _computeDerivedField(const pylith::real t,
                               const pylith::real dt,
-                              const pylith::topology::Field& solution);
+                              const pylith::topology::Field& solution) override;
 
     // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:
@@ -307,9 +314,8 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    IntegratorInterface(void); ///< Not implemented.
-    IntegratorInterface(const IntegratorInterface&); ///< Not implemented.
-    const IntegratorInterface& operator=(const IntegratorInterface&); ///< Not implemented.
+    IntegratorInterface(void) = delete;IntegratorInterface(const IntegratorInterface&) = delete;
+    const IntegratorInterface& operator=(const IntegratorInterface&) = delete;
 
 }; // IntegratorInterface
 

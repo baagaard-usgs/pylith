@@ -52,11 +52,11 @@ class pylith::fekernels::Elasticity {
 public:
 
     struct StrainContext {
-        PylithInt dim;
-        const PylithReal* disp;
-        const PylithReal* disp_t;
-        const PylithReal* disp_x;
-        const PylithReal* x;
+        pylith::integer dim;
+        const pylith::real* disp;
+        const pylith::real* disp_t;
+        const pylith::real* disp_x;
+        const pylith::real* x;
 
         StrainContext(void) :
             dim(0),
@@ -80,8 +80,8 @@ public:
 
     // Interface for computing traction from stress.
     typedef void (*tractionfn_type) (const pylith::fekernels::Tensor& stress,
-                                     const PylithReal n[],
-                                     PylithReal traction[]);
+                                     const pylith::real n[],
+                                     pylith::real traction[]);
 
     // PUBLIC MEMBERS /////////////////////////////////////////////////////////////////////////////
 public:
@@ -91,10 +91,10 @@ public:
      */
     static inline
     void setStrainContext(StrainContext* context,
-                          const PylithInt dim,
-                          const PylithInt numS,
-                          const PylithInt sOff[],
-                          const PylithInt sOff_x[],
+                          const pylith::integer dim,
+                          const pylith::integer numS,
+                          const pylith::integer sOff[],
+                          const pylith::integer sOff_x[],
                           const PylithScalar s[],
                           const PylithScalar s_t[],
                           const PylithScalar s_x[],
@@ -102,7 +102,7 @@ public:
         assert(context);
         assert(numS >= 1);
 
-        const PylithInt i_disp = 0;
+        const pylith::integer i_disp = 0;
 
         assert(sOff[i_disp] >= 0);
 
@@ -122,32 +122,32 @@ public:
      * Auxiliary fields: [density(1), ...]
      */
     static inline
-    void f0v(const PylithInt dim,
-             const PylithInt numS,
-             const PylithInt numA,
-             const PylithInt sOff[],
-             const PylithInt sOff_x[],
+    void f0v(const pylith::integer dim,
+             const pylith::integer numS,
+             const pylith::integer numA,
+             const pylith::integer sOff[],
+             const pylith::integer sOff_x[],
              const PylithScalar s[],
              const PylithScalar s_t[],
              const PylithScalar s_x[],
-             const PylithInt aOff[],
-             const PylithInt aOff_x[],
+             const pylith::integer aOff[],
+             const pylith::integer aOff_x[],
              const PylithScalar a[],
              const PylithScalar a_t[],
              const PylithScalar a_x[],
-             const PylithReal t,
+             const pylith::real t,
              const PylithScalar x[],
-             const PylithInt numConstants,
+             const pylith::integer numConstants,
              const PylithScalar constants[],
              PylithScalar f0[]) {
-        const PylithInt _numS = 2;
-        const PylithInt _numA = 1;
+        const pylith::integer _numS = 2;
+        const pylith::integer _numA = 1;
 
         // Incoming solution fields.
-        const PylithInt i_vel = 1;
+        const pylith::integer i_vel = 1;
 
         // Incoming auxiliary fields.
-        const PylithInt i_density = 0;
+        const pylith::integer i_density = 0;
 
         assert(_numS == numS);
         assert(_numA <= numA);
@@ -161,7 +161,7 @@ public:
         const PylithScalar* vel_t = &s_t[sOff[i_vel]]; // acceleration
         const PylithScalar density = a[aOff[i_density]];
 
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             f0[i] += vel_t[i] * density;
         } // for
     } // f0v
@@ -184,8 +184,8 @@ public:
         PylithScalar stressTensor[9] = {0.0, 0.0, 0.0,  0.0, 0.0, 0.0,  0.0, 0.0, 0.0 };
         tensorOps.toTensor(stress, stressTensor);
 
-        const PylithInt dim = strainContext.dim;
-        for (PylithInt i = 0; i < dim*dim; ++i) {
+        const pylith::integer dim = strainContext.dim;
+        for (pylith::integer i = 0; i < dim*dim; ++i) {
             f1[i] -= stressTensor[i];
         } // for
     } // f1v
@@ -199,29 +199,29 @@ public:
      * Auxiliary fields: [density(1), ...]
      */
     static inline
-    void Jf0vv(const PylithInt dim,
-               const PylithInt numS,
-               const PylithInt numA,
-               const PylithInt sOff[],
-               const PylithInt sOff_x[],
+    void Jf0vv(const pylith::integer dim,
+               const pylith::integer numS,
+               const pylith::integer numA,
+               const pylith::integer sOff[],
+               const pylith::integer sOff_x[],
                const PylithScalar s[],
                const PylithScalar s_t[],
                const PylithScalar s_x[],
-               const PylithInt aOff[],
-               const PylithInt aOff_x[],
+               const pylith::integer aOff[],
+               const pylith::integer aOff_x[],
                const PylithScalar a[],
                const PylithScalar a_t[],
                const PylithScalar a_x[],
-               const PylithReal t,
-               const PylithReal s_tshift,
+               const pylith::real t,
+               const pylith::real s_tshift,
                const PylithScalar x[],
-               const PylithInt numConstants,
+               const pylith::integer numConstants,
                const PylithScalar constants[],
                PylithScalar Jf0[]) {
-        const PylithInt _numA = 1;
+        const pylith::integer _numA = 1;
 
         // Incoming auxiliary fields.
-        const PylithInt i_density = 0;
+        const pylith::integer i_density = 0;
 
         assert(_numA <= numA);
         assert(aOff);
@@ -230,7 +230,7 @@ public:
 
         const PylithScalar density = a[aOff[i_density]];
 
-        for (PetscInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             Jf0[i*dim+i] += s_tshift * density;
         } // for
     } // Jf0vv
@@ -246,31 +246,31 @@ public:
      * Auxiliary fields: [density, gravity_field(dim)]
      */
     static inline
-    void g0v_grav(const PylithInt dim,
-                  const PylithInt numS,
-                  const PylithInt numA,
-                  const PylithInt sOff[],
-                  const PylithInt sOff_x[],
+    void g0v_grav(const pylith::integer dim,
+                  const pylith::integer numS,
+                  const pylith::integer numA,
+                  const pylith::integer sOff[],
+                  const pylith::integer sOff_x[],
                   const PylithScalar s[],
                   const PylithScalar s_t[],
                   const PylithScalar s_x[],
-                  const PylithInt aOff[],
-                  const PylithInt aOff_x[],
+                  const pylith::integer aOff[],
+                  const pylith::integer aOff_x[],
                   const PylithScalar a[],
                   const PylithScalar a_t[],
                   const PylithScalar a_x[],
-                  const PylithReal t,
+                  const pylith::real t,
                   const PylithScalar x[],
-                  const PylithInt numConstants,
+                  const pylith::integer numConstants,
                   const PylithScalar constants[],
                   PylithScalar g0[]) {
-        const PylithInt _numA = 2;
+        const pylith::integer _numA = 2;
 
         // Incoming solution fields.
-        const PylithInt i_density = 0;
+        const pylith::integer i_density = 0;
 
         // Incoming auxiliary fields.
-        const PylithInt i_gravityField = 1;
+        const pylith::integer i_gravityField = 1;
 
         assert(_numA <= numA);
         assert(aOff);
@@ -281,7 +281,7 @@ public:
         const PylithScalar density = a[aOff[i_density]];
         const PylithScalar* gravityField = &a[aOff[i_gravityField]];
 
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             g0[i] += density*gravityField[i];
         } // for
     } // g0v_grav
@@ -297,28 +297,28 @@ public:
      * Auxiliary fields: [body_force(dim)]
      */
     static inline
-    void g0v_bodyforce(const PylithInt dim,
-                       const PylithInt numS,
-                       const PylithInt numA,
-                       const PylithInt sOff[],
-                       const PylithInt sOff_x[],
+    void g0v_bodyforce(const pylith::integer dim,
+                       const pylith::integer numS,
+                       const pylith::integer numA,
+                       const pylith::integer sOff[],
+                       const pylith::integer sOff_x[],
                        const PylithScalar s[],
                        const PylithScalar s_t[],
                        const PylithScalar s_x[],
-                       const PylithInt aOff[],
-                       const PylithInt aOff_x[],
+                       const pylith::integer aOff[],
+                       const pylith::integer aOff_x[],
                        const PylithScalar a[],
                        const PylithScalar a_t[],
                        const PylithScalar a_x[],
-                       const PylithReal t,
+                       const pylith::real t,
                        const PylithScalar x[],
-                       const PylithInt numConstants,
+                       const pylith::integer numConstants,
                        const PylithScalar constants[],
                        PylithScalar g0[]) {
-        const PylithInt _numA = 2;
+        const pylith::integer _numA = 2;
 
         // Incoming auxiliary fields.
-        const PylithInt i_bodyForce = 1;
+        const pylith::integer i_bodyForce = 1;
 
         assert(_numA <= numA);
         assert(aOff);
@@ -328,7 +328,7 @@ public:
 
         const PylithScalar* bodyForce = &a[aOff[i_bodyForce]];
 
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             g0[i] += bodyForce[i];
         } // for
     } // g0v_bodyforce
@@ -343,44 +343,44 @@ public:
      * Auxiliary fields: [density(1), body_force(dim), gravity_field(dim), ...]
      */
     static inline
-    void g0v_gravbodyforce(const PylithInt dim,
-                           const PylithInt numS,
-                           const PylithInt numA,
-                           const PylithInt sOff[],
-                           const PylithInt sOff_x[],
+    void g0v_gravbodyforce(const pylith::integer dim,
+                           const pylith::integer numS,
+                           const pylith::integer numA,
+                           const pylith::integer sOff[],
+                           const pylith::integer sOff_x[],
                            const PylithScalar s[],
                            const PylithScalar s_t[],
                            const PylithScalar s_x[],
-                           const PylithInt aOff[],
-                           const PylithInt aOff_x[],
+                           const pylith::integer aOff[],
+                           const pylith::integer aOff_x[],
                            const PylithScalar a[],
                            const PylithScalar a_t[],
                            const PylithScalar a_x[],
-                           const PylithReal t,
+                           const pylith::real t,
                            const PylithScalar x[],
-                           const PylithInt numConstants,
+                           const pylith::integer numConstants,
                            const PylithScalar constants[],
                            PylithScalar g0[]) {
-        const PylithInt _numA = 3;
+        const pylith::integer _numA = 3;
 
         // Incoming auxiliary fields.
-        const PylithInt i_density = 0;
-        const PylithInt i_bodyForce = 1;
-        const PylithInt i_gravityField = 2;
+        const pylith::integer i_density = 0;
+        const pylith::integer i_bodyForce = 1;
+        const pylith::integer i_gravityField = 2;
 
         assert(_numA <= numA);
         assert(aOff);
 
-        const PylithInt numSGrav = 0; // Number passed on to g0_grav.
-        const PylithInt numAGrav = 2; // Number passed on to g0_grav.
-        const PylithInt aOffGrav[2] = { aOff[i_density], aOff[i_gravityField] };
-        g0v_grav(dim, numSGrav, numAGrav, NULL, NULL, NULL, NULL, NULL, aOffGrav, NULL, a, a_t, NULL,
+        const pylith::integer numSGrav = 0; // Number passed on to g0_grav.
+        const pylith::integer numAGrav = 2; // Number passed on to g0_grav.
+        const pylith::integer aOffGrav[2] = { aOff[i_density], aOff[i_gravityField] };
+        g0v_grav(dim, numSGrav, numAGrav, nullptr, nullptr, nullptr, nullptr, nullptr, aOffGrav, nullptr, a, a_t, nullptr,
                  t, x, numConstants, constants, g0);
 
-        const PylithInt numSBody = 0; // Number passed on to g0_bodyforce.
-        const PylithInt numABody = 2; // Number passed on to g0_bodyforce.
-        const PylithInt aOffBody[2] = { aOff[i_density], aOff[i_bodyForce] };
-        g0v_bodyforce(dim, numSBody, numABody, NULL, NULL, NULL, NULL, NULL, aOffBody, NULL, a, a_t, NULL,
+        const pylith::integer numSBody = 0; // Number passed on to g0_bodyforce.
+        const pylith::integer numABody = 2; // Number passed on to g0_bodyforce.
+        const pylith::integer aOffBody[2] = { aOff[i_density], aOff[i_bodyForce] };
+        g0v_bodyforce(dim, numSBody, numABody, nullptr, nullptr, nullptr, nullptr, nullptr, aOffBody, nullptr, a, a_t, nullptr,
                       t, x, numConstants, constants, g0);
     } // g0v_gravbodyforce
 
@@ -398,7 +398,7 @@ public:
                     pylith::fekernels::Tensor* deviatoricTensor) {
         assert(deviatoricTensor);
 
-        const PylithReal mean = (tensor.xx + tensor.yy + tensor.zz) / 3.0;
+        const pylith::real mean = (tensor.xx + tensor.yy + tensor.zz) / 3.0;
         deviatoricTensor->xx = tensor.xx - mean;
         deviatoricTensor->yy = tensor.yy - mean;
         deviatoricTensor->zz = tensor.zz - mean;
@@ -473,7 +473,7 @@ public:
     static inline
     void infinitesimalStrain(const pylith::fekernels::Elasticity::StrainContext& context,
                              pylith::fekernels::Tensor* strain) {
-        const PylithInt _dim = 2;
+        const pylith::integer _dim = 2;
 
         assert(_dim == context.dim);
         assert(strain);
@@ -499,25 +499,25 @@ public:
      * Solution fields: [disp(dim)]
      */
     static inline
-    void infinitesimalStrain_asVector(const PylithInt dim,
-                                      const PylithInt numS,
-                                      const PylithInt numA,
-                                      const PylithInt sOff[],
-                                      const PylithInt sOff_x[],
+    void infinitesimalStrain_asVector(const pylith::integer dim,
+                                      const pylith::integer numS,
+                                      const pylith::integer numA,
+                                      const pylith::integer sOff[],
+                                      const pylith::integer sOff_x[],
                                       const PylithScalar s[],
                                       const PylithScalar s_t[],
                                       const PylithScalar s_x[],
-                                      const PylithInt aOff[],
-                                      const PylithInt aOff_x[],
+                                      const pylith::integer aOff[],
+                                      const pylith::integer aOff_x[],
                                       const PylithScalar a[],
                                       const PylithScalar a_t[],
                                       const PylithScalar a_x[],
-                                      const PylithReal t,
+                                      const pylith::real t,
                                       const PylithScalar x[],
-                                      const PylithInt numConstants,
+                                      const pylith::integer numConstants,
                                       const PylithScalar constants[],
                                       PylithScalar strainVector[]) {
-        const PylithInt _dim = 2;
+        const pylith::integer _dim = 2;
         assert(_dim == dim);
 
         pylith::fekernels::Elasticity::StrainContext context;
@@ -535,8 +535,8 @@ public:
      */
     static inline
     void traction(const pylith::fekernels::Tensor& stress,
-                  const PylithReal n[],
-                  PylithReal traction[]) {
+                  const pylith::real n[],
+                  pylith::real traction[]) {
         assert(traction);
 
         traction[0] = n[0]*stress.xx + n[1]*stress.xy;
@@ -559,7 +559,7 @@ public:
     static inline
     void infinitesimalStrain(const pylith::fekernels::Elasticity::StrainContext& context,
                              pylith::fekernels::Tensor* strain) {
-        const PylithInt _dim = 3;
+        const pylith::integer _dim = 3;
 
         assert(_dim == context.dim);
         assert(strain);
@@ -584,25 +584,25 @@ public:
      * Solution fields: [disp(dim)]
      */
     static inline
-    void infinitesimalStrain_asVector(const PylithInt dim,
-                                      const PylithInt numS,
-                                      const PylithInt numA,
-                                      const PylithInt sOff[],
-                                      const PylithInt sOff_x[],
+    void infinitesimalStrain_asVector(const pylith::integer dim,
+                                      const pylith::integer numS,
+                                      const pylith::integer numA,
+                                      const pylith::integer sOff[],
+                                      const pylith::integer sOff_x[],
                                       const PylithScalar s[],
                                       const PylithScalar s_t[],
                                       const PylithScalar s_x[],
-                                      const PylithInt aOff[],
-                                      const PylithInt aOff_x[],
+                                      const pylith::integer aOff[],
+                                      const pylith::integer aOff_x[],
                                       const PylithScalar a[],
                                       const PylithScalar a_t[],
                                       const PylithScalar a_x[],
-                                      const PylithReal t,
+                                      const pylith::real t,
                                       const PylithScalar x[],
-                                      const PylithInt numConstants,
+                                      const pylith::integer numConstants,
                                       const PylithScalar constants[],
                                       PylithScalar strainVector[]) {
-        const PylithInt _dim = 3;
+        const pylith::integer _dim = 3;
         assert(_dim == dim);
 
         pylith::fekernels::Elasticity::StrainContext context;
@@ -620,8 +620,8 @@ public:
      */
     static inline
     void traction(const pylith::fekernels::Tensor& stress,
-                  const PylithReal n[],
-                  PylithReal traction[]) {
+                  const pylith::real n[],
+                  pylith::real traction[]) {
         assert(traction);
 
         traction[0] = n[0]*stress.xx + n[1]*stress.xy + n[2]*stress.xz;

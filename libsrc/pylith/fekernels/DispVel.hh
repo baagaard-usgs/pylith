@@ -81,22 +81,22 @@ public:
      * Solution fields: [disp(dim), vel(dim)]
      */
     static inline
-    void f0u(const PylithInt dim,
-             const PylithInt numS,
-             const PylithInt numA,
-             const PylithInt sOff[],
-             const PylithInt sOff_x[],
+    void f0u(const pylith::integer dim,
+             const pylith::integer numS,
+             const pylith::integer numA,
+             const pylith::integer sOff[],
+             const pylith::integer sOff_x[],
              const PylithScalar s[],
              const PylithScalar s_t[],
              const PylithScalar s_x[],
-             const PylithInt aOff[],
-             const PylithInt aOff_x[],
+             const pylith::integer aOff[],
+             const pylith::integer aOff_x[],
              const PylithScalar a[],
              const PylithScalar a_t[],
              const PylithScalar a_x[],
-             const PylithReal t,
+             const pylith::real t,
              const PylithScalar x[],
-             const PylithInt numConstants,
+             const pylith::integer numConstants,
              const PylithScalar constants[],
              PylithScalar f0[]) {
         assert(sOff);
@@ -104,13 +104,13 @@ public:
         assert(s_t);
         assert(f0);
 
-        const PylithInt _numS = 2;
+        const pylith::integer _numS = 2;
         assert(_numS == numS);
 
-        const PylithInt i_disp = 0;
+        const pylith::integer i_disp = 0;
         const PylithScalar* disp_t = &s_t[sOff[i_disp]];
 
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             f0[i] += disp_t[i];
         } // for
     } // f0u
@@ -120,22 +120,22 @@ public:
      * Solution fields: [disp(dim), vel(dim)]
      */
     static inline
-    void f0v(const PylithInt dim,
-             const PylithInt numS,
-             const PylithInt numA,
-             const PylithInt sOff[],
-             const PylithInt sOff_x[],
+    void f0v(const pylith::integer dim,
+             const pylith::integer numS,
+             const pylith::integer numA,
+             const pylith::integer sOff[],
+             const pylith::integer sOff_x[],
              const PylithScalar s[],
              const PylithScalar s_t[],
              const PylithScalar s_x[],
-             const PylithInt aOff[],
-             const PylithInt aOff_x[],
+             const pylith::integer aOff[],
+             const pylith::integer aOff_x[],
              const PylithScalar a[],
              const PylithScalar a_t[],
              const PylithScalar a_x[],
-             const PylithReal t,
+             const pylith::real t,
              const PylithScalar x[],
-             const PylithInt numConstants,
+             const pylith::integer numConstants,
              const PylithScalar constants[],
              PylithScalar f0[]) {
         assert(sOff);
@@ -143,13 +143,13 @@ public:
         assert(s_t);
         assert(f0);
 
-        const PylithInt _numS = 2;
+        const pylith::integer _numS = 2;
         assert(_numS == numS);
 
-        const PylithInt i_vel = 1;
+        const pylith::integer i_vel = 1;
         const PylithScalar* vel_t = &s_t[sOff[i_vel]];
 
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             f0[i] += vel_t[i];
         } // for
     } // f0v
@@ -159,35 +159,35 @@ public:
      * Solution fields: [disp(dim), vel(dim)]
      */
     static inline
-    void g0u(const PylithInt dim,
-             const PylithInt numS,
-             const PylithInt numA,
-             const PylithInt sOff[],
-             const PylithInt sOff_x[],
+    void g0u(const pylith::integer dim,
+             const pylith::integer numS,
+             const pylith::integer numA,
+             const pylith::integer sOff[],
+             const pylith::integer sOff_x[],
              const PylithScalar s[],
              const PylithScalar s_t[],
              const PylithScalar s_x[],
-             const PylithInt aOff[],
-             const PylithInt aOff_x[],
+             const pylith::integer aOff[],
+             const pylith::integer aOff_x[],
              const PylithScalar a[],
              const PylithScalar a_t[],
              const PylithScalar a_x[],
-             const PylithReal t,
+             const pylith::real t,
              const PylithScalar x[],
-             const PylithInt numConstants,
+             const pylith::integer numConstants,
              const PylithScalar constants[],
              PylithScalar g0[]) {
         assert(sOff);
         assert(s);
         assert(g0);
 
-        const PylithInt _numS = 2;
+        const pylith::integer _numS = 2;
         assert(_numS == numS);
 
-        const PylithInt i_vel = 1;
+        const pylith::integer i_vel = 1;
         const PylithScalar* vel = &s[sOff[i_vel]];
 
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             g0[i] += vel[i];
         } // for
     } // g0u
@@ -199,23 +199,23 @@ public:
      * Solution fields: [...]
      */
     static inline
-    void Jf0uu_zero(const PylithInt dim,
-                    const PylithInt numS,
-                    const PylithInt numA,
-                    const PylithInt sOff[],
-                    const PylithInt sOff_x[],
+    void Jf0uu_zero(const pylith::integer dim,
+                    const pylith::integer numS,
+                    const pylith::integer numA,
+                    const pylith::integer sOff[],
+                    const pylith::integer sOff_x[],
                     const PylithScalar s[],
                     const PylithScalar s_t[],
                     const PylithScalar s_x[],
-                    const PylithInt aOff[],
-                    const PylithInt aOff_x[],
+                    const pylith::integer aOff[],
+                    const pylith::integer aOff_x[],
                     const PylithScalar a[],
                     const PylithScalar a_t[],
                     const PylithScalar a_x[],
-                    const PylithReal t,
-                    const PylithReal s_tshift,
+                    const pylith::real t,
+                    const pylith::real s_tshift,
                     const PylithScalar x[],
-                    const PylithInt numConstants,
+                    const pylith::integer numConstants,
                     const PylithScalar constants[],
                     PylithScalar Jf0[]) {
         // No work to do for zero values.
@@ -226,30 +226,30 @@ public:
      * Solution fields: [disp(dim), vel(dim)]
      */
     static inline
-    void Jf0uu_stshift(const PylithInt dim,
-                       const PylithInt numS,
-                       const PylithInt numA,
-                       const PylithInt sOff[],
-                       const PylithInt sOff_x[],
+    void Jf0uu_stshift(const pylith::integer dim,
+                       const pylith::integer numS,
+                       const pylith::integer numA,
+                       const pylith::integer sOff[],
+                       const pylith::integer sOff_x[],
                        const PylithScalar s[],
                        const PylithScalar s_t[],
                        const PylithScalar s_x[],
-                       const PylithInt aOff[],
-                       const PylithInt aOff_x[],
+                       const pylith::integer aOff[],
+                       const pylith::integer aOff_x[],
                        const PylithScalar a[],
                        const PylithScalar a_t[],
                        const PylithScalar a_x[],
-                       const PylithReal t,
-                       const PylithReal s_tshift,
+                       const pylith::real t,
+                       const pylith::real s_tshift,
                        const PylithScalar x[],
-                       const PylithInt numConstants,
+                       const pylith::integer numConstants,
                        const PylithScalar constants[],
                        PylithScalar Jf0[]) {
-        const PylithInt _numS = 2;
+        const pylith::integer _numS = 2;
         assert(_numS == numS);
         assert(s_tshift > 0);
 
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             Jf0[i*dim+i] += s_tshift;
         } // for
     } // Jf0uu_stshift
@@ -259,29 +259,29 @@ public:
      * Solution fields: [disp(dim), vel(dim)]
      */
     static inline
-    void Jg0uv(const PylithInt dim,
-               const PylithInt numS,
-               const PylithInt numA,
-               const PylithInt sOff[],
-               const PylithInt sOff_x[],
+    void Jg0uv(const pylith::integer dim,
+               const pylith::integer numS,
+               const pylith::integer numA,
+               const pylith::integer sOff[],
+               const pylith::integer sOff_x[],
                const PylithScalar s[],
                const PylithScalar s_t[],
                const PylithScalar s_x[],
-               const PylithInt aOff[],
-               const PylithInt aOff_x[],
+               const pylith::integer aOff[],
+               const pylith::integer aOff_x[],
                const PylithScalar a[],
                const PylithScalar a_t[],
                const PylithScalar a_x[],
-               const PylithReal t,
-               const PylithReal s_tshift,
+               const pylith::real t,
+               const pylith::real s_tshift,
                const PylithScalar x[],
-               const PylithInt numConstants,
+               const pylith::integer numConstants,
                const PylithScalar constants[],
                PylithScalar Jg0[]) {
-        const PylithInt _numS = 2;
+        const pylith::integer _numS = 2;
         assert(_numS == numS);
 
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             Jg0[i*dim+i] += 1.0;
         } // for
     } // Jg0uv

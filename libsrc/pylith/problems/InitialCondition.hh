@@ -31,13 +31,14 @@ public:
     virtual ~InitialCondition(void);
 
     /// Deallocate PETSc and local data structures.
+    virtual
     void deallocate(void);
 
     /** Set solution subfields for initial condition.
      *
      * @param[in] subfields Array of names of solution subfields.
      */
-    void setSubfields(pylith::string_vector& subfields);
+    void setSubfields(const pylith::string_vector& subfields);
 
     /** Verify configuration is acceptable.
      *
@@ -52,7 +53,7 @@ public:
      * @param[in] normalizer Nondimensionalization.
      */
     virtual
-    void setValues(pylith::topology::Field* solution,
+    void setValues(const std::shared_ptr<pylith::topology::Field>& solution,
                    const spatialdata::units::Nondimensional& normalizer) = 0;
 
     // PROTECTED MEMBERS ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,8 +64,8 @@ protected:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    InitialCondition(const InitialCondition&); ///< Not implemented
-    const InitialCondition& operator=(const InitialCondition&); ///< Not implemented
+    InitialCondition(const InitialCondition&) = delete;
+    const InitialCondition& operator=(const InitialCondition&) = delete;
 
 }; // InitialCondition
 

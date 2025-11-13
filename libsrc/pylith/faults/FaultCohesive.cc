@@ -76,9 +76,9 @@ pylith::faults::FaultCohesive::deallocate(void) {
     PYLITH_METHOD_BEGIN;
     pylith::problems::Physics::deallocate();
 
-    delete _auxiliaryFactory;_auxiliaryFactory = NULL;
-    delete _diagnosticFactory;_diagnosticFactory = NULL;
-    delete _derivedFactory;_derivedFactory = NULL;
+    delete _auxiliaryFactory;_auxiliaryFactory = nullptr;
+    delete _diagnosticFactory;_diagnosticFactory = nullptr;
+    delete _derivedFactory;_derivedFactory = nullptr;
 
     PYLITH_METHOD_END;
 } // deallocate
@@ -195,7 +195,7 @@ pylith::faults::FaultCohesive::getBuriedEdgesLabelValue(void) const {
 void
 pylith::faults::FaultCohesive::setRefDir1(const double vec[3]) {
     // Set reference direction, insuring it is a unit vector.
-    const PylithReal mag = sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]);
+    const pylith::real mag = sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]);
     if (mag < 1.0e-6) {
         std::ostringstream msg;
         msg << "Magnitude of reference direction 1 ("<<vec[0]<<", "<<vec[1]<<", "<<vec[2]<<") is negligible. Use a unit vector.";
@@ -212,7 +212,7 @@ pylith::faults::FaultCohesive::setRefDir1(const double vec[3]) {
 void
 pylith::faults::FaultCohesive::setRefDir2(const double vec[3]) {
     // Set reference direction, insuring it is a unit vector.
-    const PylithReal mag = sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]);
+    const pylith::real mag = sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]);
     if (mag < 1.0e-6) {
         std::ostringstream msg;
         msg << "Magnitude of reference direction 2 ("<<vec[0]<<", "<<vec[1]<<", "<<vec[2]<<") is negligible. Use a unit vector.";
@@ -239,11 +239,11 @@ pylith::faults::FaultCohesive::adjustTopology(topology::Mesh* const mesh) {
         // Get group of vertices associated with fault
         PetscDM dmMesh = mesh->getDM();assert(dmMesh);
 
-        PetscDMLabel surfaceLabel = NULL;
+        PetscDMLabel surfaceLabel = nullptr;
         PetscBool hasLabel = PETSC_FALSE;
-        PetscInt depth, gdepth, dim;
+        pylith::integer depth, gdepth, dim;
         PetscMPIInt rank;
-        PetscErrorCode err;
+        PetscErrorCode err = PETSC_SUCCESS;
         // We do not have labels on all ranks until after distribution
         err = MPI_Comm_rank(PetscObjectComm((PetscObject) dmMesh), &rank);PYLITH_CHECK_ERROR(err);
         err = DMHasLabel(dmMesh, _surfaceLabelName.c_str(), &hasLabel);PYLITH_CHECK_ERROR(err);
@@ -258,7 +258,7 @@ pylith::faults::FaultCohesive::adjustTopology(topology::Mesh* const mesh) {
         err = MPI_Allreduce(&depth, &gdepth, 1, MPIU_INT, MPI_MAX, mesh->getComm());PYLITH_CHECK_ERROR(err);
         err = DMGetLabel(dmMesh, _surfaceLabelName.c_str(), &surfaceLabel);PYLITH_CHECK_ERROR(err);
         TopologyOps::createFault(&faultMesh, *mesh, surfaceLabel, _surfaceLabelValue);
-        PetscDMLabel buriedEdgesLabel = NULL;
+        PetscDMLabel buriedEdgesLabel = nullptr;
 
         // We do not have labels on all ranks until after distribution
         if ((_buriedEdgesLabelName.length() > 0) && !rank) {
@@ -303,7 +303,7 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
     try {
         pylith::topology::Mesh faultMesh;
 
-        PetscDMLabel surfaceLabel = PETSC_NULLPTR;
+        PetscDMLabel surfaceLabel = PETSC_nullptrPTR;
         PetscBool hasLabel = PETSC_FALSE;
         PetscMPIInt rank;
         PetscErrorCode err = PETSC_SUCCESS;
@@ -319,7 +319,7 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
 
         err = DMGetLabel(dmMesh, _surfaceLabelName.c_str(), &surfaceLabel);PYLITH_CHECK_ERROR(err);
 
-        DMPlexTransform transform = PETSC_NULLPTR;
+        DMPlexTransform transform = PETSC_nullptrPTR;
         err = DMPlexTransformCreate(mesh->getComm(), &transform);PYLITH_CHECK_ERROR(err);
         err = DMPlexTransformSetDM(transform, dmMesh);PYLITH_CHECK_ERROR(err);
         err = DMPlexTransformSetType(transform, DMPLEXCOHESIVEEXTRUDE);PYLITH_CHECK_ERROR(err);
@@ -327,56 +327,56 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
         // DMPlexTransformCohesiveExtrudeSetWidth(transform, 0.5); // TEMPORARY
         err = DMPlexTransformSetUp(transform);PYLITH_CHECK_ERROR(err);
 
-        PetscDM dmMeshNew = PETSC_NULLPTR;
+        PetscDM dmMeshNew = PETSC_nullptrPTR;
         err = DMPlexTransformApply(transform, dmMesh, &dmMeshNew);PYLITH_CHECK_ERROR(err);assert(dmMeshNew);
 
         { // setCohesiveCellLabel
             // Set label and label value for newly created cohesive cells.
             pylith::topology::Stratum oldStratum(dmMesh, pylith::topology::Stratum::HEIGHT, 0);
-            const PetscInt pStart = oldStratum.end();
+            const pylith::integer pStart = oldStratum.end();
             pylith::topology::Stratum newStratum(dmMeshNew, pylith::topology::Stratum::HEIGHT, 0);
-            const PetscInt pEnd = newStratum.end();
-            const PetscInt cohesiveLabelValue = getLabelValue();
-            PetscDMLabel dmLabel = NULL;
+            const pylith::integer pEnd = newStratum.end();
+            const pylith::integer cohesiveLabelValue = getLabelValue();
+            PetscDMLabel dmLabel = nullptr;
             err = DMGetLabel(dmMeshNew, getLabelName(), &dmLabel);PYLITH_CHECK_ERROR(err);
-            for (PetscInt point = pStart; point < pEnd; ++point) {
+            for (pylith::integer point = pStart; point < pEnd; ++point) {
                 DMLabelSetValue(dmLabel, point, cohesiveLabelValue);
             } // for
         } // setCohesiveCellLabel
 
         { // labelsRemoveCohesivePoints
-            PetscInt numLabels = 0;
+            pylith::integer numLabels = 0;
             err = DMGetNumLabels(dmMeshNew, &numLabels);PYLITH_CHECK_ERROR(err);
 
             const std::string& materialLabelName = pylith::topology::Mesh::cells_label_name;
 
             for (int iLabel = 0; iLabel < numLabels; ++iLabel) {
-                const char* labelStr = NULL;
+                const char* labelStr = nullptr;
                 err = DMGetLabelName(dmMeshNew, iLabel, &labelStr);PYLITH_CHECK_ERROR(err);
                 const std::string labelName = std::string(labelStr);
 
                 if ((labelName != std::string("depth"))
                     && (labelName != std::string("celltype"))
                     && (labelName != materialLabelName)) {
-                    PetscDMLabel dmLabel = PETSC_NULLPTR;
-                    PetscInt pStart = -1, pEnd = -1;
+                    PetscDMLabel dmLabel = PETSC_nullptrPTR;
+                    pylith::integer pStart = -1, pEnd = -1;
                     err = DMGetLabel(dmMeshNew, labelStr, &dmLabel);PYLITH_CHECK_ERROR(err);
                     err = DMLabelGetBounds(dmLabel, &pStart, &pEnd);PYLITH_CHECK_ERROR(err);
 
-                    PetscIS valuesIS = PETSC_NULLPTR;
+                    PetscIS valuesIS = PETSC_nullptrPTR;
                     err = DMLabelGetNonEmptyStratumValuesIS(dmLabel, &valuesIS);PYLITH_CHECK_ERROR(err);
-                    PetscInt numValues = 0;
+                    pylith::integer numValues = 0;
                     err = ISGetLocalSize(valuesIS, &numValues);PYLITH_CHECK_ERROR(err);
-                    const PetscInt* valuesIndices = PETSC_NULLPTR;
+                    const pylith::integer* valuesIndices = PETSC_nullptrPTR;
                     err = ISGetIndices(valuesIS, &valuesIndices);
-                    for (PetscInt point = pStart; point < pEnd; ++point) {
+                    for (pylith::integer point = pStart; point < pEnd; ++point) {
                         DMPolytopeType ct;
                         err = DMPlexGetCellType(dmMeshNew, point, &ct);PYLITH_CHECK_ERROR(err);
                         if ((ct == DM_POLYTOPE_POINT_PRISM_TENSOR) ||
                             (ct == DM_POLYTOPE_SEG_PRISM_TENSOR) ||
                             (ct == DM_POLYTOPE_TRI_PRISM_TENSOR) ||
                             (ct == DM_POLYTOPE_QUAD_PRISM_TENSOR)) {
-                            for (PetscInt iValue = 0; iValue < numValues; ++iValue) {
+                            for (pylith::integer iValue = 0; iValue < numValues; ++iValue) {
                                 err = DMLabelClearValue(dmLabel, point, valuesIndices[iValue]);PYLITH_CHECK_ERROR(err);
                             } // for
                         } // if
@@ -389,7 +389,7 @@ pylith::faults::FaultCohesive::transformTopology(topology::Mesh* const mesh) {
 
 #if 0
         { // Print transform type label
-            PetscDMLabel transformTypes = NULL;
+            PetscDMLabel transformTypes = nullptr;
             err = DMPlexTransformGetTransformTypes(transform, &transformTypes);PYLITH_CHECK_ERROR(err);
             err = DMLabelView(transformTypes, PETSC_VIEWER_STDOUT_SELF);PYLITH_CHECK_ERROR(err);
             // the points are the ones in the origin mesh
@@ -428,17 +428,17 @@ pylith::topology::Field*
 pylith::faults::FaultCohesive::createDiagnosticField(const pylith::topology::Field& solution,
                                                      const pylith::topology::Mesh& physicsMesh) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createDiagnosticField(solution="<<solution.getLabel()<<", physicsMesh=)"<<typeid(physicsMesh).name()<<")");
+    PYLITH_COMPONENT_DEBUG("createDiagnosticField(solution="<<solution.getName()<<", physicsMesh=)"<<typeid(physicsMesh).name()<<")");
 
     assert(_normalizer);
 
     pylith::topology::Field* diagnosticField = new pylith::topology::Field(physicsMesh);assert(diagnosticField);
-    diagnosticField->setLabel("diagnostic field");
+    diagnosticField->setName("diagnostic field");
     pylith::topology::FieldOps::createOutputLabel(diagnosticField);
 
     assert(_diagnosticFactory);
     const pylith::topology::FieldBase::Discretization& discretization = solution.getSubfieldInfo("lagrange_multiplier_fault").fe;
-    const PylithInt cellDim = solution.getSpaceDim()-1;
+    const pylith::integer cellDim = solution.getSpaceDim()-1;
     const bool isFaultOnly = false;
     _diagnosticFactory->setSubfieldDiscretization("default", discretization.basisOrder, discretization.quadOrder, cellDim,
                                                   isFaultOnly, discretization.cellBasis, discretization.feSpace,
@@ -470,29 +470,29 @@ pylith::topology::Field*
 pylith::faults::FaultCohesive::createDerivedField(const pylith::topology::Field& solution,
                                                   const pylith::topology::Mesh& domainMesh) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createDerivedField(solution="<<solution.getLabel()<<", domainMesh=)"<<typeid(domainMesh).name()<<")");
+    PYLITH_COMPONENT_DEBUG("createDerivedField(solution="<<solution.getName()<<", domainMesh=)"<<typeid(domainMesh).name()<<")");
 
     assert(_normalizer);
 
     pylith::topology::Field* derivedField = new pylith::topology::Field(domainMesh);assert(derivedField);
-    derivedField->setLabel("derived field");
+    derivedField->setName("derived field");
 
     // Create label for output.
     const char* outputLabelName = "output";
     PetscDM derivedDM = derivedField->getDM();
-    PetscDMLabel outputLabel = NULL;
+    PetscDMLabel outputLabel = nullptr;
     PetscErrorCode err = PETSC_SUCCESS;
     err = DMCreateLabel(derivedDM, outputLabelName);PYLITH_CHECK_ERROR(err);
     err = DMGetLabel(derivedDM, outputLabelName, &outputLabel);PYLITH_CHECK_ERROR(err);
     pylith::topology::Stratum faultStratum(derivedDM, pylith::topology::Stratum::HEIGHT, 1);
-    for (PetscInt point = faultStratum.begin(); point != faultStratum.end(); ++point) {
+    for (pylith::integer point = faultStratum.begin(); point != faultStratum.end(); ++point) {
         err = DMLabelSetValue(outputLabel, point, 1);
     } // for
     err = DMPlexLabelComplete(derivedDM, outputLabel);PYLITH_CHECK_ERROR(err);
 
     assert(_derivedFactory);
     const pylith::topology::FieldBase::Discretization& discretization = solution.getSubfieldInfo("lagrange_multiplier_fault").fe;
-    const PylithInt cellDim = solution.getSpaceDim()-1;
+    const pylith::integer cellDim = solution.getSpaceDim()-1;
     const bool isFaultOnly = false;
     _derivedFactory->setSubfieldDiscretization("default", discretization.basisOrder, discretization.quadOrder, cellDim,
                                                isFaultOnly, discretization.cellBasis, discretization.feSpace,
@@ -520,7 +520,7 @@ pylith::feassemble::Integrator*
 pylith::faults::FaultCohesive::createIntegrator(const pylith::topology::Field& solution,
                                                 const std::vector<pylith::materials::Material*>& materials) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createIntegrator(solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("createIntegrator(solution="<<solution.getName()<<")");
 
     pylith::feassemble::IntegratorInterface* integrator = new pylith::feassemble::IntegratorInterface(this);assert(integrator);
     integrator->setLabelName(getCohesiveLabelName());
@@ -545,7 +545,7 @@ pylith::faults::FaultCohesive::createIntegrator(const pylith::topology::Field& s
 std::vector<pylith::feassemble::Constraint*>
 pylith::faults::FaultCohesive::createConstraints(const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createConstraints(solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("createConstraints(solution="<<solution.getName()<<")");
 
     if (0 == strlen(getBuriedEdgesLabelName())) {
         std::vector<pylith::feassemble::Constraint*> constraintArray;
@@ -553,24 +553,24 @@ pylith::faults::FaultCohesive::createConstraints(const pylith::topology::Field& 
     } // if
 
     const char* lagrangeName = "lagrange_multiplier_fault";
-    const PylithInt numComponents = solution.getSpaceDim();
+    const pylith::integer numComponents = solution.getSpaceDim();
 
-    pylith::int_array constrainedDOF;
+    pylith::integer_array constrainedDOF;
     constrainedDOF.resize(numComponents);
     for (int c = 0; c < numComponents; ++c) {
         constrainedDOF[c] = c;
     }
     // Make new label for cohesive edges and faces
     PetscDM dm = solution.getDM();
-    PetscDMLabel buriedLabel = NULL;
-    PetscDMLabel buriedCohesiveLabel = NULL;
-    PetscIS pointIS = NULL;
-    const PetscInt *points = NULL;
-    PetscInt numPoints = 0;
+    PetscDMLabel buriedLabel = nullptr;
+    PetscDMLabel buriedCohesiveLabel = nullptr;
+    PetscIS pointIS = nullptr;
+    const pylith::integer *points = nullptr;
+    pylith::integer numPoints = 0;
     std::ostringstream labelstream;
     labelstream << getBuriedEdgesLabelName() << "_cohesive";
     std::string buriedLabelName = labelstream.str();
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     err = DMCreateLabel(dm, buriedLabelName.c_str());PYLITH_CHECK_ERROR(err);
     err = DMGetLabel(dm, getBuriedEdgesLabelName(), &buriedLabel);PYLITH_CHECK_ERROR(err);
@@ -581,24 +581,24 @@ pylith::faults::FaultCohesive::createConstraints(const pylith::topology::Field& 
         err = ISGetIndices(pointIS, &points);PYLITH_CHECK_ERROR(err);
     } // if
     for (int p = 0; p < numPoints; ++p) {
-        const PetscInt *support = NULL;
-        PetscInt supportSize;
+        const pylith::integer *support = nullptr;
+        pylith::integer supportSize;
 
         err = DMPlexGetSupportSize(dm, points[p], &supportSize);PYLITH_CHECK_ERROR(err);
         err = DMPlexGetSupport(dm, points[p], &support);PYLITH_CHECK_ERROR(err);
         for (int s = 0; s < supportSize; ++s) {
             DMPolytopeType ct;
-            const PetscInt spoint = support[s];
+            const pylith::integer spoint = support[s];
 
             err = DMPlexGetCellType(dm, spoint, &ct);PYLITH_CHECK_ERROR(err);
             if ((ct == DM_POLYTOPE_SEG_PRISM_TENSOR) || (ct == DM_POLYTOPE_POINT_PRISM_TENSOR)) {
-                const PetscInt *cone = NULL;
-                PetscInt coneSize;
+                const pylith::integer *cone = nullptr;
+                pylith::integer coneSize;
 
                 err = DMPlexGetConeSize(dm, spoint, &coneSize);PYLITH_CHECK_ERROR(err);
                 err = DMPlexGetCone(dm, spoint, &cone);PYLITH_CHECK_ERROR(err);
                 for (int c = 0; c < coneSize; ++c) {
-                    PetscInt val;
+                    pylith::integer val;
                     err = DMLabelGetValue(buriedLabel, cone[c], &val);PYLITH_CHECK_ERROR(err);
                     if (val >= 0) {
                         err = DMLabelSetValue(buriedCohesiveLabel, spoint, 1);PYLITH_CHECK_ERROR(err);
@@ -616,8 +616,8 @@ pylith::faults::FaultCohesive::createConstraints(const pylith::topology::Field& 
     std::vector<pylith::feassemble::Constraint*> constraintArray;
     pylith::feassemble::ConstraintSimple *constraint = new pylith::feassemble::ConstraintSimple(this);assert(constraint);
     constraint->setLabelName(buriedLabelName.c_str());
-    err = PetscObjectViewFromOptions((PetscObject) buriedLabel, NULL, "-buried_edge_label_view");
-    err = PetscObjectViewFromOptions((PetscObject) buriedCohesiveLabel, NULL, "-buried_cohesive_edge_label_view");
+    err = PetscObjectViewFromOptions((PetscObject) buriedLabel, nullptr, "-buried_edge_label_view");
+    err = PetscObjectViewFromOptions((PetscObject) buriedCohesiveLabel, nullptr, "-buried_cohesive_edge_label_view");
     constraint->setConstrainedDOF(&constrainedDOF[0], constrainedDOF.size());
     constraint->setSubfieldName(lagrangeName);
     constraint->setUserFn(_zero);
@@ -631,7 +631,7 @@ pylith::faults::FaultCohesive::createConstraints(const pylith::topology::Field& 
 // ------------------------------------------------------------------------------------------------
 // Update kernel constants.
 void
-pylith::faults::FaultCohesive::_updateKernelConstants(const PylithReal dt) {
+pylith::faults::FaultCohesive::_updateKernelConstants(const pylith::real dt) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("_setKernelConstants(dt="<<dt<<")");
 
@@ -666,7 +666,7 @@ pylith::faults::FaultCohesive::_getDerivedFactory(void) {
 // ------------------------------------------------------------------------------------------------
 pylith::feassemble::Integrator*
 pylith::faults::FaultCohesive::createIntegrator(const pylith::topology::Field& solution) {
-    return NULL;
+    return nullptr;
 } // Empty method
 
 
@@ -676,12 +676,12 @@ void
 pylith::faults::FaultCohesive::_setKernelsDiagnosticField(pylith::feassemble::IntegratorInterface* integrator,
                                                           const pylith::topology::Field& solution) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("_setKernelsDiagnosticField(integrator="<<integrator<<", solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("_setKernelsDiagnosticField(integrator="<<integrator<<", solution="<<solution.getName()<<")");
 
     const spatialdata::geocoords::CoordSys* coordsys = solution.getMesh().getCoordSys();
     assert(coordsys);
 
-    const PylithInt spaceDim = solution.getSpaceDim();
+    const pylith::integer spaceDim = solution.getSpaceDim();
     std::vector<ProjectKernels> kernels(spaceDim);
     kernels[0] = ProjectKernels("normal_dir", pylith::fekernels::BoundaryDirections::normalDir);
     kernels[1] = ProjectKernels("strike_dir", pylith::fekernels::BoundaryDirections::tangentialDirHoriz);
@@ -702,7 +702,7 @@ void
 pylith::faults::FaultCohesive::_setKernelsDerivedField(pylith::feassemble::IntegratorInterface* integrator,
                                                        const pylith::topology::Field& solution) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("_setKernelsDerivedField(integrator="<<integrator<<", solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("_setKernelsDerivedField(integrator="<<integrator<<", solution="<<solution.getName()<<")");
 
     const spatialdata::geocoords::CoordSys* coordsys = solution.getMesh().getCoordSys();
     assert(coordsys);

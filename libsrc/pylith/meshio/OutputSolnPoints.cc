@@ -34,9 +34,7 @@
 // ------------------------------------------------------------------------------------------------
 // Constructor
 pylith::meshio::OutputSolnPoints::OutputSolnPoints(void) :
-    _pointMesh(NULL),
-    _pointSoln(NULL),
-    _interpolator(NULL) {
+    _interpolator(nullptr) {
     PyreComponent::setName("outputsolnpoints");
 } // constructor
 
@@ -56,12 +54,11 @@ pylith::meshio::OutputSolnPoints::deallocate(void) {
 
     OutputSoln::deallocate();
 
+    _pointMesh.reset();
+    _pointSoln.reset();
     if (_interpolator) {
         PetscErrorCode err = DMInterpolationDestroy(&_interpolator);PYLITH_CHECK_ERROR(err);
     } // if
-
-    delete _pointMesh;_pointMesh = NULL;
-    delete _pointSoln;_pointSoln = NULL;
 
     PYLITH_METHOD_END;
 } // deallocate
@@ -70,28 +67,23 @@ pylith::meshio::OutputSolnPoints::deallocate(void) {
 // ------------------------------------------------------------------------------------------------
 // Set point names and coordinates of points .
 void
-pylith::meshio::OutputSolnPoints::setPoints(const PylithReal* pointCoords,
-                                            const int numPoints,
-                                            const int spaceDim,
-                                            const char* const* pointNames,
-                                            const int numPointNames) {
+pylith::meshio::OutputSolnPoints::setPoints(const pylith::real* pointCoords,
+                                            const size_t numPoints,
+                                            const size_t spaceDim,
+                                            const pylith::string_vector& pointNames) {
     PYLITH_METHOD_BEGIN;
 
-    assert(pointCoords && pointNames);
-    assert(numPoints == numPointNames);
+    assert(pointCoords);
+    assert(numPoints == pointNames.size());
 
     // Copy point coordinates.
-    const PylithInt size = numPoints * spaceDim;
+    const size_t size = numPoints * spaceDim;
     _pointCoords.resize(size);
-    for (PylithInt i = 0; i < size; ++i) {
+    for (size_t i = 0; i < size; ++i) {
         _pointCoords[i] = pointCoords[i];
     } // for
 
-    // Copy point names.
-    _pointNames.resize(numPointNames);
-    for (PylithInt i = 0; i < numPointNames; ++i) {
-        _pointNames[i] = pointNames[i];
-    } // for
+    _pointNames = pointNames;
 
     PYLITH_METHOD_END;
 } // setPoints
@@ -100,11 +92,11 @@ pylith::meshio::OutputSolnPoints::setPoints(const PylithReal* pointCoords,
 // ------------------------------------------------------------------------------------------------
 // Write solution at time step.
 void
-pylith::meshio::OutputSolnPoints::_writeSolnStep(const PylithReal t,
-                                                 const PylithInt tindex,
+pylith::meshio::OutputSolnPoints::_writeSolnStep(const pylith::real t,
+                                                 const pylith::integer tindex,
                                                  const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("_writeSolnStep(t="<<t<<", tindex="<<tindex<<", solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("_writeSolnStep(t="<<t<<", tindex="<<tindex<<", solution="<<solution.getName()<<")");
 
     if (!_interpolator) {
         _setupInterpolator(solution);
@@ -121,7 +113,7 @@ pylith::meshio::OutputSolnPoints::_writeSolnStep(const PylithReal t,
 
     const size_t numSubfieldNames = subfieldNames.size();
     for (size_t iField = 0; iField < numSubfieldNames; iField++) {
-        OutputSubfield* subfield = NULL;
+        OutputSubfield* subfield = nullptr;
         subfield = this->_getSubfield(*_pointSoln, *_pointMesh, subfieldNames[iField].c_str());assert(subfield);
 
         const pylith::topology::Field::SubfieldInfo& info = solution.getSubfieldInfo(subfieldNames[iField].c_str());
@@ -137,18 +129,18 @@ pylith::meshio::OutputSolnPoints::_writeSolnStep(const PylithReal t,
 
 // ------------------------------------------------------------------------------------------------
 // Get output subfield, creating if necessary.
-pylith::meshio::OutputSubfield*
+pylith::meshio::OutputSubfield* const
 pylith::meshio::OutputSolnPoints::_getSubfield(const pylith::topology::Field& field,
                                                const pylith::topology::Mesh& submesh,
                                                const char* name) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("_getSubfield(field="<<field.getLabel()<<", name="<<name<<", submesh="<<typeid(submesh).name()<<")");
+    PYLITH_COMPONENT_DEBUG("_getSubfield(field="<<field.getName()<<", name="<<name<<", submesh="<<typeid(submesh).name()<<")");
 
     if (_subfields.count(name) == 0) {
         _subfields[name] = OutputSubfield::create(field, submesh, name);
     } // if
 
-    PYLITH_METHOD_RETURN(_subfields[name]);
+    PYLITH_METHOD_RETURN(_subfields[name].get());
 }
 
 
@@ -158,13 +150,13 @@ void
 pylith::meshio::OutputSolnPoints::_setupInterpolator(const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     if (_interpolator) {
         err = DMInterpolationDestroy(&_interpolator);PYLITH_CHECK_ERROR(err);
     } // if
     assert(!_interpolator);
 
-    const spatialdata::geocoords::CoordSys* csMesh = solution.getMesh().getCoordSys();assert(csMesh);
+    const std::shared_ptr<spatialdata::geocoords::CoordSys> csMesh = solution.getMesh().getCoordSys();assert(csMesh);
     const int spaceDim = csMesh->getSpaceDim();
 
     MPI_Comm comm = solution.getMesh().getComm();
@@ -174,32 +166,32 @@ pylith::meshio::OutputSolnPoints::_setupInterpolator(const pylith::topology::Fie
 
     err = DMInterpolationCreate(comm, &_interpolator);PYLITH_CHECK_ERROR(err);
     err = DMInterpolationSetDim(_interpolator, spaceDim);PYLITH_CHECK_ERROR(err);
-    err = DMInterpolationAddPoints(_interpolator, _pointNames.size(), (PetscReal*) &_pointCoords[0]);PYLITH_CHECK_ERROR(err);
+    err = DMInterpolationAddPoints(_interpolator, _pointNames.size(), (pylith::real*) &_pointCoords[0]);PYLITH_CHECK_ERROR(err);
     const PetscBool pointsAllProcs = PETSC_TRUE;
     const PetscBool ignoreOutsideDomain = PETSC_FALSE;
     err = DMInterpolationSetUp(_interpolator, dmSoln, pointsAllProcs, ignoreOutsideDomain);PYLITH_CHECK_ERROR(err);
 
     // Create mesh corresponding to local points.
     const size_t numPointsLocal = _interpolator->n;
-    PylithScalar* pointsLocal = NULL;
+    pylith::scalar* pointsLocal = nullptr;
     err = VecGetArray(_interpolator->coords, &pointsLocal);PYLITH_CHECK_ERROR(err);
 
-    PylithReal lengthScale = 1.0;
+    pylith::real lengthScale = 1.0;
     err = DMPlexGetScale(dmSoln, PETSC_UNIT_LENGTH, &lengthScale);PYLITH_CHECK_ERROR(err);
 
-    const spatialdata::geocoords::CoordSys* cs = solution.getMesh().getCoordSys();
+    const std::shared_ptr<spatialdata::geocoords::CoordSys> cs = solution.getMesh().getCoordSys();
     const char* componentName = this->getFullIdentifier();
-    delete _pointMesh;_pointMesh = pylith::topology::MeshOps::createFromPoints(
+    _pointMesh = pylith::topology::MeshOps::createFromPoints(
         pointsLocal, numPointsLocal, cs, lengthScale, comm, componentName);
 
-    // Upate point names to only local points.
+    // Update point names to only local points.
     pylith::string_vector pointNamesLocal(numPointsLocal);
     const size_t numPoints = _pointNames.size();
     for (size_t iPointLocal = 0; iPointLocal < numPointsLocal; ++iPointLocal) {
         // Find point in array of all points to get index for point name.
         for (size_t iPoint = 0; iPoint < numPoints; ++iPoint) {
-            const PylithReal tolerance = 1.0e-6;
-            PylithReal dist = 0.0;
+            const pylith::real tolerance = 1.0e-6;
+            pylith::real dist = 0.0;
             for (int iDim = 0; iDim < spaceDim; ++iDim) {
                 dist += pow(_pointCoords[iPoint*spaceDim+iDim] - pointsLocal[iPointLocal*spaceDim+iDim], 2);
             } // for
@@ -215,7 +207,7 @@ pylith::meshio::OutputSolnPoints::_setupInterpolator(const pylith::topology::Fie
     _pointCoords.resize(0);
 
     // Determine size of interpolated field that we will have.
-    PetscInt numDof = 0;
+    pylith::integer numDof = 0;
     const pylith::string_vector& subfieldNames = solution.getSubfieldNames();
     const size_t numSubfields = subfieldNames.size();
     for (size_t i = 0; i < numSubfields; ++i) {
@@ -226,7 +218,7 @@ pylith::meshio::OutputSolnPoints::_setupInterpolator(const pylith::topology::Fie
     } // for
     err = DMInterpolationSetDof(_interpolator, numDof);PYLITH_CHECK_ERROR(err);
 
-    delete _pointSoln;_pointSoln = new pylith::topology::Field(*_pointMesh);
+    _pointSoln = std::make_unique<pylith::topology::Field>(*_pointMesh);
     for (size_t i = 0; i < subfieldNames.size(); ++i) {
         const pylith::topology::Field::SubfieldInfo& sinfo = solution.getSubfieldInfo(subfieldNames[i].c_str());
         pylith::topology::Field::Discretization discretization = sinfo.fe;
@@ -235,7 +227,7 @@ pylith::meshio::OutputSolnPoints::_setupInterpolator(const pylith::topology::Fie
     } // for
     _pointSoln->subfieldsSetup();
     _pointSoln->createDiscretization();
-    _pointSoln->setLabel(solution.getLabel());
+    _pointSoln->setName(solution.getName());
     _pointSoln->allocate();
 
     PYLITH_METHOD_END;
@@ -249,7 +241,7 @@ pylith::meshio::OutputSolnPoints::_interpolateField(const pylith::topology::Fiel
     PYLITH_METHOD_BEGIN;
     assert(_pointSoln);
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     err = DMInterpolationEvaluate(_interpolator, solution.getDM(), solution.getLocalVector(),
                                   _pointSoln->getLocalVector());PYLITH_CHECK_ERROR(err);
 

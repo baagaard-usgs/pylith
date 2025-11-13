@@ -132,7 +132,7 @@ public:
      *
      * @param[in] solution Solution field.
      * @param[in] materials Materials in problem.
-     * @returns Integrator if applicable, otherwise NULL.
+     * @returns Integrator if applicable, otherwise nullptr.
      */
     virtual
     pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution,
@@ -141,29 +141,29 @@ public:
     /** Create constraint and set kernels.
      *
      * @param[in] solution Solution field.
-     * @returns Constraint if applicable, otherwise NULL.
+     * @returns Constraint if applicable, otherwise nullptr.
      */
-    std::vector<pylith::feassemble::Constraint*> createConstraints(const pylith::topology::Field& solution) override;
+    std::vector<std::unique_ptr<pylith::feassemble::Constraint> > createConstraints(const pylith::topology::Field& solution) override;
 
     /** Create derived field.
      *
      * @param[in] solution Solution field.
      * @param[in\ domainMesh Finite-element mesh associated with integration domain.
      *
-     * @returns Derived field if applicable, otherwise NULL.
+     * @returns Derived field if applicable, otherwise nullptr.
      */
-    pylith::topology::Field* createDerivedField(const pylith::topology::Field& solution,
-                                                const pylith::topology::Mesh& domainMesh) override;
+    std::shared_ptr<pylith::topology::Field> createDerivedField(const pylith::topology::Field& solution,
+                                                                const pylith::topology::Mesh& domainMesh) override;
 
     /** Create diagnostic field.
      *
      * @param[in] solution Solution field.
      * @param[in] physicsMesh Finite-element mesh associated with physics.
      *
-     * @returns Diagnostic field if applicable, otherwise NULL.
+     * @returns Diagnostic field if applicable, otherwise nullptr.
      */
-    pylith::topology::Field* createDiagnosticField(const pylith::topology::Field& solution,
-                                                   const pylith::topology::Mesh& physicsMesh) override;
+    std::shared_ptr<pylith::topology::Field> createDiagnosticField(const pylith::topology::Field& solution,
+                                                                   const pylith::topology::Mesh& physicsMesh) override;
 
     // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
 protected:
@@ -231,11 +231,11 @@ private:
 
     inline
     static
-    PetscErrorCode _zero(PetscInt dim,
-                         PetscReal t,
-                         const PetscReal x[],
-                         PetscInt Nc,
-                         PetscScalar *u,
+    PetscErrorCode _zero(pylith::integer dim,
+                         pylith::real t,
+                         const pylith::real x[],
+                         pylith::integer Nc,
+                         pylith::scalar *u,
                          void *ctx) {
         for (int c = 0; c < Nc; ++c) {
             u[c] = 0.0;
@@ -259,10 +259,10 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    FaultCohesive(const FaultCohesive&); ///< Not implemented
-    const FaultCohesive& operator=(const FaultCohesive&); ///< Not implemented
+    FaultCohesive(const FaultCohesive&) = delete;
+    const FaultCohesive& operator=(const FaultCohesive&) = delete;
 
-    pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution) override; // Empty method
+    std::unique_ptr<pylith::feassemble::Integrator> createIntegrator(const pylith::topology::Field& solution) override;
 
 }; // class FaultCohesive
 

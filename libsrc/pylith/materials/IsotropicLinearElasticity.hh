@@ -96,8 +96,8 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    IsotropicLinearElasticity(const IsotropicLinearElasticity&); ///< Not implemented.
-    const IsotropicLinearElasticity& operator=(const IsotropicLinearElasticity&); /// Not implemented.
+    IsotropicLinearElasticity(const IsotropicLinearElasticity&) = delete;
+    const IsotropicLinearElasticity& operator=(const IsotropicLinearElasticity&) = delete;
 
 }; // class IsotropicLinearElasticity
 

@@ -140,7 +140,7 @@ public:
     pylith::topology::Field::Discretization* auxDiscretizations; ///< Discretizations for auxiliary fields.
     spatialdata::spatialdb::UserFunctionDB* auxDB; ///< Spatial database with auxiliary field.
 
-    PylithReal t; ///< Time associated with setting solution.
+    pylith::real t; ///< Time associated with setting solution.
     int solnNumSubfields; ///< Number of solution subfields.
     pylith::topology::FieldBase::Discretization* solnDiscretizations; ///< Discretizations for solution fields.
     spatialdata::spatialdb::UserFunctionDB* solnDB; ///< Spatial database with solution.

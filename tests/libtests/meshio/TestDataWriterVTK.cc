@@ -88,9 +88,9 @@ pylith::meshio::TestDataWriterVTK::checkFile(const char* filenameRoot,
 // ------------------------------------------------------------------------------------------------
 // Constructor
 pylith::meshio::TestDataWriterVTK_Data::TestDataWriterVTK_Data(void) :
-    timestepFilename(NULL),
-    vertexFilename(NULL),
-    cellFilename(NULL) {}
+    timestepFilename(nullptr),
+    vertexFilename(nullptr),
+    cellFilename(nullptr) {}
 
 
 // ------------------------------------------------------------------------------------------------

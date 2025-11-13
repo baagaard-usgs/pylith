@@ -51,8 +51,8 @@ public:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    SubfieldFactory(const SubfieldFactory &); ///< Not implemented.
-    const SubfieldFactory& operator=(const SubfieldFactory&); ///< Not implemented
+    SubfieldFactory(const SubfieldFactory &) = delete;
+    const SubfieldFactory& operator=(const SubfieldFactory&) = delete;
 
 }; // class SubfieldFactory
 

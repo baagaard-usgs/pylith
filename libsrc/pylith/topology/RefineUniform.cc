@@ -91,25 +91,25 @@ pylith::topology::_RefineUniform::cleanFaceLabels(pylith::topology::Mesh* const 
 
     const PetscDM dmMesh = mesh->getDM();assert(dmMesh);
     pylith::topology::Stratum* facesStratum = new pylith::topology::Stratum(dmMesh, pylith::topology::Stratum::HEIGHT, 1);assert(facesStratum);
-    const PetscInt fStart = facesStratum->begin();
-    const PetscInt fEnd = facesStratum->end();
-    delete facesStratum;facesStratum = NULL;
+    const pylith::integer fStart = facesStratum->begin();
+    const pylith::integer fEnd = facesStratum->end();
+    delete facesStratum;facesStratum = nullptr;
 
     PetscErrorCode err = PETSC_SUCCESS;
     const size_t numFaceGroups = faceGroupNames.size();
     for (size_t iGroup = 0; iGroup < numFaceGroups; ++iGroup) {
-        PetscDMLabel dmLabel = NULL;
+        PetscDMLabel dmLabel = nullptr;
         err = DMGetLabel(dmMesh, faceGroupNames[iGroup].c_str(), &dmLabel);PYLITH_CHECK_ERROR(err);
-        PetscInt pStart = -1, pEnd = -1;
+        pylith::integer pStart = -1, pEnd = -1;
         err = DMLabelGetBounds(dmLabel, &pStart, &pEnd);PYLITH_CHECK_ERROR(err);
-        for (PetscInt point = pStart; point < pEnd; ++point) {
+        for (pylith::integer point = pStart; point < pEnd; ++point) {
             if ((point >= fStart) && (point < fEnd)) {
                 continue; // keep faces in label
             } // if
             PetscBool hasLabel = PETSC_FALSE;
             err = DMLabelHasPoint(dmLabel, point, &hasLabel);PYLITH_CHECK_ERROR(err);
             if (hasLabel) {
-                PetscInt labelValue;
+                pylith::integer labelValue;
                 err = DMLabelGetValue(dmLabel, point, &labelValue);PYLITH_CHECK_ERROR(err);
                 err = DMLabelClearValue(dmLabel, point, labelValue);PYLITH_CHECK_ERROR(err);
             } // if
@@ -133,26 +133,26 @@ pylith::topology::_RefineUniform::cleanCellsLabel(pylith::topology::Mesh* mesh) 
 
     // Remove all non-cells from cells label
     const char* const labelName = pylith::topology::Mesh::cells_label_name;
-    PetscDMLabel matidLabel = NULL;
-    PetscIS valuesIS = NULL;
-    const PetscInt *values = NULL;
-    PetscInt cStart = -1, cEnd = -1, labelNumValues = 0;
+    PetscDMLabel matidLabel = nullptr;
+    PetscIS valuesIS = nullptr;
+    const pylith::integer *values = nullptr;
+    pylith::integer cStart = -1, cEnd = -1, labelNumValues = 0;
     PetscErrorCode err = PETSC_SUCCESS;
     err = DMPlexGetHeightStratum(dmMesh, 0, &cStart, &cEnd);PYLITH_CHECK_ERROR(err);
     err = DMGetLabel(dmMesh, labelName, &matidLabel);PYLITH_CHECK_ERROR(err);
     err = DMLabelGetNumValues(matidLabel, &labelNumValues);PYLITH_CHECK_ERROR(err);
     err = DMLabelGetValueIS(matidLabel, &valuesIS);PYLITH_CHECK_ERROR(err);
     err = ISGetIndices(valuesIS, &values);PYLITH_CHECK_ERROR(err);
-    for (PetscInt iValue = 0; iValue < labelNumValues; ++iValue) {
-        PetscIS stratumIS = NULL;
-        const PetscInt *points = NULL;
-        const PetscInt value = values[iValue];
-        PetscInt numPoints;
+    for (pylith::integer iValue = 0; iValue < labelNumValues; ++iValue) {
+        PetscIS stratumIS = nullptr;
+        const pylith::integer *points = nullptr;
+        const pylith::integer value = values[iValue];
+        pylith::integer numPoints;
         err = DMLabelGetStratumSize(matidLabel, value, &numPoints);PYLITH_CHECK_ERROR(err);
         err = DMLabelGetStratumIS(matidLabel, value, &stratumIS);PYLITH_CHECK_ERROR(err);
         err = ISGetIndices(stratumIS, &points);PYLITH_CHECK_ERROR(err);
-        for (PetscInt p = 0; p < numPoints; ++p) {
-            const PetscInt point = points[p];
+        for (pylith::integer p = 0; p < numPoints; ++p) {
+            const pylith::integer point = points[p];
             if (( point < cStart) || ( point >= cEnd) ) {
                 err = DMLabelClearValue(matidLabel, point, value);PYLITH_CHECK_ERROR(err);
             } // if
@@ -204,10 +204,10 @@ pylith::topology::RefineUniform::refine(Mesh* const newMesh,
 
     assert(newMesh);
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     PetscDM dmOrig = mesh.getDM();assert(dmOrig);
 
-    PetscInt meshDepth = 0;
+    pylith::integer meshDepth = 0;
     err = DMPlexGetDepth(dmOrig, &meshDepth);
 
     const int meshDim = mesh.getDimension();
@@ -219,12 +219,12 @@ pylith::topology::RefineUniform::refine(Mesh* const newMesh,
     } // if
 
     // Refine, keeping original mesh intact.
-    PetscDM dmNew = NULL;
+    PetscDM dmNew = nullptr;
     err = DMPlexSetRefinementUniform(dmOrig, PETSC_TRUE);PYLITH_CHECK_ERROR(err);
     err = DMRefine(dmOrig, mesh.getComm(), &dmNew);PYLITH_CHECK_ERROR(err);
 
     for (int i = 1; i < levels; ++i) {
-        PetscDM dmCur = dmNew;dmNew = NULL;
+        PetscDM dmCur = dmNew;dmNew = nullptr;
         err = DMPlexSetRefinementUniform(dmCur, PETSC_TRUE);PYLITH_CHECK_ERROR(err);
         err = DMRefine(dmCur, mesh.getComm(), &dmNew);PYLITH_CHECK_ERROR(err);
 

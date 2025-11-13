@@ -33,8 +33,8 @@ public:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    DerivedFieldFactory(const DerivedFieldFactory &); ///< Not implemented.
-    const DerivedFieldFactory& operator=(const DerivedFieldFactory&); ///< Not implemented
+    DerivedFieldFactory(const DerivedFieldFactory &) = delete;
+    const DerivedFieldFactory& operator=(const DerivedFieldFactory&) = delete;
 
 }; // class DerivedFieldFactory
 

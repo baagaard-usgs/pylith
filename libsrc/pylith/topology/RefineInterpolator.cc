@@ -88,7 +88,7 @@ pylith::topology::RefineInterpolator::deallocate(void) {
 // Get PETSc DM for input (coarsest level)
 PetscDM
 pylith::topology::RefineInterpolator::getInputDM(void) {
-    PetscDM dmStart = PETSC_NULLPTR;
+    PetscDM dmStart = PETSC_nullptrPTR;
     if (_levels.size() > 0) {
         PetscErrorCode err = PETSC_SUCCESS;
         err = DMGetCoarseDM(_levels[0].dm, &dmStart);PYLITH_CHECK_ERROR(err);
@@ -101,7 +101,7 @@ pylith::topology::RefineInterpolator::getInputDM(void) {
 // Get PETSc DM for output (finest level)
 PetscDM
 pylith::topology::RefineInterpolator::getOutputDM(void) {
-    return (_levels.size() > 0) ? _levels[_levels.size()-1].dm : PETSC_NULLPTR;
+    return (_levels.size() > 0) ? _levels[_levels.size()-1].dm : PETSC_nullptrPTR;
 }
 
 
@@ -123,12 +123,12 @@ pylith::topology::RefineInterpolator::initialize(const PetscDM& dmMesh,
     err = DMCopyDisc(dmMesh, dmStart);PYLITH_CHECK_ERROR(err);
 
     PetscDM dmPrev = dmStart;
-    PetscReal lengthScale = 1.0;
+    pylith::real lengthScale = 1.0;
     MPI_Comm comm = PetscObjectComm((PetscObject) dmMesh);
     for (size_t iLevel = 0; iLevel < _levels.size(); ++iLevel) {
-        _levels[iLevel].dm = PETSC_NULLPTR;
-        _levels[iLevel].interpolateMatrix = PETSC_NULLPTR;
-        _levels[iLevel].vector = PETSC_NULLPTR;
+        _levels[iLevel].dm = PETSC_nullptrPTR;
+        _levels[iLevel].interpolateMatrix = PETSC_nullptrPTR;
+        _levels[iLevel].vector = PETSC_nullptrPTR;
 
         err = DMPlexSetRefinementUniform(dmPrev, PETSC_TRUE);PYLITH_CHECK_ERROR(err);
         err = DMRefine(dmPrev, comm, &_levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
@@ -138,7 +138,7 @@ pylith::topology::RefineInterpolator::initialize(const PetscDM& dmMesh,
         err = DMPlexReorderSetDefault(_levels[iLevel].dm, DM_REORDER_DEFAULT_FALSE);
 
 #if 0 // needed for higher order coordinates (not needed for affine coordinates)
-        PetscCall(DMPlexCreateCoordinateSpace(rdm, rd, PETSC_FALSE, NULL));
+        PetscCall(DMPlexCreateCoordinateSpace(rdm, rd, PETSC_FALSE, nullptr));
         PetscCall(PetscObjectSetName((PetscObject)rdm, "Refined Mesh with Linear Coordinates"));
         PetscCall(DMGetCoordinateDM(odm, &cdm));
         PetscCall(DMGetCoordinateDM(rdm, &rcdm));
@@ -149,13 +149,13 @@ pylith::topology::RefineInterpolator::initialize(const PetscDM& dmMesh,
         if (iLevel < _levels.size()-1) {
             err = DMCopyDisc(dmPrev, _levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
         } else {
-            const PetscInt minBasisOrder = PETSC_DETERMINE;
-            const PetscInt maxBasisOrder = outputBasisOrder;
+            const pylith::integer minBasisOrder = PETSC_DETERMINE;
+            const pylith::integer maxBasisOrder = outputBasisOrder;
             err = DMCopyFields(dmPrev, minBasisOrder, maxBasisOrder, _levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
             err = DMCopyDS(dmPrev, minBasisOrder, maxBasisOrder, _levels[iLevel].dm);PYLITH_CHECK_ERROR(err);
         } // else
         err = DMCreateGlobalVector(_levels[iLevel].dm, &_levels[iLevel].vector);PYLITH_CHECK_ERROR(err);
-        err = DMCreateInterpolation(dmPrev, _levels[iLevel].dm, &_levels[iLevel].interpolateMatrix, NULL);PYLITH_CHECK_ERROR(err);
+        err = DMCreateInterpolation(dmPrev, _levels[iLevel].dm, &_levels[iLevel].interpolateMatrix, nullptr);PYLITH_CHECK_ERROR(err);
 
         dmPrev = _levels[iLevel].dm;
     } // for

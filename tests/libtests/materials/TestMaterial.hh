@@ -165,10 +165,10 @@ public:
     spatialdata::spatialdb::GravityField* gravityField; ///< Gravity field.
     spatialdata::units::Nondimensional* normalizer; ///< Scales for nondimensionalization.
 
-    PylithReal t; ///< Time for solution in simulation.
-    PylithReal dt; ///< Time step in simulation.
-    PylithReal s_tshift; ///< Time shift for LHS Jacobian.
-    PylithReal perturbation; ///< Maximum amplitude of random perturbation.
+    pylith::real t; ///< Time for solution in simulation.
+    pylith::real dt; ///< Time step in simulation.
+    pylith::real s_tshift; ///< Time shift for LHS Jacobian.
+    pylith::real perturbation; ///< Maximum amplitude of random perturbation.
 
     int numSolnSubfields; ///< Number of solution fields.
     pylith::topology::Field::Discretization* solnDiscretizations; ///< Discretizations for solution fields.

@@ -213,23 +213,23 @@ pylith::meshio::TestOutputManager::testAppendVertexField(void) { // testAppendVe
     // Set vertex field
     PetscDM dmMesh = mesh.getDM();CPPUNIT_ASSERT(dmMesh);
     topology::Stratum verticesStratum(dmMesh, topology::Stratum::DEPTH, 0);
-    const PetscInt vStart = verticesStratum.begin();
-    const PetscInt vEnd = verticesStratum.end();
+    const pylith::integer vStart = verticesStratum.begin();
+    const pylith::integer vEnd = verticesStratum.end();
 
     topology::Field field(mesh);
     field.newSection(topology::FieldBase::VERTICES_FIELD, fiberDim);
     field.allocate();
-    field.setLabel(label);
+    field.setName(label);
     field.vectorFieldType(fieldType);
     field.scale(scale);
 
     topology::VecVisitorMesh fieldVisitor(field);
-    PetscScalar* fieldArray = fieldVisitor.localArray();CPPUNIT_ASSERT(fieldArray);
+    pylith::scalar* fieldArray = fieldVisitor.localArray();CPPUNIT_ASSERT(fieldArray);
 
-    for (PetscInt v = vStart, index = 0; v < vEnd; ++v) {
-        const PetscInt off = fieldVisitor.sectionOffset(v);
+    for (pylith::integer v = vStart, index = 0; v < vEnd; ++v) {
+        const pylith::integer off = fieldVisitor.sectionOffset(v);
         CPPUNIT_ASSERT_EQUAL(fiberDim, fieldVisitor.sectionDof(v));
-        for (PetscInt d = 0; d < fiberDim; ++d, ++index) {
+        for (pylith::integer d = 0; d < fiberDim; ++d, ++index) {
             fieldArray[off+d] = fieldValues[index]/scale;
         } // for
     } // for
@@ -299,26 +299,26 @@ pylith::meshio::TestOutputManager::testAppendCellField(void) { // testAppendCell
     // Set cell field
     PetscDM dmMesh = mesh.getDM();CPPUNIT_ASSERT(dmMesh);
     topology::Stratum cellsStratum(dmMesh, topology::Stratum::HEIGHT, 0);
-    const PetscInt cStart = cellsStratum.begin();
-    const PetscInt cEnd = cellsStratum.end();
-    PetscInt numCells = cellsStratum.size();
+    const pylith::integer cStart = cellsStratum.begin();
+    const pylith::integer cEnd = cellsStratum.end();
+    pylith::integer numCells = cellsStratum.size();
 
     topology::Field field(mesh);
     field.newSection(topology::FieldBase::CELLS_FIELD, fiberDim);
     field.allocate();
-    field.setLabel(label);
+    field.setName(label);
     field.vectorFieldType(fieldType);
     field.scale(scale);
 
     topology::VecVisitorMesh fieldVisitor(field);
-    PetscScalar* fieldArray = fieldVisitor.localArray();CPPUNIT_ASSERT(fieldArray);
+    pylith::scalar* fieldArray = fieldVisitor.localArray();CPPUNIT_ASSERT(fieldArray);
 
-    for (PetscInt c = 0, index = 0; c < numCells; ++c) {
-        const PetscInt cell = c+cStart;
+    for (pylith::integer c = 0, index = 0; c < numCells; ++c) {
+        const pylith::integer cell = c+cStart;
 
-        const PetscInt off = fieldVisitor.sectionOffset(cell);
+        const pylith::integer off = fieldVisitor.sectionOffset(cell);
         CPPUNIT_ASSERT_EQUAL(fiberDim, fieldVisitor.sectionDof(cell));
-        for (PetscInt d = 0; d < fiberDim; ++d, ++index) {
+        for (pylith::integer d = 0; d < fiberDim; ++d, ++index) {
             fieldArray[off+d] = fieldValues[index]/scale;
         } // for
     } // for

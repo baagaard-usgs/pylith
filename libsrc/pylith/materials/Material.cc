@@ -12,6 +12,7 @@
 
 #include "pylith/materials/Material.hh" // implementation of object methods
 
+#include "pylith/materials/SubfieldFactory.hh" // HOLDSA SubfieldFactory
 #include "pylith/utils/error.hh" // USES PYLITH_METHOD_*
 #include "pylith/utils/journals.hh" // USES PYLITH_COMPONENT_*
 
@@ -21,7 +22,7 @@
 // ------------------------------------------------------------------------------------------------
 // Default constructor.
 pylith::materials::Material::Material(void) :
-    _gravityField(NULL) {}
+    _subfieldFactory(new pylith::materials::SubfieldFactory()) {}
 
 
 // ------------------------------------------------------------------------------------------------
@@ -39,7 +40,9 @@ pylith::materials::Material::deallocate(void) {
 
     pylith::problems::Physics::deallocate();
 
-    _gravityField = NULL; // :TODO: Use shared pointer.
+    _subfieldFactory.reset();
+    _gravityField.reset();
+    _mmsBodyForceKernels.resize(0);_mmsBodyForceKernels.shrink_to_fit();
 
     PYLITH_METHOD_END;
 } // deallocate
@@ -48,8 +51,8 @@ pylith::materials::Material::deallocate(void) {
 // ------------------------------------------------------------------------------------------------
 // Set gravity field.
 void
-pylith::materials::Material::setGravityField(spatialdata::spatialdb::GravityField* const g) {
-    _gravityField = g;
+pylith::materials::Material::setGravityField(const std::shared_ptr<spatialdata::spatialdb::GravityField>& gravityField) {
+    _gravityField = gravityField;
 } // setGravityField
 
 
@@ -63,11 +66,11 @@ pylith::materials::Material::setMMSBodyForceKernels(const std::vector<pylith::fe
 
 // ------------------------------------------------------------------------------------------------
 // Create constraint and set kernels.
-std::vector<pylith::feassemble::Constraint*>
+std::vector<std::shared_ptr<pylith::feassemble::Constraint> >
 pylith::materials::Material::createConstraints(const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createConstraints(solution="<<solution.getLabel()<<") empty method");
-    std::vector<pylith::feassemble::Constraint*> constraintArray;
+    PYLITH_COMPONENT_DEBUG("createConstraints(solution="<<solution.getName()<<") empty method");
+    std::vector<std::shared_ptr<pylith::feassemble::Constraint> > constraintArray;
 
     PYLITH_METHOD_RETURN(constraintArray);
 } // createConstraints
@@ -75,10 +78,10 @@ pylith::materials::Material::createConstraints(const pylith::topology::Field& so
 
 // ------------------------------------------------------------------------------------------------
 // Get default PETSc solver options appropriate for material.
-pylith::utils::PetscOptions*
+std::unique_ptr<pylith::utils::PetscOptions>
 pylith::materials::Material::getSolverDefaults(const bool isParallel,
                                                const bool hasFault) const {
-    return NULL;
+    return nullptr;
 }
 
 
@@ -88,7 +91,7 @@ std::vector<pylith::materials::Material::InterfaceResidualKernels>
 pylith::materials::Material::getInterfaceKernelsResidual(const pylith::topology::Field& solution,
                                                          pylith::feassemble::IntegratorInterface::FaceEnum face) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("getInterfaceResidualKernels(solution="<<solution.getLabel()<<", face="<<face<<") empty method");
+    PYLITH_COMPONENT_DEBUG("getInterfaceResidualKernels(solution="<<solution.getName()<<", face="<<face<<") empty method");
     std::vector<InterfaceResidualKernels> kernels;
 
     PYLITH_METHOD_RETURN(kernels);
@@ -101,7 +104,7 @@ std::vector<pylith::materials::Material::InterfaceJacobianKernels>
 pylith::materials::Material::getInterfaceKernelsJacobian(const pylith::topology::Field& solution,
                                                          pylith::feassemble::IntegratorInterface::FaceEnum face) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("getInterfaceJacobianKernels(solution="<<solution.getLabel()<<", face="<<face<<") empty method");
+    PYLITH_COMPONENT_DEBUG("getInterfaceJacobianKernels(solution="<<solution.getName()<<", face="<<face<<") empty method");
     std::vector<InterfaceJacobianKernels> kernels;
 
     PYLITH_METHOD_RETURN(kernels);

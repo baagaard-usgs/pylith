@@ -66,7 +66,7 @@ public:
      * @param label Label for mesh.
      */
     void setDM(PetscDM dm,
-               const char* label=NULL);
+               const char* label=nullptr);
 
     /** Set coordinate system.
      *
@@ -124,8 +124,8 @@ private:
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    Mesh(const Mesh&); ///< Not implemented
-    const Mesh& operator=(const Mesh&); ///< Not implemented
+    Mesh(const Mesh&) = delete;
+    const Mesh& operator=(const Mesh&) = delete;
 
 }; // Mesh
 

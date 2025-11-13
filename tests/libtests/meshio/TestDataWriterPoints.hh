@@ -88,7 +88,7 @@ public:
 public:
 
     int numPoints; ///< Number of points for interpolation.
-    PylithReal* points; /// Points for interpolation.
+    pylith::real* points; /// Points for interpolation.
     pylith::string_vector names; ///< Station names for points.
 
 }; // class TestDataWriterPoints_Data

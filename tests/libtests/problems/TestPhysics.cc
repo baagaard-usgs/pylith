@@ -18,7 +18,7 @@
 #include "pylith/topology/Mesh.hh" // USES Mesh
 #include "pylith/topology/Field.hh" // USES Field
 #include "pylith/feassemble/AuxiliaryFactory.hh" // USES AuxiliaryFactory
-#include "pylith/utils/types.hh" // USES PylithReal
+#include "pylith/utils/types.hh" // USES pylith::real
 #include "pylith/utils/error.hh" // USES PYLITH_METHOD_*
 
 #include "pylith/problems/ObserversPhysics.hh" // USES ObserversPhysics
@@ -44,9 +44,9 @@ pylith::problems::TestPhysics::setUp(void) {
 // Tear down testing data.
 void
 pylith::problems::TestPhysics::tearDown(void) {
-    delete _physics;_physics = NULL;
-    delete _solution;_solution = NULL;
-    delete _mesh;_mesh = NULL;
+    delete _physics;_physics = nullptr;
+    delete _solution;_solution = nullptr;
+    delete _mesh;_mesh = nullptr;
 } // tearDown
 
 
@@ -57,7 +57,7 @@ pylith::problems::TestPhysics::testSetNormalizer(void) {
     PYLITH_METHOD_BEGIN;
 
     spatialdata::units::Nondimensional normalizer;
-    const PylithReal lengthScale = 3.0;
+    const pylith::real lengthScale = 3.0;
     normalizer.setLengthScale(lengthScale);
 
     CPPUNIT_ASSERT(_physics);
@@ -157,12 +157,12 @@ pylith::problems::TestPhysics::testGetKernelConstants(void) {
     PYLITH_METHOD_BEGIN;
 
     const size_t numConstants = 2;
-    const PylithReal constantsE[numConstants] = { -1.1, 4.4 };
+    const pylith::real constantsE[numConstants] = { -1.1, 4.4 };
 
     CPPUNIT_ASSERT(_physics);
     _physics->_kernelConstants = pylith::real_array(constantsE, numConstants);
 
-    const PylithReal dt = 2.0;
+    const pylith::real dt = 2.0;
     const pylith::real_array& constants = _physics->getKernelConstants(dt);
 
     CPPUNIT_ASSERT_EQUAL(numConstants, constants.size());

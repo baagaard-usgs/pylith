@@ -29,7 +29,7 @@
 pylith::problems::InitialConditionPatch::InitialConditionPatch(void) :
     _labelName(pylith::topology::Mesh::cells_label_name),
     _labelValue(1),
-    _db(NULL) {
+    _db(nullptr) {
     PyreComponent::setName("initialconditionpatch");
 } // constructor
 
@@ -47,7 +47,7 @@ void
 pylith::problems::InitialConditionPatch::deallocate(void) {
     PYLITH_METHOD_BEGIN;
 
-    _db = NULL; // :KLLUDGE: Should use shared pointer.
+    _db.reset();
 
     PYLITH_METHOD_END;
 } // deallocate
@@ -94,7 +94,7 @@ pylith::problems::InitialConditionPatch::getLabelValue(void) const {
 // ------------------------------------------------------------------------------------------------
 // Set spatial database holding initial conditions.
 void
-pylith::problems::InitialConditionPatch::setDB(spatialdata::spatialdb::SpatialDB* db) {
+pylith::problems::InitialConditionPatch::setDB(const std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("setDB(db="<<db<<")");
 
@@ -109,7 +109,7 @@ pylith::problems::InitialConditionPatch::setDB(spatialdata::spatialdb::SpatialDB
 void
 pylith::problems::InitialConditionPatch::verifyConfiguration(const pylith::topology::Field& solution) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("verifyConfiguration(solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("verifyConfiguration(solution="<<solution.getName()<<")");
 
     InitialCondition::verifyConfiguration(solution);
 
@@ -123,7 +123,7 @@ pylith::problems::InitialConditionPatch::verifyConfiguration(const pylith::topol
         throw std::runtime_error(msg.str());
     } // if
 
-    PetscDMLabel dmLabel = NULL;
+    PetscDMLabel dmLabel = nullptr;
     err = DMGetLabel(solution.getDM(), _labelName.c_str(), &dmLabel);PYLITH_CHECK_ERROR(err);assert(dmLabel);
     PetscBool hasValue = PETSC_FALSE;
     err = DMLabelHasValue(dmLabel, _labelValue, &hasValue);PYLITH_CHECK_ERROR(err);
@@ -134,7 +134,7 @@ pylith::problems::InitialConditionPatch::verifyConfiguration(const pylith::topol
         throw std::runtime_error(msg.str());
     } // if
 
-    PetscInt stratumStart = -1, stratumEnd = -1;
+    pylith::integer stratumStart = -1, stratumEnd = -1;
     err = DMLabelGetStratumBounds(dmLabel, _labelValue, &stratumStart, &stratumEnd);PYLITH_CHECK_ERROR(err);
     pylith::topology::Stratum cellsStratum(dmSoln, pylith::topology::Stratum::HEIGHT, 0);
     if ((stratumStart >= cellsStratum.begin()) && (stratumEnd <= cellsStratum.end())) {
@@ -154,26 +154,21 @@ pylith::problems::InitialConditionPatch::verifyConfiguration(const pylith::topol
 // ------------------------------------------------------------------------------------------------
 // Set solver type.
 void
-pylith::problems::InitialConditionPatch::setValues(pylith::topology::Field* solution,
+pylith::problems::InitialConditionPatch::setValues(const std::shared_ptr<pylith::topology::Field>& solution,
                                                    const spatialdata::units::Nondimensional& normalizer) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("setValues(solution="<<solution<<", normalizer)");
-
     assert(solution);
 
-    pylith::topology::FieldQuery fieldQuery(*solution);
+    pylith::topology::FieldQuery fieldQuery(solution);
 
-    const size_t numSubfields = _subfields.size();
-    for (size_t i = 0; i < numSubfields; ++i) {
-        const char** queryValues = NULL;
-        const size_t numValues = 0;
-        const pylith::topology::FieldQuery::convertfn_type convertFn = NULL;
-        fieldQuery.setQuery(_subfields[i].c_str(), queryValues, numValues, convertFn, _db);
+    for (auto subfield : _subfields) {
+        fieldQuery.addSubfield(subfield);
     } // for
 
-    fieldQuery.openDB(_db, normalizer.getLengthScale());
-    fieldQuery.queryDBLabel(_labelName.c_str(), _labelValue);
-    fieldQuery.closeDB(_db);
+    fieldQuery.open(_db, normalizer.getLengthScale());
+    fieldQuery.queryUsingLabel(_labelName.c_str(), _labelValue);
+    fieldQuery.close();
 
     pythia::journal::debug_t debug(PyreComponent::getName());
     if (debug.state()) {

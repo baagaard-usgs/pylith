@@ -36,7 +36,7 @@ pylith::meshio::TestDataWriterVTKMaterial::TestDataWriterVTKMaterial(TestDataWri
 pylith::meshio::TestDataWriterVTKMaterial::~TestDataWriterVTKMaterial(void) {
     PYLITH_METHOD_BEGIN;
 
-    delete _data;_data = NULL;
+    delete _data;_data = nullptr;
 
     PYLITH_METHOD_END;
 } // destructor.
@@ -110,7 +110,7 @@ pylith::meshio::TestDataWriterVTKMaterial::testWriteVertexField(void) {
         writer.writeVertexField(t, *subfield);
         assert(writer._wroteVertexHeader);
         CHECK(false == writer._wroteCellHeader);
-        delete subfield;subfield = NULL;
+        delete subfield;subfield = nullptr;
     } // for
     writer.closeTimeStep();
     writer.close();
@@ -154,7 +154,7 @@ pylith::meshio::TestDataWriterVTKMaterial::testWriteCellField(void) {
         writer.writeCellField(t, *subfield);
         CHECK(false == writer._wroteVertexHeader);
         assert(writer._wroteCellHeader);
-        delete subfield;subfield = NULL;
+        delete subfield;subfield = nullptr;
     } // for
     writer.closeTimeStep();
     writer.close();

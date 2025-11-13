@@ -40,7 +40,7 @@ pylith::faults::FaultCohesiveStub::verifyConfiguration(const pylith::topology::F
 pylith::feassemble::Integrator*
 pylith::faults::FaultCohesiveStub::createIntegrator(const pylith::topology::Field& solution,
                                                     const std::vector<pylith::materials::Material*>& materials) {
-    return NULL;
+    return nullptr;
 }
 
 
@@ -51,7 +51,7 @@ pylith::faults::FaultCohesiveStub::createAuxiliaryField(const pylith::topology::
                                                         const pylith::topology::Mesh& physicsMesh) {
     pylith::testing::StubMethodTracker tracker("pylith::faults::FaultCohesiveStub::createAuxiliaryField");
 
-    return NULL;
+    return nullptr;
 } // createAuxiliaryField
 
 
@@ -59,7 +59,7 @@ pylith::faults::FaultCohesiveStub::createAuxiliaryField(const pylith::topology::
 // Get auxiliary factory associated with physics.
 pylith::feassemble::AuxiliaryFactory*
 pylith::faults::FaultCohesiveStub::_getAuxiliaryFactory(void) {
-    return NULL;
+    return nullptr;
 } // _getAuxiliaryFactory
 
 

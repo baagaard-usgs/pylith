@@ -36,8 +36,8 @@ public:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    DerivedFactoryElasticity(const DerivedFactoryElasticity &); ///< Not implemented.
-    const DerivedFactoryElasticity& operator=(const DerivedFactoryElasticity&); ///< Not implemented
+    DerivedFactoryElasticity(const DerivedFactoryElasticity &) = delete;
+    const DerivedFactoryElasticity& operator=(const DerivedFactoryElasticity&) = delete;
 
 }; // class DerivedFactoryElasticity
 

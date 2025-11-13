@@ -114,7 +114,7 @@ pylith::faults::TestAdjustTopology_Tri::caseA(void) {
     data->numFaults = 1;
     static const char* const faultSurfaceLabels[1] = { "fault_faces" };
     data->faultSurfaceLabels = const_cast<const char**>(faultSurfaceLabels);
-    static const char* const faultEdgeLabels[1] = { NULL };
+    static const char* const faultEdgeLabels[1] = { nullptr };
     data->faultEdgeLabels = const_cast<const char**>(faultEdgeLabels);
     static const int interfaceIds[1] = { 100 };
     data->interfaceIds = const_cast<const int*>(interfaceIds);
@@ -154,7 +154,7 @@ pylith::faults::TestAdjustTopology_Tri::caseB(void) {
     data->numFaults = 1;
     static const char* const faultSurfaceLabels[1] = { "fault_faces" };
     data->faultSurfaceLabels = const_cast<const char**>(faultSurfaceLabels);
-    static const char* const faultEdgeLabels[1] = { NULL };
+    static const char* const faultEdgeLabels[1] = { nullptr };
     data->faultEdgeLabels = const_cast<const char**>(faultEdgeLabels);
     static const int interfaceIds[1] = { 100 };
     data->interfaceIds = const_cast<const int*>(interfaceIds);
@@ -194,7 +194,7 @@ pylith::faults::TestAdjustTopology_Tri::caseC(void) {
     data->numFaults = 1;
     static const char* const faultSurfaceLabels[1] = { "fault_faces" };
     data->faultSurfaceLabels = const_cast<const char**>(faultSurfaceLabels);
-    static const char* const faultEdgeLabels[1] = { NULL };
+    static const char* const faultEdgeLabels[1] = { nullptr };
     data->faultEdgeLabels = const_cast<const char**>(faultEdgeLabels);
     static const int interfaceIds[1] = { 100 };
     data->interfaceIds = const_cast<const int*>(interfaceIds);
@@ -234,7 +234,7 @@ pylith::faults::TestAdjustTopology_Tri::caseD(void) {
     data->numFaults = 1;
     static const char* const faultSurfaceLabels[1] = { "fault_faces" };
     data->faultSurfaceLabels = const_cast<const char**>(faultSurfaceLabels);
-    static const char* const faultEdgeLabels[1] = { NULL };
+    static const char* const faultEdgeLabels[1] = { nullptr };
     data->faultEdgeLabels = const_cast<const char**>(faultEdgeLabels);
     static const int interfaceIds[1] = { 100 };
     data->interfaceIds = const_cast<const int*>(interfaceIds);
@@ -274,7 +274,7 @@ pylith::faults::TestAdjustTopology_Tri::caseE(void) {
     data->numFaults = 1;
     static const char* const faultSurfaceLabels[1] = { "fault_faces" };
     data->faultSurfaceLabels = const_cast<const char**>(faultSurfaceLabels);
-    static const char* const faultEdgeLabels[1] = { NULL };
+    static const char* const faultEdgeLabels[1] = { nullptr };
     data->faultEdgeLabels = const_cast<const char**>(faultEdgeLabels);
     static const int interfaceIds[1] = { 100 };
     data->interfaceIds = const_cast<const int*>(interfaceIds);
@@ -314,7 +314,7 @@ pylith::faults::TestAdjustTopology_Tri::caseF(void) {
     data->numFaults = 1;
     static const char* const faultSurfaceLabels[1] = { "fault_faces" };
     data->faultSurfaceLabels = const_cast<const char**>(faultSurfaceLabels);
-    static const char* const faultEdgeLabels[1] = { NULL };
+    static const char* const faultEdgeLabels[1] = { nullptr };
     data->faultEdgeLabels = const_cast<const char**>(faultEdgeLabels);
     static const int interfaceIds[1] = { 100 };
     data->interfaceIds = const_cast<const int*>(interfaceIds);
@@ -362,7 +362,7 @@ pylith::faults::TestAdjustTopology_Tri::caseG(void) {
     data->numFaults = 1;
     static const char* const faultSurfaceLabels[1] = { "fault_faces" };
     data->faultSurfaceLabels = const_cast<const char**>(faultSurfaceLabels);
-    static const char* const faultEdgeLabels[1] = { NULL };
+    static const char* const faultEdgeLabels[1] = { nullptr };
     data->faultEdgeLabels = const_cast<const char**>(faultEdgeLabels);
     static const int interfaceIds[1] = { 100 };
     data->interfaceIds = const_cast<const int*>(interfaceIds);
@@ -410,7 +410,7 @@ pylith::faults::TestAdjustTopology_Tri::caseH(void) {
     data->numFaults = 1;
     static const char* const faultSurfaceLabels[1] = { "fault_faces" };
     data->faultSurfaceLabels = const_cast<const char**>(faultSurfaceLabels);
-    static const char* const faultEdgeLabels[1] = { NULL };
+    static const char* const faultEdgeLabels[1] = { nullptr };
     data->faultEdgeLabels = const_cast<const char**>(faultEdgeLabels);
     static const int interfaceIds[1] = { 100 };
     data->interfaceIds = const_cast<const int*>(interfaceIds);
@@ -467,7 +467,7 @@ pylith::faults::TestAdjustTopology_Tri::caseI(void) {
     data->numFaults = 1;
     static const char* const faultSurfaceLabels[1] = { "fault_vertices" };
     data->faultSurfaceLabels = const_cast<const char**>(faultSurfaceLabels);
-    static const char* const faultEdgeLabels[1] = { NULL };
+    static const char* const faultEdgeLabels[1] = { nullptr };
     data->faultEdgeLabels = const_cast<const char**>(faultEdgeLabels);
     static const int interfaceIds[1] = { 100 };
     data->interfaceIds = const_cast<const int*>(interfaceIds);

@@ -25,11 +25,11 @@ public:
     BoundaryCondition(void);
 
     /// Destructor.
-    virtual ~BoundaryCondition(void);
+    virtual ~BoundaryCondition(void) override;
 
     /// Deallocate PETSc and local data structures.
     virtual
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set name of solution subfield associated with boundary condition.
      *
@@ -67,11 +67,11 @@ public:
      * @param[in] solution Solution field.
      * @param[in] physicsMesh Finite-element mesh associated with physics.
      *
-     * @returns Diagnostic field if applicable, otherwise NULL.
+     * @returns Diagnostic field if applicable, otherwise nullptr.
      */
     virtual
-    pylith::topology::Field* createDiagnosticField(const pylith::topology::Field& solution,
-                                                   const pylith::topology::Mesh& physicsMesh) override;
+    std::shared_ptr<pylith::topology::Field> createDiagnosticField(const pylith::topology::Field& solution,
+                                                                   const pylith::topology::Mesh& physicsMesh) override;
 
     // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
 protected:
@@ -86,7 +86,7 @@ protected:
      *
      * @param[in] dt Current time step.
      */
-    void _updateKernelConstants(const pylith::real dt);
+    void _updateKernelConstants(const pylith::real dt) override;
 
     /** Set kernels for computing diagnostic field.
      *
@@ -117,8 +117,8 @@ protected:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    BoundaryCondition(const BoundaryCondition&); ///< Not implemented.
-    const BoundaryCondition& operator=(const BoundaryCondition&); ///< Not implemented.
+    BoundaryCondition(const BoundaryCondition&) = delete;
+    const BoundaryCondition& operator=(const BoundaryCondition&) = delete;
 
 }; // class BoundaryCondition
 

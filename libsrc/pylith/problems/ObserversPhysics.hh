@@ -16,7 +16,7 @@
 #include "pylith/problems/ObserverPhysics.hh" // USES ObserverPhysics
 #include "pylith/feassemble/feassemblefwd.hh" // USES PhysicsImplementation
 #include "pylith/topology/topologyfwd.hh" // USES Field
-#include "pylith/utils/types.hh" // USES PylithReal, PylithInt
+#include "pylith/utils/types.hh" // USES pylith::real, pylith::integer
 
 #include <set> // USES std::set
 
@@ -41,13 +41,13 @@ public:
      *
      * @param[in] observer Observer to receive notifications.
      */
-    void registerObserver(std::shared_ptr<pylith::problems::ObserverPhysics>& observer);
+    void registerObserver(const std::shared_ptr<pylith::problems::ObserverPhysics>& observer);
 
     /** Remove observer from receiving notifications.
      *
      * @param[in] observer Observer to remove.
      */
-    void removeObserver(std::shared_ptr<pylith::problems::ObserverPhysics>& observer);
+    void removeObserver(const std::shared_ptr<pylith::problems::ObserverPhysics>& observer);
 
     /** Get number of observers.
      *
@@ -88,14 +88,13 @@ public:
     // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    typedef std::set<pylith::problems::ObserverPhysics*>::iterator iterator; ///< Iterator.
-    std::set<pylith::problems::ObserverPhysics*> _observers; ///< Subscribers of updates.
+    std::set<std::shared_ptr<pylith::problems::ObserverPhysics> > _observers; ///< Subscribers of updates.
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    ObserversPhysics(const ObserversPhysics&); ///< Not implemented.
-    const ObserversPhysics& operator=(const ObserversPhysics&); ///< Not implemented
+    ObserversPhysics(const ObserversPhysics&) = delete;
+    const ObserversPhysics& operator=(const ObserversPhysics&) = delete;
 
 };
 

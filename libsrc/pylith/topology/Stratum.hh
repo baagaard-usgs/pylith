@@ -47,25 +47,25 @@ public:
      *
      * @return Index of starting point.
      */
-    PetscInt begin(void) const;
+    pylith::integer begin(void) const;
 
     /** Get ending point.
      *
      * @return Index of ending point.
      */
-    PetscInt end(void) const;
+    pylith::integer end(void) const;
 
     /** Get number of points in stratum.
      *
      * @return Number of points.
      */
-    PetscInt size(void) const;
+    pylith::integer size(void) const;
 
     // PRIVATE MEMBERS //////////////////////////////////////////////////////
 private:
 
-    PetscInt _begin; ///< Starting point.
-    PetscInt _end; ///< End point.
+    pylith::integer _begin; ///< Starting point.
+    pylith::integer _end; ///< End point.
 
 }; // Stratum
 
@@ -98,20 +98,20 @@ public:
      *
      * @return Array of points.
      */
-    const PetscInt* points(void) const;
+    const pylith::integer* points(void) const;
 
     /** Get number of points in index set.
      *
      * @return Number of points.
      */
-    PetscInt size(void) const;
+    pylith::integer size(void) const;
 
     // PRIVATE MEMBERS //////////////////////////////////////////////////////
 private:
 
     PetscIS _indexSet; ///< PETSc index set.
-    PetscInt _size; ///< Size of index set.
-    const PetscInt* _points; ///< Array of points in index set.
+    pylith::integer _size; ///< Size of index set.
+    const pylith::integer* _points; ///< Array of points in index set.
 
 }; // StratumIS
 

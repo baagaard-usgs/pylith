@@ -298,7 +298,7 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    const Field& operator=(const Field&); ///< Not implemented
+    const Field& operator=(const Field&) = delete;
 
 }; // Field
 

@@ -91,7 +91,7 @@ pylith::meshio::TestDataWriterHDF5Submesh::testWriteVertexField(void) {
         assert(subfield);
         subfield->project(vertexField.getOutputVector());
         writer.writeVertexField(t, *subfield);
-        delete subfield;subfield = NULL;
+        delete subfield;subfield = nullptr;
     } // for
     writer.closeTimeStep();
     writer.close();
@@ -132,7 +132,7 @@ pylith::meshio::TestDataWriterHDF5Submesh::testWriteCellField(void) {
         assert(subfield);
         subfield->project(cellField.getOutputVector());
         writer.writeCellField(t, *subfield);
-        delete subfield;subfield = NULL;
+        delete subfield;subfield = nullptr;
     } // for
     writer.closeTimeStep();
     writer.close();

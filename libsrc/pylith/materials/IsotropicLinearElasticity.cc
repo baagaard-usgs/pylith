@@ -43,7 +43,7 @@ void
 pylith::materials::IsotropicLinearElasticity::deallocate(void) {
     RheologyElasticity::deallocate();
 
-    delete _auxiliaryFactory;_auxiliaryFactory = NULL;
+    delete _auxiliaryFactory;_auxiliaryFactory = nullptr;
 } // deallocate
 
 
@@ -109,7 +109,7 @@ pylith::materials::IsotropicLinearElasticity::getKernelf1v(const spatialdata::ge
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticityPlaneStrain::f1v_infinitesimalStrain :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticity3D::f1v_infinitesimalStrain_refState :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticityPlaneStrain::f1v_infinitesimalStrain_refState :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(f1v);
 } // getKernelf1v
@@ -126,7 +126,7 @@ pylith::materials::IsotropicLinearElasticity::getKernelJf3vu(const spatialdata::
     PetscPointJac Jf3vu =
         (3 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticity3D::Jf3vu_infinitesimalStrain :
         (2 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticityPlaneStrain::Jf3vu_infinitesimalStrain :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(Jf3vu);
 } // getKernelJacobianElasticConstants
@@ -145,7 +145,7 @@ pylith::materials::IsotropicLinearElasticity::getKernelf0Neg(const spatialdata::
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticityPlaneStrain::f0l_neg_infinitesimalStrain :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticity3D::f0l_neg_infinitesimalStrain_refState :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticityPlaneStrain::f0l_neg_infinitesimalStrain_refState :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(kernel);
 }
@@ -164,7 +164,7 @@ pylith::materials::IsotropicLinearElasticity::getKernelf0Pos(const spatialdata::
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticityPlaneStrain::f0l_pos_infinitesimalStrain :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticity3D::f0l_pos_infinitesimalStrain_refState :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticityPlaneStrain::f0l_pos_infinitesimalStrain_refState :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(kernel);
 }
@@ -183,7 +183,7 @@ pylith::materials::IsotropicLinearElasticity::getKernelCauchyStressVector(const 
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticityPlaneStrain::cauchyStress_infinitesimalStrain_asVector :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticity3D::cauchyStress_infinitesimalStrain_refState_asVector :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticityPlaneStrain::cauchyStress_infinitesimalStrain_refState_asVector :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(kernel);
 } // getKernelDerivedCauchyStress

@@ -15,7 +15,7 @@
 
 #include "pylith/meshio/ExodusII.hh"
 
-#include "pylith/utils/array.hh" // USES int_array, scalar_array, string_vector
+#include "pylith/utils/array.hh" // USES pylith::integer_array, scalar_array, string_vector
 #include "pylith/utils/error.h" // USES PYLITH_METHOD_BEGIN/END
 
 #include "catch2/catch_test_macros.hpp"
@@ -272,7 +272,7 @@ pylith::meshio::TestExodusII::testGetVarInt(void) {
     dims[0] = 1;
     dims[1] = 3;
     const int size = dims[0]*dims[1];
-    int_array connect(size);
+    pylith::integer_array connect(size);
 
     ExodusII exofile("data/twotri3_13.0.exo");
     exofile.getVar(&connect[0], dims, ndims, "connect2");

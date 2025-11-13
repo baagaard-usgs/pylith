@@ -102,17 +102,17 @@ pylith::topology::TestMeshOps::testNondimensionalize(void) {
     // Get vertices
     PetscDM dmMesh = mesh.getDM();assert(dmMesh);
     Stratum depthStratum(dmMesh, Stratum::DEPTH, 0);
-    const PetscInt vStart = depthStratum.begin();
-    const PetscInt vEnd = depthStratum.end();
+    const pylith::integer vStart = depthStratum.begin();
+    const pylith::integer vEnd = depthStratum.end();
 
     // Check nondimensional coordinates
     CoordsVisitor coordsVisitor(dmMesh);
-    const PetscScalar* coordsArray = coordsVisitor.localArray();assert(coordsArray);
+    const pylith::scalar* coordsArray = coordsVisitor.localArray();assert(coordsArray);
 
     const PylithScalar tolerance = 1.0e-06;
-    for (PetscInt v = vStart, i = 0; v < vEnd; ++v) {
+    for (pylith::integer v = vStart, i = 0; v < vEnd; ++v) {
         REQUIRE(spaceDim == coordsVisitor.sectionDof(v));
-        const PetscInt off = coordsVisitor.sectionOffset(v);
+        const pylith::integer off = coordsVisitor.sectionOffset(v);
         for (int iDim = 0; iDim < spaceDim; ++iDim, ++i) {
             const PylithScalar coordE = coordinates[i] / lengthScale;
             const double toleranceV = std::max(tolerance, tolerance*coordE);
@@ -194,7 +194,7 @@ pylith::topology::TestMeshOps::testCheckMaterialIds(void) {
     iohandler.setFilename("data/tri3.mesh");
     iohandler.read(&mesh);
 
-    pylith::int_array materialValues(2);
+    pylith::integer_array materialValues(2);
     materialValues[0] = 4;
     materialValues[1] = 3;
 

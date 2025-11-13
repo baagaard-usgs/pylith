@@ -12,7 +12,7 @@
 
 #include "pylith/problems/Physics.hh" // implementation of class methods
 
-#include "pylith/feassemble/AuxiliaryFactory.hh" // USES AuxiliaryFactory
+#include "pylith/topology/SubfieldFactory.hh" // USES SubfieldFactory
 #include "pylith/problems/ObserversPhysics.hh" // USES ObserversPhysics
 #include "pylith/topology/Mesh.hh" // USES Mesh
 #include "spatialdata/units/Nondimensional.hh" // USES Nondimensional
@@ -27,10 +27,9 @@
 // ------------------------------------------------------------------------------------------------
 // Constructor
 pylith::problems::Physics::Physics(void) :
-    _normalizer(NULL),
+    _observers(new pylith::problems::ObserversPhysics),
     _labelName(pylith::topology::Mesh::cells_label_name),
-    _labelValue(1),
-    _observers(new pylith::problems::ObserversPhysics) {}
+    _labelValue(1) {}
 
 
 // ------------------------------------------------------------------------------------------------
@@ -46,8 +45,10 @@ void
 pylith::problems::Physics::deallocate(void) {
     PYLITH_METHOD_BEGIN;
 
-    delete _normalizer;_normalizer = NULL;
-    delete _observers;_observers = NULL;
+    _subfieldFactory.reset();
+    _normalizer.reset();
+    _observers.reset();
+    _kernelConstants.resize(0);
 
     PYLITH_METHOD_END;
 } // deallocate
@@ -94,14 +95,10 @@ pylith::problems::Physics::getLabelValue(void) const {
 // ------------------------------------------------------------------------------------------------
 // Set manager of scales used to nondimensionalize problem.
 void
-pylith::problems::Physics::setNormalizer(const spatialdata::units::Nondimensional& dim) {
-    PYLITH_COMPONENT_DEBUG("setNormalizer(dim="<<typeid(dim).name()<<")");
+pylith::problems::Physics::setNormalizer(const std::shared_ptr<spatialdata::units::Nondimensional>& normalizer) {
+    PYLITH_COMPONENT_DEBUG("setNormalizer(dim="<<typeid(normalizer).name()<<")");
 
-    if (!_normalizer) {
-        _normalizer = new spatialdata::units::Nondimensional(dim);
-    } else {
-        *_normalizer = dim;
-    } // if/else
+    _normalizer = normalizer;
 } // setNormalizer
 
 
@@ -126,14 +123,13 @@ pylith::problems::Physics::setFormulation(const FormulationEnum value) {
 
 
 // ------------------------------------------------------------------------------------------------
-// Set database for auxiliary field.
+// Set spatial database for populating auxiliary field.
 void
-pylith::problems::Physics::setAuxiliaryFieldDB(spatialdata::spatialdb::SpatialDB* value) {
+pylith::problems::Physics::setAuxiliaryFieldDB(const std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("setAuxiliaryFieldDB(value="<<value<<")");
+    PYLITH_COMPONENT_DEBUG("setAuxiliaryFieldDB(db="<<db<<")");
 
-    pylith::feassemble::AuxiliaryFactory* factory = _getAuxiliaryFactory();assert(factory);
-    factory->setQueryDB(value);
+    _auxiliaryFieldDB = db;
 
     PYLITH_METHOD_END;
 } // setAuxiliaryFieldDB
@@ -142,51 +138,22 @@ pylith::problems::Physics::setAuxiliaryFieldDB(spatialdata::spatialdb::SpatialDB
 // ------------------------------------------------------------------------------------------------
 // Set discretization information for auxiliary subfield.
 void
-pylith::problems::Physics::setAuxiliarySubfieldDiscretization(const char* subfieldName,
-                                                              const int basisOrder,
-                                                              const int quadOrder,
-                                                              const int dimension,
-                                                              const pylith::topology::FieldBase::CellBasis cellBasis,
-                                                              const pylith::topology::FieldBase::SpaceEnum feSpace,
-                                                              const bool isBasisContinuous) {
+pylith::problems::Physics::setSubfieldDiscretization(const char* subfieldName,
+                                                     const pylith::topology::FieldBase::Discretization& discretization) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("setAuxiliarySubfieldDiscretization(subfieldName="<<subfieldName<<", basisOrder="<<basisOrder<<", quadOrder="<<quadOrder<<", dimension="<<dimension<<", cellBasis="<<cellBasis<<", isBasisContinuous="<<isBasisContinuous<<")");
+    PYLITH_COMPONENT_DEBUG("setSubfieldDiscretization(subfieldName="<<subfieldName<<")");
 
-    pylith::feassemble::AuxiliaryFactory* factory = _getAuxiliaryFactory();assert(factory);
-    const bool isFaultOnly = false;
-    factory->setSubfieldDiscretization(subfieldName, basisOrder, quadOrder, dimension, isFaultOnly, cellBasis, feSpace,
-                                       isBasisContinuous);
+    pylith::topology::SubfieldFactory* factory = _getSubfieldFactory();assert(factory);
+    factory->setDiscretization(subfieldName, discretization);
 
     PYLITH_METHOD_END;
-} // setAuxSubfieldDiscretization
-
-
-// ------------------------------------------------------------------------------------------------
-// Set discretization information for derived subfield.
-void
-pylith::problems::Physics::setDerivedSubfieldDiscretization(const char* subfieldName,
-                                                            const int basisOrder,
-                                                            const int quadOrder,
-                                                            const int dimension,
-                                                            const pylith::topology::FieldBase::CellBasis cellBasis,
-                                                            const pylith::topology::FieldBase::SpaceEnum feSpace,
-                                                            const bool isBasisContinuous) {
-    PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("setDerivedSubfieldDiscretization(subfieldName="<<subfieldName<<", basisOrder="<<basisOrder<<", quadOrder="<<quadOrder<<", dimension="<<dimension<<", cellBasis="<<cellBasis<<", isBasisContinuous="<<isBasisContinuous<<")");
-
-    pylith::topology::FieldFactory* factory = _getDerivedFactory();assert(factory);
-    const bool isFaultOnly = false;
-    factory->setSubfieldDiscretization(subfieldName, basisOrder, quadOrder, dimension, isFaultOnly, cellBasis, feSpace,
-                                       isBasisContinuous);
-
-    PYLITH_METHOD_END;
-} // setDerivedSubfieldDiscretization
+} // setSubfieldDiscretization
 
 
 // ----------------------------------------------------------------------
 // Register observer to receive notifications.
 void
-pylith::problems::Physics::registerObserver(pylith::problems::ObserverPhysics* observer) {
+pylith::problems::Physics::registerObserver(const std::shared_ptr<pylith::problems::ObserverPhysics>& observer) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("registerObserver(observer="<<typeid(observer).name()<<")");
 
@@ -200,7 +167,7 @@ pylith::problems::Physics::registerObserver(pylith::problems::ObserverPhysics* o
 // ----------------------------------------------------------------------
 // Remove observer from receiving notifications.
 void
-pylith::problems::Physics::removeObserver(pylith::problems::ObserverPhysics* observer) {
+pylith::problems::Physics::removeObserver(const std::shared_ptr<pylith::problems::ObserverPhysics>& observer) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("removeObserver(observer="<<typeid(observer).name()<<")");
 
@@ -213,8 +180,8 @@ pylith::problems::Physics::removeObserver(pylith::problems::ObserverPhysics* obs
 
 // ------------------------------------------------------------------------------------------------
 // Get observers receiving notifications of physics updates.
-pylith::problems::ObserversPhysics*
-pylith::problems::Physics::getObservers(void) {
+const std::shared_ptr<pylith::problems::ObserversPhysics>&
+pylith::problems::Physics::getObservers(void)  const {
     return _observers;
 } // getObservers
 
@@ -222,7 +189,7 @@ pylith::problems::Physics::getObservers(void) {
 // ------------------------------------------------------------------------------------------------
 // Get constants used in kernels (point-wise functions).
 const pylith::real_array&
-pylith::problems::Physics::getKernelConstants(const PylithReal dt) {
+pylith::problems::Physics::getKernelConstants(const pylith::real dt) {
     _updateKernelConstants(dt);
 
     return _kernelConstants;
@@ -231,26 +198,26 @@ pylith::problems::Physics::getKernelConstants(const PylithReal dt) {
 
 // ------------------------------------------------------------------------------------------------
 // Create diagnostic field.
-pylith::topology::Field*
+std::shared_ptr<pylith::topology::Field>
 pylith::problems::Physics::createDiagnosticField(const pylith::topology::Field& solution,
                                                  const pylith::topology::Mesh& physicsMesh) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createDiagnosticField(solution="<<solution.getLabel()<<", physicsMesh=)"<<typeid(physicsMesh).name()<<") empty method");
+    PYLITH_COMPONENT_DEBUG("createDiagnosticField(solution="<<solution.getName()<<", physicsMesh=)"<<typeid(physicsMesh).name()<<") empty method");
 
-    PYLITH_METHOD_RETURN(NULL);
+    PYLITH_METHOD_RETURN(nullptr);
 
 }
 
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Create derived field.
-pylith::topology::Field*
+std::shared_ptr<pylith::topology::Field>
 pylith::problems::Physics::createDerivedField(const pylith::topology::Field& solution,
                                               const pylith::topology::Mesh& physicsMesh) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createDerivedField(solution="<<solution.getLabel()<<", physicsMesh=)"<<typeid(physicsMesh).name()<<") empty method");
+    PYLITH_COMPONENT_DEBUG("createDerivedField(solution="<<solution.getName()<<", physicsMesh=)"<<typeid(physicsMesh).name()<<") empty method");
 
-    PYLITH_METHOD_RETURN(NULL);
+    PYLITH_METHOD_RETURN(nullptr);
 } // createDerivedField
 
 
@@ -267,17 +234,9 @@ pylith::problems::Physics::updateAuxiliaryField(pylith::topology::Field* auxilia
 
 
 // ------------------------------------------------------------------------------------------------
-// Get derived factory associated with physics.
-pylith::topology::FieldFactory*
-pylith::problems::Physics::_getDerivedFactory(void) {
-    return NULL;
-} // _getDerivedFactory
-
-
-// ------------------------------------------------------------------------------------------------
 // Update kernel constants.
 void
-pylith::problems::Physics::_updateKernelConstants(const PylithReal dt) {
+pylith::problems::Physics::_updateKernelConstants(const pylith::real dt) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("_updateKernelConstants(dt="<<dt<<")");
 

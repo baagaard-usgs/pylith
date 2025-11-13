@@ -26,7 +26,7 @@ public:
     virtual ~ProgressMonitorTime(void);
 
     /// Deallocate PETSc and local data structures.
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set unit for simulation time in output.
      *
@@ -54,10 +54,10 @@ public:
 protected:
 
     /// Open progress monitor.
-    void _open(void);
+    void _open(void) override;
 
     /// Close progress monitor.
-    void _close(void);
+    void _close(void) override;
 
     /** Update progress.
      *
@@ -81,8 +81,8 @@ private:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    ProgressMonitorTime(const ProgressMonitorTime&); ///< Not implemented.
-    const ProgressMonitorTime& operator=(const ProgressMonitorTime&); ///< Not implemented.
+    ProgressMonitorTime(const ProgressMonitorTime&) = delete;
+    const ProgressMonitorTime& operator=(const ProgressMonitorTime&) = delete;
 
 }; // ProgressMonitorTime
 

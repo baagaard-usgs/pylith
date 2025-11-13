@@ -165,10 +165,10 @@ pylith::problems::TestSolutionFactory::TestSolutionFactory(TestSolutionFactory_D
 pylith::problems::TestSolutionFactory::~TestSolutionFactory(void) {
     PYLITH_METHOD_BEGIN;
 
-    delete _factory;_factory = NULL;
-    delete _data;_data = NULL;
-    delete _mesh;_mesh = NULL;
-    delete _solution;_solution = NULL;
+    delete _factory;_factory = nullptr;
+    delete _data;_data = nullptr;
+    delete _mesh;_mesh = nullptr;
+    delete _solution;_solution = nullptr;
 
     PYLITH_METHOD_END;
 } // destructor
@@ -303,7 +303,7 @@ pylith::problems::TestSolutionFactory::_initialize(void) {
     pylith::topology::MeshOps::nondimensionalize(_mesh, *_data->normalizer);
 
     _solution = new pylith::topology::Field(*_mesh);assert(_solution);
-    _solution->setLabel("solution");
+    _solution->setName("solution");
     _factory = new SolutionFactory(*_solution, *_data->normalizer);
 
     PYLITH_METHOD_END;
@@ -312,17 +312,17 @@ pylith::problems::TestSolutionFactory::_initialize(void) {
 
 // ------------------------------------------------------------------------------------------------
 pylith::problems::TestSolutionFactory_Data::TestSolutionFactory_Data(void) :
-    meshFilename(NULL),
-    cs(NULL),
+    meshFilename(nullptr),
+    cs(nullptr),
     normalizer(new spatialdata::units::Nondimensional),
     solutionDB(new spatialdata::spatialdb::UserFunctionDB) {}
 
 
 // ------------------------------------------------------------------------------------------------
 pylith::problems::TestSolutionFactory_Data::~TestSolutionFactory_Data(void) {
-    delete cs;cs = NULL;
-    delete normalizer;normalizer = NULL;
-    delete solutionDB;solutionDB = NULL;
+    delete cs;cs = nullptr;
+    delete normalizer;normalizer = nullptr;
+    delete solutionDB;solutionDB = nullptr;
 }
 
 

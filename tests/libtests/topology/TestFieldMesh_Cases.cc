@@ -84,7 +84,7 @@ pylith::topology::TestFieldMesh_Cases::Quad(void) {
     };
     delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
-    static const PylithInt cells[numCells*numCorners] = {
+    static const pylith::integer cells[numCells*numCorners] = {
         0, 1, 3, 2,
     };
     delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
@@ -97,7 +97,7 @@ pylith::topology::TestFieldMesh_Cases::Quad(void) {
     data->descriptionA.componentNames.resize(2);
     data->descriptionA.componentNames[0] = "displacement_x";
     data->descriptionA.componentNames[1] = "displacement_y";
-    data->descriptionA.validator = NULL;
+    data->descriptionA.validator = nullptr;
 
     data->discretizationA.basisOrder = 1;
     data->discretizationA.quadOrder = 1;
@@ -131,7 +131,7 @@ pylith::topology::TestFieldMesh_Cases::Quad(void) {
     data->descriptionB.numComponents = 1;
     data->descriptionB.componentNames.resize(1);
     data->descriptionB.componentNames[0] = "fluid_pressure";
-    data->descriptionB.validator = NULL;
+    data->descriptionB.validator = nullptr;
 
     data->discretizationB.basisOrder = 1;
     data->discretizationB.quadOrder = 1;

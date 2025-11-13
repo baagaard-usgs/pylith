@@ -15,20 +15,24 @@
 
 #include "pylith/topology/topologyfwd.hh" // USES Field
 
-class pylith::bc::DirichletUserFn : public pylith::bc::BoundaryCondition {
-    friend class TestDirichletUserFn; // unit testing
+class pylith::bc::DirichletCxxFn : public pylith::bc::BoundaryCondition {
+    friend class TestDirichletCxxFn; // unit testing
 
-    // PUBLIC METHODS //////////////////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 
-    /// Default constructor.
-    DirichletUserFn(void);
+    /** Factory for std::shared_ptr.
+     *
+     * @param[in] physics Physics implemented by constraint.
+     */
+    static
+    std::shared_ptr<DirichletCxxFn> create(void);
 
     /// Destructor.
-    ~DirichletUserFn(void);
+    ~DirichletCxxFn(void) override;
 
     /// Deallocate PETSc and local data structures.
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set indices of constrained degrees of freedom at each location.
      *
@@ -78,40 +82,46 @@ public:
     /** Create integrator and set kernels.
      *
      * @param[in] solution Solution field.
-     * @returns Integrator if applicable, otherwise NULL.
+     * @returns Integrator if applicable, otherwise nullptr.
      */
-    pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution) override;
+    std::shared_ptr<pylith::feassemble::Integrator> createIntegrator(const pylith::topology::Field& solution) override;
 
     /** Create constraint and set kernels.
      *
      * @param[in] solution Solution field.
-     * @returns Constraint if applicable, otherwise NULL.
+     * @returns Constraint if applicable, otherwise nullptr.
      */
-    std::vector<pylith::feassemble::Constraint*> createConstraints(const pylith::topology::Field& solution) override;
+    std::vector<std::shared_ptr<pylith::feassemble::Constraint> > createConstraints(const pylith::topology::Field& solution) override;
 
     /** Create auxiliary field.
      *
      * @param[in] solution Solution field.
      * @param[in\ domainMesh Finite-element mesh associated with integration domain.
      *
-     * @returns Auxiliary field if applicable, otherwise NULL.
+     * @returns Auxiliary field if applicable, otherwise nullptr.
      */
-    pylith::topology::Field* createAuxiliaryField(const pylith::topology::Field& solution,
-                                                  const pylith::topology::Mesh& domainMesh) override;
+    std::shared_ptr<pylith::topology::Field> createAuxiliaryField(const pylith::topology::Field& solution,
+                                                                  const pylith::topology::Mesh& domainMesh) override;
 
-    // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
+    // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
+protected:
+
+    /// Default constructor.
+    DirichletCxxFn(void);
+
+    // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:
 
     pylith::integer_array _constrainedDOF; ///< List of constrained degrees of freedom at each location.
     PetscUserFieldFunc _fn; ///< Function specifying field on boundary.
     PetscUserFieldFunc _fnDot; ///< Function specifying time derivative of field on boundary.
 
-    // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
+    // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    DirichletUserFn(const DirichletUserFn&); ///< Not implemented.
-    const DirichletUserFn& operator=(const DirichletUserFn&); ///< Not implemented.
+    DirichletCxxFn(const DirichletCxxFn&) = delete;
+    const DirichletCxxFn& operator=(const DirichletCxxFn&) = delete;
 
-}; // class DirichletUserFn
+}; // class DirichletCxxFn
 
 // End of file

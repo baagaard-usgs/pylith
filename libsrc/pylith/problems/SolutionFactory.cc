@@ -27,14 +27,71 @@
 #include <cassert>
 
 // ------------------------------------------------------------------------------------------------
+namespace pylith {
+    namespace problems {
+        class _SolutionFactory {
+public:
+
+            static const char* genericComponent; ///< Name of generic PyLith component
+
+            /** Set names of vector field components.
+             *
+             * @param[inout] description Description in which to set names.
+             */
+            static
+            void setVectorComponentNames(pylith::topology::FieldBase::Description* description);
+
+            static
+            pylith::topology::FieldBase::Description getDisplacement(const spatialdata::units::Nondimensional& normalizer,
+                                                                     const size_t spaceDim);
+
+            static
+            pylith::topology::FieldBase::Description getVelocity(const spatialdata::units::Nondimensional& normalizer,
+                                                                 const size_t spaceDim);
+
+            static
+            pylith::topology::FieldBase::Description getPressure(const spatialdata::units::Nondimensional& normalizer);
+
+            static
+            pylith::topology::FieldBase::Description getFluidPressure(const spatialdata::units::Nondimensional& normalizer);
+
+            static
+            pylith::topology::FieldBase::Description getFluidPressureDot(const spatialdata::units::Nondimensional& normalizer);
+
+            static
+            pylith::topology::FieldBase::Description getTraceStrain(const spatialdata::units::Nondimensional& normalizer);
+
+            static
+            pylith::topology::FieldBase::Description getTraceStrainDot(const spatialdata::units::Nondimensional& normalizer);
+
+            static
+            pylith::topology::FieldBase::Description getLagrangeMultiplierFault(const spatialdata::units::Nondimensional& normalizer,
+                                                                                const size_t spaceDim);
+
+            static
+            pylith::topology::FieldBase::Description getTemperature(const spatialdata::units::Nondimensional& normalizer);
+
+        }; // _SubfieldFactory
+
+        const char* _SolutionFactory::genericComponent = "pylith::problems::SolutionFactory";
+
+    } // bc
+} // pylith
+
+const std::string pylith::problems::SolutionFactory::displacement = "displacement";
+const std::string pylith::problems::SolutionFactory::velocity = "velocity";
+const std::string pylith::problems::SolutionFactory::pressure = "pressure";
+const std::string pylith::problems::SolutionFactory::fluid_pressure = "fluid_pressure";
+const std::string pylith::problems::SolutionFactory::fluid_pressure_dot = "fluid_pressure_dot";
+const std::string pylith::problems::SolutionFactory::trace_strain = "trace_strain";
+const std::string pylith::problems::SolutionFactory::trace_strain_dot = "trace_strain_dot";
+const std::string pylith::problems::SolutionFactory::lagrange_multiplier_fault = "lagrange_multiplier_fault";
+const std::string pylith::problems::SolutionFactory::temperature = "temperature";
+
+// ------------------------------------------------------------------------------------------------
 // Default constructor.
-pylith::problems::SolutionFactory::SolutionFactory(pylith::topology::Field& solution,
-                                                   const spatialdata::units::Nondimensional& normalizer) :
-    _solution(solution),
-    _normalizer(normalizer),
-    _spaceDim(solution.getSpaceDim()) {
-    GenericComponent::setName("solutionfactory");
-    assert(1 <= _spaceDim && _spaceDim <= 3);
+pylith::problems::SolutionFactory::SolutionFactory(void) {
+    GenericComponent::setName(_SolutionFactory::genericComponent);
 } // constructor
 
 
@@ -44,242 +101,241 @@ pylith::problems::SolutionFactory::~SolutionFactory(void) {}
 
 
 // ------------------------------------------------------------------------------------------------
-// Add displacement subfield to solution field.
 void
-pylith::problems::SolutionFactory::addDisplacement(const pylith::topology::Field::Discretization& discretization) {
+pylith::problems::SolutionFactory::setValues(const std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("addDisplacement(discretization="<<typeid(discretization).name()<<")");
+    PYLITH_JOURNAL_DEBUG("setValues(db="<<typeid(db).name()<<")");
 
-    const char* fieldName = "displacement";
-    const char* componentNames[3] = { "displacement_x", "displacement_y", "displacement_z" };
+    _field->zeroLocal();
 
-    pylith::topology::Field::Description description;
-    description.label = fieldName;
-    description.alias = fieldName;
-    description.vectorFieldType = pylith::topology::Field::VECTOR;
-    description.numComponents = _spaceDim;
-    description.componentNames.resize(_spaceDim);
-    for (int i = 0; i < _spaceDim; ++i) {
-        description.componentNames[i] = componentNames[i];
-    } // for
-    description.scale = _normalizer.getLengthScale();
-    description.validator = NULL;
-
-    _solution.subfieldAdd(description, discretization);
-
-    PYLITH_METHOD_END;
-} // addDisplacement
-
-
-// ------------------------------------------------------------------------------------------------
-// Add velocity subfield to solution field.
-void
-pylith::problems::SolutionFactory::addVelocity(const pylith::topology::Field::Discretization& discretization) {
-    PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("addVelocity(discretization="<<typeid(discretization).name()<<")");
-
-    const char* fieldName = "velocity";
-    const char* componentNames[3] = { "velocity_x", "velocity_y", "velocity_z" };
-
-    pylith::topology::Field::Description description;
-    description.label = fieldName;
-    description.alias = fieldName;
-    description.vectorFieldType = pylith::topology::Field::VECTOR;
-    description.numComponents = _spaceDim;
-    description.componentNames.resize(_spaceDim);
-    for (int i = 0; i < _spaceDim; ++i) {
-        description.componentNames[i] = componentNames[i];
-    } // for
-    description.scale = _normalizer.getLengthScale() / _normalizer.getTimeScale();
-    description.validator = NULL;
-
-    _solution.subfieldAdd(description, discretization);
-
-    PYLITH_METHOD_END;
-} // addVelocity
-
-
-// ------------------------------------------------------------------------------------------------
-// Add pressure subfield to solution field.
-void
-pylith::problems::SolutionFactory::addPressure(const pylith::topology::Field::Discretization& discretization) {
-    PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("addPressure(discretization="<<typeid(discretization).name()<<")");
-
-    const char* fieldName = "pressure";
-    const char* componentNames[1] = { "pressure" };
-
-    pylith::topology::Field::Description description;
-    description.label = fieldName;
-    description.alias = fieldName;
-    description.vectorFieldType = pylith::topology::Field::SCALAR;
-    description.numComponents = 1;
-    description.componentNames.resize(1);
-    description.componentNames[0] = componentNames[0];
-    description.scale = _normalizer.getPressureScale();
-    description.validator = NULL;
-
-    _solution.subfieldAdd(description, discretization);
-
-    PYLITH_METHOD_END;
-} // addPressure
-
-
-// ------------------------------------------------------------------------------------------------
-// Add time derivative of pressure subfield to solution field.
-void
-pylith::problems::SolutionFactory::addPressureDot(const pylith::topology::Field::Discretization& discretization) {
-    PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("addPressureDot(discretization="<<typeid(discretization).name()<<")");
-
-    const char* fieldName = "pressure_t";
-    const char* componentNames[1] = { "pressure_t" };
-
-    pylith::topology::Field::Description description;
-    description.label = fieldName;
-    description.alias = fieldName;
-    description.vectorFieldType = pylith::topology::Field::SCALAR;
-    description.numComponents = 1;
-    description.componentNames.resize(1);
-    description.componentNames[0] = componentNames[0];
-    description.scale = _normalizer.getPressureScale() / _normalizer.getTimeScale();
-    description.validator = NULL;
-
-    _solution.subfieldAdd(description, discretization);
-
-    PYLITH_METHOD_END;
-} // addPressureDot
-
-
-// ------------------------------------------------------------------------------------------------
-// Add trace strain subfield to solution field.
-void
-pylith::problems::SolutionFactory::addTraceStrain(const pylith::topology::Field::Discretization& discretization) {
-    PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("addTraceStrain(discretization="<<typeid(discretization).name()<<")");
-
-    const char* fieldName = "trace_strain";
-    const char* componentNames[1] = { "trace_strain" };
-    const PylithReal noScale = 1;
-
-    pylith::topology::Field::Description description;
-    description.label = fieldName;
-    description.alias = fieldName;
-    description.vectorFieldType = pylith::topology::Field::SCALAR;
-    description.numComponents = 1;
-    description.componentNames.resize(1);
-    description.componentNames[0] = componentNames[0];
-    description.scale = noScale;
-    description.validator = NULL;
-
-    _solution.subfieldAdd(description, discretization);
-
-    PYLITH_METHOD_END;
-} // addTraceStrain
-
-
-// ------------------------------------------------------------------------------------------------
-// Add time derivative of trace strain subfield to solution field.
-void
-pylith::problems::SolutionFactory::addTraceStrainDot(const pylith::topology::Field::Discretization& discretization) {
-    PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("addTraceStrain(discretization="<<typeid(discretization).name()<<")");
-
-    const char* fieldName = "trace_strain_t";
-    const char* componentNames[1] = { "trace_strain_t" };
-    const PylithReal noScale = 1;
-
-    pylith::topology::Field::Description description;
-    description.label = fieldName;
-    description.alias = fieldName;
-    description.vectorFieldType = pylith::topology::Field::SCALAR;
-    description.numComponents = 1;
-    description.componentNames.resize(1);
-    description.componentNames[0] = componentNames[0];
-    description.scale = noScale;
-    description.validator = NULL;
-
-    _solution.subfieldAdd(description, discretization);
-
-    PYLITH_METHOD_END;
-} // addTraceStrainDot
-
-
-// ------------------------------------------------------------------------------------------------
-// Add fault Lagrange multiplier subfield to solution field.
-void
-pylith::problems::SolutionFactory::addLagrangeMultiplierFault(const pylith::topology::Field::Discretization& discretization) {
-    PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("addLagrangeMultiplierFault(discretization="<<typeid(discretization).name()<<")");
-
-    const char* fieldName = "lagrange_multiplier_fault";
-    const char* componentNames[3] = {
-        "lagrange_multiplier_fault_x",
-        "lagrange_multiplier_fault_y",
-        "lagrange_multiplier_fault_z",
-    };
-
-    pylith::topology::Field::Description description;
-    description.label = fieldName;
-    description.alias = fieldName;
-    description.vectorFieldType = pylith::topology::Field::VECTOR;
-    description.numComponents = _spaceDim;
-    description.componentNames.resize(_spaceDim);
-    for (int i = 0; i < _spaceDim; ++i) {
-        description.componentNames[i] = componentNames[i];
-    } // for
-    description.scale = _normalizer.getPressureScale();
-    description.validator = NULL;
-
-    _solution.subfieldAdd(description, discretization);
-
-    PYLITH_METHOD_END;
-} // addLagrangeMultiplierFault
-
-
-// ------------------------------------------------------------------------------------------------
-// Add temperature subfield to solution field.
-void
-pylith::problems::SolutionFactory::addTemperature(const pylith::topology::Field::Discretization& discretization) {
-    PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("addTemperature(discretization="<<typeid(discretization).name()<<")");
-
-    const char* fieldName = "temperature";
-    const char* componentNames[1] = { "temperature" };
-
-    pylith::topology::Field::Description description;
-    description.label = fieldName;
-    description.alias = fieldName;
-    description.vectorFieldType = pylith::topology::Field::SCALAR;
-    description.numComponents = 1;
-    description.componentNames.resize(1);
-    description.componentNames[0] = componentNames[0];
-    description.scale = _normalizer.getTemperatureScale();
-    description.validator = NULL;
-
-    _solution.subfieldAdd(description, discretization);
-
-    PYLITH_METHOD_END;
-} // addTemperature
-
-
-// ------------------------------------------------------------------------------------------------
-void
-pylith::problems::SolutionFactory::setValues(spatialdata::spatialdb::SpatialDB* db) {
-    PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("setValues(db="<<typeid(*db).name()<<")");
-
-    // Set solution field to zero.
-    _solution.zeroLocal();
-
-    pylith::topology::FieldQuery query(_solution);
+    pylith::topology::FieldQuery query(_field);
     query.initializeWithDefaultQueries();
-    query.openDB(db, _normalizer.getLengthScale());
-    query.queryDB();
-    query.closeDB(db);
+    query.open(db, _normalizer->getLengthScale());
+    query.query();
+    query.close();
 
     PYLITH_METHOD_END;
 } // setValues
+
+
+// ------------------------------------------------------------------------------------------------
+// Get subfield description.
+pylith::topology::FieldBase::Description
+pylith::problems::SolutionFactory::_getDescription(const std::string& subfieldName) const {
+    assert(_field);
+    const size_t spaceDim = _field->getSpaceDim();
+
+    if (subfieldName == displacement) {
+        return _SolutionFactory::getDisplacement(*_normalizer, spaceDim);
+    } else if (subfieldName == velocity) {
+        return _SolutionFactory::getVelocity(*_normalizer, spaceDim);
+    } else {
+        PYLITH_JOURNAL_LOGICERROR("Unrecognized subfield " << subfieldName << ".");
+    } // if/else
+
+    // Should never get here
+    return pylith::topology::FieldBase::Description();
+} // _getDescription
+
+
+// ------------------------------------------------------------------------------------------------
+// Set names of vector components in auxiliary subfield.
+void
+pylith::problems::_SolutionFactory::setVectorComponentNames(pylith::topology::FieldBase::Description* description) {
+    assert(description);
+    static const char* componentsXYZ[3] = { "_x", "_y", "_z"};
+
+    const size_t numComponents = description->numComponents;
+    description->componentNames.resize(numComponents);
+    for (int i = 0; i < numComponents; ++i) {
+        description->componentNames[i] = description->label + std::string(componentsXYZ[i]);
+    } // for
+
+    PYLITH_METHOD_END;
+} // setVectorComponentNames
+
+
+// ------------------------------------------------------------------------------------------------
+// Get description of displacement.
+pylith::topology::FieldBase::Description
+pylith::problems::_SolutionFactory::getDisplacement(const spatialdata::units::Nondimensional& normalizer,
+                                                    const size_t spaceDim) {
+    const std::string& subfieldName = pylith::problems::SolutionFactory::displacement;
+
+    pylith::topology::Field::Description description;
+    description.label = subfieldName;
+    description.alias = subfieldName;
+    description.vectorFieldType = pylith::topology::Field::VECTOR;
+    description.numComponents = spaceDim;
+    description.scale = normalizer.getLengthScale();
+    description.validator = nullptr;
+
+    setVectorComponentNames(&description);
+
+    return description;
+} // getDisplacement
+
+
+// ------------------------------------------------------------------------------------------------
+// Get description of velocity.
+pylith::topology::FieldBase::Description
+pylith::problems::_SolutionFactory::getVelocity(const spatialdata::units::Nondimensional& normalizer,
+                                                const size_t spaceDim) {
+    const std::string& subfieldName = pylith::problems::SolutionFactory::velocity;
+
+    pylith::topology::Field::Description description;
+    description.label = subfieldName;
+    description.alias = subfieldName;
+    description.vectorFieldType = pylith::topology::Field::VECTOR;
+    description.numComponents = spaceDim;
+    description.scale = normalizer.getLengthScale() / normalizer.getTimeScale();
+    description.validator = nullptr;
+
+    setVectorComponentNames(&description);
+
+    return description;
+} // getVelocity
+
+
+// ------------------------------------------------------------------------------------------------
+// Get description of pressure.
+pylith::topology::FieldBase::Description
+pylith::problems::_SolutionFactory::getPressure(const spatialdata::units::Nondimensional& normalizer) {
+    const std::string& subfieldName = pylith::problems::SolutionFactory::pressure;
+
+    pylith::topology::Field::Description description;
+    description.label = subfieldName;
+    description.alias = subfieldName;
+    description.vectorFieldType = pylith::topology::Field::SCALAR;
+    description.numComponents = 1;
+    description.componentNames.resize(1);
+    description.componentNames[0] = subfieldName;
+    description.scale = normalizer.getPressureScale();
+    description.validator = nullptr;
+
+    return description;
+} // getPressure
+
+
+// ------------------------------------------------------------------------------------------------
+// Get description of fluid pressure.
+pylith::topology::FieldBase::Description
+pylith::problems::_SolutionFactory::getFluidPressure(const spatialdata::units::Nondimensional& normalizer) {
+    const std::string& subfieldName = pylith::problems::SolutionFactory::fluid_pressure;
+
+    pylith::topology::Field::Description description;
+    description.label = subfieldName;
+    description.alias = subfieldName;
+    description.vectorFieldType = pylith::topology::Field::SCALAR;
+    description.numComponents = 1;
+    description.componentNames.resize(1);
+    description.componentNames[0] = subfieldName;
+    description.scale = normalizer.getPressureScale();
+    description.validator = nullptr;
+
+    return description;
+} // getFluidPressure
+
+
+// ------------------------------------------------------------------------------------------------
+// Get description of time derivative of fluid pressure.
+pylith::topology::FieldBase::Description
+pylith::problems::_SolutionFactory::getFluidPressureDot(const spatialdata::units::Nondimensional& normalizer) {
+    const std::string& subfieldName = pylith::problems::SolutionFactory::fluid_pressure_dot;
+
+    pylith::topology::Field::Description description;
+    description.label = subfieldName;
+    description.alias = subfieldName;
+    description.vectorFieldType = pylith::topology::Field::SCALAR;
+    description.numComponents = 1;
+    description.componentNames.resize(1);
+    description.componentNames[0] = subfieldName;
+    description.scale = normalizer.getPressureScale() / normalizer.getTimeScale();
+    description.validator = nullptr;
+
+    return description;
+} // getFluidPressureDot
+
+
+// ------------------------------------------------------------------------------------------------
+// Get description of trace strain.
+pylith::topology::FieldBase::Description
+pylith::problems::_SolutionFactory::getTraceStrain(const spatialdata::units::Nondimensional& normalizer) {
+    const std::string& subfieldName = pylith::problems::SolutionFactory::trace_strain;
+
+    pylith::topology::Field::Description description;
+    description.label = subfieldName;
+    description.alias = subfieldName;
+    description.vectorFieldType = pylith::topology::Field::VECTOR;
+    description.numComponents = 1;
+    description.componentNames.resize(1);
+    description.componentNames[0] = subfieldName;
+    description.scale = 1.0;
+    description.validator = nullptr;
+
+    return description;
+} // getTraceStrain
+
+
+// ------------------------------------------------------------------------------------------------
+// Get description of time derivative of trace strain.
+pylith::topology::FieldBase::Description
+pylith::problems::_SolutionFactory::getTraceStrainDot(const spatialdata::units::Nondimensional& normalizer) {
+    const std::string& subfieldName = pylith::problems::SolutionFactory::trace_strain_dot;
+
+    pylith::topology::Field::Description description;
+    description.label = subfieldName;
+    description.alias = subfieldName;
+    description.vectorFieldType = pylith::topology::Field::VECTOR;
+    description.numComponents = 1;
+    description.componentNames.resize(1);
+    description.componentNames[0] = subfieldName;
+    description.scale = 1.0 / normalizer.getTimeScale();
+    description.validator = nullptr;
+
+    return description;
+} // getTraceStrainDot
+
+
+// ------------------------------------------------------------------------------------------------
+// Get description of Lagrange multiplier fault.
+pylith::topology::FieldBase::Description
+pylith::problems::_SolutionFactory::getLagrangeMultiplierFault(const spatialdata::units::Nondimensional& normalizer,
+                                                               const size_t spaceDim) {
+    const std::string& subfieldName = pylith::problems::SolutionFactory::lagrange_multiplier_fault;
+
+    pylith::topology::Field::Description description;
+    description.label = subfieldName;
+    description.alias = subfieldName;
+    description.vectorFieldType = pylith::topology::Field::VECTOR;
+    description.numComponents = spaceDim;
+    description.scale = normalizer.getPressureScale();
+    description.validator = nullptr;
+
+    setVectorComponentNames(&description);
+
+    return description;
+} // getLagrangeMultiplierFault
+
+
+// ------------------------------------------------------------------------------------------------
+// Get description of temperature.
+pylith::topology::FieldBase::Description
+pylith::problems::_SolutionFactory::getTemperature(const spatialdata::units::Nondimensional& normalizer) {
+    const std::string& subfieldName = pylith::problems::SolutionFactory::temperature;
+
+    pylith::topology::Field::Description description;
+    description.label = subfieldName;
+    description.alias = subfieldName;
+    description.vectorFieldType = pylith::topology::Field::SCALAR;
+    description.numComponents = 1;
+    description.componentNames.resize(1);
+    description.componentNames[0] = subfieldName;
+    description.scale = normalizer.getTemperatureScale();
+    description.validator = nullptr;
+
+    return description;
+} // getTemperature
 
 
 // End of file

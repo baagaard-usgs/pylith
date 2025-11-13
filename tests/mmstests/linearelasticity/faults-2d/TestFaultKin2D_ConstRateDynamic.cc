@@ -23,7 +23,7 @@
 #include "pylith/problems/TimeDependent.hh" // USES TimeDependent
 #include "pylith/materials/Elasticity.hh" // USES Elasticity
 #include "pylith/materials/IsotropicLinearElasticity.hh" // USES IsotropicLinearElasticity
-#include "pylith/bc/DirichletUserFn.hh" // USES DirichletUserFn
+#include "pylith/bc/DirichletCxxFn.hh" // USES DirichletCxxFn
 
 #include "pylith/topology/Mesh.hh" // USES pylith::topology::Mesh::cells_label_name
 #include "pylith/topology/Field.hh" // USES pylith::topology::Field::Discretization
@@ -132,7 +132,7 @@ class pylith::mmstests::TestFaultKin2D_ConstRateDynamic :
 
     static double velocity_y(const double x,
                              const double y,
-                             PetscInt flag) {
+                             pylith::integer flag) {
         double amplitude = 0.0;
         if (!flag) {
             amplitude = x < 0 ? -0.5*SLIPRATE : +0.5*SLIPRATE;
@@ -151,7 +151,7 @@ class pylith::mmstests::TestFaultKin2D_ConstRateDynamic :
 
     static double disp_y(const double x,
                          const double y,
-                         PetscInt flag) {
+                         pylith::integer flag) {
         const double disp = velocity_y(x, y, flag) * TIMESTAMP;
         return disp;
     } // disp_y
@@ -168,11 +168,11 @@ class pylith::mmstests::TestFaultKin2D_ConstRateDynamic :
         return shearModulusN * (VELOCITY - 0.5*SLIPRATE) * TIMESTAMP / (0.5*DOMAIN_X);
     } // faulttraction_y
 
-    static PetscErrorCode bckernel_disp(PetscInt spaceDim,
-                                        PetscReal t,
-                                        const PetscReal x[],
-                                        PetscInt numComponents,
-                                        PetscScalar* s,
+    static PetscErrorCode bckernel_disp(pylith::integer spaceDim,
+                                        pylith::real t,
+                                        const pylith::real x[],
+                                        pylith::integer numComponents,
+                                        pylith::scalar* s,
                                         void* context) {
         CPPUNIT_ASSERT(2 == spaceDim);
         CPPUNIT_ASSERT(x);
@@ -186,11 +186,11 @@ class pylith::mmstests::TestFaultKin2D_ConstRateDynamic :
         return 0;
     } // bckernel_disp
 
-    static PetscErrorCode solnkernel_disp(PetscInt spaceDim,
-                                          PetscReal t,
-                                          const PetscReal x[],
-                                          PetscInt numComponents,
-                                          PetscScalar* s,
+    static PetscErrorCode solnkernel_disp(pylith::integer spaceDim,
+                                          pylith::real t,
+                                          const pylith::real x[],
+                                          pylith::integer numComponents,
+                                          pylith::scalar* s,
                                           void* context) {
         CPPUNIT_ASSERT(2 == spaceDim);
         CPPUNIT_ASSERT(x);
@@ -198,13 +198,13 @@ class pylith::mmstests::TestFaultKin2D_ConstRateDynamic :
         CPPUNIT_ASSERT(s);
 
         s[0] = disp_x(x[0], x[1]);
-        PetscInt flag = 0;
+        pylith::integer flag = 0;
         if (context) {
-            PetscInt cell = 0;
+            pylith::integer cell = 0;
             DMPolytopeType cellType = DM_POLYTOPE_UNKNOWN;
             DMPlexGetActivePoint((PetscDM) context, &cell);
             DMPlexGetCellType((PetscDM) context, cell, &cellType);
-            PetscInt numCellsLeftFault = 0;
+            pylith::integer numCellsLeftFault = 0;
             switch (cellType) {
             case DM_POLYTOPE_TRIANGLE:
                 numCellsLeftFault = 12;
@@ -223,11 +223,11 @@ class pylith::mmstests::TestFaultKin2D_ConstRateDynamic :
         return 0;
     } // solnkernel_disp
 
-    static PetscErrorCode solnkernel_lagrangemultiplier(PetscInt spaceDim,
-                                                        PetscReal t,
-                                                        const PetscReal x[],
-                                                        PetscInt numComponents,
-                                                        PetscScalar* s,
+    static PetscErrorCode solnkernel_lagrangemultiplier(pylith::integer spaceDim,
+                                                        pylith::real t,
+                                                        const pylith::real x[],
+                                                        pylith::integer numComponents,
+                                                        pylith::scalar* s,
                                                         void* context) {
         CPPUNIT_ASSERT(2 == spaceDim);
         CPPUNIT_ASSERT(x);
@@ -340,11 +340,11 @@ protected:
             _materials[2] = material;
         } // xpos
 
-        static const PylithInt constrainedDOF[2] = {0, 1};
-        static const PylithInt numConstrained = 2;
+        static const pylith::integer constrainedDOF[2] = {0, 1};
+        static const pylith::integer numConstrained = 2;
         _bcs.resize(2);
         { // boundary_xpos
-            pylith::bc::DirichletUserFn* bc = new pylith::bc::DirichletUserFn();
+            pylith::bc::DirichletCxxFn* bc = new pylith::bc::DirichletCxxFn();
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_xpos");
             bc->setLabelValue(1);
@@ -353,7 +353,7 @@ protected:
             _bcs[0] = bc;
         } // boundary_xpos
         { // boundary_xneg
-            pylith::bc::DirichletUserFn* bc = new pylith::bc::DirichletUserFn();
+            pylith::bc::DirichletCxxFn* bc = new pylith::bc::DirichletCxxFn();
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_xneg");
             bc->setLabelValue(1);
@@ -386,18 +386,18 @@ protected:
         PetscDM dm = solution->getDM();
         PetscDMLabel label;
         PetscIS is;
-        PetscInt cohesiveCell;
-        PetscErrorCode err = 0;
-        PetscDS ds = NULL;
+        pylith::integer cohesiveCell;
+        PetscErrorCode err = PETSC_SUCCESS;
+        PetscDS ds = nullptr;
         err = DMGetDS(dm, &ds);CPPUNIT_ASSERT(!err);
         err = PetscDSSetExactSolution(ds, 0, solnkernel_disp, dm);CPPUNIT_ASSERT(!err);
         err = DMGetLabel(dm, pylith::topology::Mesh::cells_label_name, &label);CPPUNIT_ASSERT(!err);
         err = DMLabelGetStratumIS(label, _faults[0]->getCohesiveLabelValue(), &is);CPPUNIT_ASSERT(!err);
-        err = ISGetMinMax(is, &cohesiveCell, NULL);CPPUNIT_ASSERT(!err);
+        err = ISGetMinMax(is, &cohesiveCell, nullptr);CPPUNIT_ASSERT(!err);
         err = ISDestroy(&is);CPPUNIT_ASSERT(!err);
-        err = DMGetCellDS(dm, cohesiveCell, &ds, NULL);CPPUNIT_ASSERT(!err);
-        err = PetscDSSetExactSolution(ds, 0, solnkernel_disp, NULL);CPPUNIT_ASSERT(!err);
-        err = PetscDSSetExactSolution(ds, 1, solnkernel_lagrangemultiplier, NULL);CPPUNIT_ASSERT(!err);
+        err = DMGetCellDS(dm, cohesiveCell, &ds, nullptr);CPPUNIT_ASSERT(!err);
+        err = PetscDSSetExactSolution(ds, 0, solnkernel_disp, nullptr);CPPUNIT_ASSERT(!err);
+        err = PetscDSSetExactSolution(ds, 1, solnkernel_lagrangemultiplier, nullptr);CPPUNIT_ASSERT(!err);
     } // _setExactSolution
 
 }; // TestFaultKin2D_ConstRateDynamic

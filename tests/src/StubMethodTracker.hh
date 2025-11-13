@@ -51,8 +51,8 @@ public:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    StubMethodTracker(const StubMethodTracker&); ///< Not implemented.
-    const StubMethodTracker& operator=(const StubMethodTracker&); ///< Not implemented
+    StubMethodTracker(const StubMethodTracker&) = delete;
+    const StubMethodTracker& operator=(const StubMethodTracker&) = delete;
 
     typedef std::map<std::string, int> map_type;
     static map_type _methodCount; ///< Number of times method was called.

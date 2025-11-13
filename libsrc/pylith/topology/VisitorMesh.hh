@@ -78,7 +78,7 @@ public:
      *
      * @returns Array of values.
      */
-    PetscScalar* localArray(void) const;
+    pylith::scalar* localArray(void) const;
 
     /** Get the local PETSc Vec.
      *
@@ -91,7 +91,7 @@ public:
      * @param point Point in mesh.
      * @returns Fiber dimension.
      */
-    PetscInt sectionDof(const PetscInt point) const;
+    pylith::integer sectionDof(const pylith::integer point) const;
 
     /** Get fiber dimension for values of subfield at point.
      *
@@ -99,15 +99,15 @@ public:
      * @param point Point in mesh.
      * @returns Fiber dimension.
      */
-    PetscInt sectionSubfieldDof(const PetscInt subfield,
-                                const PetscInt point) const;
+    pylith::integer sectionSubfieldDof(const pylith::integer subfield,
+                                       const pylith::integer point) const;
 
     /** Get offset into values array for point.
      *
      * @param point Point in mesh.
      * @returns Offset.
      */
-    PetscInt sectionOffset(const PetscInt point) const;
+    pylith::integer sectionOffset(const pylith::integer point) const;
 
     /** Get offset into values array for point.
      *
@@ -115,8 +115,8 @@ public:
      * @param point Point in mesh.
      * @returns Offset.
      */
-    PetscInt sectionSubfieldOffset(const PetscInt subfield,
-                                   const PetscInt point) const;
+    pylith::integer sectionSubfieldOffset(const pylith::integer subfield,
+                                          const pylith::integer point) const;
 
     /** Get array of values associated with closure.
      *
@@ -126,9 +126,9 @@ public:
      * @param valuesSize Size of values array.
      * @param cell Finite-element cell.
      */
-    void getClosure(PetscScalar** valuesCell,
-                    PetscInt* valuesSize,
-                    const PetscInt cell) const;
+    void getClosure(pylith::scalar** valuesCell,
+                    pylith::integer* valuesSize,
+                    const pylith::integer cell) const;
 
     /** Get array of values associated with closure.
      *
@@ -136,7 +136,7 @@ public:
      * @param cell Finite-element cell.
      */
     void getClosure(scalar_array* values,
-                    const PetscInt cell) const;
+                    const pylith::integer cell) const;
 
     /** Restore array of values associated with closure.
      *
@@ -146,9 +146,9 @@ public:
      * @param valuesSize Size of values array.
      * @param cell Finite-element cell.
      */
-    void restoreClosure(PetscScalar** valuesCell,
-                        PetscInt* valuesSize,
-                        const PetscInt cell) const;
+    void restoreClosure(pylith::scalar** valuesCell,
+                        pylith::integer* valuesSize,
+                        const pylith::integer cell) const;
 
     /** Set values associated with closure.
      *
@@ -157,9 +157,9 @@ public:
      * @param cell Finite-element cell.
      * @param mode Mode for inserting values.
      */
-    void setClosure(const PetscScalar* valuesCell,
-                    const PetscInt valuesSize,
-                    const PetscInt cell,
+    void setClosure(const pylith::scalar* valuesCell,
+                    const pylith::integer valuesSize,
+                    const pylith::integer cell,
                     const InsertMode mode) const;
 
     /** Optimize the closure operator by creating index for closures.
@@ -182,14 +182,14 @@ private:
     PetscVec _localVec; ///< Cached local PETSc Vec.
     PetscSection _localSection; ///< Cached PETSc local section.
     PetscSection _globalSection; ///< Cached PETSc global section.
-    PetscScalar* _localArray; ///< Cached local array
+    pylith::scalar* _localArray; ///< Cached local array
     SectionEnum _selectedSection; ///< Current selected section.
 
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    VecVisitorMesh(const VecVisitorMesh&); ///< Not implemented
-    const VecVisitorMesh& operator=(const VecVisitorMesh&); ///< Not implemented
+    VecVisitorMesh(const VecVisitorMesh&) = delete;
+    const VecVisitorMesh& operator=(const VecVisitorMesh&) = delete;
 
 };
 
@@ -229,9 +229,9 @@ public:
      * @param cell Finite-element cell.
      * @param mode Mode for inserting values.
      */
-    void setClosure(const PetscScalar* valuesCell,
-                    const PetscInt valuesSize,
-                    const PetscInt cell,
+    void setClosure(const pylith::scalar* valuesCell,
+                    const pylith::integer valuesSize,
+                    const pylith::integer cell,
                     const InsertMode mode) const;
 
     // PRIVATE MEMBERS //////////////////////////////////////////////////////
@@ -245,8 +245,8 @@ private:
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    MatVisitorMesh(const MatVisitorMesh&); ///< Not implemented
-    const MatVisitorMesh& operator=(const MatVisitorMesh&); ///< Not implemented
+    MatVisitorMesh(const MatVisitorMesh&) = delete;
+    const MatVisitorMesh& operator=(const MatVisitorMesh&) = delete;
 
 };
 

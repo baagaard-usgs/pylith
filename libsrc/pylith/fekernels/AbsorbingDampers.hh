@@ -65,59 +65,59 @@ public:
      * g_0(x)
      */
     static inline
-    void g0(const PylithInt dim,
-            const PylithInt numS,
-            const PylithInt numA,
-            const PylithInt sOff[],
-            const PylithInt sOff_x[],
-            const PylithScalar s[],
-            const PylithScalar s_t[],
-            const PylithScalar s_x[],
-            const PylithInt aOff[],
-            const PylithInt aOff_x[],
-            const PylithScalar a[],
-            const PylithScalar a_t[],
-            const PylithScalar a_x[],
-            const PylithReal t,
-            const PylithReal x[],
-            const PylithReal n[],
-            const PylithInt numConstants,
-            const PylithScalar constants[],
-            PylithScalar g0[]) {
+    void g0(const pylith::integer dim,
+            const pylith::integer numS,
+            const pylith::integer numA,
+            const pylith::integer sOff[],
+            const pylith::integer sOff_x[],
+            const pylith::scalar s[],
+            const pylith::scalar s_t[],
+            const pylith::scalar s_x[],
+            const pylith::integer aOff[],
+            const pylith::integer aOff_x[],
+            const pylith::scalar a[],
+            const pylith::scalar a_t[],
+            const pylith::scalar a_x[],
+            const pylith::real t,
+            const pylith::real x[],
+            const pylith::real n[],
+            const pylith::integer numConstants,
+            const pylith::scalar constants[],
+            pylith::scalar g0[]) {
         assert(2 == dim || 3 == dim);
 
-        const PylithInt _numA = 3;
+        const pylith::integer _numA = 3;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
-        const PylithInt i_density = aOff[0];
-        const PylithInt i_vp = aOff[1];
-        const PylithInt i_vs = aOff[2];
+        const pylith::integer i_density = aOff[0];
+        const pylith::integer i_vp = aOff[1];
+        const pylith::integer i_vs = aOff[2];
 
-        const PylithInt _numS = 2;
+        const pylith::integer _numS = 2;
         assert(sOff);
         assert(s);
         assert(numS >= _numS);
-        const PylithInt i_vel = sOff[1];
+        const pylith::integer i_vel = sOff[1];
 
-        const PylithScalar density = a[i_density];
-        const PylithScalar vp = a[i_vp];
-        const PylithScalar vs = a[i_vs];
+        const pylith::scalar density = a[i_density];
+        const pylith::scalar vp = a[i_vp];
+        const pylith::scalar vs = a[i_vs];
 
-        PylithScalar velN[3];
-        PylithScalar velT[3];
-        PylithScalar velNMag = 0;
-        for (PylithInt i = 0; i < dim; ++i) {
+        pylith::scalar velN[3];
+        pylith::scalar velT[3];
+        pylith::scalar velNMag = 0;
+        for (pylith::integer i = 0; i < dim; ++i) {
             velNMag += s[i_vel+i] * n[i];
         } // for
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             velN[i] = velNMag * n[i];
         } // for
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             velT[i] = s[i_vel+i] - velN[i];
         } // for
 
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             g0[i] -= density * (vs * velT[i] + vp * velN[i]);
         } // for
     } // g0

@@ -20,94 +20,72 @@ class pylith::bc::SubfieldFactory : public pylith::topology::SubfieldFactory {
     // PUBLIC ENUMS ////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
 
-    enum ReferenceEnum {
-        XYZ=0, ///< Coordinate directions (x, y, z).
-        TANGENTIAL_NORMAL=1, ///< Directions tangential and normal to the boundary (tangential_1, tangential_2, normal).
+    enum ComponentsType {
+        XYZ=0, ///< Directions along coordinate axes.
+        TANGENTIAL_NORMAL=1, ///< Directions tangential and normal to the boundary.
     };
 
-    // PUBLIC METHODS //////////////////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC MEMBERS /////////////////////////////////////////////////////////////////////////////
+public:
+
+    // Auxiliary subfields
+    static const std::string density;
+    static const std::string vp;
+    static const std::string vs;
+    static const std::string initial_amplitude;
+    static const std::string rate_amplitude;
+    static const std::string rate_start_time;
+    static const std::string time_history_amplitude;
+    static const std::string time_history_start_time;
+    static const std::string time_history_value;
+
+    // Diagnostic subfields
+    static const std::string normal_dir;
+    static const std::string tangential_dir_horiz;
+    static const std::string tangential_dir_vert;
+
+    // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 
     /** Default constructor.
      *
-     * @param[in] reference Reference for coordinate directions in auxiliary subfield.s
+     * @param[in] componentsType Reference for coordinate directions in auxiliary subfield.s
      */
-    SubfieldFactory(const ReferenceEnum reference=XYZ);
+    SubfieldFactory(const ComponentsType componentsType=XYZ);
 
     /// Destructor.
-    ~SubfieldFactory(void);
+    ~SubfieldFactory(void) override;
 
-    /// Add initial amplitude field to auxiliary fields.
-    void addInitialAmplitude(void);
-
-    /// Add rate amplitude field to auxiliary fields.
-    void addRateAmplitude(void);
-
-    /// Add rate start time amplitude field to auxiliary fields.
-    void addRateStartTime(void);
-
-    /// Add time history amplitude field to auxiliary fields.
-    void addTimeHistoryAmplitude(void);
-
-    /// Add time history start time field to auxiliary fields.
-    void addTimeHistoryStartTime(void);
-
-    /// Add time history value field to auxiliary fields.
-    void addTimeHistoryValue(void);
-
-    /// Add density field to auxiliary fields.
-    void addDensity(void);
-
-    /// Add shear wave speed field to auxiliary fields.
-    void addVs(void);
-
-    /// Add dilatational wave speed field to auxiliary fields.
-    void addVp(void);
-
-    /// Add boundary normal direction subfield to diagnostic field.
-    void addNormalDir(void);
-
-    /// Add (horizontla) tangential direction subfield to diagnostic field.
-    void addTangentialDirHoriz(void);
-
-    /// Add (vertical) tangential direction subfield to diagnostic field.
-    void addTangentialDirVert(void);
-
-    /// Add subfields using discretizations provided.
-    virtual void addSubfields(void);
-
-    /** Update auxiliary field for current time.
+    /** Set description of reference field.
      *
-     * @param[inout] auxiliaryField Auxiliary field to update.
-     * @param[in] t Current time.
-     * @param[in] timeScale Time scale for nondimensionalization.
-     * @param[in] dbTimeHistory Time history database.
+     * @param[in] refDescription Description of reference field.
      */
-    static
-    void updateAuxiliaryField(pylith::topology::Field* auxiliaryField,
-                              const pylith::real t,
-                              const pylith::real timeScale,
-                              spatialdata::spatialdb::TimeHistory* const dbTimeHistory);
+    void setRefDescription(const std::shared_ptr<pylith::topology::FieldBase::Description>& refDescription=nullptr);
 
-    // PRIVATE METHODS /////////////////////////////////////////////////////////////////////////////////////////////////
-private:
+    // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
+protected:
 
-    /** Set names of vector field components in auxiliary subfield.
+    /** Get subfield description.
      *
-     * @param[in] description Subfield description.
+     * @param[in] subfieldName Name of subfield.
+     * @returns Description of subfield.
      */
-    void _setVectorFieldComponentNames(pylith::topology::FieldBase::Description* description);
+    pylith::topology::FieldBase::Description _getDescription(const std::string& subfieldName,
+                                                             const size_t spaceDim) const override;
 
     // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    ReferenceEnum _auxComponents; ///< Coordinate system reference for field components.
+    ComponentsType _componentsType; ///< Coordinate system reference for field components.
+
+    /// Description of reference field.
+    std::shared_ptr<pylith::topology::FieldBase::Description> _refDescription;
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    SubfieldFactory(const SubfieldFactory &); ///< Not implemented.
-    const SubfieldFactory& operator=(const SubfieldFactory&); ///< Not implemented
+    SubfieldFactory(const SubfieldFactory &) = delete;
+    const SubfieldFactory& operator=(const SubfieldFactory&) = delete;
 
 }; // class SubfieldFactory
 

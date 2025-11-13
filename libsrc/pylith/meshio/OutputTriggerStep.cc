@@ -51,8 +51,8 @@ pylith::meshio::OutputTriggerStep::getNumStepsSkip(void) const {
 // ---------------------------------------------------------------------------------------------------------------------
 // Check whether we want to write output at time t.
 bool
-pylith::meshio::OutputTriggerStep::shouldWrite(const PylithReal t,
-                                               const PylithInt tindex) {
+pylith::meshio::OutputTriggerStep::shouldWrite(const pylith::real t,
+                                               const pylith::integer tindex) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("OutputTriggerStep::shouldWrite(t="<<t<<", tindex="<<tindex<<")");
 

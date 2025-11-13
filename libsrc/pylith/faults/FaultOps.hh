@@ -37,9 +37,8 @@ public:
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    FaultOps(void); ///< Not implemented.
-    FaultOps(const FaultOps&); ///< Not implemented.
-    const FaultOps& operator=(const FaultOps&); ///< Not implemented.
+    FaultOps(void) = delete;FaultOps(const FaultOps&) = delete;
+    const FaultOps& operator=(const FaultOps&) = delete;
 
 }; // FaultOps
 

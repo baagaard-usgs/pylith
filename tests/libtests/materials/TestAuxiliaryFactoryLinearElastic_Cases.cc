@@ -39,10 +39,10 @@ public:
 
 private:
 
-    static const PylithReal LENGTH_SCALE;
-    static const PylithReal TIME_SCALE;
-    static const PylithReal PRESSURE_SCALE;
-    static const PylithReal DENSITY_SCALE;
+    static const pylith::real LENGTH_SCALE;
+    static const pylith::real TIME_SCALE;
+    static const pylith::real PRESSURE_SCALE;
+    static const pylith::real DENSITY_SCALE;
 
 private:
 
@@ -296,10 +296,10 @@ TEST_CASE("TestAuxiliaryFactoryLinearElastic::Hex::testSetValuesFromDB", "[TestA
     pylith::materials::TestAuxiliaryFactoryLinearElastic(pylith::materials::TestAuxiliaryFactoryLinearElastic_Cases::Hex()).testSetValuesFromDB();
 }
 
-const PylithReal pylith::materials::TestAuxiliaryFactoryLinearElastic_Cases::LENGTH_SCALE = 1.0e+3;
-const PylithReal pylith::materials::TestAuxiliaryFactoryLinearElastic_Cases::TIME_SCALE = 2.0;
-const PylithReal pylith::materials::TestAuxiliaryFactoryLinearElastic_Cases::PRESSURE_SCALE = 2.0e+10;
-const PylithReal pylith::materials::TestAuxiliaryFactoryLinearElastic_Cases::DENSITY_SCALE = 3.0e+3;
+const pylith::real pylith::materials::TestAuxiliaryFactoryLinearElastic_Cases::LENGTH_SCALE = 1.0e+3;
+const pylith::real pylith::materials::TestAuxiliaryFactoryLinearElastic_Cases::TIME_SCALE = 2.0;
+const pylith::real pylith::materials::TestAuxiliaryFactoryLinearElastic_Cases::PRESSURE_SCALE = 2.0e+10;
+const pylith::real pylith::materials::TestAuxiliaryFactoryLinearElastic_Cases::DENSITY_SCALE = 3.0e+3;
 
 // --------------------------------------------------------------------------------------------------------------------
 pylith::materials::TestAuxiliaryFactoryLinearElastic_Data*

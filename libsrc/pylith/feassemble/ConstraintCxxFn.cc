@@ -10,7 +10,7 @@
 
 #include <portinfo>
 
-#include "pylith/feassemble/ConstraintUserFn.hh" // implementation of object methods
+#include "pylith/feassemble/ConstraintCxxFn.hh" // implementation of object methods
 
 #include "pylith/topology/Mesh.hh" // USES Mesh
 #include "pylith/topology/Field.hh" // USES Field
@@ -28,14 +28,23 @@
 
 namespace pylith {
     namespace feassemble {
-        class _ConstraintUserFn {
+        // Trampoline class for ConstraintCxxFn::create() factory method
+        class ConstraintCxxFnWrap : public ConstraintCxxFn {
+public:
+
+            ConstraintCxxFnWrap(const std::shared_ptr<pylith::problems::Physics>& physics) : ConstraintCxxFn(physics) {}
+
+
+        };
+
+        class _ConstraintCxxFn {
 public:
 
             static
             void setSolution(const pylith::topology::Field* field,
-                             const PylithReal t,
+                             const pylith::real t,
                              PetscUserFieldFunc fn,
-                             const pylith::feassemble::ConstraintUserFn& constraint);
+                             const pylith::feassemble::ConstraintCxxFn& constraint);
 
         };
     }
@@ -43,17 +52,25 @@ public:
 
 // ------------------------------------------------------------------------------------------------
 // Default constructor.
-pylith::feassemble::ConstraintUserFn::ConstraintUserFn(pylith::problems::Physics* const physics) :
+pylith::feassemble::ConstraintCxxFn::ConstraintCxxFn(const std::shared_ptr<pylith::problems::Physics>& physics) :
     Constraint(physics),
-    _fn(NULL),
-    _fnDot(NULL) {
+    _fn(nullptr),
+    _fnDot(nullptr) {
     GenericComponent::setName("constraintuserfn");
 } // constructor
 
 
 // ------------------------------------------------------------------------------------------------
+// Factory for std::shared_ptr.
+std::shared_ptr<pylith::feassemble::ConstraintCxxFn>
+pylith::feassemble::ConstraintCxxFn::create(const std::shared_ptr<pylith::problems::Physics>& physics) {
+    return std::make_shared<ConstraintCxxFnWrap>(physics);
+} // create
+
+
+// ------------------------------------------------------------------------------------------------
 // Destructor.
-pylith::feassemble::ConstraintUserFn::~ConstraintUserFn(void) {
+pylith::feassemble::ConstraintCxxFn::~ConstraintCxxFn(void) {
     deallocate();
 } // destructor
 
@@ -61,42 +78,42 @@ pylith::feassemble::ConstraintUserFn::~ConstraintUserFn(void) {
 // ------------------------------------------------------------------------------------------------
 // Set constraint kernel.
 void
-pylith::feassemble::ConstraintUserFn::setUserFn(const PetscUserFieldFunc fn) {
+pylith::feassemble::ConstraintCxxFn::setCxxFn(const PetscUserFieldFunc fn) {
     _fn = fn;
-} // setUserFn
+} // setCxxFn
 
 
 // ------------------------------------------------------------------------------------------------
 // Set constraint kernel time derivative.
 void
-pylith::feassemble::ConstraintUserFn::setUserFnDot(const PetscUserFieldFunc fnDot) {
+pylith::feassemble::ConstraintCxxFn::setCxxFnDot(const PetscUserFieldFunc fnDot) {
     _fnDot = fnDot;
-} // setUserFnDot
+} // setCxxFnDot
 
 
 // ------------------------------------------------------------------------------------------------
 // Initialize constraint domain, auxiliary field, and derived field. Update observers.
 void
-pylith::feassemble::ConstraintUserFn::initialize(const pylith::topology::Field& solution) {
+pylith::feassemble::ConstraintCxxFn::initialize(const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG(_labelName<<"="<<_labelValue<<" initialize(solution="<<solution.getLabel()<<")");
+    PYLITH_JOURNAL_DEBUG(_labelName<<"="<<_labelValue<<" initialize(solution="<<solution.getName()<<")");
 
     Constraint::initialize(solution);
 
     const pylith::problems::Observer::NotificationType notification = pylith::problems::ObserverPhysics::DIAGNOSTIC;
     _observers->notifyObservers(0.0, 0, solution, notification);
 
-    // :KLUDGE: Potentially we may have multiple PetscDS objects. This assumes that the first one (with a NULL
+    // :KLUDGE: Potentially we may have multiple PetscDS objects. This assumes that the first one (with a nullptr
     // label) is the correct one.
-    PetscErrorCode err = 0;
-    PetscDS prob = NULL;
-    DMLabel label = NULL;
-    void* context = NULL;
+    PetscErrorCode err = PETSC_SUCCESS;
+    PetscDS prob = nullptr;
+    DMLabel label = nullptr;
+    void* context = nullptr;
     err = DMGetDS(solution.getDM(), &prob);PYLITH_CHECK_ERROR(err);
-    const PetscInt i_field = solution.getSubfieldInfo(_subfieldName.c_str()).index;
+    const pylith::integer i_field = solution.getSubfieldInfo(_subfieldName.c_str()).index;
     err = DMGetLabel(solution.getDM(), _labelName.c_str(), &label);PYLITH_CHECK_ERROR(err);
     err = PetscDSAddBoundary(prob, DM_BC_ESSENTIAL, _labelName.c_str(), label, 1, &_labelValue, i_field,
-                             _constrainedDOF.size(), &_constrainedDOF[0], (void (*)(void)) _fn, (void (*)(void)) _fnDot, context, NULL);
+                             _constrainedDOF.size(), &_constrainedDOF[0], (void (*)(void)) _fn, (void (*)(void)) _fnDot, context, nullptr);
     PYLITH_CHECK_ERROR(err);
 
     PYLITH_METHOD_END;
@@ -106,21 +123,20 @@ pylith::feassemble::ConstraintUserFn::initialize(const pylith::topology::Field& 
 // ------------------------------------------------------------------------------------------------
 // Set constrained values in solution field.
 void
-pylith::feassemble::ConstraintUserFn::setSolution(pylith::feassemble::IntegrationData* integrationData) {
-    assert(integrationData);
+pylith::feassemble::ConstraintCxxFn::setSolution(pylith::feassemble::IntegrationData& integrationData) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG(_labelName<<"="<<_labelValue<<" setSolution(integrationData="<<integrationData->str()<<")");
+    PYLITH_JOURNAL_DEBUG(_labelName<<"="<<_labelValue<<" setSolution(integrationData="<<integrationData.str()<<")");
 
-    const pylith::topology::Field* solution = integrationData->getField(pylith::feassemble::IntegrationData::solution);
+    const pylith::topology::Field* solution = integrationData.getField(pylith::feassemble::IntegrationData::solution);
     assert(solution);
-    const PylithReal t = integrationData->getScalar(pylith::feassemble::IntegrationData::time);
+    const pylith::real t = integrationData.getScalar(pylith::feassemble::IntegrationData::time);
 
-    _ConstraintUserFn::setSolution(solution, t, _fn, *this);
+    _ConstraintCxxFn::setSolution(solution, t, _fn, *this);
 
-    if (_fnDot && integrationData->hasField(pylith::feassemble::IntegrationData::solution_dot)) {
-        const pylith::topology::Field* solutionDot = integrationData->getField(pylith::feassemble::IntegrationData::solution_dot);
+    if (_fnDot && integrationData.hasField(pylith::feassemble::IntegrationData::solution_dot)) {
+        const pylith::topology::Field* solutionDot = integrationData.getField(pylith::feassemble::IntegrationData::solution_dot);
         assert(solutionDot);
-        _ConstraintUserFn::setSolution(solutionDot, t, _fnDot, *this);
+        _ConstraintCxxFn::setSolution(solutionDot, t, _fnDot, *this);
     } // if
 
     PYLITH_METHOD_END;
@@ -130,23 +146,23 @@ pylith::feassemble::ConstraintUserFn::setSolution(pylith::feassemble::Integratio
 // ------------------------------------------------------------------------------------------------
 // Set constrained values in solution field.
 void
-pylith::feassemble::_ConstraintUserFn::setSolution(const pylith::topology::Field* field,
-                                                   const PylithReal t,
-                                                   PetscUserFieldFunc fn,
-                                                   const pylith::feassemble::ConstraintUserFn& constraint) {
+pylith::feassemble::_ConstraintCxxFn::setSolution(const pylith::topology::Field* field,
+                                                  const pylith::real t,
+                                                  PetscUserFieldFunc fn,
+                                                  const pylith::feassemble::ConstraintCxxFn& constraint) {
     PYLITH_METHOD_BEGIN;
     assert(field);
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     PetscDM dmField = field->getDM();
 
     // Get label for constraint.
-    PetscDMLabel dmLabel = NULL;
+    PetscDMLabel dmLabel = nullptr;
     err = DMGetLabel(dmField, constraint._labelName.c_str(), &dmLabel);PYLITH_CHECK_ERROR(err);
 
-    void* context = NULL;
+    void* context = nullptr;
     const int fieldIndex = field->getSubfieldInfo(constraint._subfieldName.c_str()).index;
-    const PylithInt numConstrained = constraint._constrainedDOF.size();
+    const pylith::integer numConstrained = constraint._constrainedDOF.size();
     assert(field->getLocalVector());
     err = DMPlexLabelAddCells(dmField, dmLabel);PYLITH_CHECK_ERROR(err);
     err = DMPlexInsertBoundaryValuesEssential(dmField, t, fieldIndex, numConstrained, &constraint._constrainedDOF[0], dmLabel, 1,

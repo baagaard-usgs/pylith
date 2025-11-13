@@ -111,7 +111,7 @@ pylith::topology::TestSubmesh_Cases::Tri(void) {
     };
     delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
-    static const PylithInt cells[numCells*numCorners] = {
+    static const pylith::integer cells[numCells*numCorners] = {
         0, 1, 3,
         0, 3, 2,
     };
@@ -183,7 +183,7 @@ pylith::topology::TestSubmesh_Cases::Quad(void) {
     };
     delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
-    static const PylithInt cells[numCells*numCorners] = {
+    static const pylith::integer cells[numCells*numCorners] = {
         0, 2, 3, 1,
         2, 4, 5, 3,
     };
@@ -254,7 +254,7 @@ pylith::topology::TestSubmesh_Cases::Tet(void) {
     };
     delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
-    static const PylithInt cells[numCells*numCorners] = {
+    static const pylith::integer cells[numCells*numCorners] = {
         1, 2, 3, 0,
         1, 3, 2, 4,
     };
@@ -331,7 +331,7 @@ pylith::topology::TestSubmesh_Cases::Hex(void) {
     };
     delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
-    static const PylithInt cells[numCells*numCorners] = {
+    static const pylith::integer cells[numCells*numCorners] = {
         0,  2,  3,  1,  6,  8,  9,  7,
         2,  4,  5,  3,  8, 10, 11,  9,
     };

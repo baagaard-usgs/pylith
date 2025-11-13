@@ -24,7 +24,7 @@
 #include "pylith/problems/TimeDependent.hh" // USES TimeDependent
 #include "pylith/materials/Elasticity.hh" // USES Elasticity
 #include "pylith/materials/IsotropicLinearElasticity.hh" // USES IsotropicLinearElasticity
-#include "pylith/bc/DirichletUserFn.hh" // USES DirichletUserFn
+#include "pylith/bc/DirichletCxxFn.hh" // USES DirichletCxxFn
 
 #include "pylith/topology/Mesh.hh" // USES pylith::topology::Mesh::cells_label_name
 #include "pylith/topology/Field.hh" // USES pylith::topology::Field::Discretization
@@ -112,7 +112,7 @@ private:
 
     static double disp_y(const double x,
                          const double y,
-                         PetscInt flag) {
+                         pylith::integer flag) {
         const double disp = Y_DISP;
         if (!flag) {
             return x < X_FAULT ? +disp : -disp;
@@ -131,11 +131,11 @@ private:
         return 0.0;
     } // faulttraction_y
 
-    static PetscErrorCode solnkernel_disp(PetscInt spaceDim,
-                                          PetscReal t,
-                                          const PetscReal x[],
-                                          PetscInt numComponents,
-                                          PetscScalar* s,
+    static PetscErrorCode solnkernel_disp(pylith::integer spaceDim,
+                                          pylith::real t,
+                                          const pylith::real x[],
+                                          pylith::integer numComponents,
+                                          pylith::scalar* s,
                                           void* context) {
         assert(2 == spaceDim);
         assert(x);
@@ -143,15 +143,15 @@ private:
         assert(s);
 
         s[0] = disp_x(x[0], x[1]);
-        PetscInt flag = 0;
+        pylith::integer flag = 0;
         if (context) {
             PetscErrorCode err = PETSC_SUCCESS;
             PetscDM dmMesh = PetscDM(context);
-            PetscInt cell = 0;
+            pylith::integer cell = 0;
             err = DMPlexGetActivePoint(dmMesh, &cell);PYLITH_CHECK_ERROR(err);
 
             double centroid[3] = {0.0, 0.0, 0.0};
-            err = DMPlexComputeCellGeometryFVM(dmMesh, cell, NULL, centroid, NULL);PYLITH_CHECK_ERROR(err);
+            err = DMPlexComputeCellGeometryFVM(dmMesh, cell, nullptr, centroid, nullptr);PYLITH_CHECK_ERROR(err);
             flag = centroid[0] < X_FAULT ? -1 : +1;
         } // if
         s[1] = disp_y(x[0], x[1], flag);
@@ -159,11 +159,11 @@ private:
         return PETSC_SUCCESS;
     } // solnkernel_disp
 
-    static PetscErrorCode solnkernel_lagrangemultiplier(PetscInt spaceDim,
-                                                        PetscReal t,
-                                                        const PetscReal x[],
-                                                        PetscInt numComponents,
-                                                        PetscScalar* s,
+    static PetscErrorCode solnkernel_lagrangemultiplier(pylith::integer spaceDim,
+                                                        pylith::real t,
+                                                        const pylith::real x[],
+                                                        pylith::integer numComponents,
+                                                        pylith::scalar* s,
                                                         void* context) {
         assert(2 == spaceDim);
         assert(x);
@@ -259,11 +259,11 @@ public:
             data->materials[2] = material;
         } // xpos
 
-        static const PylithInt constrainedDOF[2] = {0, 1};
-        static const PylithInt numConstrained = 2;
+        static const pylith::integer constrainedDOF[2] = {0, 1};
+        static const pylith::integer numConstrained = 2;
         data->bcs.resize(2);
         { // boundary_xpos
-            pylith::bc::DirichletUserFn* bc = new pylith::bc::DirichletUserFn();
+            pylith::bc::DirichletCxxFn* bc = new pylith::bc::DirichletCxxFn();
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_xpos");
             bc->setLabelValue(1);
@@ -272,7 +272,7 @@ public:
             data->bcs[0] = bc;
         } // boundary_xpos
         { // boundary_xneg
-            pylith::bc::DirichletUserFn* bc = new pylith::bc::DirichletUserFn();
+            pylith::bc::DirichletCxxFn* bc = new pylith::bc::DirichletCxxFn();
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_xneg");
             bc->setLabelValue(1);

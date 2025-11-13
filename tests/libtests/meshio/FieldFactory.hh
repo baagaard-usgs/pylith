@@ -65,8 +65,8 @@ public:
      * @param[in] numDOF Total number of values per point.
      */
     void setValues(const PylithScalar* values,
-                   const PylithInt numPoints,
-                   const PylithInt numDOF);
+                   const pylith::integer numPoints,
+                   const pylith::integer numDOF);
 
     // PRIVATE MEMBERS ////////////////////////////////////////////////////
 private:
@@ -76,8 +76,8 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////
 private:
 
-    FieldFactory(const FieldFactory &); ///< Not implemented.
-    const FieldFactory& operator=(const FieldFactory&); ///< Not implemented
+    FieldFactory(const FieldFactory &) = delete;
+    const FieldFactory& operator=(const FieldFactory&) = delete;
 
 }; // class FieldFactory
 

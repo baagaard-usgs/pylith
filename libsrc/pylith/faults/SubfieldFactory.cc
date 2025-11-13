@@ -45,7 +45,7 @@ pylith::faults::AuxiliaryFieldFactory::addSlip(void) {
     const char* fieldName = "slip";
     const char* componentNames[3] = { "slip_opening", "slip_left_lateral", "slip_reverse" };
 
-    const PylithReal lengthScale = _normalizer->getLengthScale();
+    const pylith::real lengthScale = _normalizer->getLengthScale();
 
     pylith::topology::Field::Description description;
     description.label = fieldName;
@@ -57,7 +57,7 @@ pylith::faults::AuxiliaryFieldFactory::addSlip(void) {
         description.componentNames[i] = componentNames[i];
     } // for
     description.scale = lengthScale;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(fieldName));
     // No query; populated by kinematic source at beginning of time step.
@@ -76,7 +76,7 @@ pylith::faults::AuxiliaryFieldFactory::addSlipRate(void) {
     const char* fieldName = "slip_rate";
     const char* componentNames[3] = { "slip_rate_opening", "slip_rate_left_lateral", "slip_rate_reverse" };
 
-    const PylithReal velocityScale = _normalizer->getLengthScale() / _normalizer->getTimeScale();
+    const pylith::real velocityScale = _normalizer->getLengthScale() / _normalizer->getTimeScale();
 
     pylith::topology::Field::Description description;
     description.label = fieldName;
@@ -88,7 +88,7 @@ pylith::faults::AuxiliaryFieldFactory::addSlipRate(void) {
         description.componentNames[i] = componentNames[i];
     } // for
     description.scale = velocityScale;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(fieldName));
     // No query; populated by kinematic source at beginning of time step.
@@ -111,7 +111,7 @@ pylith::faults::AuxiliaryFieldFactory::addSlipAcceleration(void) {
         "slip_acceleration_reverse",
     };
 
-    const PylithReal accelerationScale = _normalizer->getLengthScale() / pow(_normalizer->getTimeScale(), 2);
+    const pylith::real accelerationScale = _normalizer->getLengthScale() / pow(_normalizer->getTimeScale(), 2);
 
     pylith::topology::Field::Description description;
     description.label = fieldName;
@@ -123,7 +123,7 @@ pylith::faults::AuxiliaryFieldFactory::addSlipAcceleration(void) {
         description.componentNames[i] = componentNames[i];
     } // for
     description.scale = accelerationScale;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(fieldName));
     // No query; populated by kinematic source at beginning of time step.

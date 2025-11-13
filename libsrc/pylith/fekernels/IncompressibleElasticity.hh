@@ -89,23 +89,23 @@ public:
      * Solution fields: [disp(dim), pressure(1)]
      */
     static inline
-    void Jf1pu(const PylithInt dim,
-               const PylithInt numS,
-               const PylithInt numA,
-               const PylithInt sOff[],
-               const PylithInt sOff_x[],
+    void Jf1pu(const pylith::integer dim,
+               const pylith::integer numS,
+               const pylith::integer numA,
+               const pylith::integer sOff[],
+               const pylith::integer sOff_x[],
                const PylithScalar s[],
                const PylithScalar s_t[],
                const PylithScalar s_x[],
-               const PylithInt aOff[],
-               const PylithInt aOff_x[],
+               const pylith::integer aOff[],
+               const pylith::integer aOff_x[],
                const PylithScalar a[],
                const PylithScalar a_t[],
                const PylithScalar a_x[],
-               const PylithReal t,
-               const PylithReal s_tshift,
+               const pylith::real t,
+               const pylith::real s_tshift,
                const PylithScalar x[],
-               const PylithInt numConstants,
+               const pylith::integer numConstants,
                const PylithScalar constants[],
                PylithScalar Jf1[]) {
         assert(Jf1);
@@ -126,7 +126,7 @@ public:
          * 8: j022 = 1
          */
 
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             Jf1[i*dim+i] += 1.0;
         } // for
     } // Jf1pu
@@ -137,23 +137,23 @@ public:
      * Solution fields: [disp(dim), pressure(1)]
      */
     static inline
-    void Jf2up(const PylithInt dim,
-               const PylithInt numS,
-               const PylithInt numA,
-               const PylithInt sOff[],
-               const PylithInt sOff_x[],
+    void Jf2up(const pylith::integer dim,
+               const pylith::integer numS,
+               const pylith::integer numA,
+               const pylith::integer sOff[],
+               const pylith::integer sOff_x[],
                const PylithScalar s[],
                const PylithScalar s_t[],
                const PylithScalar s_x[],
-               const PylithInt aOff[],
-               const PylithInt aOff_x[],
+               const pylith::integer aOff[],
+               const pylith::integer aOff_x[],
                const PylithScalar a[],
                const PylithScalar a_t[],
                const PylithScalar a_x[],
-               const PylithReal t,
-               const PylithReal s_tshift,
+               const pylith::real t,
+               const pylith::real s_tshift,
                const PylithScalar x[],
-               const PylithInt numConstants,
+               const pylith::integer numConstants,
                const PylithScalar constants[],
                PylithScalar Jf2[]) {
         assert(Jf2);
@@ -174,7 +174,7 @@ public:
          * 8: j202 = 1
          */
 
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             Jf2[i*dim+i] += 1.0;
         } // for
     } // Jf2up
@@ -188,7 +188,7 @@ public:
      * and strain.
      */
     static inline
-    void meanStress(const PylithReal pressure,
+    void meanStress(const pylith::real pressure,
                     pylith::fekernels::Tensor* stress) {
         assert(stress);
 
@@ -202,12 +202,12 @@ public:
      * and strain.
      */
     static inline
-    void meanStress_refState(const PylithReal pressure,
+    void meanStress_refState(const pylith::real pressure,
                              const pylith::fekernels::Tensor& refStress,
                              pylith::fekernels::Tensor* stress) {
         assert(stress);
 
-        const PylithReal meanRefStress = (refStress.xx + refStress.yy + refStress.zz) / 3.0;
+        const pylith::real meanRefStress = (refStress.xx + refStress.yy + refStress.zz) / 3.0;
         const PylithScalar meanStress = meanRefStress - pressure;
 
         stress->xx += meanStress;

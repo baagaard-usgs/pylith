@@ -58,8 +58,8 @@ public:
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    Distributor(const Distributor&); ///< Not implemented
-    const Distributor& operator=(const Distributor&); ///< Not implemented
+    Distributor(const Distributor&) = delete;
+    const Distributor& operator=(const Distributor&) = delete;
 
 }; // Distributor
 

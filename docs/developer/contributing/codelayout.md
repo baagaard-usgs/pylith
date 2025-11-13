@@ -90,7 +90,7 @@ Diagram showing the relationships among objects specifying the physics and the f
 We generalize the finite-element operations into two main classes: `Integrator` and `Constraint`.
 The `Integrator` is further separated into concrete classes for performing the finite-element integrations over pieces of the domain (`IntegratorDomain`), pieces of the domain boundary (`IntegratorBoundary`), and interior interfaces (`IntegratorInterface`).
 We implement several kinds of constraints, corresponding to how the values of the constrained degrees of freedom are specified.
-`ConstraintSpatialDB` gets values for the constrained degrees of freedom from a spatial database; `ConstraintUserFn` gets the values for the constrained degrees of freedom from a function (this object is widely used in tests); `ConstraintSimple` is a special case of `ConstraintUserFn` with the constrained degrees of freedom set programmatically using a label (this object is used for constraining the edges of the fault).
+`ConstraintSpatialDB` gets values for the constrained degrees of freedom from a spatial database; `ConstraintCxxFn` gets the values for the constrained degrees of freedom from a function (this object is widely used in tests); `ConstraintSimple` is a special case of `ConstraintCxxFn` with the constrained degrees of freedom set programmatically using a label (this object is used for constraining the edges of the fault).
 
 `Problem` holds the `Physics` objects as materials, boundary conditions, and interfaces.
 During initialization of `Problem`, each `Physics` object creates any necessary `Integrator` and `Constraint` objects to implement the physics.
@@ -277,8 +277,8 @@ private: // private members
 
 private: // not implemented
 
-    Material(const Material&); ///< Not implemented.
-    const Material& operator=(const Material&); ///< Not implemented
+    Material(const Material&) = delete;.
+    const Material& operator=(const Material&) = delete;
 
 };
 

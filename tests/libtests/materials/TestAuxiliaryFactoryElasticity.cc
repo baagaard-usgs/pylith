@@ -107,10 +107,10 @@ pylith::materials::TestAuxiliaryFactoryElasticity::TestAuxiliaryFactoryElasticit
 pylith::materials::TestAuxiliaryFactoryElasticity::~TestAuxiliaryFactoryElasticity(void) {
     PYLITH_METHOD_BEGIN;
 
-    delete _factory;_factory = NULL;
-    delete _data;_data = NULL;
-    delete _mesh;_mesh = NULL;
-    delete _auxiliaryField;_auxiliaryField = NULL;
+    delete _factory;_factory = nullptr;
+    delete _data;_data = nullptr;
+    delete _mesh;_mesh = nullptr;
+    delete _auxiliaryField;_auxiliaryField = nullptr;
 
     PYLITH_METHOD_END;
 } // tearDown
@@ -191,7 +191,7 @@ pylith::materials::TestAuxiliaryFactoryElasticity::_initialize(void) {
     pylith::topology::MeshOps::nondimensionalize(_mesh, *_data->normalizer);
 
     _auxiliaryField = new pylith::topology::Field(*_mesh);assert(_auxiliaryField);
-    _auxiliaryField->setLabel("auxiliary");
+    _auxiliaryField->setName("auxiliary");
 
     _factory = new AuxiliaryFactoryElasticity();
     assert(_data->auxiliaryDB);
@@ -212,8 +212,8 @@ pylith::materials::TestAuxiliaryFactoryElasticity::_initialize(void) {
 
 // ------------------------------------------------------------------------------------------------
 pylith::materials::TestAuxiliaryFactoryElasticity_Data::TestAuxiliaryFactoryElasticity_Data(void) :
-    meshFilename(NULL),
-    cs(NULL),
+    meshFilename(nullptr),
+    cs(nullptr),
     normalizer(new spatialdata::units::Nondimensional),
     auxiliaryDB(new spatialdata::spatialdb::UserFunctionDB),
     gravityField(new spatialdata::spatialdb::GravityField) {}
@@ -221,10 +221,10 @@ pylith::materials::TestAuxiliaryFactoryElasticity_Data::TestAuxiliaryFactoryElas
 
 // ------------------------------------------------------------------------------------------------
 pylith::materials::TestAuxiliaryFactoryElasticity_Data::~TestAuxiliaryFactoryElasticity_Data(void) {
-    delete cs;cs = NULL;
-    delete normalizer;normalizer = NULL;
-    delete auxiliaryDB;auxiliaryDB = NULL;
-    delete gravityField;gravityField = NULL;
+    delete cs;cs = nullptr;
+    delete normalizer;normalizer = nullptr;
+    delete auxiliaryDB;auxiliaryDB = nullptr;
+    delete gravityField;gravityField = nullptr;
 } // destructor
 
 

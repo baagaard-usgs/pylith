@@ -111,11 +111,11 @@ class pylith::_RigidBodyAcc2D {
         return "m/s*2";
     } // vel_units
 
-    static PetscErrorCode solnkernel_disp(PetscInt spaceDim,
-                                          PetscReal t,
-                                          const PetscReal x[],
-                                          PetscInt numComponents,
-                                          PetscScalar* s,
+    static PetscErrorCode solnkernel_disp(pylith::integer spaceDim,
+                                          pylith::real t,
+                                          const pylith::real x[],
+                                          pylith::integer numComponents,
+                                          pylith::scalar* s,
                                           void* context) {
         assert(2 == spaceDim);
         assert(x);
@@ -128,11 +128,11 @@ class pylith::_RigidBodyAcc2D {
         return 0;
     } // solnkernel_disp
 
-    static PetscErrorCode solnkernel_vel(PetscInt spaceDim,
-                                         PetscReal t,
-                                         const PetscReal x[],
-                                         PetscInt numComponents,
-                                         PetscScalar* s,
+    static PetscErrorCode solnkernel_vel(pylith::integer spaceDim,
+                                         pylith::real t,
+                                         const pylith::real x[],
+                                         pylith::integer numComponents,
+                                         pylith::scalar* s,
                                          void* context) {
         assert(2 == spaceDim);
         assert(x);
@@ -145,11 +145,11 @@ class pylith::_RigidBodyAcc2D {
         return 0;
     } // solnkernel_vel
 
-    static PetscErrorCode solnkernel_acc(PetscInt spaceDim,
-                                         PetscReal t,
-                                         const PetscReal x[],
-                                         PetscInt numComponents,
-                                         PetscScalar* s,
+    static PetscErrorCode solnkernel_acc(pylith::integer spaceDim,
+                                         pylith::real t,
+                                         const pylith::real x[],
+                                         pylith::integer numComponents,
+                                         pylith::scalar* s,
                                          void* context) {
         assert(2 == spaceDim);
         assert(x);
@@ -162,22 +162,22 @@ class pylith::_RigidBodyAcc2D {
         return 0;
     } // solnkernel_acc
 
-    static void mmsBodyForceKernel(const PylithInt dim,
-                                   const PylithInt numS,
-                                   const PylithInt numA,
-                                   const PylithInt sOff[],
-                                   const PylithInt sOff_x[],
+    static void mmsBodyForceKernel(const pylith::integer dim,
+                                   const pylith::integer numS,
+                                   const pylith::integer numA,
+                                   const pylith::integer sOff[],
+                                   const pylith::integer sOff_x[],
                                    const PylithScalar s[],
                                    const PylithScalar s_t[],
                                    const PylithScalar s_x[],
-                                   const PylithInt aOff[],
-                                   const PylithInt aOff_x[],
+                                   const pylith::integer aOff[],
+                                   const pylith::integer aOff_x[],
                                    const PylithScalar a[],
                                    const PylithScalar a_t[],
                                    const PylithScalar a_x[],
-                                   const PylithReal t,
+                                   const pylith::real t,
                                    const PylithScalar x[],
-                                   const PylithInt numConstants,
+                                   const pylith::integer numConstants,
                                    const PylithScalar constants[],
                                    PylithScalar f0[]) {
         assert(2 == dim);
@@ -235,15 +235,15 @@ public:
         data->material.setLabelValue(24);
 
         std::vector<pylith::feassemble::IntegratorDomain::ResidualKernels> mmsKernels(1);
-        mmsKernels[0] = pylith::feassemble::IntegratorDomain::ResidualKernels("velocity", pylith::feassemble::Integrator::RHS, mmsBodyForceKernel, NULL);
+        mmsKernels[0] = pylith::feassemble::IntegratorDomain::ResidualKernels("velocity", pylith::feassemble::Integrator::RHS, mmsBodyForceKernel, nullptr);
         data->material.setMMSBodyForceKernels(mmsKernels);
 
         // Boundary conditions
-        static const PylithInt constrainedDOF[2] = {0, 1};
-        static const PylithInt numConstrained = 2;
+        static const pylith::integer constrainedDOF[2] = {0, 1};
+        static const pylith::integer numConstrained = 2;
         data->bcs.resize(2);
-        pylith::bc::DirichletUserFn* bc = NULL;
-        bc = new pylith::bc::DirichletUserFn();assert(bc);
+        pylith::bc::DirichletCxxFn* bc = nullptr;
+        bc = new pylith::bc::DirichletCxxFn();assert(bc);
         bc->setSubfieldName("displacement");
         bc->setLabelName("boundary");
         bc->setLabelValue(1);
@@ -252,7 +252,7 @@ public:
         bc->setUserFnDot(solnkernel_vel);
         data->bcs[0] = bc;
 
-        bc = new pylith::bc::DirichletUserFn();assert(bc);
+        bc = new pylith::bc::DirichletCxxFn();assert(bc);
         bc->setSubfieldName("velocity");
         bc->setLabelName("boundary");
         bc->setLabelValue(1);

@@ -47,7 +47,7 @@ public:
 
         ProjectKernels(void) :
             subfield(""),
-            f(NULL) {}
+            f(nullptr) {}
 
 
         ProjectKernels(const char* subfieldValue,
@@ -65,10 +65,10 @@ public:
      *
      * @param[in] physics Physics implemented by integrator.
      */
-    Integrator(std::shared_ptr<pylith::problems::Physics>& physics);
+    Integrator(const std::shared_ptr<pylith::problems::Physics>& physics);
 
     /// Destructor
-    virtual ~Integrator(void);
+    virtual ~Integrator(void) override;
 
     /** Set name of label used to identify integration domain.
      *
@@ -229,10 +229,10 @@ protected:
 protected:
 
     std::string _labelName; ///< Name of label associated with integration domain.
-    int _labelValue; ///< Value of label associated with integration domain.
+    pylith::integer _labelValue; ///< Value of label associated with integration domain.
 
-    int _lhsJacobianTriggers; // Triggers for needing new LHS Jacobian.
-    int _lhsJacobianLumpedTriggers; // Triggers for needing new LHS lumped Jacobian.
+    size_t _lhsJacobianTriggers; // Triggers for needing new LHS Jacobian.
+    size_t _lhsJacobianLumpedTriggers; // Triggers for needing new LHS lumped Jacobian.
 
     /// True if we have kernels for operation, false otherwise.
     bool _hasRHSResidual;
@@ -248,9 +248,9 @@ protected:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    Integrator(void); /// Not implemented.
-    Integrator(const Integrator&); ///< Not implemented.
-    const Integrator& operator=(const Integrator&); ///< Not implemented.
+    Integrator(void) = delete;
+    Integrator(const Integrator&) = delete;
+    const Integrator& operator=(const Integrator&) = delete;
 
 }; // Integrator
 

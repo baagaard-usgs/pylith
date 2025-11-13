@@ -42,8 +42,8 @@ pylith::topology::FieldOps::createFE(const FieldBase::Discretization& discretiza
     PYLITH_METHOD_BEGIN;
     // Get spatial dimension of mesh.
     PetscFE fe;
-    PetscInt dim;
-    PetscErrorCode err;
+    pylith::integer dim;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     err = DMGetDimension(dm, &dim);PYLITH_CHECK_ERROR(err);
     dim = (discretization.dimension < 0) ? dim : discretization.dimension;assert(dim > 0);
@@ -60,7 +60,7 @@ pylith::topology::FieldOps::createFE(const FieldBase::Discretization& discretiza
         const PetscBool basisContinuity = feKey.isBasisContinuous ? PETSC_TRUE : PETSC_FALSE;
 
         // Create space
-        PetscSpace space = NULL;
+        PetscSpace space = nullptr;
         err = PetscSpaceCreate(PETSC_COMM_SELF, &space);PYLITH_CHECK_ERROR(err);assert(space);
         err = PetscSpaceSetType(space, feKey.feSpace == FieldBase::POLYNOMIAL_SPACE ?
                                 PETSCSPACEPOLYNOMIAL : PETSCSPACEPOINT);PYLITH_CHECK_ERROR(err);
@@ -73,8 +73,8 @@ pylith::topology::FieldOps::createFE(const FieldBase::Discretization& discretiza
         err = PetscSpaceSetUp(space);PYLITH_CHECK_ERROR(err);
 
         // Create dual space
-        PetscDualSpace dualspace = NULL;
-        PetscDM dmCell = NULL;
+        PetscDualSpace dualspace = nullptr;
+        PetscDM dmCell = nullptr;
         err = PetscDualSpaceCreate(PETSC_COMM_SELF, &dualspace);PYLITH_CHECK_ERROR(err);
         err = DMPlexCreateReferenceCell(PETSC_COMM_SELF, DMPolytopeTypeSimpleShape(dim, simplexBasis), &dmCell);PYLITH_CHECK_ERROR(err);
         err = PetscDualSpaceSetDM(dualspace, dmCell);PYLITH_CHECK_ERROR(err);
@@ -97,8 +97,8 @@ pylith::topology::FieldOps::createFE(const FieldBase::Discretization& discretiza
         err = PetscDualSpaceDestroy(&dualspace);PYLITH_CHECK_ERROR(err);
 
         // Create quadrature
-        PetscQuadrature quadrature = NULL;
-        PetscQuadrature faceQuadrature = NULL;
+        PetscQuadrature quadrature = nullptr;
+        PetscQuadrature faceQuadrature = nullptr;
         DMPolytopeType ct;
         switch (dim) {
         case 0: ct = DM_POLYTOPE_POINT;break;
@@ -140,7 +140,7 @@ pylith::topology::FieldOps::checkDiscretization(const pylith::topology::Field& t
     // routines.
 
     // Get quadrature order in target subfields.
-    PetscInt quadOrder = -1;
+    pylith::integer quadOrder = -1;
     { // target subfields
         const pylith::string_vector& subfieldNames = target.getSubfieldNames();
         const size_t numSubfields = subfieldNames.size();
@@ -234,14 +234,14 @@ pylith::topology::FieldOps::getSubfieldNamesDomain(const pylith::topology::Field
 
     // Restrict fields to those defined over the entire domain
     // (as opposed to those defined over a subset like the fault_lagrange_multiplier).
-    PetscDS fieldDS = NULL;
+    PetscDS fieldDS = nullptr;
     PetscErrorCode err = DMGetDS(field.getDM(), &fieldDS);PYLITH_CHECK_ERROR(err);
     pylith::integer numFields = 0;
     err = PetscDSGetNumFields(fieldDS, &numFields);PYLITH_CHECK_ERROR(err);
     assert(numFields > 0);
     pylith::string_vector subfieldNamesDomain(numFields);
     for (pylith::integer iField = 0; iField < numFields; ++iField) {
-        PetscObject discretization = NULL;
+        PetscObject discretization = nullptr;
         err = PetscDSGetDiscretization(fieldDS, iField, &discretization);PYLITH_CHECK_ERROR(err);
         pylith::integer fieldIndex = -1;
         err = PetscDSGetFieldIndex(fieldDS, discretization, &fieldIndex);PYLITH_CHECK_ERROR(err);
@@ -286,8 +286,8 @@ pylith::topology::FieldOps::layoutsMatch(const pylith::topology::Field& fieldA,
     } // if
 
     // Must match across all processors.
-    PetscInt matchLocal = isMatch;
-    PetscInt matchGlobal = 0;
+    pylith::integer matchLocal = isMatch;
+    pylith::integer matchGlobal = 0;
     PetscErrorCode err = MPI_Allreduce(&matchLocal, &matchGlobal, 1, MPIU_INT, MPI_LOR, fieldA.getMesh().getComm());PYLITH_CHECK_ERROR(err);
     isMatch = matchGlobal == 1;
 
@@ -304,12 +304,12 @@ pylith::topology::FieldOps::createOutputLabel(const pylith::topology::Field* fie
 
     const char* outputLabelName = "output";
     PetscDM fieldDM = field->getDM();
-    PetscDMLabel outputLabel = NULL;
+    PetscDMLabel outputLabel = nullptr;
     PetscErrorCode err = PETSC_SUCCESS;
     err = DMCreateLabel(fieldDM, outputLabelName);PYLITH_CHECK_ERROR(err);
     err = DMGetLabel(fieldDM, outputLabelName, &outputLabel);PYLITH_CHECK_ERROR(err);
     pylith::topology::Stratum faultStratum(fieldDM, pylith::topology::Stratum::HEIGHT, 1);
-    for (PetscInt point = faultStratum.begin(); point != faultStratum.end(); ++point) {
+    for (pylith::integer point = faultStratum.begin(); point != faultStratum.end(); ++point) {
         err = DMLabelSetValue(outputLabel, point, 1);
     } // for
     err = DMPlexLabelComplete(fieldDM, outputLabel);PYLITH_CHECK_ERROR(err);
@@ -332,77 +332,77 @@ pylith::topology::FieldOps::transformVector(PetscVec* outputVector,
     assert(inputDM);
 
     PetscErrorCode err = PETSC_SUCCESS;
-    PetscSection inputSection = PETSC_NULLPTR, outputSection = PETSC_NULLPTR;
+    PetscSection inputSection = PETSC_nullptrPTR, outputSection = PETSC_nullptrPTR;
     err = DMGetGlobalSection(inputDM, &inputSection);PYLITH_CHECK_ERROR(err);
     err = DMGetGlobalSection(outputDM, &outputSection);PYLITH_CHECK_ERROR(err);
 
     // Verify sizes
-    PetscInt outputNumFields = 0, inputNumFields = 0;
+    pylith::integer outputNumFields = 0, inputNumFields = 0;
     err = PetscSectionGetNumFields(inputSection, &inputNumFields);PYLITH_CHECK_ERROR(err);
     err = PetscSectionGetNumFields(outputSection, &outputNumFields);PYLITH_CHECK_ERROR(err);
     assert(inputNumFields == outputNumFields);
 
-    PetscInt inputSize = 0, outputSize = 0;
+    pylith::integer inputSize = 0, outputSize = 0;
     err = PetscSectionGetStorageSize(inputSection, &inputSize);PYLITH_CHECK_ERROR(err);
     err = PetscSectionGetStorageSize(outputSection, &outputSize);PYLITH_CHECK_ERROR(err);
     assert(inputSize == outputSize);
 
     // Copy values from input vector to output vector
-    const PetscScalar* inputArray = PETSC_NULLPTR;
-    PetscScalar* outputArray = PETSC_NULLPTR;
+    const pylith::scalar* inputArray = PETSC_nullptrPTR;
+    pylith::scalar* outputArray = PETSC_nullptrPTR;
     err = VecGetArrayRead(inputVector, &inputArray);PYLITH_CHECK_ERROR(err);
     err = VecGetArray(*outputVector, &outputArray);PYLITH_CHECK_ERROR(err);
 
     // Check whether inputDM and outputDM have the same names for points.
     // We will assume that if inputDM and outputDM have the same range of points,
     // then the names are the same and we ignore the subpoint map.
-    PetscDMLabel subpointMap = PETSC_NULLPTR; // Mapping of points in output DM back to input DM
-    PetscInt pStartIn, pEndIn, pStartOut, pEndOut;
+    PetscDMLabel subpointMap = PETSC_nullptrPTR; // Mapping of points in output DM back to input DM
+    pylith::integer pStartIn, pEndIn, pStartOut, pEndOut;
     PetscBool renamePoints = PETSC_FALSE;
     err = DMPlexGetSubpointMap(outputDM, &subpointMap);PYLITH_CHECK_ERROR(err);
     err = DMPlexGetChart(inputDM, &pStartIn, &pEndIn);
     err = DMPlexGetChart(outputDM, &pStartOut, &pEndOut);
     renamePoints = subpointMap && ((pStartIn != pStartOut) || (pEndIn != pEndOut)) ? PETSC_TRUE : PETSC_FALSE;
     if (renamePoints) {
-        PetscIS subpointIS = PETSC_NULLPTR; // Mapping of points in output DM back to input DM
-        PetscInt subpointISSize = 0;
-        const PetscInt* subpointISPoints = PETSC_NULLPTR;
+        PetscIS subpointIS = PETSC_nullptrPTR; // Mapping of points in output DM back to input DM
+        pylith::integer subpointISSize = 0;
+        const pylith::integer* subpointISPoints = PETSC_nullptrPTR;
         err = DMPlexGetSubpointIS(outputDM, &subpointIS);PYLITH_CHECK_ERROR(err);
         err = ISGetSize(subpointIS, &subpointISSize);PYLITH_CHECK_ERROR(err);
         err = ISGetIndices(subpointIS, &subpointISPoints);PYLITH_CHECK_ERROR(err);
 
-        PetscInt pStart = 0, pEnd = 0;
+        pylith::integer pStart = 0, pEnd = 0;
         err = PetscSectionGetChart(outputSection, &pStart, &pEnd);
-        for (PetscInt iPoint = 0; iPoint < subpointISSize; ++iPoint) {
-            PetscInt inputDof = 0, inputOffset = 0;
-            PetscInt outputDof = 0, outputOffset = 0;
-            const PetscInt inputPoint = subpointISPoints[iPoint];
-            const PetscInt outputPoint = pStart + iPoint;
+        for (pylith::integer iPoint = 0; iPoint < subpointISSize; ++iPoint) {
+            pylith::integer inputDof = 0, inputOffset = 0;
+            pylith::integer outputDof = 0, outputOffset = 0;
+            const pylith::integer inputPoint = subpointISPoints[iPoint];
+            const pylith::integer outputPoint = pStart + iPoint;
             err = PetscSectionGetDof(inputSection, inputPoint, &inputDof);PYLITH_CHECK_ERROR(err);
             err = PetscSectionGetOffset(inputSection, inputPoint, &inputOffset);PYLITH_CHECK_ERROR(err);
             err = PetscSectionGetDof(outputSection, outputPoint, &outputDof);PYLITH_CHECK_ERROR(err);
             err = PetscSectionGetOffset(outputSection, outputPoint, &outputOffset);PYLITH_CHECK_ERROR(err);
 
             assert(inputDof == outputDof);
-            for (PetscInt iDof = 0; iDof < inputDof; ++iDof) {
+            for (pylith::integer iDof = 0; iDof < inputDof; ++iDof) {
                 outputArray[outputOffset + iDof] = inputArray[inputOffset + iDof];
             } // for
         } // for
     } else {
-        PetscInt pStart = 0, pEnd = 0;
+        pylith::integer pStart = 0, pEnd = 0;
         err = PetscSectionGetChart(outputSection, &pStart, &pEnd);
-        for (PetscInt point = pStart; point < pEnd; ++point) {
-            PetscInt inputDof = 0, inputOffset = 0;
-            PetscInt outputDof = 0, outputOffset = 0;
-            const PetscInt inputPoint = point;
-            const PetscInt outputPoint = point;
+        for (pylith::integer point = pStart; point < pEnd; ++point) {
+            pylith::integer inputDof = 0, inputOffset = 0;
+            pylith::integer outputDof = 0, outputOffset = 0;
+            const pylith::integer inputPoint = point;
+            const pylith::integer outputPoint = point;
             err = PetscSectionGetDof(inputSection, inputPoint, &inputDof);PYLITH_CHECK_ERROR(err);
             err = PetscSectionGetOffset(inputSection, inputPoint, &inputOffset);PYLITH_CHECK_ERROR(err);
             err = PetscSectionGetDof(outputSection, outputPoint, &outputDof);PYLITH_CHECK_ERROR(err);
             err = PetscSectionGetOffset(outputSection, outputPoint, &outputOffset);PYLITH_CHECK_ERROR(err);
 
             assert(inputDof == outputDof);
-            for (PetscInt iDof = 0; iDof < inputDof; ++iDof) {
+            for (pylith::integer iDof = 0; iDof < inputDof; ++iDof) {
                 outputArray[outputOffset + iDof] = inputArray[inputOffset + iDof];
             } // for
         } // for

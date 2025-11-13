@@ -16,8 +16,7 @@
 
 // ------------------------------------------------------------------------------------------------
 // Constructor.
-pylith::problems::ObserverPhysics::ObserverPhysics(void) :
-    _physics(NULL) {}
+pylith::problems::ObserverPhysics::ObserverPhysics(void) {}
 
 
 // ------------------------------------------------------------------------------------------------
@@ -31,14 +30,14 @@ pylith::problems::ObserverPhysics::~ObserverPhysics(void) {
 // Deallocate PETSc and local data structures.
 void
 pylith::problems::ObserverPhysics::deallocate(void) {
-    _physics = NULL; // :TODO: Use shared pointer.
+    _physics.reset();
 } // deallocate
 
 
 // ------------------------------------------------------------------------------------------------
 // Set physics implementation to observe.
 void
-pylith::problems::ObserverPhysics::setPhysicsImplementation(const pylith::feassemble::PhysicsImplementation* const physics) {
+pylith::problems::ObserverPhysics::setPhysicsImplementation(const std::shared_ptr<pylith::feassemble::PhysicsImplementation>& physics) {
     PYLITH_METHOD_BEGIN;
 
     _physics = physics;

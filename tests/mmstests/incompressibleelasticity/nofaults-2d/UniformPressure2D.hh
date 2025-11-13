@@ -40,7 +40,7 @@ public:
 
 private:
 
-    UniformPressure2D(void); ///< Not implemented
+    UniformPressure2D(void) = delete;
 }; // UniformPressure2D
 
 // End of file

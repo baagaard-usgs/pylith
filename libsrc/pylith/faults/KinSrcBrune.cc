@@ -25,8 +25,8 @@ namespace pylith {
     namespace faults {
         namespace _KinSrcBrune {
             inline
-            PylithReal
-            tau(const PylithReal riseTime) {
+            pylith::real
+            tau(const pylith::real riseTime) {
                 return 0.21081916 * riseTime;
             } // tau
 
@@ -50,49 +50,49 @@ pylith::faults::KinSrcBrune::~KinSrcBrune(void) {}
 // ------------------------------------------------------------------------------------------------
 // Slip time function kernel.
 void
-pylith::faults::KinSrcBrune::slipFn(const PylithInt dim,
-                                    const PylithInt numS,
-                                    const PylithInt numA,
-                                    const PylithInt sOff[],
-                                    const PylithInt sOff_x[],
+pylith::faults::KinSrcBrune::slipFn(const pylith::integer dim,
+                                    const pylith::integer numS,
+                                    const pylith::integer numA,
+                                    const pylith::integer sOff[],
+                                    const pylith::integer sOff_x[],
                                     const PylithScalar s[],
                                     const PylithScalar s_t[],
                                     const PylithScalar s_x[],
-                                    const PylithInt aOff[],
-                                    const PylithInt aOff_x[],
+                                    const pylith::integer aOff[],
+                                    const pylith::integer aOff_x[],
                                     const PylithScalar a[],
                                     const PylithScalar a_t[],
                                     const PylithScalar a_x[],
-                                    const PylithReal t,
+                                    const pylith::real t,
                                     const PylithScalar x[],
-                                    const PylithInt numConstants,
+                                    const pylith::integer numConstants,
                                     const PylithScalar constants[],
                                     PylithScalar slip[]) {
-    const PylithInt _numA = 3;
+    const pylith::integer _numA = 3;
 
     assert(_numA == numA);
     assert(aOff);
     assert(a);
     assert(slip);
 
-    const PylithInt i_initiationTime = 0;
-    const PylithInt i_finalSlip = 1;
-    const PylithInt i_riseTime = 2;
+    const pylith::integer i_initiationTime = 0;
+    const pylith::integer i_finalSlip = 1;
+    const pylith::integer i_riseTime = 2;
     const PylithScalar initiationTime = a[aOff[i_initiationTime]];
     const PylithScalar* finalSlip = &a[aOff[i_finalSlip]];
     const PylithScalar riseTime = a[aOff[i_riseTime]];
 
-    const PylithInt i_originTime = 0;
+    const pylith::integer i_originTime = 0;
     const PylithScalar originTime = constants[i_originTime];
     const PylithScalar t0 = originTime + initiationTime;
 
     if (t >= t0) {
         const PylithScalar tau = _KinSrcBrune::tau(riseTime);
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             slip[i] = finalSlip[i] * (1.0 - exp(-(t-t0)/tau) * (1.0 + (t-t0)/tau));
         } // for
     } else {
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             slip[i] = 0.0;
         } // for
     } // if/else
@@ -102,49 +102,49 @@ pylith::faults::KinSrcBrune::slipFn(const PylithInt dim,
 // ------------------------------------------------------------------------------------------------
 // Slip rate time function kernel.
 void
-pylith::faults::KinSrcBrune::slipRateFn(const PylithInt dim,
-                                        const PylithInt numS,
-                                        const PylithInt numA,
-                                        const PylithInt sOff[],
-                                        const PylithInt sOff_x[],
+pylith::faults::KinSrcBrune::slipRateFn(const pylith::integer dim,
+                                        const pylith::integer numS,
+                                        const pylith::integer numA,
+                                        const pylith::integer sOff[],
+                                        const pylith::integer sOff_x[],
                                         const PylithScalar s[],
                                         const PylithScalar s_t[],
                                         const PylithScalar s_x[],
-                                        const PylithInt aOff[],
-                                        const PylithInt aOff_x[],
+                                        const pylith::integer aOff[],
+                                        const pylith::integer aOff_x[],
                                         const PylithScalar a[],
                                         const PylithScalar a_t[],
                                         const PylithScalar a_x[],
-                                        const PylithReal t,
+                                        const pylith::real t,
                                         const PylithScalar x[],
-                                        const PylithInt numConstants,
+                                        const pylith::integer numConstants,
                                         const PylithScalar constants[],
                                         PylithScalar slipRate[]) {
-    const PylithInt _numA = 3;
+    const pylith::integer _numA = 3;
 
     assert(_numA == numA);
     assert(aOff);
     assert(a);
     assert(slipRate);
 
-    const PylithInt i_initiationTime = 0;
-    const PylithInt i_finalSlip = 1;
-    const PylithInt i_riseTime = 2;
+    const pylith::integer i_initiationTime = 0;
+    const pylith::integer i_finalSlip = 1;
+    const pylith::integer i_riseTime = 2;
     const PylithScalar initiationTime = a[aOff[i_initiationTime]];
     const PylithScalar* finalSlip = &a[aOff[i_finalSlip]];
     const PylithScalar riseTime = a[aOff[i_riseTime]];
 
-    const PylithInt i_originTime = 0;
+    const pylith::integer i_originTime = 0;
     const PylithScalar originTime = constants[i_originTime];
     const PylithScalar t0 = originTime + initiationTime;
 
     if (t >= t0) {
         const PylithScalar tau = _KinSrcBrune::tau(riseTime);
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             slipRate[i] = finalSlip[i] * (t-t0)/(tau*tau) * exp(-(t-t0)/tau);
         } // for
     } else {
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             slipRate[i] = 0.0;
         } // for
     } // if/else
@@ -154,49 +154,49 @@ pylith::faults::KinSrcBrune::slipRateFn(const PylithInt dim,
 // ------------------------------------------------------------------------------------------------
 // Slip acceleration time function kernel.
 void
-pylith::faults::KinSrcBrune::slipAccFn(const PylithInt dim,
-                                       const PylithInt numS,
-                                       const PylithInt numA,
-                                       const PylithInt sOff[],
-                                       const PylithInt sOff_x[],
+pylith::faults::KinSrcBrune::slipAccFn(const pylith::integer dim,
+                                       const pylith::integer numS,
+                                       const pylith::integer numA,
+                                       const pylith::integer sOff[],
+                                       const pylith::integer sOff_x[],
                                        const PylithScalar s[],
                                        const PylithScalar s_t[],
                                        const PylithScalar s_x[],
-                                       const PylithInt aOff[],
-                                       const PylithInt aOff_x[],
+                                       const pylith::integer aOff[],
+                                       const pylith::integer aOff_x[],
                                        const PylithScalar a[],
                                        const PylithScalar a_t[],
                                        const PylithScalar a_x[],
-                                       const PylithReal t,
+                                       const pylith::real t,
                                        const PylithScalar x[],
-                                       const PylithInt numConstants,
+                                       const pylith::integer numConstants,
                                        const PylithScalar constants[],
                                        PylithScalar slipAcc[]) {
-    const PylithInt _numA = 3;
+    const pylith::integer _numA = 3;
 
     assert(_numA == numA);
     assert(aOff);
     assert(a);
     assert(slipAcc);
 
-    const PylithInt i_initiationTime = 0;
-    const PylithInt i_finalSlip = 1;
-    const PylithInt i_riseTime = 2;
+    const pylith::integer i_initiationTime = 0;
+    const pylith::integer i_finalSlip = 1;
+    const pylith::integer i_riseTime = 2;
     const PylithScalar initiationTime = a[aOff[i_initiationTime]];
     const PylithScalar* finalSlip = &a[aOff[i_finalSlip]];
     const PylithScalar riseTime = a[aOff[i_riseTime]];
 
-    const PylithInt i_originTime = 0;
+    const pylith::integer i_originTime = 0;
     const PylithScalar originTime = constants[i_originTime];
     const PylithScalar t0 = originTime + initiationTime;
 
     if (t >= t0) {
         const PylithScalar tau = _KinSrcBrune::tau(riseTime);
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             slipAcc[i] = finalSlip[i] * 1.0/(tau*tau) * (1.0 - (t-t0)/tau) * exp(-(t-t0)/tau);
         } // for
     } else {
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             slipAcc[i] = 0.0;
         } // for
     } // if/else

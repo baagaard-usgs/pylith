@@ -77,7 +77,7 @@ private:
      * @param scale Scale to apply to expected values.
      */
     void _checkValues(const Field& field,
-                      const PylithReal scale=1.0);
+                      const pylith::real scale=1.0);
 
     /** Verify values in PETSc vector match expected values.
      *
@@ -85,7 +85,7 @@ private:
      * @param scale Scale to apply to expected values.
      */
     void _checkValues(const PetscVec& vec,
-                      const PylithReal scale=1.0);
+                      const pylith::real scale=1.0);
 
     // PROTECTED MEMBERS ///////////////////////////////////////////////////////
 protected:

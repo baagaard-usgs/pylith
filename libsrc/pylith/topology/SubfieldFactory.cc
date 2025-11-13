@@ -14,182 +14,102 @@
 
 #include "pylith/topology/Field.hh" // HOLDSA AuxiliaryField
 
-#include "spatialdata/units/Nondimensional.hh" // USES Nondimensional
-
 #include "pylith/utils/error.hh" // USES PYLITH_METHOD*
 #include "pylith/utils/journals.hh" // USES PYLITH_JOURNAL*
 
-#include <utility> // USES std::move
 #include <cassert>
 
 // ------------------------------------------------------------------------------------------------
 // Default constructor.
-pylith::topology::SubfieldFactory::SubfieldFactory(void) :
-    _normalizer(new spatialdata::units::Nondimensional),
-    _spaceDim(0) {
-    GenericComponent::setName("auxiliaryfactory");
-    _subfieldDiscretizations["default"] = pylith::topology::FieldBase::Discretization();
-} // constructor
+pylith::topology::SubfieldFactory::SubfieldFactory(void) {}
 
 
 // ------------------------------------------------------------------------------------------------
 // Destructor.
-pylith::topology::SubfieldFactory::~SubfieldFactory(void) {
-    _field.reset();
-    _defaultDescription.reset();
-    _normalizer.reset();
-    _queryDB.reset();
-    _fieldQuery.reset();
-} // destructor
-
-
-// ------------------------------------------------------------------------------------------------
-// Get number of subfield discretizations.
-int
-pylith::topology::SubfieldFactory::getNumSubfields(void) const {
-    return _subfieldDiscretizations.size();
-} // getNumSubfields
+pylith::topology::SubfieldFactory::~SubfieldFactory(void) {}
 
 
 // ------------------------------------------------------------------------------------------------
 // Set discretization information for auxiliary subfield.
 void
-pylith::topology::SubfieldFactory::setSubfieldDiscretization(const char* subfieldName,
-                                                             const int basisOrder,
-                                                             const int quadOrder,
-                                                             const int dimension,
-                                                             const bool isFaultOnly,
-                                                             const pylith::topology::FieldBase::CellBasis cellBasis,
-                                                             const pylith::topology::FieldBase::SpaceEnum feSpace,
-                                                             const bool isBasisContinuous) {
+pylith::topology::SubfieldFactory::setDiscretization(const char* subfieldName,
+                                                     const pylith::topology::FieldBase::Discretization& discretization) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("setSubfieldDiscretization(subfieldName="<<subfieldName<<", basisOrder="<<basisOrder<<", quadOrder="<<quadOrder<<", dimension="<<dimension<<", cellBasis="<<cellBasis<<", isBasisContinuous="<<isBasisContinuous<<")");
-    assert(dimension != 0);
+    PYLITH_JOURNAL_DEBUG("setDiscretization(subfieldName="<<subfieldName<<")");
+    assert(discretization.dimension != 0);
 
-    pylith::topology::FieldBase::Discretization discretization;
-    discretization.basisOrder = basisOrder;
-    discretization.quadOrder = quadOrder;
-    discretization.dimension = dimension;
-    discretization.cellBasis = cellBasis;
-    discretization.isFaultOnly = isFaultOnly;
-    discretization.feSpace = feSpace;
-    discretization.isBasisContinuous = isBasisContinuous;
-    _subfieldDiscretizations[subfieldName] = discretization;
+    _subfields[subfieldName] = discretization;
 
     PYLITH_METHOD_END;
-} // setSubfieldDiscretization
+} // setDiscretization
 
 
 // ------------------------------------------------------------------------------------------------
-// Get discretization information for subfield.
-const pylith::topology::FieldBase::Discretization&
-pylith::topology::SubfieldFactory::getSubfieldDiscretization(const char* subfieldName) const {
+// Check if factory has discretization information for subfield.
+bool
+pylith::topology::SubfieldFactory::hasDiscretization(const char* subfieldName) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("getSubfieldDiscretization(subfieldName="<<subfieldName<<")");
+    PYLITH_JOURNAL_DEBUG("addSubfield="<<subfieldName<<")");
 
-    pylith::topology::FieldBase::discretizations_map::const_iterator iter = _subfieldDiscretizations.find(subfieldName);
-    if (iter != _subfieldDiscretizations.end()) {
-        PYLITH_METHOD_RETURN(iter->second);
-    } else { // not found so try default
-        iter = _subfieldDiscretizations.find("default");
-        if (iter == _subfieldDiscretizations.end()) {
-            throw std::logic_error("Default discretization not set in field factory.");
-        } // if
-    } // if/else
+    subfields_t::const_iterator iter = _subfields.find(subfieldName);
+    bool found = iter != _subfields.end();
 
-    PYLITH_METHOD_RETURN(iter->second); // default
-} // getSubfieldDiscretization
+    PYLITH_METHOD_RETURN(found);
+} // hasDiscretization
 
 
 // ------------------------------------------------------------------------------------------------
-// Set database for filling auxiliary subfields.
+// Add subfield to field.
 void
-pylith::topology::SubfieldFactory::setQueryDB(std::shared_ptr<spatialdata::spatialdb::SpatialDB>& value) {
-    _queryDB = value;
-} // setQueryDB
+pylith::topology::SubfieldFactory::addSubfield(const std::string& subfieldName) {
+    PYLITH_METHOD_BEGIN;
+    PYLITH_JOURNAL_DEBUG("addSubfield="<<subfieldName<<")");
 
+    subfields_t::const_iterator iter = _subfields.find(subfieldName);
+    if (iter == _subfields.end()) {
+        iter = _subfields.find("default");
+    } // if
+    if (iter == _subfields.end()) {
+        PYLITH_JOURNAL_LOGICERROR("Could not find subfield " << subfieldName << " in subfield factory.");
+    } // if
 
-// ------------------------------------------------------------------------------------------------
-// Get database for filling auxiliary subfields.
-const spatialdata::spatialdb::SpatialDB*
-pylith::topology::SubfieldFactory::getQueryDB(void) const {
-    return _queryDB.get();
-} // getQueryDB
+    const size_t spaceDim = _field->getSpaceDim();
+    const pylith::topology::FieldBase::Description& description = _getDescription(subfieldName, spaceDim);
+    _field->subfieldAdd(description, iter->second);
+
+    PYLITH_METHOD_END;
+} // addSubfield
 
 
 // ------------------------------------------------------------------------------------------------
 // Initialize factory for setting up auxiliary subfields.
 void
-pylith::topology::SubfieldFactory::initialize(std::shared_ptr<pylith::topology::Field>& field,
-                                              const spatialdata::units::Nondimensional& normalizer,
-                                              const int spaceDim,
-                                              std::unique_ptr<pylith::topology::FieldBase::Description>& defaultDescription) {
+pylith::topology::SubfieldFactory::open(std::shared_ptr<pylith::topology::Field>& field,
+                                        const std::shared_ptr<spatialdata::units::Nondimensional>& normalizer) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("initialize(field="<<field<<", normalizer="<<&normalizer<<", spaceDim="<<spaceDim<<", defaultDescription="<<defaultDescription.get()<<")");
-
+    PYLITH_JOURNAL_DEBUG("open(field="<<field<<", normalizer="<<&normalizer<<")");
     assert(field);
 
     _field = field;
-    if (defaultDescription) {
-        _defaultDescription = std::move(defaultDescription);
-    } else {
-        _defaultDescription.reset();
-    } // if/else
-    assert(_normalizer);
-    *_normalizer = normalizer;
-    _spaceDim = spaceDim;
-
-    assert(1 <= _spaceDim && _spaceDim <= 3);
-    std::unique_ptr<pylith::topology::FieldQuery> tmpQuery(new pylith::topology::FieldQuery(*_field.get()));
-    _fieldQuery = std::move(tmpQuery);
+    _normalizer = normalizer;
+    assert(2 == field->getSpaceDim() || 3 == field->getSpaceDim());
 
     PYLITH_METHOD_END;
-} // initialize
+} // open
 
 
 // ------------------------------------------------------------------------------------------------
-// Initialize subfields.
+// Close factory after setting up auxiliary subfields.
 void
-pylith::topology::SubfieldFactory::setValuesFromDB(void) {
+pylith::topology::SubfieldFactory::close(void) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("setValuesFromDB()");
+    PYLITH_JOURNAL_DEBUG("close()");
 
-    assert(_normalizer);
-    assert(_field);
-
-    if (_queryDB) {
-        assert(_fieldQuery);
-        _fieldQuery->openDB(_queryDB.get(), _normalizer->getLengthScale());
-        _fieldQuery->queryDB();
-        _fieldQuery->closeDB(_queryDB.get());
-    } else {
-        PYLITH_JOURNAL_ERROR("Unknown case for filling auxiliary subfields.");
-        throw std::logic_error("Unknown case for filling auxiliary subfields.");
-    } // if/else
-
-    _fieldQuery.reset();
     _field.reset();
+    _normalizer.reset();
 
     PYLITH_METHOD_END;
-} // setValuesFromDB
-
-
-// ------------------------------------------------------------------------------------------------
-// Set query function for subfield.
-void
-pylith::topology::SubfieldFactory::setSubfieldQuery(const char* subfieldName,
-                                                    const char* namesDBValues[],
-                                                    const size_t numDBValues,
-                                                    pylith::topology::FieldQuery::convertfn_type convertFn,
-                                                    spatialdata::spatialdb::SpatialDB* db) {
-    PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("setSubfieldQuery(subfieldName="<<subfieldName<<", namesDBValues="<<namesDBValues<<", numDBValues="<<numDBValues<<", convertFn="<<convertFn<<", db="<<db<<")");
-
-    assert(_fieldQuery);
-    _fieldQuery->setQuery(subfieldName, namesDBValues, numDBValues, convertFn, db);
-
-    PYLITH_METHOD_END;
-} // _setSubfieldQueryFn
+} // close
 
 
 // End of file

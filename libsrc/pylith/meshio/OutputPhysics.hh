@@ -44,10 +44,8 @@ public:
     /** Set names of information fields requested for output.
      *
      * @param[in] names Array of field names.
-     * @param[in] numNames Length of array.
      */
-    void setInfoFields(const char* names[],
-                       const int numNames);
+    void setInfoFields(const pylith::string_vector& names);
 
     /** Get names of information fields requested for output.
      *
@@ -58,10 +56,8 @@ public:
     /** Set names of data fields requested for output.
      *
      * @param[in] names Array of field names.
-     * @param[in] numNames Length of array.
      */
-    void setDataFields(const char* names[],
-                       const int numNames);
+    void setDataFields(const pylith::string_vector& names);
 
     /** Get names of data fields requested for output.
      *
@@ -163,8 +159,8 @@ protected:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    OutputPhysics(const OutputPhysics&); ///< Not implemented.
-    const OutputPhysics& operator=(const OutputPhysics&); ///< Not implemented
+    OutputPhysics(const OutputPhysics&) = delete;
+    const OutputPhysics& operator=(const OutputPhysics&) = delete;
 
 }; // OutputPhysics
 

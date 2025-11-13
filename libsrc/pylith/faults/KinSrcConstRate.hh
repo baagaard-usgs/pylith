@@ -178,8 +178,8 @@ protected:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    KinSrcConstRate(const KinSrcConstRate&); ///< Not implemented
-    const KinSrcConstRate& operator=(const KinSrcConstRate&); ///< Not implemented
+    KinSrcConstRate(const KinSrcConstRate&) = delete;
+    const KinSrcConstRate& operator=(const KinSrcConstRate&) = delete;
 
 }; // class KinSrcConstRate
 

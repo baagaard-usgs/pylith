@@ -38,14 +38,14 @@ pylith::problems::ObserversPhysics::~ObserversPhysics(void) {
 // Deallocate PETSc and local data structures.
 void
 pylith::problems::ObserversPhysics::deallocate(void) {
-    _observers.clear(); // Memory allocation of Observer* managed elsewhere.
+    _observers.clear();
 } // deallocate
 
 
 // ------------------------------------------------------------------------------------------------
 // Register observer to receive notifications.
 void
-pylith::problems::ObserversPhysics::registerObserver(pylith::problems::ObserverPhysics* observer) {
+pylith::problems::ObserversPhysics::registerObserver(const std::shared_ptr<pylith::problems::ObserverPhysics>& observer) {
     PYLITH_METHOD_BEGIN;
     PYLITH_JOURNAL_DEBUG("registerObserver(observer="<<typeid(observer).name()<<")");
 
@@ -60,7 +60,7 @@ pylith::problems::ObserversPhysics::registerObserver(pylith::problems::ObserverP
 // ------------------------------------------------------------------------------------------------
 // Remove observer from receiving notifications.
 void
-pylith::problems::ObserversPhysics::removeObserver(pylith::problems::ObserverPhysics* observer) {
+pylith::problems::ObserversPhysics::removeObserver(const std::shared_ptr<pylith::problems::ObserverPhysics>& observer) {
     PYLITH_METHOD_BEGIN;
     PYLITH_JOURNAL_DEBUG("removeObserver(observer="<<typeid(observer).name()<<")");
 
@@ -83,13 +83,13 @@ pylith::problems::ObserversPhysics::size(void) const {
 // ------------------------------------------------------------------------------------------------
 // Set physics implementation in observers (for callbacks)
 void
-pylith::problems::ObserversPhysics::setPhysicsImplementation(const pylith::feassemble::PhysicsImplementation* const physics) {
+pylith::problems::ObserversPhysics::setPhysicsImplementation(const std::shared_ptr<pylith::feassemble::PhysicsImplementation>& physics) {
     PYLITH_METHOD_BEGIN;
     PYLITH_JOURNAL_DEBUG("setPhysicsImplementation(physics="<<physics<<")");
 
-    for (iterator iter = _observers.begin(); iter != _observers.end(); ++iter) {
-        assert(*iter);
-        (*iter)->setPhysicsImplementation(physics);
+    for (auto observer : _observers) {
+        assert(observer);
+        observer->setPhysicsImplementation(physics);
     } // for
 
     PYLITH_METHOD_END;
@@ -99,13 +99,13 @@ pylith::problems::ObserversPhysics::setPhysicsImplementation(const pylith::feass
 // ------------------------------------------------------------------------------------------------
 // Set time scale in observers.
 void
-pylith::problems::ObserversPhysics::setTimeScale(const PylithReal value) {
+pylith::problems::ObserversPhysics::setTimeScale(const pylith::real value) {
     PYLITH_METHOD_BEGIN;
     PYLITH_JOURNAL_DEBUG("setTimeScale(value="<<value<<")");
 
-    for (iterator iter = _observers.begin(); iter != _observers.end(); ++iter) {
-        assert(*iter);
-        (*iter)->setTimeScale(value);
+    for (auto observer : _observers) {
+        assert(observer);
+        observer->setTimeScale(value);
     } // for
 
     PYLITH_METHOD_END;
@@ -117,11 +117,11 @@ pylith::problems::ObserversPhysics::setTimeScale(const PylithReal value) {
 void
 pylith::problems::ObserversPhysics::verifyObservers(const pylith::topology::Field& solution) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("verifyObservers(solution="<<solution.getLabel()<<")");
+    PYLITH_JOURNAL_DEBUG("verifyObservers(solution="<<solution.getName()<<")");
 
-    for (iterator iter = _observers.begin(); iter != _observers.end(); ++iter) {
-        assert(*iter);
-        (*iter)->verifyConfiguration(solution);
+    for (auto observer : _observers) {
+        assert(observer);
+        observer->verifyConfiguration(solution);
     } // for
 
     PYLITH_METHOD_END;
@@ -131,16 +131,16 @@ pylith::problems::ObserversPhysics::verifyObservers(const pylith::topology::Fiel
 // ------------------------------------------------------------------------------------------------
 // Notify observers.
 void
-pylith::problems::ObserversPhysics::notifyObservers(const PylithReal t,
-                                                    const PylithInt tindex,
+pylith::problems::ObserversPhysics::notifyObservers(const pylith::real t,
+                                                    const pylith::integer tindex,
                                                     const pylith::topology::Field& solution,
                                                     const pylith::problems::Observer::NotificationType notification) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("notifyObservers(t="<<t<<", tindex="<<tindex<<", solution="<<solution.getLabel()<<", " <<notification<<")");
+    PYLITH_JOURNAL_DEBUG("notifyObservers(t="<<t<<", tindex="<<tindex<<", solution="<<solution.getName()<<", " <<notification<<")");
 
-    for (iterator iter = _observers.begin(); iter != _observers.end(); ++iter) {
-        assert(*iter);
-        (*iter)->update(t, tindex, solution, notification);
+    for (auto observer : _observers) {
+        assert(observer);
+        observer->update(t, tindex, solution, notification);
     } // for
 
     PYLITH_METHOD_END;

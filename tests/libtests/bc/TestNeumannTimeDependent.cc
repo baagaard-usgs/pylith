@@ -40,9 +40,9 @@ pylith::bc::TestNeumannTimeDependent::setUp(void) {
 
     _bc = new pylith::bc::NeumannTimeDependent();CPPUNIT_ASSERT(_bc);
 
-    _data = NULL;
-    _mesh = NULL;
-    _solution = NULL;
+    _data = nullptr;
+    _mesh = nullptr;
+    _solution = nullptr;
 
     PYLITH_METHOD_END;
 } // setUp
@@ -54,11 +54,11 @@ void
 pylith::bc::TestNeumannTimeDependent::tearDown(void) {
     PYLITH_METHOD_BEGIN;
 
-    delete _bc;_bc = NULL;
+    delete _bc;_bc = nullptr;
 
-    delete _data;_data = NULL;
-    delete _mesh;_mesh = NULL;
-    delete _solution;_solution = NULL;
+    delete _data;_data = nullptr;
+    delete _mesh;_mesh = nullptr;
+    delete _solution;_solution = nullptr;
 
     PYLITH_METHOD_END;
 } // tearDown
@@ -71,7 +71,7 @@ pylith::bc::TestNeumannTimeDependent::testConstructor(void) {
     PYLITH_METHOD_BEGIN;
 
     NeumannTimeDependent* bc = new NeumannTimeDependent();CPPUNIT_ASSERT(bc);
-    delete bc;bc = NULL;
+    delete bc;bc = nullptr;
 
     PYLITH_METHOD_END;
 } // testConstructor
@@ -94,7 +94,7 @@ pylith::bc::TestNeumannTimeDependent::testAccessors(void) {
 
     // dbTimeHistory()
     spatialdata::spatialdb::TimeHistory db;
-    CPPUNIT_ASSERT_EQUAL((void*)NULL, (void*)_bc->dbTimeHistory());
+    CPPUNIT_ASSERT_EQUAL((void*)nullptr, (void*)_bc->dbTimeHistory());
     _bc->dbTimeHistory(&db);
     CPPUNIT_ASSERT_EQUAL((void*)&db, (void*)_bc->dbTimeHistory());
 
@@ -266,8 +266,8 @@ pylith::bc::TestNeumannTimeDependent::testInitialize(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("auxiliary subfields"), std::string(auxField->getLabel()));
     CPPUNIT_ASSERT_EQUAL(_mesh->dimension(), auxField->getSpaceDim());
 
-    PylithReal norm = 0.0;
-    PylithReal t = _data->t;
+    pylith::real norm = 0.0;
+    pylith::real t = _data->t;
     const PetscDM dm = auxField->dmMesh();CPPUNIT_ASSERT(dm);
     pylith::topology::FieldQuery query(*auxField);
     query.initializeWithDefaultQueryFns();
@@ -275,7 +275,7 @@ pylith::bc::TestNeumannTimeDependent::testInitialize(void) {
     query.openDB(_data->auxDB, _data->normalizer->getLengthScale());
     PetscErrorCode err = DMPlexComputeL2DiffLocal(dm, t, query.functions(), (void**)query.contextPtrs(), auxField->localVector(), &norm);CPPUNIT_ASSERT(!err);
     query.closeDB(_data->auxDB);
-    const PylithReal tolerance = 1.0e-6;
+    const pylith::real tolerance = 1.0e-6;
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, norm, tolerance);
 
     PYLITH_METHOD_END;
@@ -305,8 +305,8 @@ pylith::bc::TestNeumannTimeDependent::testPrestep(void) {
     CPPUNIT_ASSERT(valueField.sectionSize() > 0);
     CPPUNIT_ASSERT_EQUAL(std::string("time_history_value"), std::string(valueField.getLabel()));
 
-    PylithReal norm = 0.0;
-    PylithReal t = _data->t;
+    pylith::real norm = 0.0;
+    pylith::real t = _data->t;
     const PetscDM dm = auxField->dmMesh();CPPUNIT_ASSERT(dm);
     pylith::topology::FieldQuery query(valueField);
     query.initializeWithDefaultQueryFns();
@@ -314,7 +314,7 @@ pylith::bc::TestNeumannTimeDependent::testPrestep(void) {
     query.openDB(_data->auxDB, _data->normalizer->getLengthScale());
     PetscErrorCode err = DMPlexComputeL2DiffLocal(dm, t, query.functions(), (void**)query.contextPtrs(), valueField.localVector(), &norm);CPPUNIT_ASSERT(!err);
     query.closeDB(_data->auxDB);
-    const PylithReal tolerance = 1.0e-6;
+    const pylith::real tolerance = 1.0e-6;
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, norm, tolerance);
 
     PYLITH_METHOD_END;
@@ -345,9 +345,9 @@ pylith::bc::TestNeumannTimeDependent::testComputeRHSResidual(void) {
 
     // Verify number and DOF of constraints in solution field.
     int iConstraint = 0;
-    PetscErrorCode err = 0;
-    for (PetscInt v = vStart; v < vEnd; ++v) {
-        PetscInt dof, cdof, fdof, fcdof;
+    PetscErrorCode err = PETSC_SUCCESS;
+    for (pylith::integer v = vStart; v < vEnd; ++v) {
+        pylith::integer dof, cdof, fdof, fcdof;
 
         err = PetscSectionGetDof(fieldSection, v, &dof);PYLITH_CHECK_ERROR(err);
         err = PetscSectionGetConstraintDof(fieldSection, v, &cdof);PYLITH_CHECK_ERROR(err);
@@ -368,15 +368,15 @@ pylith::bc::TestNeumannTimeDependent::testComputeRHSResidual(void) {
     } // for
 
     // Verify values in solution field.
-    PylithReal norm = 0.0;
-    PylithReal t = _data->t;
+    pylith::real norm = 0.0;
+    pylith::real t = _data->t;
     const PetscDM dmSoln = _solution->dmMesh();CPPUNIT_ASSERT(dmSoln);
     pylith::topology::FieldQuery* query = _db->_auxiliaryFieldsQuery;
     query->openDB(queryDB, _data->lengthScale);
 
     PetscErrorCode err = DMPlexComputeL2DiffLocal(dm, t, query->functions(), (void**)query->contextPtrs(), _solution->localVector(), &norm);CPPUNIT_ASSERT(!err);
     query->closeDB(queryDB);
-    const PylithReal tolerance = 1.0e-6;
+    const pylith::real tolerance = 1.0e-6;
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, norm, tolerance);
 #endif
 
@@ -398,7 +398,7 @@ pylith::bc::TestNeumannTimeDependent::testAuxFieldSetup(void) {
     CPPUNIT_ASSERT(_mesh);
     CPPUNIT_ASSERT(_data);
     CPPUNIT_ASSERT(_data->normalizer);
-    const PylithReal timeScale = _data->normalizer->getTimeScale();
+    const pylith::real timeScale = _data->normalizer->getTimeScale();
 
     delete _bc->_boundaryMesh;_bc->_boundaryMesh = new pylith::topology::Mesh(_solution->mesh(), _data->bcLabel);
     CPPUNIT_ASSERT(_bc->_boundaryMesh);
@@ -574,7 +574,7 @@ pylith::bc::TestNeumannTimeDependent::_setupSolutionField(void) {
     CPPUNIT_ASSERT(_data->normalizer);
 
     delete _solution;_solution = new pylith::topology::Field(*_mesh);
-    _solution->setLabel("Solution (displacement, velocity, pressure)");
+    _solution->setName("Solution (displacement, velocity, pressure)");
     pylith::problems::SolutionFactory factory(*_solution, *_data->normalizer);
     factory.displacement(_data->solnDiscretizations[0]);
     factory.velocity(_data->solnDiscretizations[1]);
@@ -588,32 +588,32 @@ pylith::bc::TestNeumannTimeDependent::_setupSolutionField(void) {
 // ----------------------------------------------------------------------
 // Constructor
 pylith::bc::TestNeumannTimeDependent_Data::TestNeumannTimeDependent_Data(void) :
-    meshFilename(NULL),
-    bcLabel(NULL),
+    meshFilename(nullptr),
+    bcLabel(nullptr),
     normalizer(new spatialdata::units::Nondimensional),
-    field(NULL),
+    field(nullptr),
     vectorFieldType(pylith::topology::Field::OTHER),
     useInitial(false),
     useRate(false),
     useTimeHistory(false),
-    thFilename(NULL),
+    thFilename(nullptr),
     numAuxSubfields(0),
-    auxSubfields(NULL),
-    auxDiscretizations(NULL),
+    auxSubfields(nullptr),
+    auxDiscretizations(nullptr),
     auxDB(new spatialdata::spatialdb::UserFunctionDB),
     t(0.0),
     solnNumSubfields(0),
-    solnDiscretizations(NULL),
+    solnDiscretizations(nullptr),
     solnDB(new spatialdata::spatialdb::UserFunctionDB) {}
 
 
 // ----------------------------------------------------------------------
 // Destructor
 pylith::bc::TestNeumannTimeDependent_Data::~TestNeumannTimeDependent_Data(void) {
-    delete cs;cs = NULL;
-    delete normalizer;normalizer = NULL;
-    delete auxDB;auxDB = NULL;
-    delete solnDB;solnDB = NULL;
+    delete cs;cs = nullptr;
+    delete normalizer;normalizer = nullptr;
+    delete auxDB;auxDB = nullptr;
+    delete solnDB;solnDB = nullptr;
 } // destructor
 
 

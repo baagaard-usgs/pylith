@@ -38,7 +38,7 @@ public:
 
 private:
 
-    OneFaultShearNoSlip(void); ///< Not implemented
+    OneFaultShearNoSlip(void) = delete;
 }; // OneFaultShearNoSlip
 
 // End of file

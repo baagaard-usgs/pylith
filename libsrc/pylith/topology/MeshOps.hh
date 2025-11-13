@@ -12,7 +12,7 @@
 #include "pylith/topology/topologyfwd.hh" // forward declarations
 
 #include "pylith/utils/petscfwd.h" // USES PetscDM
-#include "pylith/utils/array.hh" // USES int_array
+#include "pylith/utils/array.hh" // USES pylith::integer_array
 
 #include "spatialdata/geocoords/geocoordsfwd.hh"
 #include "spatialdata/units/unitsfwd.hh"
@@ -33,10 +33,10 @@ public:
      * @returns Mesh for subdomain.
      */
     static
-    pylith::topology::Mesh* createSubdomainMesh(const pylith::topology::Mesh& mesh,
-                                                const char* labelName,
-                                                const int labelValue,
-                                                const char* componentName);
+    std::unique_ptr<pylith::topology::Mesh> createSubdomainMesh(const pylith::topology::Mesh& mesh,
+                                                                const char* labelName,
+                                                                const int labelValue,
+                                                                const char* componentName);
 
     /** Create lower dimension mesh using label.
      *
@@ -48,10 +48,10 @@ public:
      * @returns Lower dimension mesh.
      */
     static
-    pylith::topology::Mesh* createLowerDimMesh(const pylith::topology::Mesh& mesh,
-                                               const char* labelName,
-                                               const int labelValue,
-                                               const char* componentName);
+    std::unique_ptr<pylith::topology::Mesh> createLowerDimMesh(const pylith::topology::Mesh& mesh,
+                                                               const char* labelName,
+                                                               const int labelValue,
+                                                               const char* componentName);
 
     /** Create 0-dimension mesh from points.
      *
@@ -63,12 +63,12 @@ public:
      * @param[in] componentName Name of component associated with subdomain.
      */
     static
-    pylith::topology::Mesh* createFromPoints(const pylith::real* points,
-                                             const size_t numPoints,
-                                             const std::shared_ptr<spatialdata::geocoords::CoordSys>& cs,
-                                             const pylith::real lengthScale,
-                                             MPI_Comm comm,
-                                             const char* componentName);
+    std::unique_ptr<pylith::topology::Mesh> createFromPoints(const pylith::real* points,
+                                                             const size_t numPoints,
+                                                             const std::shared_ptr<spatialdata::geocoords::CoordSys>& cs,
+                                                             const pylith::real lengthScale,
+                                                             MPI_Comm comm,
+                                                             const char* componentName);
 
     /** Remove cells hanging off mesh.
      *
@@ -111,7 +111,7 @@ public:
      */
     static
     bool isCohesiveCell(const PetscDM dm,
-                        const PetscInt cell);
+                        const pylith::integer cell);
 
     /** Get number of vertices in mesh.
      *
@@ -150,9 +150,9 @@ public:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    MeshOps(void); ///< Not Implemented
-    MeshOps(const MeshOps&); ///< Not implemented
-    const MeshOps& operator=(const MeshOps&); ///< Not implemented
+    MeshOps(void) = delete;
+    MeshOps(const MeshOps&) = delete;
+    const MeshOps& operator=(const MeshOps&) = delete;
 
 }; // MeshOps
 

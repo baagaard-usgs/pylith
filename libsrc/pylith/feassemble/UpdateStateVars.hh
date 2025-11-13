@@ -75,8 +75,8 @@ private:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    UpdateStateVars(const UpdateStateVars &); ///< Not implemented
-    const UpdateStateVars& operator=(const UpdateStateVars&); ///< Not implemented
+    UpdateStateVars(const UpdateStateVars &) = delete;
+    const UpdateStateVars& operator=(const UpdateStateVars&) = delete;
 
 }; // class UpdateStateVars
 

@@ -14,6 +14,6 @@
 
 #include "pylith/fekernels/IsotropicPowerLaw.hh" // Implementation of object methods.
 
-const PylithReal pylith::fekernels::IsotropicPowerLaw::powerLawAlpha = 0.5;
+const pylith::real pylith::fekernels::IsotropicPowerLaw::powerLawAlpha = 0.5;
 
 // End of file

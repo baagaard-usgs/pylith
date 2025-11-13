@@ -20,36 +20,36 @@
 void
 pylith::topology::ReverseCuthillMcKee::reorder(topology::Mesh* mesh) {
     assert(mesh);
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
 
-    PetscDMLabel dmLabel = NULL;
+    PetscDMLabel dmLabel = nullptr;
     PetscDM dmOrig = mesh->getDM();
     const char* const labelName = pylith::topology::Mesh::cells_label_name;
     err = DMGetLabel(dmOrig, labelName, &dmLabel);PYLITH_CHECK_ERROR(err);assert(dmLabel);
 
-    PetscIS permutation = NULL;
-    PetscDM dmNew = NULL;
+    PetscIS permutation = nullptr;
+    PetscDM dmNew = nullptr;
     err = DMPlexGetOrdering(dmOrig, MATORDERINGRCM, dmLabel, &permutation);PYLITH_CHECK_ERROR(err);
     err = DMPlexPermute(dmOrig, permutation, &dmNew);PYLITH_CHECK_ERROR(err);
     err = ISDestroy(&permutation);PYLITH_CHECK_ERROR(err);
     mesh->setDM(dmNew, "domain");
 
     // Verify that all material points (cells) are consecutive.
-    PetscIS valuesIS = NULL;
-    PetscInt numValues = 0;
-    const PetscInt* values = NULL;
+    PetscIS valuesIS = nullptr;
+    pylith::integer numValues = 0;
+    const pylith::integer* values = nullptr;
     err = DMGetLabel(dmNew, labelName, &dmLabel);PYLITH_CHECK_ERROR(err);assert(dmLabel);
     err = DMLabelGetValueIS(dmLabel, &valuesIS);PYLITH_CHECK_ERROR(err);
     err = ISGetLocalSize(valuesIS, &numValues);PYLITH_CHECK_ERROR(err);
     err = ISGetIndices(valuesIS, &values);PYLITH_CHECK_ERROR(err);
-    for (PetscInt iValue = 0; iValue < numValues; ++iValue) {
-        PetscIS pointsIS = NULL;
-        PetscInt numPoints = 0;
-        const PetscInt* points = NULL;
+    for (pylith::integer iValue = 0; iValue < numValues; ++iValue) {
+        PetscIS pointsIS = nullptr;
+        pylith::integer numPoints = 0;
+        const pylith::integer* points = nullptr;
         err = DMLabelGetStratumIS(dmLabel, values[iValue], &pointsIS);PYLITH_CHECK_ERROR(err);
         err = ISGetLocalSize(pointsIS, &numPoints);PYLITH_CHECK_ERROR(err);
         err = ISGetIndices(pointsIS, &points);PYLITH_CHECK_ERROR(err);
-        for (PetscInt iPoint = 1; iPoint < numPoints; ++iPoint) {
+        for (pylith::integer iPoint = 1; iPoint < numPoints; ++iPoint) {
             if (points[iPoint] - points[iPoint-1] != 1) {
                 // Cleanup
                 err = ISRestoreIndices(pointsIS, &points);PYLITH_CHECK_ERROR(err);

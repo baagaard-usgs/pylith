@@ -58,8 +58,8 @@ public:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    AuxiliaryFactoryViscoelastic(const AuxiliaryFactoryViscoelastic &); ///< Not implemented.
-    const AuxiliaryFactoryViscoelastic& operator=(const AuxiliaryFactoryViscoelastic&); ///< Not implemented
+    AuxiliaryFactoryViscoelastic(const AuxiliaryFactoryViscoelastic &) = delete;
+    const AuxiliaryFactoryViscoelastic& operator=(const AuxiliaryFactoryViscoelastic&) = delete;
 
 }; // class AuxiliaryFactoryViscoelastic
 

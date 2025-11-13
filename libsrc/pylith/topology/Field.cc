@@ -58,10 +58,10 @@ public:
 // ------------------------------------------------------------------------------------------------
 // Default constructor.
 pylith::topology::Field::Field(const pylith::topology::Mesh& mesh) :
-    _mesh(NULL),
-    _localVec(NULL),
-    _globalVec(NULL),
-    _outputVec(NULL) {
+    _mesh(nullptr),
+    _localVec(nullptr),
+    _globalVec(nullptr),
+    _outputVec(nullptr) {
     PYLITH_METHOD_BEGIN;
 
     GenericComponent::setName("field");
@@ -75,20 +75,20 @@ pylith::topology::Field::Field(const pylith::topology::Mesh& mesh) :
 // ------------------------------------------------------------------------------------------------
 // Constructor with field to use for layout.
 pylith::topology::Field::Field(const Field& src) :
-    _mesh(NULL),
-    _localVec(NULL),
-    _globalVec(NULL),
-    _outputVec(NULL) {
+    _mesh(nullptr),
+    _localVec(nullptr),
+    _globalVec(nullptr),
+    _outputVec(nullptr) {
     PYLITH_METHOD_BEGIN;
 
     _subfields = src._subfields;
 
     if (!src._mesh) {
-        PYLITH_JOURNAL_LOGICERROR("Source field _mesh must be non-NULL.");
+        PYLITH_JOURNAL_LOGICERROR("Source field _mesh must be non-nullptr.");
     } // if
     _mesh = src._mesh->clone();
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     assert(_mesh);
     err = DMCopyDisc(src._mesh->getDM(), _mesh->getDM());PYLITH_CHECK_ERROR(err);
 
@@ -113,9 +113,9 @@ void
 pylith::topology::Field::deallocate(void) {
     PYLITH_METHOD_BEGIN;
 
-    delete _mesh;_mesh = NULL;
+    delete _mesh;_mesh = nullptr;
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     err = VecDestroy(&_localVec);PYLITH_CHECK_ERROR(err);
     err = VecDestroy(&_globalVec);PYLITH_CHECK_ERROR(err);
     err = VecDestroy(&_outputVec);PYLITH_CHECK_ERROR(err);
@@ -137,7 +137,7 @@ pylith::topology::Field::getMesh(void) const {
 // Get PETSc DM associated with field.
 PetscDM
 pylith::topology::Field::getDM(void) const {
-    return (_mesh) ? _mesh->getDM() : NULL;
+    return (_mesh) ? _mesh->getDM() : nullptr;
 }
 
 
@@ -156,7 +156,7 @@ pylith::topology::Field::setName(const char* name) {
     PYLITH_METHOD_BEGIN;
     assert(_mesh);
 
-    const char* dmName = NULL;
+    const char* dmName = nullptr;
     PetscErrorCode err = PetscObjectGetName((PetscObject) _mesh->getDM(), &dmName);PYLITH_CHECK_ERROR(err);
     _name = std::string(dmName) + std::string(" ") + std::string(name);
 
@@ -184,7 +184,7 @@ pylith::topology::Field::getLocalSection(void) const {
     PYLITH_METHOD_BEGIN;
     assert(_mesh);
 
-    PetscSection s = NULL;
+    PetscSection s = nullptr;
     PetscErrorCode err = DMGetLocalSection(_mesh->getDM(), &s);PYLITH_CHECK_ERROR(err);
     PYLITH_METHOD_RETURN(s);
 }
@@ -197,7 +197,7 @@ pylith::topology::Field::getGlobalSection(void) const {
     PYLITH_METHOD_BEGIN;
     assert(_mesh);
 
-    PetscSection s = NULL;
+    PetscSection s = nullptr;
     PetscErrorCode err = DMGetGlobalSection(_mesh->getDM(), &s);PYLITH_CHECK_ERROR(err);
     PYLITH_METHOD_RETURN(s);
 }
@@ -244,9 +244,9 @@ pylith::topology::Field::getChartSize(void) const {
     PYLITH_METHOD_BEGIN;
     assert(_mesh);
 
-    PetscSection s = NULL;
+    PetscSection s = nullptr;
     pylith::integer pStart, pEnd;
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     err = DMGetLocalSection(_mesh->getDM(), &s);PYLITH_CHECK_ERROR(err);
     err = PetscSectionGetChart(s, &pStart, &pEnd);PYLITH_CHECK_ERROR(err);
@@ -263,8 +263,8 @@ pylith::topology::Field::getStorageSize(void) const {
     assert(_mesh);
 
     pylith::integer size = 0;
-    PetscSection s = NULL;
-    PetscErrorCode err;
+    PetscSection s = nullptr;
+    PetscErrorCode err = PETSC_SUCCESS;
     err = DMGetLocalSection(_mesh->getDM(), &s);PYLITH_CHECK_ERROR(err);
     err = PetscSectionGetStorageSize(s, &size);PYLITH_CHECK_ERROR(err);
 
@@ -291,8 +291,8 @@ pylith::topology::Field::allocate(void) {
     PYLITH_METHOD_BEGIN;
     assert(_mesh);
 
-    PetscSection s = NULL;
-    PetscErrorCode err;
+    PetscSection s = nullptr;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     /* Ideally, we should create the DS *before* adding the boundary conditions to the DS. For now, this does work.
      *
@@ -302,7 +302,7 @@ pylith::topology::Field::allocate(void) {
 
     const PetscDM dm = _mesh->getDM();assert(dm);
     err = DMGetLocalSection(dm, &s);PYLITH_CHECK_ERROR(err);assert(s); // Creates local section
-    err = DMSetGlobalSection(dm, NULL);PYLITH_CHECK_ERROR(err); // Creates global section
+    err = DMSetGlobalSection(dm, nullptr);PYLITH_CHECK_ERROR(err); // Creates global section
     err = PetscSectionSetUp(s);PYLITH_CHECK_ERROR(err);
 
     err = VecDestroy(&_localVec);PYLITH_CHECK_ERROR(err);
@@ -399,7 +399,7 @@ pylith::topology::Field::scatterLocalToVector(const PetscVec vector,
     assert(_mesh);
     assert(vector);
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     assert(_localVec);
     err = DMLocalToGlobalBegin(_mesh->getDM(), _localVec, mode, vector);PYLITH_CHECK_ERROR(err);
     err = DMLocalToGlobalEnd(_mesh->getDM(), _localVec, mode, vector);PYLITH_CHECK_ERROR(err);
@@ -418,7 +418,7 @@ pylith::topology::Field::scatterVectorToLocal(const PetscVec vector,
     assert(_mesh);
     assert(vector);
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     assert(_localVec);
     err = DMGlobalToLocalBegin(_mesh->getDM(), vector, mode, _localVec);PYLITH_CHECK_ERROR(err);
     err = DMGlobalToLocalEnd(_mesh->getDM(), vector, mode, _localVec);PYLITH_CHECK_ERROR(err);
@@ -435,8 +435,8 @@ pylith::topology::Field::scatterLocalToOutput(InsertMode mode) const {
     PYLITH_METHOD_BEGIN;
     assert(_mesh);
 
-    PetscErrorCode err;
-    PetscDM dmOutput = NULL;
+    PetscErrorCode err = PETSC_SUCCESS;
+    PetscDM dmOutput = nullptr;
     err = DMGetOutputDM(_mesh->getDM(), &dmOutput);PYLITH_CHECK_ERROR(err);
     if (dmOutput) {
         assert(_localVec);
@@ -477,7 +477,7 @@ pylith::topology::Field::subfieldAdd(const char *name,
         description.componentNames[i] = components[i];
     } // for
     description.scale = scale;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     Discretization discretization;
     discretization.basisOrder = basisOrder;
@@ -519,7 +519,7 @@ pylith::topology::Field::subfieldsSetup(void) {
     assert(_mesh);
 
     // Setup section now that we know the total number of sub-fields and components.
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     CellBasis cellBasis = pylith::topology::MeshOps::isSimplexMesh(*_mesh) ? SIMPLEX_BASIS : TENSOR_BASIS;
     const PetscDM dm = _mesh->getDM();
@@ -554,7 +554,7 @@ pylith::topology::Field::subfieldsSetup(void) {
         //   + everywhere but fault degrees of freedom, or
         //   + only fault degrees of freedom.
         if (!sinfo.fe.isFaultOnly) {
-            err = DMSetField(dm, sinfo.index, NULL, (PetscObject)fe);PYLITH_CHECK_ERROR(err);
+            err = DMSetField(dm, sinfo.index, nullptr, (PetscObject)fe);PYLITH_CHECK_ERROR(err);
             err = DMSetFieldAvoidTensor(dm, sinfo.index, PETSC_TRUE);PYLITH_CHECK_ERROR(err);
         } else {
             PetscDMLabel interfacesLabel = pylith::faults::TopologyOps::getInterfacesLabel(dm);
@@ -643,14 +643,14 @@ pylith::topology::Field::createOutputVector(void) {
 
     PetscErrorCode err = VecDestroy(&_outputVec);PYLITH_CHECK_ERROR(err);
 
-    PetscDM dmOutput = NULL;
+    PetscDM dmOutput = nullptr;
     err = DMGetOutputDM(_mesh->getDM(), &dmOutput);PYLITH_CHECK_ERROR(err);
 
-    PetscDS dsOutput = NULL;
-    PetscInt numRegions = 0;
+    PetscDS dsOutput = nullptr;
+    pylith::integer numRegions = 0;
     err = DMGetNumDS(dmOutput, &numRegions);PYLITH_CHECK_ERROR(err);
-    for (PetscInt i = 0; i < numRegions; ++i) {
-        err = DMGetRegionNumDS(dmOutput, i, NULL, NULL, &dsOutput, NULL);PYLITH_CHECK_ERROR(err);
+    for (pylith::integer i = 0; i < numRegions; ++i) {
+        err = DMGetRegionNumDS(dmOutput, i, nullptr, nullptr, &dsOutput, nullptr);PYLITH_CHECK_ERROR(err);
         err = PetscDSSetUp(dsOutput);PYLITH_CHECK_ERROR(err);
     } // for
 
@@ -716,23 +716,23 @@ pylith::topology::_Field::viewValues(const Field& field) {
     std::cout << std::scientific << std::setprecision(4);
     const char* none = "--";
     VecVisitorMesh fieldVisitor(field);
-    PetscInt pStart, pEnd;
+    pylith::integer pStart, pEnd;
     err = PetscSectionGetChart(fieldVisitor.selectedSection(), &pStart, &pEnd);PYLITH_CHECK_ERROR(err);
-    const PetscScalar* localArray = fieldVisitor.localArray();
-    for (PetscInt iProc = 0; iProc < numProcs; ++iProc) {
+    const pylith::scalar* localArray = fieldVisitor.localArray();
+    for (pylith::integer iProc = 0; iProc < numProcs; ++iProc) {
         std::cout << "Processor " << iProc << "\n";
-        for (PetscInt point = pStart; point < pEnd; ++point) {
+        for (pylith::integer point = pStart; point < pEnd; ++point) {
             std::cout << std::setw(pwidth) << point;
             for (size_t iField = 0; iField < numSubfields; ++iField) {
-                const PetscInt numDof = fieldVisitor.sectionSubfieldDof(iField, point);
+                const pylith::integer numDof = fieldVisitor.sectionSubfieldDof(iField, point);
                 if (numDof > 0) {
                     assert(numDof == numComponents[iField]);
-                    const PetscInt off = fieldVisitor.sectionSubfieldOffset(iField, point);
-                    for (PetscInt iDof = 0; iDof < numDof; ++iDof) {
+                    const pylith::integer off = fieldVisitor.sectionSubfieldOffset(iField, point);
+                    for (pylith::integer iDof = 0; iDof < numDof; ++iDof) {
                         std::cout << std::setw(fwidth) << localArray[off+iDof];
                     } // for
                 } else {
-                    for (PetscInt iDof = 0; iDof < numComponents[iField]; ++iDof) {
+                    for (pylith::integer iDof = 0; iDof < numComponents[iField]; ++iDof) {
                         std::cout << std::setw(fwidth) << none;
                     } // for
                 } // if/else
@@ -768,7 +768,7 @@ pylith::topology::_Field::viewLocalSection(const Field& field) {
         numComponents[i] = field.getSubfieldInfo(subfieldNames[i].c_str()).description.numComponents;
     } // for
 
-    PetscInt pStart, pEnd;
+    pylith::integer pStart, pEnd;
     pylith::topology::VecVisitorMesh fieldVisitor(field);
     fieldVisitor.selectSection(pylith::topology::VecVisitorMesh::LOCAL_SECTION);
     const PetscSection section = fieldVisitor.selectedSection();
@@ -778,32 +778,32 @@ pylith::topology::_Field::viewLocalSection(const Field& field) {
         std::cout << "Local Section" << "\n";
     } // if
 
-    for (PetscInt iProc = 0; iProc < numProcs; ++iProc) {
+    for (pylith::integer iProc = 0; iProc < numProcs; ++iProc) {
         std::cout << "Processor " << iProc << "\n";
-        for (PetscInt point = pStart; point < pEnd; ++point) {
+        for (pylith::integer point = pStart; point < pEnd; ++point) {
             std::cout << std::setw(pwidth) << point;
             for (size_t iField = 0; iField < numSubfields; ++iField) {
-                const PetscInt numDof = fieldVisitor.sectionSubfieldDof(iField, point);
+                const pylith::integer numDof = fieldVisitor.sectionSubfieldDof(iField, point);
                 if (numDof > 0) {
-                    const PetscInt off = fieldVisitor.sectionSubfieldOffset(iField, point);
-                    for (PetscInt iDof = 0; iDof < numDof; ++iDof) {
+                    const pylith::integer off = fieldVisitor.sectionSubfieldOffset(iField, point);
+                    for (pylith::integer iDof = 0; iDof < numDof; ++iDof) {
                         std::cout << std::setw(pwidth) << off+iDof;
                     } // for
                 } else {
-                    for (PetscInt iDof = 0; iDof < numComponents[iField]; ++iDof) {
+                    for (pylith::integer iDof = 0; iDof < numComponents[iField]; ++iDof) {
                         std::cout << std::setw(pwidth) << none;
                     } // for
                 } // if/else
                 std::cout << "  ";
             } // for
-            PetscInt numConstraintDof;
+            pylith::integer numConstraintDof;
             err = PetscSectionGetConstraintDof(section, point, &numConstraintDof);PYLITH_CHECK_ERROR(err);
             if (numConstraintDof > 0) {
-                const PetscInt off = fieldVisitor.sectionOffset(point);
+                const pylith::integer off = fieldVisitor.sectionOffset(point);
                 std::cout << "  (constrained:";
-                const PetscInt* constraintIndices = NULL;
+                const pylith::integer* constraintIndices = nullptr;
                 err = PetscSectionGetConstraintIndices(section, point, &constraintIndices);PYLITH_CHECK_ERROR(err);
-                for (PetscInt iDof = 0; iDof < numConstraintDof; ++iDof) {
+                for (pylith::integer iDof = 0; iDof < numConstraintDof; ++iDof) {
                     std::cout << " " << off+constraintIndices[iDof];
                 } // for
                 std::cout << ")";
@@ -838,7 +838,7 @@ pylith::topology::_Field::viewGlobalSection(const Field& field) {
         numComponents[i] = field.getSubfieldInfo(subfieldNames[i].c_str()).description.numComponents;
     } // for
 
-    PetscInt pStart, pEnd;
+    pylith::integer pStart, pEnd;
     pylith::topology::VecVisitorMesh fieldVisitor(field);
     fieldVisitor.selectSection(pylith::topology::VecVisitorMesh::GLOBAL_SECTION);
     const PetscSection section = fieldVisitor.selectedSection();
@@ -848,22 +848,22 @@ pylith::topology::_Field::viewGlobalSection(const Field& field) {
         std::cout << "Global Section" << "\n";
     } // if
 
-    for (PetscInt iProc = 0; iProc < numProcs; ++iProc) {
+    for (pylith::integer iProc = 0; iProc < numProcs; ++iProc) {
         std::cout << "Processor " << iProc << "\n";
-        for (PetscInt point = pStart; point < pEnd; ++point) {
+        for (pylith::integer point = pStart; point < pEnd; ++point) {
             std::cout << std::setw(pwidth) << point;
             for (size_t iField = 0; iField < numSubfields; ++iField) {
-                const PetscInt numDof = fieldVisitor.sectionSubfieldDof(iField, point);
+                const pylith::integer numDof = fieldVisitor.sectionSubfieldDof(iField, point);
                 if (numDof > 0) {
-                    PetscInt numConstraintDof;
+                    pylith::integer numConstraintDof;
                     err = PetscSectionGetFieldConstraintDof(section, point, iField, &numConstraintDof);PYLITH_CHECK_ERROR(err);
                     if (numConstraintDof > 0) {
                         assert(numConstraintDof <= numDof);
-                        PetscInt iConstraint = 0;
-                        const PetscInt* constraintIndices = NULL;
+                        pylith::integer iConstraint = 0;
+                        const pylith::integer* constraintIndices = nullptr;
                         err = PetscSectionGetFieldConstraintIndices(section, point, iField, &constraintIndices);PYLITH_CHECK_ERROR(err);
-                        const PetscInt off = fieldVisitor.sectionSubfieldOffset(iField, point);
-                        for (PetscInt iDof = 0; iDof < numDof; ++iDof) {
+                        const pylith::integer off = fieldVisitor.sectionSubfieldOffset(iField, point);
+                        for (pylith::integer iDof = 0; iDof < numDof; ++iDof) {
                             if ((iConstraint < numConstraintDof) && (constraintIndices[iConstraint] == iDof)) {
                                 std::cout << std::setw(pwidth) << none;
                                 ++iConstraint;
@@ -872,13 +872,13 @@ pylith::topology::_Field::viewGlobalSection(const Field& field) {
                             } // if/else
                         } // for
                     } else {
-                        const PetscInt off = fieldVisitor.sectionSubfieldOffset(iField, point);
-                        for (PetscInt iDof = 0; iDof < numDof; ++iDof) {
+                        const pylith::integer off = fieldVisitor.sectionSubfieldOffset(iField, point);
+                        for (pylith::integer iDof = 0; iDof < numDof; ++iDof) {
                             std::cout << std::setw(pwidth) << off+iDof;
                         } // for
                     } // if/else
                 } else {
-                    for (PetscInt iDof = 0; iDof < numComponents[iField]; ++iDof) {
+                    for (pylith::integer iDof = 0; iDof < numComponents[iField]; ++iDof) {
                         std::cout << std::setw(pwidth) << none;
                     } // for
                 } // if/else

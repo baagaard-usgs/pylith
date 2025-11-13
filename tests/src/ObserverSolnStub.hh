@@ -29,13 +29,13 @@ public:
      *
      * @param[in] value Time scale for dimensionalizing time.
      */
-    void setTimeScale(const PylithReal value);
+    void setTimeScale(const pylith::real value);
 
     /** Get time scale.
      *
      * @returns Time scale for dimensionalizing time.
      */
-    PylithReal getTimeScale(void) const;
+    pylith::real getTimeScale(void) const;
 
     /** Verify observer is compatible with solution.
      *
@@ -50,21 +50,21 @@ public:
      * @param[in] solution Solution at time t.
      * @param[in] notification Type of notification.
      */
-    void update(const PylithReal t,
-                const PylithInt tindex,
+    void update(const pylith::real t,
+                const pylith::integer tindex,
                 const pylith::topology::Field& solution,
                 const NotificationType notification);
 
     // PROTECTED MEMBERS ///////////////////////////////////////////////////////////////////////////////////////////////
 protected:
 
-    PylithReal _timeScale; ///< Time scale.
+    pylith::real _timeScale; ///< Time scale.
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    ObserverSolnStub(const ObserverSolnStub&); ///< Not implemented.
-    const ObserverSolnStub& operator=(const ObserverSolnStub&); ///< Not implemented
+    ObserverSolnStub(const ObserverSolnStub&) = delete;
+    const ObserverSolnStub& operator=(const ObserverSolnStub&) = delete;
 
 }; // ObserverSolnStub
 

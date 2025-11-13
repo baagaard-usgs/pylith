@@ -13,15 +13,15 @@
 #include "pylith/utils/GenericComponent.hh" // ISA GenericComponent
 
 #include "pylith/topology/FieldBase.hh" // USES FieldBase::Discretization
-#include "pylith/topology/FieldQuery.hh" // USES FieldQuery::convertfn_type
 
-#include "spatialdata/spatialdb/spatialdbfwd.hh" // USES SpatialDB
 #include "spatialdata/units/unitsfwd.hh" // HOLDSA Normalizer
+
+#include <memory> // HASA std::shared_ptr
 
 class pylith::topology::SubfieldFactory : public pylith::utils::GenericComponent {
     friend class TestSubfieldFactory; // unit testing
 
-    // PUBLIC METHODS //////////////////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 
     /// Default constructor.
@@ -30,105 +30,68 @@ public:
     /// Destructor.
     virtual ~SubfieldFactory(void);
 
-    /** Get number of subfield discretizations.
-     *
-     * @returns Number of subfield discretizations.
-     */
-    int getNumSubfields(void) const;
-
-    /** Set discretization information for auxiliary subfield.
-     *
-     * @param[in] subfieldName Name of auxiliary subfield.
-     * @param[in] basisOrder Polynomial order for basis.
-     * @param[in] quadOrder Order of quadrature rule.
-     * @param[in] dimension Dimension of points for discretization.
-     * @param[in] isFaultOnly True if subfield is limited to fault degrees of freedom.
-     * @param[in] cellBasis Type of basis functions to use (e.g., simplex, tensor, or default).
-     * @param[in] isBasisContinuous True if basis is continuous.
-     * @param[in] feSpace Finite-element space.
-     */
-    void setSubfieldDiscretization(const char* subfieldName,
-                                   const int basisOrder,
-                                   const int quadOrder,
-                                   const int dimension,
-                                   const bool isFaultOnly,
-                                   const pylith::topology::FieldBase::CellBasis cellBasis,
-                                   const pylith::topology::FieldBase::SpaceEnum feSpace,
-                                   const bool isBasisContinuous);
-
-    /** Get discretization information for subfield.
+    /** Set discretization information for subfield.
      *
      * @param[in] subfieldName Name of subfield.
-     * @return Discretization information for auxiliary subfield. If
-     * discretization information was not set, then use "default".
+     * @param[in] discretization Discretization for subfield.
      */
-    const pylith::topology::FieldBase::Discretization& getSubfieldDiscretization(const char* subfieldName) const;
+    void setDiscretization(const char* subfieldName,
+                           const pylith::topology::FieldBase::Discretization& discretization);
 
-    /** Set spatial database for filling auxiliary subfields.
+    /** Check if factory has discretization information for subfield.
      *
-     * @param[in] value Pointer to database.
+     * @param[in] subfieldName Name of subfield.
+     * @returns True if factory contains discretization for subfield.
      */
-    void setQueryDB(std::shared_ptr<spatialdata::spatialdb::SpatialDB>& value);
+    bool hasDiscretization(const char* subfieldName);
 
-    /** Get spatial database for filling auxiliary subfields.
-     *
-     * @returns Pointer to database.
-     */
-    const spatialdata::spatialdb::SpatialDB* getQueryDB(void) const;
-
-    /** Initialize factory for setting up auxiliary subfields.
+    /** Open factory for setting up subfields.
      *
      * @param[inout] field Field for which subfields are to be created.
      * @param[in] normalizer Scales for nondimensionalization.
      * @param[in] spaceDim Spatial dimension of problem.
-     * @param[in] defaultDescription Default description for new subfields.
      */
     virtual
-    void initialize(std::shared_ptr<pylith::topology::Field>& field,
-                    const spatialdata::units::Nondimensional& normalizer,
-                    const int spaceDim,
-                    std::unique_ptr<pylith::topology::FieldBase::Description>& defaultDescription);
+    void open(std::shared_ptr<pylith::topology::Field>& field,
+              const std::shared_ptr<spatialdata::units::Nondimensional>& normalizer);
 
-    /// Set subfield values using spatial database.
-    void setValuesFromDB(void);
-
-    /** Set query function for subfield.
+    /** Add subfield to field.
      *
      * @param[in] subfieldName Name of subfield.
-     * @param[in] namesDBValues Array of names of values to use from spatial database.
-     * @param[in] numDBValues Size of names array.
-     * @param[in] convertFn Function to convert spatial database values to subfield values.
-     * @param[in] db Spatial database to query.
      */
-    void setSubfieldQuery(const char* subfieldName,
-                          const char* namesDBValues[]=NULL,
-                          const size_t numDBValues=0,
-                          pylith::topology::FieldQuery::convertfn_type convertFn=NULL,
-                          spatialdata::spatialdb::SpatialDB* db=NULL);
+    void addSubfield(const std::string& subfieldName);
 
-    // PROTECTED MEMBERS ///////////////////////////////////////////////////////////////////////////////////////////////
+    /// Close factory after setting up subfields.
+    void close(void);
+
+    // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
 protected:
 
+    /** Get subfield description.
+     *
+     * @param[in] subfieldName Name of subfield.
+     * @param[in] spaceDim Spatial dimension.
+     * @returns Description of subfield.
+     */
+    virtual
+    pylith::topology::FieldBase::Description _getDescription(const std::string& subfieldName,
+                                                             const size_t spaceDim) const = 0;
+
+    // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
+protected:
+
+    typedef std::map<std::string, pylith::topology::FieldBase::Discretization> subfields_t;
+
     std::shared_ptr<pylith::topology::Field> _field; ///< Field.
-    pylith::topology::FieldBase::discretizations_map _subfieldDiscretizations; ///< Discretization for each subfield.
-
-    /// Description for default subfield.
-    std::unique_ptr<pylith::topology::FieldBase::Description> _defaultDescription;
-
-    /// Database of values for filling subfields.
-    std::shared_ptr<spatialdata::spatialdb::SpatialDB> _queryDB;
-
-    /// Field query for filling subfield values via spatial database.
-    std::unique_ptr<pylith::topology::FieldQuery> _fieldQuery;
+    subfields_t _subfields; ///< Discretization for each subfield.
 
     std::shared_ptr<spatialdata::units::Nondimensional> _normalizer; ///< Scales for nondimensionalization.
-    size_t _spaceDim; ///< Spatial dimension.
 
-    // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
+    // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    SubfieldFactory(const SubfieldFactory &); ///< Not implemented.
-    const SubfieldFactory& operator=(const SubfieldFactory&); ///< Not implemented
+    SubfieldFactory(const SubfieldFactory &) = delete;
+    const SubfieldFactory& operator=(const SubfieldFactory&) = delete;
 
 }; // class SubfieldFactory
 

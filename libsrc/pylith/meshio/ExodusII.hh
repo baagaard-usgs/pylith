@@ -15,13 +15,10 @@
 
 #include <string> // HASA std::string
 
-// Forward declarations -------------------------------------------------
-
-// ExodusII ----------------------------------------------------------
 class pylith::meshio::ExodusII {
     friend class TestExodusII; // unit testing
 
-    // PUBLIC METHODS ///////////////////////////////////////////////////////
+    // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 
     /// Constructor
@@ -69,7 +66,7 @@ public:
     /** Check if file contains attribute.
      *
      * @param[in] name Name of attribute.
-     * @param[in] varName Name of variable or NULL for global attribute.
+     * @param[in] varName Name of variable or nullptr for global attribute.
      * @param[out] Id of attribute if found, -1 otherwise.
      * @returns True if file contains attribute, false otherwise.
      */
@@ -96,21 +93,21 @@ public:
     /** Get string attribute.
      *
      * @param[out] value String.
-     * @param[in] varName Name of variable or NULL for global attribute.
+     * @param[in] varName Name of variable or nullptr for global attribute.
      * @param name Name of string attribute.
      */
     void getAttr(std::string* value,
                  const char* varName,
                  const char* name) const;
 
-    /** Get values for variable as an array of PylithScalars.
+    /** Get values for variable as an array of pylith::scalars.
      *
      * @param values Array of values.
      * @param dims Expected dimensions for variable.
      * @param ndims Number of dimension for variable.
      * @param name Name of variable.
      */
-    void getVar(PylithScalar* values,
+    void getVar(pylith::scalar* values,
                 int* dims,
                 int ndims,
                 const char* name) const;
@@ -137,7 +134,7 @@ public:
                 int dim,
                 const char* name) const;
 
-    // PRIVATE MEMBERS //////////////////////////////////////////////////////
+    // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:
 
     std::string _filename; ///< Name of file

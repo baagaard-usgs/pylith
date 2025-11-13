@@ -98,7 +98,7 @@ pylith::meshio::TestDataWriterHDF5ExtPoints::testWriteVertexField(void) {
         subfield->extractSubfield(vertexField, info.index);
 
         writer.writeVertexField(t, *subfield);
-        delete subfield;subfield = NULL;
+        delete subfield;subfield = nullptr;
     } // for
     writer.closeTimeStep();
     writer.close();

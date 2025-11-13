@@ -39,8 +39,8 @@ public:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    DiagnosticFieldFactory(const DiagnosticFieldFactory &); ///< Not implemented.
-    const DiagnosticFieldFactory& operator=(const DiagnosticFieldFactory&); ///< Not implemented
+    DiagnosticFieldFactory(const DiagnosticFieldFactory &) = delete;
+    const DiagnosticFieldFactory& operator=(const DiagnosticFieldFactory&) = delete;
 
 }; // class DiagnosticFieldFactory
 

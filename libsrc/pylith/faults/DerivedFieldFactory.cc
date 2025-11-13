@@ -42,7 +42,7 @@ pylith::faults::DerivedFieldFactory::addTractionChange(void) {
 
     const char* fieldName = "traction_change";
     const char* componentNames[3] = { "traction_change_opening", "traction_change_left_lateral", "traction_change_reverse" };
-    const PylithReal pressureScale = _normalizer->getPressureScale();
+    const pylith::real pressureScale = _normalizer->getPressureScale();
 
     pylith::topology::Field::Description description;
     description.label = fieldName;
@@ -54,7 +54,7 @@ pylith::faults::DerivedFieldFactory::addTractionChange(void) {
         description.componentNames[i] = componentNames[i];
     } // for
     description.scale = pressureScale;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(fieldName));
 

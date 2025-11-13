@@ -16,9 +16,9 @@
 inline
 pylith::topology::CoordsVisitor::CoordsVisitor(const PetscDM& dmMesh) :
     _dm(dmMesh),
-    _section(NULL),
-    _localVec(NULL),
-    _localArray(NULL) { // constructor
+    _section(nullptr),
+    _localVec(nullptr),
+    _localArray(nullptr) { // constructor
     assert(_dm);
     initialize();
 } // constructor
@@ -38,7 +38,7 @@ inline
 void
 pylith::topology::CoordsVisitor::initialize(void) { // initialize
     assert(_dm);
-    PetscInt size;
+    pylith::integer size;
     PetscErrorCode err;
     err = DMGetCoordinateSection(_dm, &_section);PYLITH_CHECK_ERROR(err);assert(_section);
     err = DMGetCoordinatesLocal(_dm, &_localVec);PYLITH_CHECK_ERROR(err);assert(_localVec);
@@ -56,16 +56,16 @@ pylith::topology::CoordsVisitor::clear(void) { // clear
         PetscErrorCode err = VecRestoreArray(_localVec, &_localArray);PYLITH_CHECK_ERROR(err);
     } // if
 
-    _localVec = NULL;
-    _localArray = NULL;
-    _section = NULL;
+    _localVec = nullptr;
+    _localArray = nullptr;
+    _section = nullptr;
 } // clear
 
 
 // ----------------------------------------------------------------------
 // Get the local coordinates array associated with the local PETSc Vec.
 inline
-PetscScalar*
+pylith::scalar*
 pylith::topology::CoordsVisitor::localArray(void) const { // localArray
     return _localArray;
 } // localArray
@@ -74,10 +74,10 @@ pylith::topology::CoordsVisitor::localArray(void) const { // localArray
 // ----------------------------------------------------------------------
 // Get fiber dimension of coordinates for point.
 inline
-PetscInt
-pylith::topology::CoordsVisitor::sectionDof(const PetscInt point) const { // sectionDof
+pylith::integer
+pylith::topology::CoordsVisitor::sectionDof(const pylith::integer point) const { // sectionDof
     assert(_section);
-    PetscInt dof;
+    pylith::integer dof;
     PetscErrorCode err = PetscSectionGetDof(_section, point, &dof);PYLITH_CHECK_ERROR(err);
     return dof;
 } // sectionDof
@@ -86,10 +86,10 @@ pylith::topology::CoordsVisitor::sectionDof(const PetscInt point) const { // sec
 // ----------------------------------------------------------------------
 // Get offset into coordinates array for point.
 inline
-PetscInt
-pylith::topology::CoordsVisitor::sectionOffset(const PetscInt point) const { // sectionOffset
+pylith::integer
+pylith::topology::CoordsVisitor::sectionOffset(const pylith::integer point) const { // sectionOffset
     assert(_section);
-    PetscInt offset;
+    pylith::integer offset;
     PetscErrorCode err = PetscSectionGetOffset(_section, point, &offset);PYLITH_CHECK_ERROR(err);
     return offset;
 } // sectionOffset
@@ -99,9 +99,9 @@ pylith::topology::CoordsVisitor::sectionOffset(const PetscInt point) const { // 
 // Get coordinates array associated with closure.
 inline
 void
-pylith::topology::CoordsVisitor::getClosure(PetscScalar** coordsCell,
-                                            PetscInt* coordsSize,
-                                            const PetscInt cell) const { // getClosure
+pylith::topology::CoordsVisitor::getClosure(pylith::scalar** coordsCell,
+                                            pylith::integer* coordsSize,
+                                            const pylith::integer cell) const { // getClosure
     assert(_dm);
     assert(_section);
     assert(_localVec);
@@ -114,13 +114,13 @@ pylith::topology::CoordsVisitor::getClosure(PetscScalar** coordsCell,
 inline
 void
 pylith::topology::CoordsVisitor::getClosure(scalar_array* coords,
-                                            const PetscInt cell) const { // getClosure
+                                            const pylith::integer cell) const { // getClosure
     assert(_dm);
     assert(_section);
     assert(_localVec);
     assert(coords);
-    PetscScalar* coordsCell = &(*coords)[0];
-    PetscInt coordsSize = coords->size();
+    pylith::scalar* coordsCell = &(*coords)[0];
+    pylith::integer coordsSize = coords->size();
     PetscErrorCode err = DMPlexVecGetClosure(_dm, _section, _localVec, cell, &coordsSize, &coordsCell);PYLITH_CHECK_ERROR(err);
 } // getClosure
 
@@ -129,9 +129,9 @@ pylith::topology::CoordsVisitor::getClosure(scalar_array* coords,
 // Restore coordinates array associated with closure.
 inline
 void
-pylith::topology::CoordsVisitor::restoreClosure(PetscScalar** coordsCell,
-                                                PetscInt* coordsSize,
-                                                const PetscInt cell) const { // restoreClosure
+pylith::topology::CoordsVisitor::restoreClosure(pylith::scalar** coordsCell,
+                                                pylith::integer* coordsSize,
+                                                const pylith::integer cell) const { // restoreClosure
     assert(_dm);
     assert(_section);
     assert(_localVec);
@@ -147,11 +147,11 @@ pylith::topology::CoordsVisitor::optimizeClosure(PetscDM dmMesh) { // optimizeCl
     assert(dmMesh);
 
     PetscErrorCode err;
-    PetscSection fieldSection = NULL;
+    PetscSection fieldSection = nullptr;
     err = DMGetCoordinateSection(dmMesh, &fieldSection);PYLITH_CHECK_ERROR(err);assert(fieldSection);
 
-    PetscSection indexSection = NULL;
-    err = PetscSectionGetClosureIndex(fieldSection, (PetscObject) dmMesh, &indexSection, NULL);PYLITH_CHECK_ERROR(err);
+    PetscSection indexSection = nullptr;
+    err = PetscSectionGetClosureIndex(fieldSection, (PetscObject) dmMesh, &indexSection, nullptr);PYLITH_CHECK_ERROR(err);
     if (!indexSection) {
         err = DMPlexCreateClosureIndex(dmMesh, fieldSection);PYLITH_CHECK_ERROR(err);
     } // if

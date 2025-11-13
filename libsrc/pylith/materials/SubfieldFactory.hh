@@ -17,6 +17,46 @@
 class pylith::materials::SubfieldFactory : public pylith::topology::SubfieldFactory {
     friend class TestSubfieldFactory; // unit testing
 
+    // PUBLIC MEMBERS /////////////////////////////////////////////////////////////////////////////
+public:
+
+    // Auxiliary subfields
+    static const std::string density;
+    static const std::string body_force;
+    static const std::string gravity_field;
+    static const std::string shear_modulus;
+    static const std::string bulk_modulus;
+    static const std::string reference_stress;
+    static const std::string reference_strain;
+
+    static const std::string maxwell_time;
+    static const std::string genmaxwell_maxwell_time;
+    static const std::string genmaxwell_shear_modulus_ratio;
+    static const std::string powerlaw_reference_strain_rate;
+    static const std::string powerlaw_reference_stress;
+    static const std::string powerlaw_exponent;
+    static const std::string total_strain;
+    static const std::string deviatoric_stress;
+    static const std::string viscous_strain;
+    static const std::string genmaxwell_viscous_strain;
+
+    static const std::string isotropic_permeability;
+    static const std::string tensor_permeability;
+    static const std::string drained_bulk_modulus;
+    static const std::string biot_coefficient;
+    static const std::string biot_modulus;
+    static const std::string porosity;
+    static const std::string solid_density;
+    static const std::string fluid_density;
+    static const std::string fluid_viscosity;
+    static const std::string source_density;
+
+    // Derived subfields
+    static const std::string cauchy_stress;
+    static const std::string cauchy_strain;
+    static const std::string bulk_density;
+    static const std::string water_content;
+
     // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 
@@ -24,109 +64,24 @@ public:
     SubfieldFactory(void);
 
     /// Destructor.
-    virtual ~SubfieldFactory(void);
+    ~SubfieldFactory(void) override;
 
-    /// Add density subfield to auxiliary subfields.
-    void addDensity(void);
+    // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
+protected:
 
-    /// Add body force subfield to auxiliary subfields.
-    void addBodyForce(void);
-
-    /** Add gravity subfield to auxiliary subfields.
+    /** Get subfield description.
      *
-     * @param[in] gravityField Gravity field.
+     * @param[in] subfieldName Name of subfield.
+     * @returns Description of subfield.
      */
-    void addGravityField(std::shared_ptr<spatialdata::spatialdb::GravityField>& gravityField);
-
-    /// Add shear modulus subfield to auxiliary subfields.
-    void addShearModulus(void);
-
-    /// Add bulk subfield to auxiliary subfields.
-    void addBulkModulus(void);
-
-    /// Add reference stress subfield to auxiliary subfields.
-    void addReferenceStress(void);
-
-    /// Add reference strain subfield to auxiliary subfields.
-    void addReferenceStrain(void);
-
-    /// Add Cauchy stress subfield to derived field.
-    void addCauchyStress(void);
-
-    /// Add Cauchy (infinitesimal) strain subfield to derived field.
-    void addCauchyStrain(void);
-
-    /// Add Maxwell time subfield to auxiliary subfields.
-    void addMaxwellTime(void);
-
-    /// Add Maxwell time subfield for Generalized Maxwell to auxiliary subfields.
-    void addMaxwellTimeGeneralizedMaxwell(void);
-
-    /// Add shear modulus ratio subfield for Generalized Maxwell to auxiliary subfields.
-    void addShearModulusRatioGeneralizedMaxwell(void);
-
-    /// Add power-law reference strain rate subfield to auxiliary subfields.
-    void addPowerLawReferenceStrainRate(void);
-
-    /// Add power-law reference stress subfield to auxiliary subfields.
-    void addPowerLawReferenceStress(void);
-
-    /// Add power-law exponent subfield to auxiliary subfields.
-    void addPowerLawExponent(void);
-
-    /// Add total strain subfield to auxiliary subfields.
-    void addTotalStrain(void);
-
-    /// Add stress subfield to auxiliary subfields.
-    void addDeviatoricStress(void);
-
-    /// Add viscous strain subfield to auxiliary subfields.
-    void addViscousStrain(void);
-
-    /// Add viscous strain subfield for Generalized Maxwell to auxiliary subfields.
-    void addViscousStrainGeneralizedMaxwell(void);
-
-    /// Add porosity subfield to auxiliary subfields.
-    void addPorosity(void);
-
-    /// Add solid density subfield to auxiliary subfields.
-    void addSolidDensity(void);
-
-    /// Add fluid density subfield to auxiliary subfields.
-    void addFluidDensity(void);
-
-    /// Add fluid viscosity subfield to auxiliary subfields.
-    void addFluidViscosity(void);
-
-    /// Add reference sourceDensity subfield to auxiliary fields.
-    void addSourceDensity(void);
-
-    /// Add isotropic permeability subfield to auxiliary subfields.
-    void addIsotropicPermeability(void);
-
-    /// Add tensor permeability subfield to auxiliary subfields.
-    void addTensorPermeability(void);
-
-    /// Add drained Bulk Modulus subfield to auxiliary subfields.
-    void addDrainedBulkModulus(void);
-
-    /// Add fluid Biot Coefficient subfield to auxiliary subfields.
-    void addBiotCoefficient(void);
-
-    /// Add fluid Biot Modulus subfield to auxiliary subfields.
-    void addBiotModulus(void);
-
-    /// Add bulk density subfield to derived field
-    void addBulkDensity(void);
-
-    /// Add water content subfield to derived field
-    void addWaterContent(void);
+    pylith::topology::FieldBase::Description _getDescription(const std::string& subfieldName,
+                                                             const size_t spaceDim) const override;
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    SubfieldFactory(const SubfieldFactory &); ///< Not implemented.
-    const SubfieldFactory& operator=(const SubfieldFactory&); ///< Not implemented
+    SubfieldFactory(const SubfieldFactory &) = delete;
+    const SubfieldFactory& operator=(const SubfieldFactory&) = delete;
 
 }; // class SubfieldFactory
 

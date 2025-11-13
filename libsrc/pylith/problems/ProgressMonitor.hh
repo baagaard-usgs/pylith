@@ -36,7 +36,7 @@ public:
      *
      * @param value Percentage of completion between status reports.
      */
-    void setUpdatePercent(const double value);
+    void setUpdatePercent(const float value);
 
     /** Get how often to report status.
      *
@@ -79,14 +79,14 @@ protected:
      * @param[in] startTime Date/time at start of simulation.
      * @returns String with estimated finish time.
      */
-    std::string _calcFinishTime(const double percentComplete,
+    std::string _calcFinishTime(const float percentComplete,
                                 const time_t& now,
                                 const time_t& startTime);
 
     // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
 protected:
 
-    double _updatePercent; ///< Percentage of completion between status reports.
+    float _updatePercent; ///< Percentage of completion between status reports.
     std::string _filename; ///< Name of output file.
     time_t _startTime;
     long _iUpdate; /// Current update step.
@@ -95,8 +95,8 @@ protected:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    ProgressMonitor(const ProgressMonitor&); ///< Not implemented.
-    const ProgressMonitor& operator=(const ProgressMonitor&); ///< Not implemented.
+    ProgressMonitor(const ProgressMonitor&) = delete;
+    const ProgressMonitor& operator=(const ProgressMonitor&) = delete;
 
 }; // ProgressMonitor
 

@@ -36,8 +36,8 @@ public:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    DerivedFactoryPoroelasticity(const DerivedFactoryPoroelasticity &); ///< Not implemented.
-    const DerivedFactoryPoroelasticity& operator=(const DerivedFactoryPoroelasticity&); ///< Not implemented
+    DerivedFactoryPoroelasticity(const DerivedFactoryPoroelasticity &) = delete;
+    const DerivedFactoryPoroelasticity& operator=(const DerivedFactoryPoroelasticity&) = delete;
 
 }; // class DerivedFactoryPoroelasticity
 

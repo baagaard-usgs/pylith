@@ -79,7 +79,7 @@ pylith::topology::TestReverseCuthillMcKee_Cases::Tri_NoFault(void) {
     TestReverseCuthillMcKee_Data* data = new TestReverseCuthillMcKee_Data();assert(data);
 
     data->filename = "data/reorder_tri3.mesh";
-    data->faultLabel = NULL;
+    data->faultLabel = nullptr;
 
     return data;
 }   // Tri_NoFault
@@ -103,7 +103,7 @@ pylith::topology::TestReverseCuthillMcKee_Cases::Quad_NoFault(void) {
     TestReverseCuthillMcKee_Data* data = new TestReverseCuthillMcKee_Data();assert(data);
 
     data->filename = "data/reorder_quad4.mesh";
-    data->faultLabel = NULL;
+    data->faultLabel = nullptr;
 
     return data;
 }   // Quad_NoFault
@@ -127,7 +127,7 @@ pylith::topology::TestReverseCuthillMcKee_Cases::Tet_NoFault(void) {
     TestReverseCuthillMcKee_Data* data = new TestReverseCuthillMcKee_Data();assert(data);
 
     data->filename = "data/reorder_tet4.mesh";
-    data->faultLabel = NULL;
+    data->faultLabel = nullptr;
 
     return data;
 }   // Tet_NoFault
@@ -151,7 +151,7 @@ pylith::topology::TestReverseCuthillMcKee_Cases::Hex_NoFault(void) {
     TestReverseCuthillMcKee_Data* data = new TestReverseCuthillMcKee_Data();assert(data);
 
     data->filename = "data/reorder_hex8.mesh";
-    data->faultLabel = NULL;
+    data->faultLabel = nullptr;
 
     return data;
 }   // Hex_NoFault

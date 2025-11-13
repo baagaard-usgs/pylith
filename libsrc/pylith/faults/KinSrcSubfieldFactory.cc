@@ -43,7 +43,7 @@ pylith::faults::KinSrcAuxiliaryFactory::addInitiationTime(void) {
     PYLITH_JOURNAL_DEBUG("addInitiationTime(void)");
 
     const char* subfieldName = "initiation_time";
-    const PylithReal timeScale = _normalizer->getTimeScale();
+    const pylith::real timeScale = _normalizer->getTimeScale();
 
     pylith::topology::Field::Description description;
     description.label = subfieldName;
@@ -53,7 +53,7 @@ pylith::faults::KinSrcAuxiliaryFactory::addInitiationTime(void) {
     description.componentNames.resize(1);
     description.componentNames[0] = subfieldName;
     description.scale = timeScale;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(subfieldName));
     this->setSubfieldQuery(subfieldName);
@@ -70,7 +70,7 @@ pylith::faults::KinSrcAuxiliaryFactory::addRiseTime(void) {
     PYLITH_JOURNAL_DEBUG("addRiseTime(void)");
 
     const char* subfieldName = "rise_time";
-    const PylithReal timeScale = _normalizer->getTimeScale();
+    const pylith::real timeScale = _normalizer->getTimeScale();
 
     pylith::topology::Field::Description description;
     description.label = subfieldName;
@@ -80,7 +80,7 @@ pylith::faults::KinSrcAuxiliaryFactory::addRiseTime(void) {
     description.componentNames.resize(1);
     description.componentNames[0] = subfieldName;
     description.scale = timeScale;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(subfieldName));
     this->setSubfieldQuery(subfieldName);
@@ -97,7 +97,7 @@ pylith::faults::KinSrcAuxiliaryFactory::addImpulseDuration(void) {
     PYLITH_JOURNAL_DEBUG("addImpulseDuration(void)");
 
     const char* subfieldName = "impulse_duration";
-    const PylithReal timeScale = _normalizer->getTimeScale();
+    const pylith::real timeScale = _normalizer->getTimeScale();
 
     pylith::topology::Field::Description description;
     description.label = subfieldName;
@@ -107,7 +107,7 @@ pylith::faults::KinSrcAuxiliaryFactory::addImpulseDuration(void) {
     description.componentNames.resize(1);
     description.componentNames[0] = subfieldName;
     description.scale = timeScale;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(subfieldName));
     this->setSubfieldQuery(subfieldName);
@@ -126,7 +126,7 @@ pylith::faults::KinSrcAuxiliaryFactory::addFinalSlip(void) {
     const char* subfieldName = "final_slip";
     const char* componentNames[3] = { "final_slip_opening", "final_slip_left_lateral", "final_slip_reverse" };
 
-    const PylithReal lengthScale = _normalizer->getLengthScale();
+    const pylith::real lengthScale = _normalizer->getLengthScale();
 
     pylith::topology::Field::Description description;
     description.label = subfieldName;
@@ -138,7 +138,7 @@ pylith::faults::KinSrcAuxiliaryFactory::addFinalSlip(void) {
         description.componentNames[i] = componentNames[i];
     } // for
     description.scale = lengthScale;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(subfieldName));
     this->setSubfieldQuery(subfieldName);
@@ -157,8 +157,8 @@ pylith::faults::KinSrcAuxiliaryFactory::addSlipRate(void) {
     const char* subfieldName = "slip_rate";
     const char* componentNames[3] = { "slip_rate_opening", "slip_rate_left_lateral", "slip_rate_reverse" };
 
-    const PylithReal lengthScale = _normalizer->getLengthScale();
-    const PylithReal timeScale = _normalizer->getTimeScale();
+    const pylith::real lengthScale = _normalizer->getLengthScale();
+    const pylith::real timeScale = _normalizer->getTimeScale();
 
     pylith::topology::Field::Description description;
     description.label = subfieldName;
@@ -170,7 +170,7 @@ pylith::faults::KinSrcAuxiliaryFactory::addSlipRate(void) {
         description.componentNames[i] = componentNames[i];
     } // for
     description.scale = lengthScale / timeScale;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(subfieldName));
     this->setSubfieldQuery(subfieldName);
@@ -195,7 +195,7 @@ pylith::faults::KinSrcAuxiliaryFactory::addTimeHistoryValue(void) {
     description.numComponents = 1;
     description.componentNames.resize(1);
     description.componentNames[0] = subfieldName;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization("final_slip"));
     // No subfield query; populated at begining of time step.
@@ -207,8 +207,8 @@ pylith::faults::KinSrcAuxiliaryFactory::addTimeHistoryValue(void) {
 // ------------------------------------------------------------------------------------------------
 void
 pylith::faults::KinSrcAuxiliaryFactory::updateTimeHistoryValue(pylith::topology::Field* auxiliaryField,
-                                                               const PylithReal t,
-                                                               const PylithReal timeScale,
+                                                               const pylith::real t,
+                                                               const pylith::real timeScale,
                                                                spatialdata::spatialdb::TimeHistory* const dbTimeHistory) {
     PYLITH_METHOD_BEGIN;
     pythia::journal::debug_t debug("kinsrcauxiliaryfactory");
@@ -220,26 +220,26 @@ pylith::faults::KinSrcAuxiliaryFactory::updateTimeHistoryValue(pylith::topology:
     assert(auxiliaryField);
     assert(dbTimeHistory);
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     PetscSection auxiliaryFieldSection = auxiliaryField->getLocalSection();assert(auxiliaryFieldSection);
-    PetscInt pStart = 0, pEnd = 0;
+    pylith::integer pStart = 0, pEnd = 0;
     err = PetscSectionGetChart(auxiliaryFieldSection, &pStart, &pEnd);PYLITH_CHECK_ERROR(err);
     pylith::topology::VecVisitorMesh auxiliaryFieldVisitor(*auxiliaryField);
-    PetscScalar* auxiliaryFieldArray = auxiliaryFieldVisitor.localArray();
+    pylith::scalar* auxiliaryFieldArray = auxiliaryFieldVisitor.localArray();
     if (pEnd > pStart) { assert(auxiliaryFieldArray); }
 
     // Compute offset of time history subfields in auxiliary field.
-    const PetscInt i_startTime = auxiliaryField->getSubfieldInfo("initiation_time").index;
-    const PetscInt i_value = auxiliaryField->getSubfieldInfo("time_history_value").index;
+    const pylith::integer i_startTime = auxiliaryField->getSubfieldInfo("initiation_time").index;
+    const pylith::integer i_value = auxiliaryField->getSubfieldInfo("time_history_value").index;
 
     // Loop over all points in section.
-    for (PetscInt p = pStart; p < pEnd; ++p) {
+    for (pylith::integer p = pStart; p < pEnd; ++p) {
         // Skip points without values in section.
         if (!auxiliaryFieldVisitor.sectionDof(p)) {continue;}
 
         // Get starting time and compute relative time for point.
-        const PetscInt offStartTime = auxiliaryFieldVisitor.sectionSubfieldOffset(i_startTime, p);
+        const pylith::integer offStartTime = auxiliaryFieldVisitor.sectionSubfieldOffset(i_startTime, p);
         const PylithScalar tStart = auxiliaryFieldArray[offStartTime];
         const PylithScalar tRel = t - tStart;
 
@@ -256,7 +256,7 @@ pylith::faults::KinSrcAuxiliaryFactory::updateTimeHistoryValue(pylith::topology:
         } // if
 
         // Update value (normalized amplitude) in auxiliary field.
-        const PetscInt offValue = auxiliaryFieldVisitor.sectionSubfieldOffset(i_value, p);
+        const pylith::integer offValue = auxiliaryFieldVisitor.sectionSubfieldOffset(i_value, p);
         auxiliaryFieldArray[offValue] = value;
     } // for
 

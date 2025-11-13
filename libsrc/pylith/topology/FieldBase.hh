@@ -72,7 +72,7 @@ public:
             numComponents(0),
             scale(1.0),
             validatorTolerance(0.0),
-            validator(NULL),
+            validator(nullptr),
             hasHistory(false),
             historySize(0) {}
 
@@ -84,7 +84,7 @@ public:
                     const VectorFieldEnum vectorFieldTypeValue=SCALAR,
                     const pylith::real scaleValue=1.0,
                     const pylith::real validatorToleranceValue=0.0,
-                    const validatorfn_type validatorValue=NULL,
+                    const validatorfn_type validatorValue=nullptr,
                     bool isFaultOnlyValue=false,
                     bool hasHistoryValue=false,
                     const size_t historySizeValue=0) :
@@ -200,8 +200,8 @@ public:
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    FieldBase(const FieldBase&); ///< Not implemented
-    const FieldBase& operator=(const FieldBase&); ///< Not implemented
+    FieldBase(const FieldBase&) = delete;
+    const FieldBase& operator=(const FieldBase&) = delete;
 
 }; // FieldBase
 

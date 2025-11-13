@@ -15,7 +15,7 @@
 #include "pylith/topology/FieldQuery.hh" // USES DBQueryContext
 #include "pylith/feassemble/AuxiliaryFactory.hh" // USES AuxiliaryFactory
 #include "pylith/utils/error.hh" // USES PYLITH_METHOD_BEGIN/END, PYLITH_ERROR_RETURN
-#include "pylith/utils/array.hh" // USES scalar_array, int_array
+#include "pylith/utils/array.hh" // USES scalar_array, pylith::integer_array
 #include "pylith/utils/types.hh" // USES PylithScalar
 #include "pylith/utils/constdefs.h" // USES PYLITH_MAXSCALAR
 
@@ -40,45 +40,45 @@ public:
 
             static
             std::string vmToShearModulus(PylithScalar valueSubfield[],
-                                         const PylithInt numComponents,
+                                         const pylith::integer numComponents,
                                          const pylith::scalar_array dbValues,
-                                         const pylith::int_array dbIndices);
+                                         const pylith::integer_array dbIndices);
 
             static
             std::string vmToBulkModulus(PylithScalar valueSubfield[],
-                                        const PylithInt numComponents,
+                                        const pylith::integer numComponents,
                                         const pylith::scalar_array dbValues,
-                                        const pylith::int_array dbIndices);
+                                        const pylith::integer_array dbIndices);
 
             static
             std::string vmToMaxwellTime(PylithScalar valueSubfield[],
-                                        const PylithInt numComponents,
+                                        const pylith::integer numComponents,
                                         const pylith::scalar_array dbValues,
-                                        const pylith::int_array dbIndices);
+                                        const pylith::integer_array dbIndices);
 
             static
             std::string vmToGeneralizedMaxwellTimes(PylithScalar valueSubfield[],
-                                                    const PylithInt numComponents,
+                                                    const pylith::integer numComponents,
                                                     const pylith::scalar_array dbValues,
-                                                    const pylith::int_array dbIndices);
+                                                    const pylith::integer_array dbIndices);
 
             static
             std::string vmToGeneralizedMaxwellShearModulusRatios(PylithScalar valueSubfield[],
-                                                                 const PylithInt numComponents,
+                                                                 const pylith::integer numComponents,
                                                                  const pylith::scalar_array dbValues,
-                                                                 const pylith::int_array dbIndices);
+                                                                 const pylith::integer_array dbIndices);
 
             static
             std::string dbToGravityField(PylithScalar valueSubfield[],
-                                         const PylithInt numComponents,
+                                         const pylith::integer numComponents,
                                          const pylith::scalar_array dbValues,
-                                         const pylith::int_array dbIndices);
+                                         const pylith::integer_array dbIndices);
 
             static
             std::string inputToBiotModulus(PylithScalar valueSubfield[],
-                                           const PylithInt numComponents,
+                                           const pylith::integer numComponents,
                                            const pylith::scalar_array dbValues,
-                                           const pylith::int_array dbIndices);
+                                           const pylith::integer_array dbIndices);
 
         }; // _Query
     } // materials
@@ -203,9 +203,9 @@ pylith::materials::Query::biotModulusFromInput(const char* subfieldName,
 // Compute shear modules from density and Vs.
 std::string
 pylith::materials::_Query::vmToShearModulus(PylithScalar valueSubfield[],
-                                            const PylithInt numComponents,
+                                            const pylith::integer numComponents,
                                             const pylith::scalar_array dbValues,
-                                            const pylith::int_array dbIndices) {
+                                            const pylith::integer_array dbIndices) {
     PYLITH_METHOD_BEGIN;
 
     const size_t _numComponents = 1;
@@ -236,9 +236,9 @@ pylith::materials::_Query::vmToShearModulus(PylithScalar valueSubfield[],
 // Compute bulk modules from density, Vs, and Vp.
 std::string
 pylith::materials::_Query::vmToBulkModulus(PylithScalar valueSubfield[],
-                                           const PylithInt numComponents,
+                                           const pylith::integer numComponents,
                                            const pylith::scalar_array dbValues,
-                                           const pylith::int_array dbIndices) {
+                                           const pylith::integer_array dbIndices) {
     PYLITH_METHOD_BEGIN;
 
     const size_t _numComponents = 1;
@@ -274,9 +274,9 @@ pylith::materials::_Query::vmToBulkModulus(PylithScalar valueSubfield[],
 // Compute Maxwell time from from density, Vs, and viscosity.
 std::string
 pylith::materials::_Query::vmToMaxwellTime(PylithScalar valueSubfield[],
-                                           const PylithInt numComponents,
+                                           const pylith::integer numComponents,
                                            const pylith::scalar_array dbValues,
-                                           const pylith::int_array dbIndices) {
+                                           const pylith::integer_array dbIndices) {
     PYLITH_METHOD_BEGIN;
 
     const size_t _numComponents = 1;
@@ -313,9 +313,9 @@ pylith::materials::_Query::vmToMaxwellTime(PylithScalar valueSubfield[],
 // Compute Maxwell time for generalized Maxwell model (3 elements).
 std::string
 pylith::materials::_Query::vmToGeneralizedMaxwellTimes(PylithScalar valueSubfield[],
-                                                       const PylithInt numComponents,
+                                                       const pylith::integer numComponents,
                                                        const pylith::scalar_array dbValues,
-                                                       const pylith::int_array dbIndices) {
+                                                       const pylith::integer_array dbIndices) {
     PYLITH_METHOD_BEGIN;
 
     const size_t _numComponents = 3;
@@ -343,10 +343,10 @@ pylith::materials::_Query::vmToGeneralizedMaxwellTimes(PylithScalar valueSubfiel
     const PylithScalar shearModulus1 = shearModulusRatio1 * shearModulus;
     valueSubfield[0] = (shearModulus1 > 0.0) ? viscosity1 / shearModulus1 : PYLITH_MAXSCALAR;
 
-    const PylithReal shearModulus2 = shearModulusRatio2 * shearModulus;
+    const pylith::real shearModulus2 = shearModulusRatio2 * shearModulus;
     valueSubfield[1] = (shearModulus2 > 0.0) ? viscosity2 / shearModulus2 : PYLITH_MAXSCALAR;
 
-    const PylithReal shearModulus3 = shearModulusRatio3 * shearModulus;
+    const pylith::real shearModulus3 = shearModulusRatio3 * shearModulus;
     valueSubfield[2] = (shearModulus3 > 0.0) ? viscosity3 / shearModulus3 : PYLITH_MAXSCALAR;
 
     std::ostringstream msg;
@@ -390,9 +390,9 @@ pylith::materials::_Query::vmToGeneralizedMaxwellTimes(PylithScalar valueSubfiel
 // Compute Maxwell time for generalized Maxwell model (3 elements).
 std::string
 pylith::materials::_Query::vmToGeneralizedMaxwellShearModulusRatios(PylithScalar valueSubfield[],
-                                                                    const PylithInt numComponents,
+                                                                    const pylith::integer numComponents,
                                                                     const pylith::scalar_array dbValues,
-                                                                    const pylith::int_array dbIndices) {
+                                                                    const pylith::integer_array dbIndices) {
     PYLITH_METHOD_BEGIN;
 
     const size_t _numComponents = 3;
@@ -432,9 +432,9 @@ pylith::materials::_Query::vmToGeneralizedMaxwellShearModulusRatios(PylithScalar
 // Compute Maxwell time for generalized Maxwell model (3 elements).
 std::string
 pylith::materials::_Query::dbToGravityField(PylithScalar valueSubfield[],
-                                            const PylithInt numComponents,
+                                            const pylith::integer numComponents,
                                             const pylith::scalar_array dbValues,
-                                            const pylith::int_array dbIndices) {
+                                            const pylith::integer_array dbIndices) {
     PYLITH_METHOD_BEGIN;
 
     const size_t spaceDim = dbIndices.size();
@@ -451,7 +451,7 @@ pylith::materials::_Query::dbToGravityField(PylithScalar valueSubfield[],
     for (size_t i = 0; i < spaceDim; ++i) {
         mag += valueSubfield[i] * valueSubfield[i];
     } // for
-    const PylithReal tolerance = 1.0e-6;
+    const pylith::real tolerance = 1.0e-6;
     std::ostringstream msg;
     if (mag < tolerance) {
         msg << "Found near zero magnitude (" << mag << ") for gravity field vector (";
@@ -470,9 +470,9 @@ pylith::materials::_Query::dbToGravityField(PylithScalar valueSubfield[],
 // fluid bulk modulus, and porosity
 std::string
 pylith::materials::_Query::inputToBiotModulus(PylithScalar valueSubfield[],
-                                              const PylithInt numComponents,
+                                              const pylith::integer numComponents,
                                               const pylith::scalar_array dbValues,
-                                              const pylith::int_array dbIndices) {
+                                              const pylith::integer_array dbIndices) {
     PYLITH_METHOD_BEGIN;
 
     const size_t _numComponents = 1;

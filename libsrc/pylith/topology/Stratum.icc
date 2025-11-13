@@ -46,7 +46,7 @@ pylith::topology::Stratum::~Stratum(void) {
 // ----------------------------------------------------------------------
 // Get starting point.
 inline
-PetscInt
+pylith::integer
 pylith::topology::Stratum::begin(void) const {
     return _begin;
 } // begin
@@ -55,7 +55,7 @@ pylith::topology::Stratum::begin(void) const {
 // ----------------------------------------------------------------------
 // Get ending point.
 inline
-PetscInt
+pylith::integer
 pylith::topology::Stratum::end(void) const { // end
     return _end;
 } // end
@@ -64,7 +64,7 @@ pylith::topology::Stratum::end(void) const { // end
 // ----------------------------------------------------------------------
 // Get number of points in stratum.
 inline
-PetscInt
+pylith::integer
 pylith::topology::Stratum::size(void) const { // size
     return _end-_begin;
 } // size
@@ -85,25 +85,25 @@ pylith::topology::StratumIS::StratumIS(const PetscDM dmMesh,
     if (!includeOnlyCells) {
         err = DMGetStratumIS(dmMesh, label, id, &_indexSet);PYLITH_CHECK_ERROR(err);assert(_indexSet);
     } else {
-        PetscIS pointsIS = NULL;
-        PetscInt numPoints = 0;
-        const PetscInt* points = NULL;
+        PetscIS pointsIS = nullptr;
+        pylith::integer numPoints = 0;
+        const pylith::integer* points = nullptr;
         err = DMGetStratumIS(dmMesh, label, id, &pointsIS);PYLITH_CHECK_ERROR(err);
         if (pointsIS) {
             err = ISGetSize(pointsIS, &numPoints);PYLITH_CHECK_ERROR(err);assert(numPoints >= 0);
             err = ISGetIndices(pointsIS, &points);PYLITH_CHECK_ERROR(err);assert(!numPoints || points);
-            PetscInt cStart, cEnd;
+            pylith::integer cStart, cEnd;
             err = DMPlexGetHeightStratum(dmMesh, 0, &cStart, &cEnd);PYLITH_CHECK_ERROR(err);
-            PetscInt* cells = (numPoints > 0) ? new PetscInt[numPoints] : 0;
-            PetscInt count = 0;
-            for (PetscInt i = 0; i < numPoints; ++i) {
+            pylith::integer* cells = (numPoints > 0) ? new pylith::integer[numPoints] : 0;
+            pylith::integer count = 0;
+            for (pylith::integer i = 0; i < numPoints; ++i) {
                 if ((points[i] >= cStart) && (points[i] < cEnd) ) {
                     cells[count++] = points[i];
                 } // if
             } // for
             err = ISCreateGeneral(PETSC_COMM_SELF, count, cells, PETSC_COPY_VALUES, &_indexSet);PYLITH_CHECK_ERROR(err);
             delete[] cells;cells = 0;
-            err = ISRestoreIndices(pointsIS, &points);PYLITH_CHECK_ERROR(err);_points = NULL;
+            err = ISRestoreIndices(pointsIS, &points);PYLITH_CHECK_ERROR(err);_points = nullptr;
             err = ISDestroy(&pointsIS);PYLITH_CHECK_ERROR(err);assert(!pointsIS);
         } // if
     } // if/else
@@ -130,7 +130,7 @@ void
 pylith::topology::StratumIS::deallocate(void) { // deallocate
     PetscErrorCode err = 0;
     if (_indexSet) {
-        err = ISRestoreIndices(_indexSet, &_points);PYLITH_CHECK_ERROR(err);_points = NULL;
+        err = ISRestoreIndices(_indexSet, &_points);PYLITH_CHECK_ERROR(err);_points = nullptr;
         err = ISDestroy(&_indexSet);PYLITH_CHECK_ERROR(err);assert(!_indexSet);
     } // if
 } // deallocate
@@ -139,7 +139,7 @@ pylith::topology::StratumIS::deallocate(void) { // deallocate
 // ----------------------------------------------------------------------
 // Get array of points.
 inline
-const PetscInt*
+const pylith::integer*
 pylith::topology::StratumIS::points(void) const { // points
     return _points;
 } // points
@@ -148,7 +148,7 @@ pylith::topology::StratumIS::points(void) const { // points
 // ----------------------------------------------------------------------
 // Get number of points in index set.
 inline
-PetscInt
+pylith::integer
 pylith::topology::StratumIS::size(void) const { // size
     return _size;
 } // size

@@ -65,17 +65,17 @@ public:
     pylith::meshio::MeshBuilder::Topology* topology;
     pylith::meshio::MeshBuilder::Geometry* geometry;
 
-    PylithInt* materialIds; ///< Pointer to cell material identifiers
+    pylith::integer* materialIds; ///< Pointer to cell material identifiers
 
-    PylithInt* vertexGroups; ///< Array of pointers to indices of points in vertex groups
-    PylithInt* vertexGroupSizes; ///< Array of sizes of each vertex group
-    PylithInt* vertexGroupTags; ///< Array of label values (tags) for each vertex group.
+    pylith::integer* vertexGroups; ///< Array of pointers to indices of points in vertex groups
+    pylith::integer* vertexGroupSizes; ///< Array of sizes of each vertex group
+    pylith::integer* vertexGroupTags; ///< Array of label values (tags) for each vertex group.
     char** vertexGroupNames; ///< Array of vertex group names
     size_t numVertexGroups; ///< Number of vertex groups
 
-    PylithInt* faceGroups; ///< Array of pointers to indices of points in face groups
-    PylithInt* faceGroupSizes; ///< Array of sizes of each face group
-    PylithInt* faceGroupTags; ///< Array of label values (tags) for each face group.
+    pylith::integer* faceGroups; ///< Array of pointers to indices of points in face groups
+    pylith::integer* faceGroupSizes; ///< Array of sizes of each face group
+    pylith::integer* faceGroupTags; ///< Array of label values (tags) for each face group.
     char** faceGroupNames; ///< Array of face group names
     size_t numFaceGroups; ///< Number of face groups
     size_t numFaceVertices; ///< Number of vertices on a cell face.

@@ -99,7 +99,7 @@ pylith::feassemble::TestAuxiliaryFactory::TestAuxiliaryFactory(void) {
 // ---------------------------------------------------------------------------------------------------------------------
 // Tear down testing data.
 pylith::feassemble::TestAuxiliaryFactory::~TestAuxiliaryFactory(void) {
-    delete _factory;_factory = NULL;
+    delete _factory;_factory = nullptr;
 } // destructor
 
 
@@ -286,8 +286,8 @@ pylith::feassemble::TestAuxiliaryFactory::testSetValuesFromDB(void) {
     _factory->setValuesFromDB();
 
     // Verify auxiliary field
-    PylithReal norm = 0.0;
-    PylithReal t = 0.0;
+    pylith::real norm = 0.0;
+    pylith::real t = 0.0;
     const PetscDM dmField = auxiliaryField.getDM();assert(dmField);
     pylith::topology::FieldQuery query(auxiliaryField);
     query.initializeWithDefaultQueries();
@@ -295,7 +295,7 @@ pylith::feassemble::TestAuxiliaryFactory::testSetValuesFromDB(void) {
     PetscErrorCode err = DMPlexComputeL2DiffLocal(dmField, t, query._functions, (void**)query._contextPtrs,
                                                   auxiliaryField.getLocalVector(), &norm);assert(!err);
     query.closeDB(&auxiliaryDB);
-    const PylithReal tolerance = 1.0e-6;
+    const pylith::real tolerance = 1.0e-6;
     CHECK_THAT(norm, Catch::Matchers::WithinAbs(0.0, tolerance));
 
     AuxiliaryFactory emptyFactory;

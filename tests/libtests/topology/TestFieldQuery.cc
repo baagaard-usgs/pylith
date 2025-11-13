@@ -35,9 +35,9 @@ namespace pylith {
         namespace _TestFieldQuery {
             std::string
             converter(PylithScalar valueSubfield[],
-                      const PylithInt numComponents,
+                      const pylith::integer numComponents,
                       const pylith::scalar_array dbValues,
-                      const pylith::int_array dbIndices) {
+                      const pylith::integer_array dbIndices) {
                 return std::string("Hello");
             }
 
@@ -53,9 +53,9 @@ pylith::topology::TestFieldQuery::TestFieldQuery(TestFieldQuery_Data* data) :
     PYLITH_METHOD_BEGIN;
     assert(_data);
 
-    _mesh = NULL;
-    _field = NULL;
-    _query = NULL;
+    _mesh = nullptr;
+    _field = nullptr;
+    _query = nullptr;
 
     _initialize();
 
@@ -68,10 +68,10 @@ pylith::topology::TestFieldQuery::TestFieldQuery(TestFieldQuery_Data* data) :
 pylith::topology::TestFieldQuery::~TestFieldQuery(void) {
     PYLITH_METHOD_BEGIN;
 
-    delete _data;_data = NULL;
-    delete _mesh;_mesh = NULL;
-    delete _field;_field = NULL;
-    delete _query;_query = NULL;
+    delete _data;_data = nullptr;
+    delete _mesh;_mesh = nullptr;
+    delete _field;_field = nullptr;
+    delete _query;_query = nullptr;
 
     PYLITH_METHOD_END;
 } // destructor
@@ -122,14 +122,14 @@ pylith::topology::TestFieldQuery::testSetQuery(void) {
         const size_t numDBValues = 3;
         const char* dbValues[numDBValues] = { "one", "two", "three" };
         spatialdata::spatialdb::UserFunctionDB dbUser;
-        _query->setQuery(subfieldName, dbValues, numDBValues, NULL, &dbUser);
+        _query->setQuery(subfieldName, dbValues, numDBValues, nullptr, &dbUser);
 
         const pylith::topology::FieldQuery::SubfieldQuery& info = _query->_subfieldQueries[subfieldName];
         REQUIRE(numDBValues == info.queryValues.size());
         for (size_t i = 0; i < numDBValues; ++i) {
             CHECK(std::string(dbValues[i]) == info.queryValues[i]);
         } // for
-        CHECK(pylith::topology::FieldQuery::convertfn_type(NULL) == info.converter);
+        CHECK(pylith::topology::FieldQuery::convertfn_type(nullptr) == info.converter);
         CHECK(&dbUser == dynamic_cast<spatialdata::spatialdb::UserFunctionDB*>(info.db));
     }
 
@@ -145,7 +145,7 @@ pylith::topology::TestFieldQuery::testSetQuery(void) {
             CHECK(std::string(dbValues[i]) == info.queryValues[i]);
         } // for
         CHECK(&_TestFieldQuery::converter == info.converter);
-        CHECK((spatialdata::spatialdb::SpatialDB*)NULL == info.db);
+        CHECK((spatialdata::spatialdb::SpatialDB*)nullptr == info.db);
     }
 
     { // Test with spatial database values.
@@ -160,7 +160,7 @@ pylith::topology::TestFieldQuery::testSetQuery(void) {
             CHECK(std::string(dbValues[i]) == info.queryValues[i]);
         } // for
         CHECK(&_TestFieldQuery::converter == info.converter);
-        CHECK((spatialdata::spatialdb::SpatialDB*)NULL == info.db);
+        CHECK((spatialdata::spatialdb::SpatialDB*)nullptr == info.db);
     }
 
     { // Test with defaults.
@@ -175,8 +175,8 @@ pylith::topology::TestFieldQuery::testSetQuery(void) {
         for (size_t i = 0; i < numDBValuesE; ++i) {
             CHECK(std::string(dbValuesE[i]) == info.queryValues[i]);
         } // for
-        CHECK(pylith::topology::FieldQuery::convertfn_type(NULL) == info.converter);
-        CHECK((spatialdata::spatialdb::SpatialDB*)NULL == info.db);
+        CHECK(pylith::topology::FieldQuery::convertfn_type(nullptr) == info.converter);
+        CHECK((spatialdata::spatialdb::SpatialDB*)nullptr == info.db);
     }
 
     PYLITH_METHOD_END;
@@ -192,14 +192,14 @@ pylith::topology::TestFieldQuery::testOpenClose(void) {
 
     _query->initializeWithDefaultQueries();
 
-    // Test with non-NULL database.
+    // Test with non-nullptr database.
     _query->openDB(_data->auxDB, _data->normalizer->getLengthScale());
     _query->closeDB(_data->auxDB);
     // Nothing to verify.
 
-    // Test with NULL database (should be okay).
-    _query->openDB(NULL, 1.0);
-    _query->closeDB(NULL);
+    // Test with nullptr database (should be okay).
+    _query->openDB(nullptr, 1.0);
+    _query->closeDB(nullptr);
     // Nothing to verify.
 
     PYLITH_METHOD_END;
@@ -226,15 +226,15 @@ pylith::topology::TestFieldQuery::testQuery(void) {
 
     // Compute difference with respect to direct queries to database.
     // Unfortunately, this also uses a FieldQuery object.
-    PylithReal norm = 0.0;
-    const PylithReal t = 0.0;
+    pylith::real norm = 0.0;
+    const pylith::real t = 0.0;
     pylith::topology::FieldQuery query(*_field);
     query.initializeWithDefaultQueries();
     query.openDB(_data->auxDB, _data->normalizer->getLengthScale());
     PetscErrorCode err = DMPlexComputeL2DiffLocal(_field->getDM(), t, query._functions, (void**)query._contextPtrs,
                                                   _field->getLocalVector(), &norm);REQUIRE(!err);
     query.closeDB(_data->auxDB);
-    const PylithReal tolerance = 1.0e-6;
+    const pylith::real tolerance = 1.0e-6;
     CHECK_THAT(norm, Catch::Matchers::WithinAbs(0.0, tolerance));
 
     PYLITH_METHOD_END;
@@ -242,7 +242,7 @@ pylith::topology::TestFieldQuery::testQuery(void) {
 
 
 // ----------------------------------------------------------------------
-// Test queryDB() with NULL database.
+// Test queryDB() with nullptr database.
 void
 pylith::topology::TestFieldQuery::testQueryNull(void) {
     PYLITH_METHOD_BEGIN;
@@ -250,22 +250,22 @@ pylith::topology::TestFieldQuery::testQueryNull(void) {
 
     _query->initializeWithDefaultQueries();
 
-    _query->openDB(NULL, 1.0);
+    _query->openDB(nullptr, 1.0);
     _query->queryDB();
-    _query->closeDB(NULL);
+    _query->closeDB(nullptr);
 
     // _field->view("FIELD"); // :DEBUG:
 
     // Expect auxfield to still contain FILL_VALUE values.
-    PetscErrorCode err;
-    const PylithReal tolerance = 1.0e-6;
+    PetscErrorCode err = PETSC_SUCCESS;
+    const pylith::real tolerance = 1.0e-6;
 
-    PylithReal min = 0;
-    err = VecMin(_field->getLocalVector(), NULL, &min);REQUIRE(!err);
+    pylith::real min = 0;
+    err = VecMin(_field->getLocalVector(), nullptr, &min);REQUIRE(!err);
     CHECK_THAT(min, Catch::Matchers::WithinAbs(FILL_VALUE, abs(FILL_VALUE*tolerance)));
 
-    PylithReal max = 0.0;
-    err = VecMax(_field->getLocalVector(), NULL, &max);REQUIRE(!err);
+    pylith::real max = 0.0;
+    err = VecMax(_field->getLocalVector(), nullptr, &max);REQUIRE(!err);
     CHECK_THAT(max, Catch::Matchers::WithinAbs(FILL_VALUE, abs(FILL_VALUE*tolerance)));
 
     PYLITH_METHOD_END;
@@ -322,7 +322,7 @@ pylith::topology::TestFieldQuery::_initialize(void) {
 
     // Setup field
     delete _field;_field = new pylith::topology::Field(*_mesh);assert(_field);
-    _field->setLabel("auxiliary test field");
+    _field->setName("auxiliary test field");
     for (int i = 0; i < _data->numAuxSubfields; ++i) {
         assert(_data->auxDescriptions);
         assert(_data->auxDiscretizations);
@@ -331,7 +331,7 @@ pylith::topology::TestFieldQuery::_initialize(void) {
     _field->subfieldsSetup();
     _field->createDiscretization();
     _field->allocate();
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     err = VecSet(_field->getLocalVector(), FILL_VALUE);assert(!err);
 
     delete _query;_query = new pylith::topology::FieldQuery(*_field);
@@ -343,14 +343,14 @@ pylith::topology::TestFieldQuery::_initialize(void) {
 // ----------------------------------------------------------------------
 // Constructor
 pylith::topology::TestFieldQuery_Data::TestFieldQuery_Data(void) :
-    topology(NULL),
-    geometry(NULL),
+    topology(nullptr),
+    geometry(nullptr),
     cs(new spatialdata::geocoords::CSCart),
     normalizer(new spatialdata::units::Nondimensional),
     numAuxSubfields(0),
-    auxSubfields(NULL),
-    auxDescriptions(NULL),
-    auxDiscretizations(NULL),
+    auxSubfields(nullptr),
+    auxDescriptions(nullptr),
+    auxDiscretizations(nullptr),
     auxDB(new spatialdata::spatialdb::UserFunctionDB) { // constructor
 } // constructor
 
@@ -358,16 +358,16 @@ pylith::topology::TestFieldQuery_Data::TestFieldQuery_Data(void) :
 // ----------------------------------------------------------------------
 // Destructor
 pylith::topology::TestFieldQuery_Data::~TestFieldQuery_Data(void) {
-    delete topology;topology = NULL;
-    delete geometry;geometry = NULL;
+    delete topology;topology = nullptr;
+    delete geometry;geometry = nullptr;
 
-    delete cs;cs = NULL;
-    delete normalizer;normalizer = NULL;
+    delete cs;cs = nullptr;
+    delete normalizer;normalizer = nullptr;
 
-    auxSubfields = NULL; // Assigned from const.
-    auxDescriptions = NULL; // Assigned from const.
-    auxDiscretizations = NULL; // Assigned from const.
-    delete auxDB;auxDB = NULL;
+    auxSubfields = nullptr; // Assigned from const.
+    auxDescriptions = nullptr; // Assigned from const.
+    auxDiscretizations = nullptr; // Assigned from const.
+    delete auxDB;auxDB = nullptr;
 } // destructor
 
 

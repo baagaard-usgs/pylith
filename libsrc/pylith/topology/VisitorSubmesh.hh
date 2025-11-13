@@ -75,14 +75,14 @@ public:
      * @param[in] point Point in mesh.
      * @returns Number of degrees of freedom.
      */
-    PetscInt sectionDof(const PetscInt point) const;
+    pylith::integer sectionDof(const pylith::integer point) const;
 
     /** Get offset into array for point.
      *
      * @param[in] point Point in mesh.
      * @returns Offset.
      */
-    PetscInt sectionOffset(const PetscInt point) const;
+    pylith::integer sectionOffset(const pylith::integer point) const;
 
     /** Get number of degrees of freedom for subfield at point.
      *
@@ -90,8 +90,8 @@ public:
      * @param[in] subfieldIndex Index of subfield in field.
      * @returns Number of degrees of freedom.
      */
-    PetscInt sectionSubfieldDof(const PetscInt point,
-                                const PetscInt subfieldIndex) const;
+    pylith::integer sectionSubfieldDof(const pylith::integer point,
+                                       const pylith::integer subfieldIndex) const;
 
     /** Get offset into array for point.
      *
@@ -99,8 +99,8 @@ public:
      * @param[in] subfieldIndex Index of subfield in field.
      * @returns Offset.
      */
-    PetscInt sectionSubfieldOffset(const PetscInt point,
-                                   const PetscInt subfieldIndex) const;
+    pylith::integer sectionSubfieldOffset(const pylith::integer point,
+                                          const pylith::integer subfieldIndex) const;
 
     /** Get array of values associated with closure.
      *
@@ -108,9 +108,9 @@ public:
      * @param[in] valuesSize Size of values array.
      * @param[in] cell Finite-element cell.
      */
-    void getClosure(PetscScalar** valuesCell,
-                    PetscInt* valuesSize,
-                    const PetscInt cell) const;
+    void getClosure(pylith::scalar** valuesCell,
+                    pylith::integer* valuesSize,
+                    const pylith::integer cell) const;
 
     /** Get array of values associated with closure.
      *
@@ -118,7 +118,7 @@ public:
      * @param[in] cell Finite-element cell.
      */
     void getClosure(scalar_array* values,
-                    const PetscInt cell) const;
+                    const pylith::integer cell) const;
 
     /** Restore array of values associated with closure.
      *
@@ -126,9 +126,9 @@ public:
      * @param[in] valuesSize Size of values array.
      * @param[in] cell Finite-element cell.
      */
-    void restoreClosure(PetscScalar** valuesCell,
-                        PetscInt* valuesSize,
-                        const PetscInt cell) const;
+    void restoreClosure(pylith::scalar** valuesCell,
+                        pylith::integer* valuesSize,
+                        const pylith::integer cell) const;
 
     /** Set values associated with closure.
      *
@@ -137,9 +137,9 @@ public:
      * @param[in] cell Finite-element cell.
      * @param[in] mode Mode for inserting values.
      */
-    void setClosure(const PetscScalar* valuesCell,
-                    const PetscInt valuesSize,
-                    const PetscInt cell,
+    void setClosure(const pylith::scalar* valuesCell,
+                    const pylith::integer valuesSize,
+                    const pylith::integer cell,
                     const InsertMode mode) const;
 
     // PRIVATE MEMBERS //////////////////////////////////////////////////////
@@ -154,8 +154,8 @@ private:
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    VecVisitorSubmesh(const VecVisitorSubmesh&); ///< Not implemented
-    const VecVisitorSubmesh& operator=(const VecVisitorSubmesh&); ///< Not implemented
+    VecVisitorSubmesh(const VecVisitorSubmesh&) = delete;
+    const VecVisitorSubmesh& operator=(const VecVisitorSubmesh&) = delete;
 
 }; // VecVisitorSubmesh
 
@@ -194,9 +194,9 @@ public:
      * @param[in] valuesSize Size of values array.
      * @param[in] cell Finite-element cell.
      */
-    void getClosure(PetscScalar** valuesCell,
-                    PetscInt* valuesSize,
-                    const PetscInt cell) const;
+    void getClosure(pylith::scalar** valuesCell,
+                    pylith::integer* valuesSize,
+                    const pylith::integer cell) const;
 
     /** Restore array of values associated with closure.
      *
@@ -204,9 +204,9 @@ public:
      * @param[in] valuesSize Size of values array.
      * @param[in] cell Finite-element cell.
      */
-    void restoreClosure(PetscScalar** valuesCell,
-                        PetscInt* valuesSize,
-                        const PetscInt cell) const;
+    void restoreClosure(pylith::scalar** valuesCell,
+                        pylith::integer* valuesSize,
+                        const pylith::integer cell) const;
 
     /** Set values associated with closure.
      *
@@ -215,9 +215,9 @@ public:
      * @param[in] cell Finite-element cell.
      * @param[in] mode Mode for inserting values.
      */
-    void setClosure(const PetscScalar* valuesCell,
-                    const PetscInt valuesSize,
-                    const PetscInt cell,
+    void setClosure(const pylith::scalar* valuesCell,
+                    const pylith::integer valuesSize,
+                    const pylith::integer cell,
                     const InsertMode mode) const;
 
     // PRIVATE MEMBERS //////////////////////////////////////////////////////
@@ -232,8 +232,8 @@ private:
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    MatVisitorSubmesh(const MatVisitorSubmesh&); ///< Not implemented
-    const MatVisitorSubmesh& operator=(const MatVisitorSubmesh&); ///< Not implemented
+    MatVisitorSubmesh(const MatVisitorSubmesh&) = delete;
+    const MatVisitorSubmesh& operator=(const MatVisitorSubmesh&) = delete;
 
 }; // MatVisitorSubmesh
 
@@ -273,21 +273,21 @@ public:
      *
      * @return Array of points.
      */
-    const PetscInt* indices(void) const;
+    const pylith::integer* indices(void) const;
 
     /** Get number of points in index set.
      *
      * @return Number of points.
      */
-    PetscInt size(void) const;
+    pylith::integer size(void) const;
 
     // PRIVATE MEMBERS //////////////////////////////////////////////////////
 private:
 
     const Mesh& _submesh;
     PetscIS _indexSet; ///< PETSc index set.
-    PetscInt _size; ///< Size of index set.
-    const PetscInt* _indices; ///< Array of indices of points in index set.
+    pylith::integer _size; ///< Size of index set.
+    const pylith::integer* _indices; ///< Array of indices of points in index set.
 
 }; // SubmeshIS
 

@@ -28,8 +28,8 @@ pylith::feassemble::TestInterfacePatches::TestInterfacePatches(TestInterfacePatc
     PYLITH_METHOD_BEGIN;
 
     assert(_data);
-    _mesh = NULL;
-    _fault = NULL;
+    _mesh = nullptr;
+    _fault = nullptr;
 
     PYLITH_METHOD_END;
 } // setUp
@@ -40,9 +40,9 @@ pylith::feassemble::TestInterfacePatches::TestInterfacePatches(TestInterfacePatc
 pylith::feassemble::TestInterfacePatches::~TestInterfacePatches(void) {
     PYLITH_METHOD_BEGIN;
 
-    delete _data;_data = NULL;
-    delete _mesh;_mesh = NULL;
-    delete _fault;_fault = NULL;
+    delete _data;_data = nullptr;
+    delete _mesh;_mesh = nullptr;
+    delete _fault;_fault = nullptr;
 
     PYLITH_METHOD_END;
 } // tearDown
@@ -90,7 +90,7 @@ pylith::feassemble::TestInterfacePatches::testCreateMaterialPairs(void) {
     assert(_data->patchNumCells);
     assert(_data->patchCells);
     for (InterfacePatches::keysmap_t::iterator iter = patches->_keys.begin(); iter != patches->_keys.end(); ++iter) {
-        const PetscInt labelValue = iter->first;
+        const pylith::integer labelValue = iter->first;
         const InterfacePatches::WeakFormKeys weakFormKeys = iter->second;
 
         const int matIdNegative = weakFormKeys.negative._value;
@@ -114,11 +114,11 @@ pylith::feassemble::TestInterfacePatches::testCreateMaterialPairs(void) {
         CHECK(_data->patchKeys[patchIndex].positive_value == matIdPositive);
 
         // Check labels
-        PetscErrorCode err = 0;
-        PetscDMLabel label = NULL;
-        PetscIS pointsIS = NULL;
-        PetscInt numPoints = 0;
-        const PetscInt* points = NULL;
+        PetscErrorCode err = PETSC_SUCCESS;
+        PetscDMLabel label = nullptr;
+        PetscIS pointsIS = nullptr;
+        pylith::integer numPoints = 0;
+        const pylith::integer* points = nullptr;
         err = DMGetLabel(_mesh->getDM(), labelName.c_str(), &label);assert(!err);
         err = DMLabelGetStratumIS(label, labelValue, &pointsIS);assert(!err);
         err = ISGetSize(pointsIS, &numPoints);assert(!err);
@@ -127,13 +127,13 @@ pylith::feassemble::TestInterfacePatches::testCreateMaterialPairs(void) {
 
         err = ISGetIndices(pointsIS, &points);assert(!err);
         assert(_data->patchCells[patchIndex]);
-        for (PetscInt iPoint = 0; iPoint < numPoints; ++iPoint) {
+        for (pylith::integer iPoint = 0; iPoint < numPoints; ++iPoint) {
             CHECK(_data->patchCells[patchIndex][iPoint] == points[iPoint]);
         } // for
         err = ISRestoreIndices(pointsIS, &points);PYLITH_CHECK_ERROR(err);
         err = ISDestroy(&pointsIS);PYLITH_CHECK_ERROR(err);
     } // for
-    delete patches;patches = NULL;
+    delete patches;patches = nullptr;
 
     PYLITH_METHOD_END;
 } // testCreateSinglees
@@ -172,13 +172,13 @@ pylith::feassemble::TestInterfacePatches::_initialize() {
 // ------------------------------------------------------------------------------------------------
 // Constructor
 pylith::feassemble::TestInterfacePatches_Data::TestInterfacePatches_Data(void) :
-    filename(NULL),
-    faultLabel(NULL),
-    edgeLabel(NULL),
+    filename(nullptr),
+    faultLabel(nullptr),
+    edgeLabel(nullptr),
     numPatches(0),
-    patchKeys(NULL),
-    patchNumCells(NULL),
-    patchCells(NULL) {}
+    patchKeys(nullptr),
+    patchNumCells(nullptr),
+    patchCells(nullptr) {}
 
 
 // ------------------------------------------------------------------------------------------------

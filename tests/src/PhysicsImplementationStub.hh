@@ -36,8 +36,8 @@ public:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    PhysicsImplementationStub(const PhysicsImplementationStub&); ///< Not implemented.
-    const PhysicsImplementationStub& operator=(const PhysicsImplementationStub&); ///< Not implemented
+    PhysicsImplementationStub(const PhysicsImplementationStub&) = delete;
+    const PhysicsImplementationStub& operator=(const PhysicsImplementationStub&) = delete;
 
     pylith::topology::Mesh* _mesh; ///< Mesh object.
 

@@ -138,7 +138,7 @@ public:
 
     const char* field; ///< Name of solution field constrained.
     pylith::topology::FieldBase::VectorFieldEnum vectorFieldType; ///< Vector field type for constrained field.
-    PylithReal scale; ///< Scale of constrained field.
+    pylith::real scale; ///< Scale of constrained field.
 
     bool useInitial; ///< True if using initial value.
     bool useRate; ///< True if using initial rate.
@@ -150,7 +150,7 @@ public:
     pylith::topology::Field::Discretization* auxDiscretizations; ///< Discretizations for auxiliary fields.
     spatialdata::spatialdb::UserFunctionDB* auxDB; ///< Spatial database with auxiliary field.
 
-    PylithReal t; ///< Time associated with setting solution.
+    pylith::real t; ///< Time associated with setting solution.
     int solnNumSubfields; ///< Number of solution subfields.
     pylith::topology::FieldBase::Discretization* solnDiscretizations; ///< Discretizations for solution fields.
     spatialdata::spatialdb::UserFunctionDB* solnDB; ///< Spatial database with solution.

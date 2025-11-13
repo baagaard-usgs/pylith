@@ -37,31 +37,31 @@ public:
      *
      * @param[in] trigger Output trigger.
      */
-    void setTrigger(std::shared_ptr<pylith::meshio::OutputTrigger>& const trigger);
+    void setTrigger(const std::shared_ptr<pylith::meshio::OutputTrigger>& trigger);
 
     /** Get trigger for how often to write otuput.
      *
      * @returns Output trigger.
      */
-    const pylith::meshio::OutputTrigger* getTrigger(void) const;
+    const std::shared_ptr<pylith::meshio::OutputTrigger>& getTrigger(void) const;
 
     /** Set writer to write data to file.
      *
      * @param[in] datawriter Writer for data.
      */
-    void setWriter(std::shared_ptr<pylith::meshio::DataWriter>& const writer);
+    void setWriter(const std::shared_ptr<pylith::meshio::DataWriter>& writer);
 
     /** Set basis order for output.
      *
      * @param[in] value Basis order for output.
      */
-    void setOutputBasisOrder(const int value);
+    void setOutputBasisOrder(const size_t value);
 
     /** Set number of mesh refinement levels for output.
      *
      * @param[in] value Number of mesh refinement levels for output.
      */
-    void setRefineLevels(const int value);
+    void setRefineLevels(const size_t value);
 
     /** Set time scale.
      *
@@ -77,14 +77,14 @@ protected:
      *
      * @param[in] mesh Mesh associated with output.
      */
-    void _setContext(const pylith::topology::Mesh & mesh);
+    void _setContext(const pylith::topology::Mesh& mesh);
 
     /** Get mesh associated with subfield output.
      *
      * @param[in] subfield Subfield for output.
      * @returns Mesh associated with output.
      */
-    pylith::topology::Mesh* _getOutputMesh(const pylith::meshio::OutputSubfield& subfield);
+    pylith::topology::Mesh* const _getOutputMesh(const pylith::meshio::OutputSubfield& subfield);
 
     /** Get output subfield, creating if necessary.
      *
@@ -93,9 +93,9 @@ protected:
      * @param[in] name Name of subfield.
      */
     virtual
-    OutputSubfield* _getSubfield(const pylith::topology::Field& field,
-                                 const pylith::topology::Mesh& submesh,
-                                 const char* name);
+    OutputSubfield* const _getSubfield(const pylith::topology::Field& field,
+                                       const pylith::topology::Mesh& submesh,
+                                       const char* name);
 
     /** Append subfield at current time to output.
      *
@@ -108,19 +108,21 @@ protected:
     // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
 protected:
 
+    typedef std::map<std::string, std::unique_ptr<OutputSubfield> > subfield_t;
+
     pylith::real _timeScale; ///< Time scale for dimentionalizing time.
-    std::map<std::string, OutputSubfield*> _subfields; ///< Subfields extracted for output.
+    subfield_t _subfields; ///< Subfields extracted for output.
     std::unique_ptr<pylith::topology::Mesh> _outputMesh; ///< Mesh associated with output.ß
     std::shared_ptr<DataWriter> _writer; ///< Writer for data.
     std::shared_ptr<OutputTrigger> _trigger; ///< Trigger for deciding how often to write output.
-    int _outputBasisOrder; ///< Basis order for output.
-    int _refineLevels; ///< Number of mesh refinement levels for output.
+    pylith::integer _outputBasisOrder; ///< Basis order for output.
+    pylith::integer _refineLevels; ///< Number of mesh refinement levels for output.
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    OutputObserver(const OutputObserver&); ///< Not implemented.
-    const OutputObserver& operator=(const OutputObserver&); ///< Not implemented
+    OutputObserver(const OutputObserver&) = delete;
+    const OutputObserver& operator=(const OutputObserver&) = delete;
 
 }; // OutputObserver
 

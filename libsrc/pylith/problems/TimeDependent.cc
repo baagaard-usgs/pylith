@@ -49,32 +49,32 @@ public:
                 void init(void);
 
                 static pylith::utils::EventLogger logger;
-                static PylithInt verifyConfiguration;
-                static PylithInt initialize;
-                static PylithInt solve;
-                static PylithInt poststep;
-                static PylithInt setSolutionLocal;
-                static PylithInt computeRHSResidual;
-                static PylithInt computeLHSResidual;
-                static PylithInt computeLHSJacobian;
-                static PylithInt computeLHSJacobianLumpedInv;
-                static PylithInt setState;
+                static pylith::integer verifyConfiguration;
+                static pylith::integer initialize;
+                static pylith::integer solve;
+                static pylith::integer poststep;
+                static pylith::integer setSolutionLocal;
+                static pylith::integer computeRHSResidual;
+                static pylith::integer computeLHSResidual;
+                static pylith::integer computeLHSJacobian;
+                static pylith::integer computeLHSJacobianLumpedInv;
+                static pylith::integer setState;
             };
 
         };
         const char* _TimeDependent::pyreComponent = "timedependent";
 
         pylith::utils::EventLogger _TimeDependent::Events::logger;
-        PylithInt _TimeDependent::Events::verifyConfiguration;
-        PylithInt _TimeDependent::Events::initialize;
-        PylithInt _TimeDependent::Events::solve;
-        PylithInt _TimeDependent::Events::poststep;
-        PylithInt _TimeDependent::Events::setSolutionLocal;
-        PylithInt _TimeDependent::Events::computeRHSResidual;
-        PylithInt _TimeDependent::Events::computeLHSResidual;
-        PylithInt _TimeDependent::Events::computeLHSJacobian;
-        PylithInt _TimeDependent::Events::computeLHSJacobianLumpedInv;
-        PylithInt _TimeDependent::Events::setState;
+        pylith::integer _TimeDependent::Events::verifyConfiguration;
+        pylith::integer _TimeDependent::Events::initialize;
+        pylith::integer _TimeDependent::Events::solve;
+        pylith::integer _TimeDependent::Events::poststep;
+        pylith::integer _TimeDependent::Events::setSolutionLocal;
+        pylith::integer _TimeDependent::Events::computeRHSResidual;
+        pylith::integer _TimeDependent::Events::computeLHSResidual;
+        pylith::integer _TimeDependent::Events::computeLHSJacobian;
+        pylith::integer _TimeDependent::Events::computeLHSJacobianLumpedInv;
+        pylith::integer _TimeDependent::Events::setState;
     } // problems
 } // pylith
 
@@ -103,8 +103,8 @@ pylith::problems::TimeDependent::TimeDependent(void) :
     _endTime(0.0),
     _dtInitial(1.0),
     _maxTimeSteps(0),
-    _ts(NULL),
-    _monitor(NULL),
+    _ts(nullptr),
+    _monitor(nullptr),
     _needNewLHSJacobian(true),
     _haveNewLHSJacobian(false),
     _shouldNotifyIC(false) {
@@ -133,7 +133,7 @@ pylith::problems::TimeDependent::deallocate(void) {
 
     Problem::deallocate();
 
-    _monitor = NULL; // Memory handle in Python. :TODO: Use shared pointer.
+    _monitor = nullptr; // Memory handle in Python. :TODO: Use shared pointer.
 
     PetscErrorCode err = TSDestroy(&_ts);PYLITH_CHECK_ERROR(err);
 
@@ -231,7 +231,7 @@ pylith::problems::TimeDependent::setInitialTimeStep(const double value) {
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Get initial time step for problem.
-PetscReal
+pylith::real
 pylith::problems::TimeDependent::getInitialTimeStep(void) const {
     return _dtInitial;
 } // getInitialTimeStep
@@ -278,7 +278,7 @@ PetscDM
 pylith::problems::TimeDependent::getPetscDM(void) {
     PYLITH_METHOD_BEGIN;
 
-    PetscDM dm = NULL;
+    PetscDM dm = nullptr;
     PetscErrorCode err = TSGetDM(_ts, &dm);PYLITH_CHECK_ERROR(err);
 
     PYLITH_METHOD_RETURN(dm);
@@ -294,7 +294,7 @@ PetscSNES
 pylith::problems::TimeDependent::getPetscSNES(void) {
     PYLITH_METHOD_BEGIN;
 
-    PetscSNES snes = NULL;
+    PetscSNES snes = nullptr;
     PetscErrorCode err = TSGetSNES(_ts, &snes);PYLITH_CHECK_ERROR(err);
 
     PYLITH_METHOD_RETURN(snes);
@@ -377,7 +377,7 @@ pylith::problems::TimeDependent::initialize(void) {
                            <<", endTime="<<_endTime);
 
     assert(_normalizer);
-    const PylithReal timeScale = _normalizer->getTimeScale();
+    const pylith::real timeScale = _normalizer->getTimeScale();
     err = TSSetTime(_ts, _startTime / timeScale);PYLITH_CHECK_ERROR(err);
     err = TSSetTimeStep(_ts, _dtInitial / timeScale);PYLITH_CHECK_ERROR(err);
     err = TSSetMaxSteps(_ts, _maxTimeSteps);PYLITH_CHECK_ERROR(err);
@@ -400,12 +400,12 @@ pylith::problems::TimeDependent::initialize(void) {
 
     PYLITH_COMPONENT_DEBUG("Setting up time derivative of solution and residual fields.");
     pylith::topology::Field* solutionDot = new pylith::topology::Field(*solution);assert(solutionDot);
-    solutionDot->setLabel("solutionDot");
+    solutionDot->setName("solutionDot");
     _integrationData->setField(pylith::feassemble::IntegrationData::solution_dot, solutionDot);
 
     // Initialize residual.
     pylith::topology::Field* residual = new pylith::topology::Field(*solution);assert(residual);
-    residual->setLabel("residual");
+    residual->setName("residual");
     _integrationData->setField(pylith::feassemble::IntegrationData::residual, residual);
 
     // Set callbacks.
@@ -415,22 +415,22 @@ pylith::problems::TimeDependent::initialize(void) {
     switch (_formulation) {
     case pylith::problems::Physics::QUASISTATIC:
         PYLITH_COMPONENT_DEBUG("Setting PetscTS callbacks computeIFunction() and computeIJacobian().");
-        err = TSSetIFunction(_ts, NULL, computeLHSResidual, (void*)this);PYLITH_CHECK_ERROR(err);
-        err = TSSetIJacobian(_ts, NULL, NULL, computeLHSJacobian, (void*)this);PYLITH_CHECK_ERROR(err);
+        err = TSSetIFunction(_ts, nullptr, computeLHSResidual, (void*)this);PYLITH_CHECK_ERROR(err);
+        err = TSSetIJacobian(_ts, nullptr, nullptr, computeLHSJacobian, (void*)this);PYLITH_CHECK_ERROR(err);
         break;
     case pylith::problems::Physics::DYNAMIC_IMEX:
         PYLITH_COMPONENT_DEBUG("Setting PetscTS callbacks computeLHSJacobian() and computeLHSFunction().");
-        err = TSSetIFunction(_ts, NULL, computeLHSResidual, (void*)this);PYLITH_CHECK_ERROR(err);
-        err = TSSetIJacobian(_ts, NULL, NULL, computeLHSJacobian, (void*)this);PYLITH_CHECK_ERROR(err);
+        err = TSSetIFunction(_ts, nullptr, computeLHSResidual, (void*)this);PYLITH_CHECK_ERROR(err);
+        err = TSSetIJacobian(_ts, nullptr, nullptr, computeLHSJacobian, (void*)this);PYLITH_CHECK_ERROR(err);
         err = TSSetEquationType(_ts, TS_EQ_EXPLICIT);PYLITH_CHECK_ERROR(err);
         pylith::faults::FaultOps::createDAEMassWeighting(_integrationData);
     case pylith::problems::Physics::DYNAMIC: {
         PYLITH_COMPONENT_DEBUG("Setting PetscTS callback for computeRHSFunction().");
-        err = TSSetRHSFunction(_ts, NULL, computeRHSResidual, (void*)this);PYLITH_CHECK_ERROR(err);
+        err = TSSetRHSFunction(_ts, nullptr, computeRHSResidual, (void*)this);PYLITH_CHECK_ERROR(err);
 
         PYLITH_COMPONENT_DEBUG("Setting up field for inverse of lumped LHS Jacobian.");
         pylith::topology::Field* jacobianLHSLumpedInv = new pylith::topology::Field(*solution);assert(jacobianLHSLumpedInv);
-        jacobianLHSLumpedInv->setLabel("JacobianLHS_lumped_inverse");
+        jacobianLHSLumpedInv->setName("JacobianLHS_lumped_inverse");
         jacobianLHSLumpedInv->createGlobalVector();
         _integrationData->setField(pylith::feassemble::IntegrationData::lumped_jacobian_inverse, jacobianLHSLumpedInv);
         break;
@@ -445,18 +445,18 @@ pylith::problems::TimeDependent::initialize(void) {
 
 #if 0
     // Set solve type for solution fields defined over the domain (not Lagrange multipliers).
-    PetscDS dsSoln = NULL;
+    PetscDS dsSoln = nullptr;
     err = DMGetDS(solution->getDM(), &dsSoln);PYLITH_CHECK_ERROR(err);
-    PetscInt numFields = 0;
+    pylith::integer numFields = 0;
     err = PetscDSGetNumFields(dsSoln, &numFields);PYLITH_CHECK_ERROR(err);
-    for (PetscInt iField = 0; iField < numFields; ++iField) {
+    for (pylith::integer iField = 0; iField < numFields; ++iField) {
         err = PetscDSSetImplicit(dsSoln, iField, (_formulation == pylith::problems::Physics::QUASISTATIC) ? PETSC_TRUE : PETSC_FALSE);
     } // for
 #endif
 
     pythia::journal::debug_t debug(pylith::utils::PyreComponent::getName());
     if (debug.state()) {
-        PetscDS prob = NULL;
+        PetscDS prob = nullptr;
         err = DMGetDS(solution->getDM(), &prob);PYLITH_CHECK_ERROR(err);
         debug << pythia::journal::at(__HERE__)
               << "Solution discretization" << pythia::journal::endl;
@@ -484,7 +484,7 @@ pylith::problems::TimeDependent::solve(void) {
     PYLITH_COMPONENT_DEBUG("solve()");
     _TimeDependent::Events::logger.eventBegin(_TimeDependent::Events::solve);
 
-    PetscErrorCode err = TSSolve(_ts, NULL);PYLITH_CHECK_ERROR(err);
+    PetscErrorCode err = TSSolve(_ts, nullptr);PYLITH_CHECK_ERROR(err);
 
     _TimeDependent::Events::logger.eventEnd(_TimeDependent::Events::solve);
     PYLITH_METHOD_END;
@@ -500,10 +500,10 @@ pylith::problems::TimeDependent::poststep(void) {
     _TimeDependent::Events::logger.eventBegin(_TimeDependent::Events::poststep);
 
     // Get current solution. After first time step, t==dt, and tindex==1.
-    PetscErrorCode err;
-    PylithReal t = 0.0, dt = 0.0;
-    PylithInt tindex = 0;
-    PetscVec solutionVec = NULL;
+    PetscErrorCode err = PETSC_SUCCESS;
+    pylith::real t = 0.0, dt = 0.0;
+    pylith::integer tindex = 0;
+    PetscVec solutionVec = nullptr;
     err = TSGetTime(_ts, &t);PYLITH_CHECK_ERROR(err);
     err = TSGetTimeStep(_ts, &dt);PYLITH_CHECK_ERROR(err);
     err = TSGetStepNumber(_ts, &tindex);PYLITH_CHECK_ERROR(err);
@@ -534,7 +534,7 @@ pylith::problems::TimeDependent::poststep(void) {
 
     if (_monitor) {
         assert(_normalizer);
-        const PylithReal timeScale = _normalizer->getTimeScale();
+        const pylith::real timeScale = _normalizer->getTimeScale();
         _monitor->update(t*timeScale, _startTime, _endTime);
     } // if
 
@@ -546,7 +546,7 @@ pylith::problems::TimeDependent::poststep(void) {
 // ----------------------------------------------------------------------
 // Set solution values according to constraints (Dirichlet BC).
 void
-pylith::problems::TimeDependent::setSolutionLocal(const PylithReal t,
+pylith::problems::TimeDependent::setSolutionLocal(const pylith::real t,
                                                   PetscVec solutionVec,
                                                   PetscVec solutionDotVec) {
     PYLITH_METHOD_BEGIN;
@@ -578,8 +578,8 @@ pylith::problems::TimeDependent::setSolutionLocal(const PylithReal t,
 // Compute RHS residual for G(t,s).
 void
 pylith::problems::TimeDependent::computeRHSResidual(PetscVec residualVec,
-                                                    const PylithReal t,
-                                                    const PylithReal dt,
+                                                    const pylith::real t,
+                                                    const pylith::real dt,
                                                     PetscVec solutionVec) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("computeRHSResidual(t="<<t<<", dt="<<dt<<", solutionVec="<<solutionVec<<", residualVec="<<residualVec<<")");
@@ -593,14 +593,14 @@ pylith::problems::TimeDependent::computeRHSResidual(PetscVec residualVec,
     _integrationData->setScalar(pylith::feassemble::IntegrationData::t_state, t);
 
     // Update PyLith view of the solution.
-    const PetscVec solutionDotVec = NULL;
+    const PetscVec solutionDotVec = nullptr;
     setSolutionLocal(t, solutionVec, solutionDotVec);
     _integrationData->setScalar(pylith::feassemble::IntegrationData::time, t);
     _integrationData->setScalar(pylith::feassemble::IntegrationData::time_step, dt);
 
     const bool hasLumpedJacobianInverse = _integrationData->hasField(pylith::feassemble::IntegrationData::lumped_jacobian_inverse);
     if (hasLumpedJacobianInverse) {
-        const PylithReal s_tshift = 1.0; // Keep shift terms on LHS, so use 1.0 for terms moved to RHS.
+        const pylith::real s_tshift = 1.0; // Keep shift terms on LHS, so use 1.0 for terms moved to RHS.
         computeLHSJacobianLumpedInv(t, dt, s_tshift, solutionVec);
     } // if
 
@@ -640,8 +640,8 @@ pylith::problems::TimeDependent::computeRHSResidual(PetscVec residualVec,
 // Compute LHS residual for F(t,s,\dot{s}).
 void
 pylith::problems::TimeDependent::computeLHSResidual(PetscVec residualVec,
-                                                    const PylithReal t,
-                                                    const PylithReal dt,
+                                                    const pylith::real t,
+                                                    const pylith::real dt,
                                                     PetscVec solutionVec,
                                                     PetscVec solutionDotVec) {
     PYLITH_METHOD_BEGIN;
@@ -692,9 +692,9 @@ pylith::problems::TimeDependent::computeLHSResidual(PetscVec residualVec,
 void
 pylith::problems::TimeDependent::computeLHSJacobian(PetscMat jacobianMat,
                                                     PetscMat precondMat,
-                                                    const PylithReal t,
-                                                    const PylithReal dt,
-                                                    const PylithReal s_tshift,
+                                                    const pylith::real t,
+                                                    const pylith::real dt,
+                                                    const pylith::real s_tshift,
                                                     PetscVec solutionVec,
                                                     PetscVec solutionDotVec) {
     PYLITH_METHOD_BEGIN;
@@ -721,8 +721,8 @@ pylith::problems::TimeDependent::computeLHSJacobian(PetscMat jacobianMat,
     _integrationData->setScalar(pylith::feassemble::IntegrationData::s_tshift, s_tshift);
 
     // Zero LHS Jacobian
-    PetscErrorCode err = 0;
-    PetscDS solnDS = NULL;
+    PetscErrorCode err = PETSC_SUCCESS;
+    PetscDS solnDS = nullptr;
     PetscBool hasJacobian = PETSC_FALSE;
     err = DMGetDS(solution->getDM(), &solnDS);PYLITH_CHECK_ERROR(err);
     err = PetscDSHasJacobian(solnDS, &hasJacobian);PYLITH_CHECK_ERROR(err);
@@ -759,9 +759,9 @@ pylith::problems::TimeDependent::computeLHSJacobian(PetscMat jacobianMat,
 // ----------------------------------------------------------------------
 // Compute inverse of LHS Jacobian for F(t,s,\dot{s}) for explicit time stepping.
 void
-pylith::problems::TimeDependent::computeLHSJacobianLumpedInv(const PylithReal t,
-                                                             const PylithReal dt,
-                                                             const PylithReal s_tshift,
+pylith::problems::TimeDependent::computeLHSJacobianLumpedInv(const pylith::real t,
+                                                             const pylith::real dt,
+                                                             const pylith::real s_tshift,
                                                              PetscVec solutionVec) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("TimeDependent::computeLHSJacobianLumpedInv(t="<<t<<", dt="<<dt<<", s_tshift="<<s_tshift<<", solutionVec="<<solutionVec<<")");
@@ -789,7 +789,7 @@ pylith::problems::TimeDependent::computeLHSJacobianLumpedInv(const PylithReal t,
     jacobianLumpedInv->zeroLocal();
 
     // Update PyLith view of the solution.
-    const PetscVec solutionDotVec = NULL;
+    const PetscVec solutionDotVec = nullptr;
     setSolutionLocal(t, solutionVec, solutionDotVec);
     _integrationData->setScalar(pylith::feassemble::IntegrationData::time, t);
     _integrationData->setScalar(pylith::feassemble::IntegrationData::time_step, dt);
@@ -817,7 +817,7 @@ pylith::problems::TimeDependent::computeLHSJacobianLumpedInv(const PylithReal t,
 // Callback static method for computing residual for RHS, G(t,s).
 PetscErrorCode
 pylith::problems::TimeDependent::computeRHSResidual(PetscTS ts,
-                                                    PetscReal t,
+                                                    pylith::real t,
                                                     PetscVec solutionVec,
                                                     PetscVec residualVec,
                                                     void* context) {
@@ -827,7 +827,7 @@ pylith::problems::TimeDependent::computeRHSResidual(PetscTS ts,
           << "computeRHSResidual(ts="<<ts<<", t="<<t<<", solutionVec="<<solutionVec<<", residualVec="<<residualVec<<", context="<<context<<")" << pythia::journal::endl;
 
     // Get current time step.
-    PylithReal dt;
+    pylith::real dt;
     PetscErrorCode err = TSGetTimeStep(ts, &dt);PYLITH_CHECK_ERROR(err);
 
     pylith::problems::TimeDependent* problem = (pylith::problems::TimeDependent*)context;assert(problem);
@@ -841,7 +841,7 @@ pylith::problems::TimeDependent::computeRHSResidual(PetscTS ts,
 // Callback static method for computing residual for LHS, F(t,s,\dot{s}).
 PetscErrorCode
 pylith::problems::TimeDependent::computeLHSResidual(PetscTS ts,
-                                                    PetscReal t,
+                                                    pylith::real t,
                                                     PetscVec solutionVec,
                                                     PetscVec solutionDotVec,
                                                     PetscVec residualVec,
@@ -852,7 +852,7 @@ pylith::problems::TimeDependent::computeLHSResidual(PetscTS ts,
           << "computeLHSResidual(ts="<<ts<<", t="<<t<<", solutionVec="<<solutionVec<<", solutionDotVec="<<solutionDotVec<<", residualVec="<<residualVec<<", context="<<context<<")" << pythia::journal::endl;
 
     // Get current time step.
-    PylithReal dt;
+    pylith::real dt;
     PetscErrorCode err = TSGetTimeStep(ts, &dt);PYLITH_CHECK_ERROR(err);
     pylith::problems::TimeDependent* problem = (pylith::problems::TimeDependent*)context;
     problem->computeLHSResidual(residualVec, t, dt, solutionVec, solutionDotVec);
@@ -865,10 +865,10 @@ pylith::problems::TimeDependent::computeLHSResidual(PetscTS ts,
 // Callback static method for computing Jacobian for LHS, Jacobian of F(t,s,\dot{s}).
 PetscErrorCode
 pylith::problems::TimeDependent::computeLHSJacobian(PetscTS ts,
-                                                    PetscReal t,
+                                                    pylith::real t,
                                                     PetscVec solutionVec,
                                                     PetscVec solutionDotVec,
-                                                    PetscReal s_tshift,
+                                                    pylith::real s_tshift,
                                                     PetscMat jacobianMat,
                                                     PetscMat precondMat,
                                                     void* context) {
@@ -879,7 +879,7 @@ pylith::problems::TimeDependent::computeLHSJacobian(PetscTS ts,
         pythia::journal::endl;
 
     // Get current time step.
-    PylithReal dt;
+    pylith::real dt;
     PetscErrorCode err = TSGetTimeStep(ts, &dt);PYLITH_CHECK_ERROR(err);
 
     pylith::problems::TimeDependent* problem = (pylith::problems::TimeDependent*)context;
@@ -898,7 +898,7 @@ pylith::problems::TimeDependent::poststep(PetscTS ts) {
     debug << pythia::journal::at(__HERE__)
           << "poststep(ts="<<ts<<")" << pythia::journal::endl;
 
-    TimeDependent* problem = NULL;
+    TimeDependent* problem = nullptr;
     PetscErrorCode err = TSGetApplicationContext(ts, (void*)&problem);PYLITH_CHECK_ERROR(err);assert(problem);
     problem->poststep();
 
@@ -909,7 +909,7 @@ pylith::problems::TimeDependent::poststep(PetscTS ts) {
 // ---------------------------------------------------------------------------------------------------------------------
 // Check whether we need to reform the Jacobian.
 bool
-pylith::problems::TimeDependent::_needNewJacobian(const PylithReal dt) {
+pylith::problems::TimeDependent::_needNewJacobian(const pylith::real dt) {
     PYLITH_METHOD_BEGIN;
 
     // If we already know we need to recompute the LHS Jacobian, then return true.
@@ -933,7 +933,7 @@ pylith::problems::TimeDependent::_needNewJacobian(const PylithReal dt) {
 // ---------------------------------------------------------------------------------------------------------------------
 // Set state (auxiliary field values) of system for time t.
 void
-pylith::problems::TimeDependent::_setState(const PylithReal t) {
+pylith::problems::TimeDependent::_setState(const pylith::real t) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("_setState(t="<<t<<")");
     _TimeDependent::Events::logger.eventBegin(_TimeDependent::Events::setState);
@@ -963,9 +963,9 @@ pylith::problems::TimeDependent::_notifyObserversInitialSoln(void) {
     PYLITH_COMPONENT_DEBUG("_notifyObserversInitialSoln()");
 
     assert(_normalizer);
-    const PylithReal timeScale = _normalizer->getTimeScale();
-    const PylithReal tStartNondim = _startTime / timeScale;
-    const PylithInt tindex = 0;
+    const pylith::real timeScale = _normalizer->getTimeScale();
+    const pylith::real tStartNondim = _startTime / timeScale;
+    const pylith::integer tindex = 0;
     const pylith::problems::Observer::NotificationType notification = pylith::problems::Observer::SOLUTION;
 
     assert(_integrationData);

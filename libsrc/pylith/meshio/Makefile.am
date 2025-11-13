@@ -17,11 +17,8 @@ subpkginclude_HEADERS = \
 	HDF5.hh \
 	Xdmf.hh \
 	DataWriterHDF5.hh \
-	DataWriterHDF5.icc \
 	DataWriterHDF5Ext.hh \
-	DataWriterHDF5Ext.icc \
 	DataWriterVTK.hh \
-	DataWriterVTK.icc \
 	MeshBuilder.hh \
 	MeshIO.hh \
 	MeshIOAscii.hh \

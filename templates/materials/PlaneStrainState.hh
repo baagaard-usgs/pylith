@@ -258,11 +258,8 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////
 private:
 
-    /// Not implemented
-    PlaneStrainState(const PlaneStrainState& m);
-
-    /// Not implemented
-    const PlaneStrainState& operator=(const PlaneStrainState& m);
+    PlaneStrainState(const PlaneStrainState& m) = delete;
+    const PlaneStrainState& operator=(const PlaneStrainState& m) = delete;
 
 }; // class PlaneStrainState
 

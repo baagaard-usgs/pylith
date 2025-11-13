@@ -99,11 +99,11 @@ private:
         return -bodyforceN * (XMAX/LENGTHSCALE - x);
     } // pressure
 
-    static PetscErrorCode solnkernel_disp(PetscInt spaceDim,
-                                          PetscReal t,
-                                          const PetscReal x[],
-                                          PetscInt numComponents,
-                                          PetscScalar* s,
+    static PetscErrorCode solnkernel_disp(pylith::integer spaceDim,
+                                          pylith::real t,
+                                          const pylith::real x[],
+                                          pylith::integer numComponents,
+                                          pylith::scalar* s,
                                           void* context) {
         assert(2 == spaceDim);
         assert(2 == numComponents);
@@ -116,11 +116,11 @@ private:
         return PETSC_SUCCESS;
     } // solnkernel_disp
 
-    static PetscErrorCode solnkernel_pressure(PetscInt spaceDim,
-                                              PetscReal t,
-                                              const PetscReal x[],
-                                              PetscInt numComponents,
-                                              PetscScalar* s,
+    static PetscErrorCode solnkernel_pressure(pylith::integer spaceDim,
+                                              pylith::real t,
+                                              const pylith::real x[],
+                                              pylith::integer numComponents,
+                                              pylith::scalar* s,
                                               void* context) {
         assert(2 == spaceDim);
         assert(x);
@@ -181,9 +181,9 @@ public:
 
         data->bcs.resize(2);
         { // disp
-            static const PylithInt constrainedDOF[2] = {0, 1};
-            static const PylithInt numConstrainedDOF = 2;
-            pylith::bc::DirichletUserFn* bc = new pylith::bc::DirichletUserFn();assert(bc);
+            static const pylith::integer constrainedDOF[2] = {0, 1};
+            static const pylith::integer numConstrainedDOF = 2;
+            pylith::bc::DirichletCxxFn* bc = new pylith::bc::DirichletCxxFn();assert(bc);
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary");
             bc->setLabelValue(1);
@@ -193,9 +193,9 @@ public:
         } // disp
 
         { // pressure
-            static const PylithInt constrainedDOF[1] = {0};
-            static const PylithInt numConstrainedDOF = 1;
-            pylith::bc::DirichletUserFn* bc = new pylith::bc::DirichletUserFn();assert(bc);
+            static const pylith::integer constrainedDOF[1] = {0};
+            static const pylith::integer numConstrainedDOF = 1;
+            pylith::bc::DirichletCxxFn* bc = new pylith::bc::DirichletCxxFn();assert(bc);
             bc->setSubfieldName("pressure");
             bc->setLabelName("boundary");
             bc->setLabelValue(1);

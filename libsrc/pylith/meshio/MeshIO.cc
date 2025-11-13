@@ -15,7 +15,7 @@
 #include "pylith/topology/Mesh.hh" // USES Mesh
 #include "pylith/topology/MeshOps.hh" // USES MeshOps
 
-#include "pylith/utils/array.hh" // USES scalar_array, int_array
+#include "pylith/utils/array.hh" // USES scalar_array, pylith::integer_array
 #include "pylith/utils/error.hh" // USES PYLITH_METHOD_BEGIN/END
 #include "pylith/utils/journals.hh" // USES PYLITH_COMPONENT_INFO
 #include "spatialdata/geocoords/CoordSys.hh" // USES CoordSys
@@ -27,7 +27,7 @@
 // ----------------------------------------------------------------------
 // Constructor
 pylith::meshio::MeshIO::MeshIO(void) :
-    _mesh(NULL) {}
+    _mesh(nullptr) {}
 
 
 // ----------------------------------------------------------------------
@@ -60,21 +60,21 @@ pylith::meshio::MeshIO::read(pylith::topology::Mesh* mesh,
     PetscErrorCode err = PETSC_SUCCESS;
 
     // Check for bounding box with positive volume.
-    PylithReal cmin[3];
-    PylithReal cmax[3];
+    pylith::real cmin[3];
+    pylith::real cmax[3];
     err = DMGetBoundingBox(_mesh->getDM(), cmin, cmax);
-    const PetscInt dim = _mesh->getDimension();
-    PylithReal volume = 1.0;
-    for (int i = 0; i < dim; ++i) {
+    const pylith::integer dim = _mesh->getDimension();
+    pylith::real volume = 1.0;
+    for (pylith::integer i = 0; i < dim; ++i) {
         volume *= cmax[i] - cmin[i];
     } // for
     std::ostringstream msg;
     msg << "Domain bounding box:";
-    for (int i = 0; i < dim; ++i) {
+    for (pylith::integer i = 0; i < dim; ++i) {
         msg << "\n    (" << cmin[i] << ", " << cmax[i] << ")";
     } // for
     PYLITH_COMPONENT_INFO_ROOT(msg.str());
-    const PetscReal tolerance = 1.0e-8;
+    const pylith::real tolerance = 1.0e-8;
     if (volume < tolerance) {
         msg.clear();
         msg << "Domain bounding box volume (" << volume << ") is less than minimum tolerance ("
@@ -95,9 +95,9 @@ pylith::meshio::MeshIO::read(pylith::topology::Mesh* mesh,
         _mesh->view(":mesh.tex:ascii_latex");
     } // if
     // Respond to PETSc diagnostic output
-    err = DMViewFromOptions(_mesh->getDM(), NULL, "-pylith_dm_view");PYLITH_CHECK_ERROR(err);
+    err = DMViewFromOptions(_mesh->getDM(), nullptr, "-pylith_dm_view");PYLITH_CHECK_ERROR(err);
 
-    _mesh = NULL;
+    _mesh = nullptr;
 
     PYLITH_METHOD_END;
 } // read

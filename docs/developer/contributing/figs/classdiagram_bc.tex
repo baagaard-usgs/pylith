@@ -20,7 +20,7 @@
   \node (bc) [abstract-class] at ($(physics.south)-(0,4em)$) {\umlemptyclass{BoundaryCondition}};
 
   \node (dirichlet-td) [concrete-class] at ($(bc.south)-(0,4em)$) {\umlemptyclass{DirichletTimeDependent}};
-  \node (dirichlet-userfn) [concrete-class] at ($(dirichlet-td.south)-(0,1ex)$) {\umlemptyclass{DirichletUserFn}};
+  \node (dirichlet-userfn) [concrete-class] at ($(dirichlet-td.south)-(0,1ex)$) {\umlemptyclass{DirichletCxxFn}};
   \node (neumann-td) [concrete-class] at ($(dirichlet-userfn.south)-(0,1ex)$) {\umlemptyclass{NeumannTimeDependent}};
   \node (absorbing-dampers) [concrete-class] at ($(neumann-td.south)-(0,1ex)$) {\umlemptyclass{AbsorbingDampers}};
 

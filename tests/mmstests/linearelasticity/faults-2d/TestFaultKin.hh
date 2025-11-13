@@ -14,7 +14,7 @@
 #include "pylith/faults/faultsfwd.hh" // HOLDSA FaultCohesiveKin
 #include "pylith/materials/Elasticity.hh" // USES Elasticity
 #include "pylith/materials/IsotropicLinearElasticity.hh" // USES IsotropicLinearElasticity
-#include "pylith/bc/DirichletUserFn.hh" // USES DirichletUserFn
+#include "pylith/bc/DirichletCxxFn.hh" // USES DirichletCxxFn
 
 #include "spatialdata/spatialdb/UserFunctionDB.hh" // USES UserFunctionDB
 #include "spatialdata/geocoords/CSCart.hh" // USES CSCart
@@ -78,13 +78,13 @@ public:
     const char* boundaryLabel; ///< Group defining domain boundary.
     bool useAsciiMesh; ///< Use MeshIOAscii to read mesh, otherwise use PETSc.
 
-    PylithReal jacobianConvergenceRate; ///< Expected convergence rate for Jacobiab (when not linear).
-    PylithReal tolerance; ///< Tolerance for discretization and residual test.
+    pylith::real jacobianConvergenceRate; ///< Expected convergence rate for Jacobiab (when not linear).
+    pylith::real tolerance; ///< Tolerance for discretization and residual test.
     bool isJacobianLinear; ///< Jacobian is should be linear.
     bool allowZeroResidual; ///< Allow residual to be exactly zero.
 
-    PylithReal t; ///< Time for MMS solution.
-    PylithReal dt; ///< Time step in simulation.
+    pylith::real t; ///< Time for MMS solution.
+    pylith::real dt; ///< Time step in simulation.
     spatialdata::geocoords::CSCart cs; ///< Coordinate system.
     spatialdata::units::Nondimensional normalizer; ///< Scales for nondimensionalization.
     pylith::problems::Physics::FormulationEnum formulation; ///< Time stepping formulation

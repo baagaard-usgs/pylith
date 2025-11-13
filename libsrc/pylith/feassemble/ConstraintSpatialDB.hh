@@ -14,23 +14,24 @@
 #include "pylith/problems/problemsfwd.hh" // HASA Physics
 #include "pylith/topology/topologyfwd.hh" // USES Field
 
-#include "pylith/utils/array.hh" // HASA int_array
+#include "pylith/utils/array.hh" // HASA pylith::integer_array
 #include "pylith/utils/utilsfwd.hh" // HOLDSA Logger
 
 class pylith::feassemble::ConstraintSpatialDB : public pylith::feassemble::Constraint {
     friend class TestConstraintSpatialDB; // unit testing
 
-    // PUBLIC METHODS //////////////////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 
-    /** Constructor
+    /** Factory for std::shared_ptr.
      *
      * @param[in] physics Physics implemented by constraint.
      */
-    ConstraintSpatialDB(std::shared_ptr<pylith::problems::Physics>& physics);
+    static
+    std::shared_ptr<ConstraintSpatialDB> create(const std::shared_ptr<pylith::problems::Physics>& physics);
 
     /// Destructor.
-    ~ConstraintSpatialDB(void);
+    ~ConstraintSpatialDB(void) override;
 
     /** Set constraint kernel.
      *
@@ -42,31 +43,40 @@ public:
      *
      * @param[in] solution Solution field (layout).
      */
-    void initialize(const pylith::topology::Field& solution);
+    void initialize(const pylith::topology::Field& solution) override;
 
     /** Set auxiliary field values for current time.
      *
      * @param[in] t Current time.
      */
-    void setState(const pylith::real t);
+    void setState(const pylith::real t) override;
 
     /** Set constrained values in solution field.
      *
      * @param[inout] integrationData Data needed to integrate governing equation.
      */
-    void setSolution(pylith::feassemble::IntegrationData* integrationData);
+    void setSolution(pylith::feassemble::IntegrationData& integrationData) override;
 
-    // PROTECTED MEMBERS ///////////////////////////////////////////////////////////////////////////////////////////////
+    // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
+protected:
+
+    /** Constructor only used by factory.
+     *
+     * @param[in] physics Physics implemented by constraint.
+     */
+    ConstraintSpatialDB(const std::shared_ptr<pylith::problems::Physics>& physics);
+
+    // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
 protected:
 
     PetscBdPointFunc _kernelConstraint; ///< Kernel for computing constrained values from auxiliary field.
 
-    // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
+    // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    ConstraintSpatialDB(void); /// Not implemented.
-    ConstraintSpatialDB(const ConstraintSpatialDB &); ///< Not implemented
-    const ConstraintSpatialDB& operator=(const ConstraintSpatialDB&); ///< Not implemented
+    ConstraintSpatialDB(void) = delete;
+    ConstraintSpatialDB(const ConstraintSpatialDB &) = delete;
+    const ConstraintSpatialDB& operator=(const ConstraintSpatialDB&) = delete;
 
 }; // class Constraint
 

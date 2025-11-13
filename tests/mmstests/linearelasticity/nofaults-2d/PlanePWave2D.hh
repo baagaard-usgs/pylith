@@ -40,7 +40,7 @@ public:
 
 private:
 
-    PlanePWave2D(void); ///< Not implemented
+    PlanePWave2D(void) = delete;
 }; // PlanePWave2D
 
 // End of file

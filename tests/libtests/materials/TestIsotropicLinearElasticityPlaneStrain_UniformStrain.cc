@@ -203,7 +203,7 @@ protected:
         _mymaterial->useBodyForce(false);
         _mymaterial->useReferenceState(false);
 
-        _mymaterial->setLabel("Isotropic Linear Elascitity Plane Strain");
+        _mymaterial->setName("Isotropic Linear Elascitity Plane Strain");
         _mymaterial->id(24);
     } // setUp
 

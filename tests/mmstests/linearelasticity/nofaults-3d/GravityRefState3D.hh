@@ -35,7 +35,7 @@ public:
 
 private:
 
-    GravityRefState3D(void); ///< Not implemented
+    GravityRefState3D(void) = delete;
 }; // GravityRefState3D
 
 // End of file

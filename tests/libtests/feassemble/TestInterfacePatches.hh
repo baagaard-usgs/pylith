@@ -72,14 +72,14 @@ public:
 
     // Information for integration patches for material pairs.
     struct KeyValues {
-        PetscInt negative_value;
-        PetscInt positive_value;
+        pylith::integer negative_value;
+        pylith::integer positive_value;
     }; // KeyValues
 
     size_t numPatches; ///< Number of integration patches.
     KeyValues* patchKeys; ///< Weak form keys for integration patches.
-    PylithInt* patchNumCells; ///< Number of cohesive cells in each integration patch.
-    PylithInt** patchCells; ///< List of cohesive cells in each integration patch.
+    pylith::integer* patchNumCells; ///< Number of cohesive cells in each integration patch.
+    pylith::integer** patchCells; ///< List of cohesive cells in each integration patch.
 
 }; // TestInterfacePatches_Data
 

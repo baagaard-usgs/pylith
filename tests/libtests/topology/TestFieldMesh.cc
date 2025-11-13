@@ -35,8 +35,8 @@ pylith::topology::TestFieldMesh::TestFieldMesh(TestFieldMesh_Data* data) :
     PYLITH_METHOD_BEGIN;
     assert(_data);
 
-    _mesh = NULL;
-    _field = NULL;
+    _mesh = nullptr;
+    _field = nullptr;
     _initialize();
 
     PYLITH_METHOD_END;
@@ -48,9 +48,9 @@ pylith::topology::TestFieldMesh::TestFieldMesh(TestFieldMesh_Data* data) :
 pylith::topology::TestFieldMesh::~TestFieldMesh(void) {
     PYLITH_METHOD_BEGIN;
 
-    delete _data;_data = NULL;
-    delete _mesh;_mesh = NULL;
-    delete _field;_field = NULL;
+    delete _data;_data = nullptr;
+    delete _mesh;_mesh = nullptr;
+    delete _field;_field = nullptr;
 
     PYLITH_METHOD_END;
 } // destructor
@@ -82,17 +82,17 @@ pylith::topology::TestFieldMesh::testCopyConstructor(void) {
 
     PetscDM dmMesh = _mesh->getDM();assert(dmMesh);
     Stratum depthStratum(dmMesh, Stratum::DEPTH, 0);
-    const PylithInt vStart = depthStratum.begin();
-    const PylithInt vEnd = depthStratum.end();
+    const pylith::integer vStart = depthStratum.begin();
+    const pylith::integer vEnd = depthStratum.end();
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     const std::string& label = "field A";
     const std::string& fullLabel = "domain solution " + label;
     Field field(*_field);
-    field.setLabel(label.c_str());
+    field.setName(label.c_str());
 
-    const char *name = NULL;
+    const char *name = nullptr;
     err = PetscObjectGetName((PetscObject)field.getDM(), &name);assert(!err);
     CHECK(fullLabel == std::string(name));
 
@@ -102,26 +102,26 @@ pylith::topology::TestFieldMesh::testCopyConstructor(void) {
     err = PetscObjectGetName((PetscObject) vec, &name);assert(!err);
     CHECK(fullLabel == std::string(name));
 
-    const PylithInt ndof = _data->descriptionA.numComponents + _data->descriptionB.numComponents;
-    for (PylithInt v = vStart, iV = 0; v < vEnd; ++v, ++iV) {
-        PylithInt dof, cdof;
+    const pylith::integer ndof = _data->descriptionA.numComponents + _data->descriptionB.numComponents;
+    for (pylith::integer v = vStart, iV = 0; v < vEnd; ++v, ++iV) {
+        pylith::integer dof, cdof;
         err = PetscSectionGetDof(section, v, &dof);assert(!err);
         CHECK(ndof == dof);
 
         err = PetscSectionGetConstraintDof(section, v, &cdof);assert(!err);
 
         // Count number of expected constraints on vertex.
-        PylithInt numConstraintsE = 0;
-        const PetscInt offset = _data->topology->numCells;
+        pylith::integer numConstraintsE = 0;
+        const pylith::integer offset = _data->topology->numCells;
         for (size_t i = 0; i < _data->bcANumVertices; ++i) {
-            const PylithInt vIndex = v - offset;
+            const pylith::integer vIndex = v - offset;
             if (_data->bcAVertices[i] == vIndex) {
                 numConstraintsE += _data->bcANumConstrainedDOF;
                 break;
             }
         } // for
         for (size_t i = 0; i < _data->bcBNumVertices; ++i) {
-            const PylithInt vIndex = v - offset;
+            const pylith::integer vIndex = v - offset;
             if (_data->bcBVertices[i] == vIndex) {
                 numConstraintsE += _data->bcBNumConstrainedDOF;
                 break;
@@ -163,10 +163,10 @@ pylith::topology::TestFieldMesh::testGeneralAccessors(void) {
     // Test getLabel()
     const std::string& label = "velocity";
     const std::string& fullLabel = "domain solution " + label;
-    _field->setLabel(label.c_str());
+    _field->setName(label.c_str());
     CHECK(fullLabel == std::string(_field->getLabel()));
-    const char* name = NULL;
-    PetscErrorCode err = 0;
+    const char* name = nullptr;
+    PetscErrorCode err = PETSC_SUCCESS;
     err = PetscObjectGetName((PetscObject)_field->getDM(), &name);assert(!err);
     CHECK(fullLabel == std::string(name));
 
@@ -187,7 +187,7 @@ pylith::topology::TestFieldMesh::testSectionAccessors(void) {
     assert(_field);
 
     assert(_field->getChartSize() > 0); // vertices + edges + faces + cells
-    const PylithInt ndof = _data->descriptionA.numComponents + _data->descriptionB.numComponents;
+    const pylith::integer ndof = _data->descriptionA.numComponents + _data->descriptionB.numComponents;
     CHECK(_data->geometry->numVertices*ndof == size_t(_field->getStorageSize()));
 
     PYLITH_METHOD_END;
@@ -204,12 +204,12 @@ pylith::topology::TestFieldMesh::testVectorAccessors(void) {
     assert(_data->topology);
     assert(_field);
 
-    PetscErrorCode err;
-    const char* name = NULL;
-    PylithInt size = 0;
-    const PylithInt ndof =
+    PetscErrorCode err = PETSC_SUCCESS;
+    const char* name = nullptr;
+    pylith::integer size = 0;
+    const pylith::integer ndof =
         _data->geometry->numVertices * (_data->descriptionA.numComponents + _data->descriptionB.numComponents);
-    const PylithInt ndofConstrained =
+    const pylith::integer ndofConstrained =
         _data->bcANumConstrainedDOF*_data->bcANumVertices + _data->bcBNumConstrainedDOF*_data->bcBNumVertices;
 
     const PetscVec& localVec = _field->getLocalVector();assert(localVec);
@@ -356,15 +356,15 @@ pylith::topology::TestFieldMesh::_initialize(void) {
 
     // Setup labels
     pylith::meshio::MeshBuilder::shape_t faceShape = pylith::meshio::MeshBuilder::faceShapeFromCellShape(_data->topology->cellShape);
-    pylith::int_array faceValuesA(_data->bcAFaceValues, _data->bcAFaceValuesSize);
+    pylith::integer_array faceValuesA(_data->bcAFaceValues, _data->bcAFaceValuesSize);
     pylith::meshio::MeshBuilder::setFaceGroupFromCellVertices(_mesh, _data->bcALabel, faceValuesA, faceShape);
 
-    pylith::int_array faceValuesB(_data->bcBFaceValues, _data->bcBFaceValuesSize);
+    pylith::integer_array faceValuesB(_data->bcBFaceValues, _data->bcBFaceValuesSize);
     pylith::meshio::MeshBuilder::setFaceGroupFromCellVertices(_mesh, _data->bcBLabel, faceValuesB, faceShape);
 
     // Setup field
     delete _field;_field = new Field(*_mesh);
-    _field->setLabel("solution");
+    _field->setName("solution");
     _field->subfieldAdd(_data->descriptionA, _data->discretizationA);
     _field->subfieldAdd(_data->descriptionB, _data->discretizationB);
     _field->subfieldsSetup();
@@ -372,37 +372,37 @@ pylith::topology::TestFieldMesh::_initialize(void) {
     pylith::topology::CoordsVisitor::optimizeClosure(_field->getDM());
 
     PetscErrorCode err = PETSC_SUCCESS;
-    PetscDMLabel labelA = NULL, labelB = NULL;
+    PetscDMLabel labelA = nullptr, labelB = nullptr;
     err = DMGetLabel(_field->getDM(), _data->bcALabel, &labelA);assert(!err);
     err = DMGetLabel(_field->getDM(), _data->bcBLabel, &labelB);assert(!err);
-    const PetscInt numLabelValues = 1;
-    PetscInt i_field = 0;
+    const pylith::integer numLabelValues = 1;
+    pylith::integer i_field = 0;
     err = DMAddBoundary(_field->getDM(), DM_BC_ESSENTIAL, "bcA", labelA, numLabelValues, &_data->bcALabelId, i_field,
-                        _data->bcANumConstrainedDOF, _data->bcAConstrainedDOF, NULL, NULL, NULL, NULL);assert(!err);
+                        _data->bcANumConstrainedDOF, _data->bcAConstrainedDOF, nullptr, nullptr, nullptr, nullptr);assert(!err);
     i_field = 1;
     err = DMAddBoundary(_field->getDM(), DM_BC_ESSENTIAL, "bcB", labelB, numLabelValues, &_data->bcBLabelId, i_field,
-                        _data->bcBNumConstrainedDOF, _data->bcBConstrainedDOF, NULL, NULL, NULL, NULL);assert(!err);
+                        _data->bcBNumConstrainedDOF, _data->bcBConstrainedDOF, nullptr, nullptr, nullptr, nullptr);assert(!err);
     // Allocate field.
     _field->allocate();
 
     // Populate with values.
     PetscDM dmMesh = _mesh->getDM();assert(dmMesh);
     Stratum depthStratum(dmMesh, Stratum::DEPTH, 0);
-    const PylithInt vStart = depthStratum.begin();
-    const PylithInt vEnd = depthStratum.end();
+    const pylith::integer vStart = depthStratum.begin();
+    const pylith::integer vEnd = depthStratum.end();
 
     VecVisitorMesh fieldVisitor(*_field);
-    const PylithInt numComponents = _data->descriptionA.numComponents + _data->descriptionB.numComponents;
-    PetscScalar* fieldArray = fieldVisitor.localArray();
-    for (PylithInt v = vStart, indexA = 0, indexB = 0; v < vEnd; ++v) {
+    const pylith::integer numComponents = _data->descriptionA.numComponents + _data->descriptionB.numComponents;
+    pylith::scalar* fieldArray = fieldVisitor.localArray();
+    for (pylith::integer v = vStart, indexA = 0, indexB = 0; v < vEnd; ++v) {
         // Set values for field A
-        const PylithInt offA = fieldVisitor.sectionOffset(v);
+        const pylith::integer offA = fieldVisitor.sectionOffset(v);
         CHECK(numComponents == fieldVisitor.sectionDof(v));
         for (size_t d = 0; d < _data->descriptionA.numComponents; ++d) {
             fieldArray[offA+d] = _data->subfieldAValues[indexA++];
         } // for
           // Set values for field B
-        const PylithInt offB = offA + _data->descriptionA.numComponents;
+        const pylith::integer offB = offA + _data->descriptionA.numComponents;
         for (size_t d = 0; d < _data->descriptionB.numComponents; ++d) {
             fieldArray[offB+d] = _data->subfieldBValues[indexB++];
         } // for
@@ -415,7 +415,7 @@ pylith::topology::TestFieldMesh::_initialize(void) {
 // ------------------------------------------------------------------------------------------------
 void
 pylith::topology::TestFieldMesh::_checkValues(const Field& field,
-                                              const PylithReal scale) {
+                                              const pylith::real scale) {
     PYLITH_METHOD_BEGIN;
     assert(_data);
 
@@ -435,18 +435,18 @@ pylith::topology::TestFieldMesh::_checkValues(const Field& field,
 
     PetscDM dmMesh = _mesh->getDM();assert(dmMesh);
     Stratum depthStratum(dmMesh, Stratum::DEPTH, 0);
-    const PylithInt vStart = depthStratum.begin();
-    const PylithInt vEnd = depthStratum.end();
+    const pylith::integer vStart = depthStratum.begin();
+    const pylith::integer vEnd = depthStratum.end();
 
     VecVisitorMesh fieldVisitor(field);
-    PetscScalar* fieldArray = fieldVisitor.localArray();
-    const PylithInt numComponents = numComponentsA + numComponentsB;
-    const PylithReal tolerance = 1.0e-6;
-    for (PylithInt v = vStart, index = 0; v < vEnd; ++v) {
+    pylith::scalar* fieldArray = fieldVisitor.localArray();
+    const pylith::integer numComponents = numComponentsA + numComponentsB;
+    const pylith::real tolerance = 1.0e-6;
+    for (pylith::integer v = vStart, index = 0; v < vEnd; ++v) {
         REQUIRE(numComponents == fieldVisitor.sectionDof(v));
-        const PylithInt off = fieldVisitor.sectionOffset(v);
+        const pylith::integer off = fieldVisitor.sectionOffset(v);
 
-        for (PylithInt d = 0; d < numComponents; ++d) {
+        for (pylith::integer d = 0; d < numComponents; ++d) {
             CHECK_THAT(fieldArray[off+d], Catch::Matchers::WithinAbs(valuesE[index++]*scale, tolerance));
         } // for
     } // for
@@ -458,7 +458,7 @@ pylith::topology::TestFieldMesh::_checkValues(const Field& field,
 // ------------------------------------------------------------------------------------------------
 void
 pylith::topology::TestFieldMesh::_checkValues(const PetscVec& vec,
-                                              const PylithReal scale) {
+                                              const pylith::real scale) {
     PYLITH_METHOD_BEGIN;
     assert(_data);
 
@@ -476,16 +476,16 @@ pylith::topology::TestFieldMesh::_checkValues(const PetscVec& vec,
         } // for
     } // for
 
-    PetscErrorCode err;
-    PylithInt size = 0;
-    PylithScalar* vecArray = NULL;
+    PetscErrorCode err = PETSC_SUCCESS;
+    pylith::integer size = 0;
+    PylithScalar* vecArray = nullptr;
     err = VecGetSize(vec, &size);assert(!err);
     err = VecGetArray(vec, &vecArray);assert(!err);
 
-    const PylithInt sizeE = numVertices * (numComponentsA + numComponentsB);
-    const PylithReal tolerance = 1.0e-6;
+    const pylith::integer sizeE = numVertices * (numComponentsA + numComponentsB);
+    const pylith::real tolerance = 1.0e-6;
     REQUIRE(sizeE == size);
-    for (PylithInt i = 0; i < sizeE; ++i) {
+    for (pylith::integer i = 0; i < sizeE; ++i) {
         CHECK_THAT(vecArray[i], Catch::Matchers::WithinAbs(valuesE[i]*scale, tolerance));
     } // for
     err = VecRestoreArray(vec, &vecArray);assert(!err);
@@ -497,35 +497,35 @@ pylith::topology::TestFieldMesh::_checkValues(const PetscVec& vec,
 // ------------------------------------------------------------------------------------------------
 // Constructor
 pylith::topology::TestFieldMesh_Data::TestFieldMesh_Data(void) :
-    topology(NULL),
-    geometry(NULL),
+    topology(nullptr),
+    geometry(nullptr),
 
-    subfieldAValues(NULL),
-    bcALabel(NULL),
+    subfieldAValues(nullptr),
+    bcALabel(nullptr),
     bcALabelId(0),
     bcANumConstrainedDOF(0),
-    bcAConstrainedDOF(NULL),
+    bcAConstrainedDOF(nullptr),
     bcAFaceValuesSize(0),
-    bcAFaceValues(NULL),
+    bcAFaceValues(nullptr),
     bcANumVertices(0),
-    bcAVertices(NULL),
+    bcAVertices(nullptr),
 
-    subfieldBValues(NULL),
-    bcBLabel(NULL),
+    subfieldBValues(nullptr),
+    bcBLabel(nullptr),
     bcBLabelId(0),
     bcBNumConstrainedDOF(0),
-    bcBConstrainedDOF(NULL),
+    bcBConstrainedDOF(nullptr),
     bcBFaceValuesSize(0),
-    bcBFaceValues(NULL),
+    bcBFaceValues(nullptr),
     bcBNumVertices(0),
-    bcBVertices(NULL) {}
+    bcBVertices(nullptr) {}
 
 
 // ------------------------------------------------------------------------------------------------
 // Destructor
 pylith::topology::TestFieldMesh_Data::~TestFieldMesh_Data(void) {
-    delete topology;topology = NULL;
-    delete geometry;geometry = NULL;
+    delete topology;topology = nullptr;
+    delete geometry;geometry = nullptr;
 }
 
 

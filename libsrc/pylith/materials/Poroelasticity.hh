@@ -100,7 +100,7 @@ public:
      *
      * @param[in] solution Solution field.
      *
-     *  @returns Integrator if applicable, otherwise NULL.
+     *  @returns Integrator if applicable, otherwise nullptr.
      */
     pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution);
 
@@ -109,7 +109,7 @@ public:
      * @param[in] solution Solution field.
      * @param[in\ domainMesh Finite-element mesh associated with integration domain.
      *
-     * @returns Auxiliary field if applicable, otherwise NULL.
+     * @returns Auxiliary field if applicable, otherwise nullptr.
      */
     pylith::topology::Field* createAuxiliaryField(const pylith::topology::Field& solution,
                                                   const pylith::topology::Mesh& domainMesh);
@@ -119,7 +119,7 @@ public:
      * @param[in] solution Solution field.
      * @param[in\ domainMesh Finite-element mesh associated with integration domain.
      *
-     * @returns Derived field if applicable, otherwise NULL.
+     * @returns Derived field if applicable, otherwise nullptr.
      */
     pylith::topology::Field* createDerivedField(const pylith::topology::Field& solution,
                                                 const pylith::topology::Mesh& domainMesh);
@@ -189,8 +189,8 @@ private:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    Poroelasticity(const Poroelasticity&); ///< Not implemented.
-    const Poroelasticity& operator=(const Poroelasticity&); /// Not implemented.
+    Poroelasticity(const Poroelasticity&) = delete;
+    const Poroelasticity& operator=(const Poroelasticity&) = delete;
 
 }; // class Poroelasticity
 

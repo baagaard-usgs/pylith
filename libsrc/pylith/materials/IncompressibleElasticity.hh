@@ -62,7 +62,7 @@ public:
      *
      * @param[in] solution Solution field.
      *
-     *  @returns Integrator if applicable, otherwise NULL.
+     *  @returns Integrator if applicable, otherwise nullptr.
      */
     pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution) override;
 
@@ -71,7 +71,7 @@ public:
      * @param[in] solution Solution field.
      * @param[in\ domainMesh Finite-element mesh associated with integration domain.
      *
-     * @returns Auxiliary field if applicable, otherwise NULL.
+     * @returns Auxiliary field if applicable, otherwise nullptr.
      */
     pylith::topology::Field* createAuxiliaryField(const pylith::topology::Field& solution,
                                                   const pylith::topology::Mesh& domainMesh) override;
@@ -81,7 +81,7 @@ public:
      * @param[in] solution Solution field.
      * @param[in\ domainMesh Finite-element mesh associated with integration domain.
      *
-     * @returns Derived field if applicable, otherwise NULL.
+     * @returns Derived field if applicable, otherwise nullptr.
      */
     pylith::topology::Field* createDerivedField(const pylith::topology::Field& solution,
                                                 const pylith::topology::Mesh& domainMesh) override;
@@ -150,8 +150,8 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    IncompressibleElasticity(const IncompressibleElasticity&); ///< Not implemented.
-    const IncompressibleElasticity& operator=(const IncompressibleElasticity&); /// Not implemented.
+    IncompressibleElasticity(const IncompressibleElasticity&) = delete;
+    const IncompressibleElasticity& operator=(const IncompressibleElasticity&) = delete;
 
 };
 

@@ -601,7 +601,7 @@ pylith::problems::Problem::setSolutionLocal(const PylithReal t,
         if (!_solutionDot) {
             _solutionDot = new pylith::topology::Field(_solution->mesh());
             _solutionDot->cloneSection(*_solution);
-            _solutionDot->setLabel("solutionDot");
+            _solutionDot->setName("solutionDot");
         } // if
         _solutionDot->scatterVectorToLocal(solutionDotVec);
     } // if

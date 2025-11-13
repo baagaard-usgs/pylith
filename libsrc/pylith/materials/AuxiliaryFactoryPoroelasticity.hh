@@ -53,8 +53,8 @@ public:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    AuxiliaryFactoryPoroelasticity(const AuxiliaryFactoryPoroelasticity &); ///< Not implemented.
-    const AuxiliaryFactoryPoroelasticity& operator=(const AuxiliaryFactoryPoroelasticity&); ///< Not implemented
+    AuxiliaryFactoryPoroelasticity(const AuxiliaryFactoryPoroelasticity &) = delete;
+    const AuxiliaryFactoryPoroelasticity& operator=(const AuxiliaryFactoryPoroelasticity&) = delete;
 
 }; // class AuxiliaryFactoryPoroelasticity
 

@@ -40,7 +40,7 @@ public:
 
 private:
 
-    TwoBlocksStatic(void); ///< Not implemented
+    TwoBlocksStatic(void) = delete;
 }; // TwoBlocksStatic
 
 // End of file

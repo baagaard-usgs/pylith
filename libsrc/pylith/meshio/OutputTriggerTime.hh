@@ -23,7 +23,7 @@ public:
     OutputTriggerTime(void);
 
     /// Destructor
-    virtual ~OutputTriggerTime(void);
+    ~OutputTriggerTime(void) override;
 
     /** Check whether we want to write output at time t.
      *
@@ -32,7 +32,7 @@ public:
      * @returns True if output should be written at time t, false otherwise.
      */
     bool shouldWrite(const pylith::real t,
-                     const pylith::integer tindex);
+                     const pylith::integer tindex) override;
 
     /** Set elapsed time between writes.
      *
@@ -55,8 +55,8 @@ private:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    OutputTriggerTime(const OutputTriggerTime&); ///< Not implemented.
-    const OutputTriggerTime& operator=(const OutputTriggerTime&); ///< Not implemented
+    OutputTriggerTime(const OutputTriggerTime&) = delete;
+    const OutputTriggerTime& operator=(const OutputTriggerTime&) = delete;
 
 };
 

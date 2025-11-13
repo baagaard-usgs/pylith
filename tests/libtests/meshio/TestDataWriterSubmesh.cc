@@ -330,7 +330,7 @@ pylith::meshio::TestDataWriterSubmesh::_createCellField(pylith::topology::Field*
 // ------------------------------------------------------------------------------------------------
 // Constructor
 pylith::meshio::TestDataWriterSubmesh_Data::TestDataWriterSubmesh_Data(void) :
-    bcLabel(NULL) {}
+    bcLabel(nullptr) {}
 
 
 // ------------------------------------------------------------------------------------------------

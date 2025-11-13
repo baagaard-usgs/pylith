@@ -72,27 +72,27 @@ pylith::meshio::TestVertexFilterVecNorm::testFilter(void) { // testFilter
 
     PetscDM dmMesh = mesh.dmMesh();CPPUNIT_ASSERT(dmMesh);
     topology::Stratum verticesStratum(dmMesh, topology::Stratum::DEPTH, 0);
-    const PetscInt vStart = verticesStratum.begin();
-    const PetscInt vEnd = verticesStratum.end();
+    const pylith::integer vStart = verticesStratum.begin();
+    const pylith::integer vEnd = verticesStratum.end();
 
     topology::Field field(mesh);
     field.newSection(topology::FieldBase::VERTICES_FIELD, fiberDim);
     field.allocate();
     field.vectorFieldType(fieldType);
-    field.setLabel(label.c_str());
+    field.setName(label.c_str());
     field.scale(fieldScale);
 
     { // Setup vertex field
         topology::VecVisitorMesh fieldVisitor(field);
-        PetscScalar* fieldArray = fieldVisitor.localArray();
+        pylith::scalar* fieldArray = fieldVisitor.localArray();
 
         CPPUNIT_ASSERT_EQUAL(nvertices, verticesStratum.size());
 
-        for (PetscInt v = vStart, index = 0; v < vEnd; ++v) {
-            const PetscInt off = fieldVisitor.sectionOffset(v);
+        for (pylith::integer v = vStart, index = 0; v < vEnd; ++v) {
+            const pylith::integer off = fieldVisitor.sectionOffset(v);
             CPPUNIT_ASSERT_EQUAL(fiberDim, fieldVisitor.sectionDof(v));
 
-            for (PetscInt d = 0; d < fiberDim; ++d, ++index) {
+            for (pylith::integer d = 0; d < fiberDim; ++d, ++index) {
                 fieldArray[off+d] = fieldValues[index];
             } // for
         } // for
@@ -106,11 +106,11 @@ pylith::meshio::TestVertexFilterVecNorm::testFilter(void) { // testFilter
     CPPUNIT_ASSERT_EQUAL(fieldScale, fieldNorm.scale());
 
     topology::VecVisitorMesh fieldNormVisitor(fieldNorm);
-    const PetscScalar* fieldNormArray = fieldNormVisitor.localArray();
+    const pylith::scalar* fieldNormArray = fieldNormVisitor.localArray();
 
     const PylithScalar tolerance = 1.0e-06;
-    for (PetscInt v = vStart, index = 0; v < vEnd; ++v) {
-        const PetscInt off = fieldNormVisitor.sectionOffset(v);
+    for (pylith::integer v = vStart, index = 0; v < vEnd; ++v) {
+        const pylith::integer off = fieldNormVisitor.sectionOffset(v);
         CPPUNIT_ASSERT_EQUAL(1, fieldNormVisitor.sectionDof(v));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, fieldNormArray[off]/fieldValuesE[index++], tolerance);
     } // for

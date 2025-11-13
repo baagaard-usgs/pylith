@@ -118,24 +118,24 @@ pylith::meshio::TestMeshIOCubit_Cases::Tri_v12(void) {
     };
     delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
-    static const PylithInt cells[numCells*numCorners] = {
+    static const pylith::integer cells[numCells*numCorners] = {
         0,  1,  2,
         2,  1,  3,
     };
     delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
-    static const PylithInt materialIds[numCells] = {
+    static const pylith::integer materialIds[numCells] = {
         2, 3,
     };
-    data->materialIds = const_cast<PylithInt*>(materialIds);
+    data->materialIds = const_cast<pylith::integer*>(materialIds);
 
     data->numVertexGroups = 2;
-    static const PylithInt vertexGroupSizes[2] = { 1,  2, };
-    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
-    static const PylithInt vertexGroups[1+2] = {
+    static const pylith::integer vertexGroupSizes[2] = { 1,  2, };
+    data->vertexGroupSizes = const_cast<pylith::integer*>(vertexGroupSizes);
+    static const pylith::integer vertexGroups[1+2] = {
         0,
         2, 3,
     };
-    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
+    data->vertexGroups = const_cast<pylith::integer*>(vertexGroups);
     static const char* vertexGroupNames[2] = {
         "left_vertex",
         "right_vertex",
@@ -181,26 +181,26 @@ pylith::meshio::TestMeshIOCubit_Cases::Tri_v16(void) {
     };
     delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
-    static const PylithInt cells[numCells*numCorners] = {
+    static const pylith::integer cells[numCells*numCorners] = {
         0,  1,  2,
         0,  2,  3,
         1,  4,  5,
         1,  5,  2,
     };
     delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
-    static const PylithInt materialIds[numCells] = {
+    static const pylith::integer materialIds[numCells] = {
         1, 1,  2, 2,
     };
-    data->materialIds = const_cast<PylithInt*>(materialIds);
+    data->materialIds = const_cast<pylith::integer*>(materialIds);
 
     data->numVertexGroups = 2;
-    static const PylithInt vertexGroupSizes[2] = { 2,  3, };
-    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
-    static const PylithInt vertexGroups[2+3] = {
+    static const pylith::integer vertexGroupSizes[2] = { 2,  3, };
+    data->vertexGroupSizes = const_cast<pylith::integer*>(vertexGroupSizes);
+    static const pylith::integer vertexGroups[2+3] = {
         0, 3,
         0, 1, 4,
     };
-    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
+    data->vertexGroups = const_cast<pylith::integer*>(vertexGroups);
     static const char* vertexGroupNames[2] = {
         "vertices_xneg",
         "vertices_yneg",
@@ -209,14 +209,14 @@ pylith::meshio::TestMeshIOCubit_Cases::Tri_v16(void) {
 
     data->numFaceGroups = 2;
     data->numFaceVertices = 2;
-    static const PylithInt faceGroupSizes[2] = { 1,  2, };
-    data->faceGroupSizes = const_cast<PylithInt*>(faceGroupSizes);
-    static const PylithInt faceGroups[3*(1+2)] = {
+    static const pylith::integer faceGroupSizes[2] = { 1,  2, };
+    data->faceGroupSizes = const_cast<pylith::integer*>(faceGroupSizes);
+    static const pylith::integer faceGroups[3*(1+2)] = {
         1,   3,  0,
         0,   0,  1,
         2,   1,  4,
     };
-    data->faceGroups = const_cast<PylithInt*>(faceGroups);
+    data->faceGroups = const_cast<pylith::integer*>(faceGroups);
     static const char* faceGroupNames[2] = {
         "boundary_xneg",
         "boundary_yneg",
@@ -251,24 +251,24 @@ pylith::meshio::TestMeshIOCubit_Cases::Quad_v12(void) {
     };
     delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
-    static const PylithInt cells[numCells*numCorners] = {
+    static const pylith::integer cells[numCells*numCorners] = {
         0,  1,  2,  3,
         1,  4,  5,  2,
     };
     delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
-    static const PylithInt materialIds[numCells] = {
+    static const pylith::integer materialIds[numCells] = {
         10, 11,
     };
-    data->materialIds = const_cast<PylithInt*>(materialIds);
+    data->materialIds = const_cast<pylith::integer*>(materialIds);
 
     data->numVertexGroups = 2;
-    static const PylithInt vertexGroupSizes[2] = { 2,  3, };
-    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
-    static const PylithInt vertexGroups[2+3] = {
+    static const pylith::integer vertexGroupSizes[2] = { 2,  3, };
+    data->vertexGroupSizes = const_cast<pylith::integer*>(vertexGroupSizes);
+    static const pylith::integer vertexGroups[2+3] = {
         0, 3,
         2, 3, 5,
     };
-    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
+    data->vertexGroups = const_cast<pylith::integer*>(vertexGroups);
     static const char* vertexGroupNames[2] = {
         "left_edge",
         "top_edge",
@@ -314,24 +314,24 @@ pylith::meshio::TestMeshIOCubit_Cases::Quad_v16(void) {
     };
     delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
-    static const PylithInt cells[numCells*numCorners] = {
+    static const pylith::integer cells[numCells*numCorners] = {
         0,  1,  2,  3,
         3,  2,  4,  5,
     };
     delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
-    static const PylithInt materialIds[numCells] = {
+    static const pylith::integer materialIds[numCells] = {
         1, 2,
     };
-    data->materialIds = const_cast<PylithInt*>(materialIds);
+    data->materialIds = const_cast<pylith::integer*>(materialIds);
 
     data->numVertexGroups = 2;
-    static const PylithInt vertexGroupSizes[2] = { 2,  3, };
-    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
-    static const PylithInt vertexGroups[2+3] = {
+    static const pylith::integer vertexGroupSizes[2] = { 2,  3, };
+    data->vertexGroupSizes = const_cast<pylith::integer*>(vertexGroupSizes);
+    static const pylith::integer vertexGroups[2+3] = {
         0, 1,
         1, 2, 4,
     };
-    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
+    data->vertexGroups = const_cast<pylith::integer*>(vertexGroups);
     static const char* vertexGroupNames[2] = {
         "vertices_xneg",
         "vertices_yneg",
@@ -340,14 +340,14 @@ pylith::meshio::TestMeshIOCubit_Cases::Quad_v16(void) {
 
     data->numFaceGroups = 2;
     data->numFaceVertices = 2;
-    static const PylithInt faceGroupSizes[2] = { 1,  2, };
-    data->faceGroupSizes = const_cast<PylithInt*>(faceGroupSizes);
-    static const PylithInt faceGroups[3*(1+2)] = {
+    static const pylith::integer faceGroupSizes[2] = { 1,  2, };
+    data->faceGroupSizes = const_cast<pylith::integer*>(faceGroupSizes);
+    static const pylith::integer faceGroups[3*(1+2)] = {
         0,   0,  1,
         0,   1,  2,
         1,   2,  4,
     };
-    data->faceGroups = const_cast<PylithInt*>(faceGroups);
+    data->faceGroups = const_cast<pylith::integer*>(faceGroups);
     static const char* faceGroupNames[2] = {
         "boundary_xneg",
         "boundary_yneg",
@@ -381,24 +381,24 @@ pylith::meshio::TestMeshIOCubit_Cases::Tet_v12(void) {
     };
     delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
-    static const PylithInt cells[numCells*numCorners] = {
+    static const pylith::integer cells[numCells*numCorners] = {
         0,  1,  2,  3,
         1,  4,  2,  3,
     };
     delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
-    static const PylithInt materialIds[numCells] = {
+    static const pylith::integer materialIds[numCells] = {
         7, 8,
     };
-    data->materialIds = const_cast<PylithInt*>(materialIds);
+    data->materialIds = const_cast<pylith::integer*>(materialIds);
 
     data->numVertexGroups = 2;
-    static const PylithInt vertexGroupSizes[2] = { 3,  4, };
-    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
-    static const PylithInt vertexGroups[3+4] = {
+    static const pylith::integer vertexGroupSizes[2] = { 3,  4, };
+    data->vertexGroupSizes = const_cast<pylith::integer*>(vertexGroupSizes);
+    static const pylith::integer vertexGroups[3+4] = {
         1, 2, 3,
         0, 1, 2, 3,
     };
-    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
+    data->vertexGroups = const_cast<pylith::integer*>(vertexGroups);
     static const char* vertexGroupNames[2] = {
         "mid_face",
         "bottom_face",
@@ -451,7 +451,7 @@ pylith::meshio::TestMeshIOCubit_Cases::Tet_v16(void) {
     };
     delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
-    static const PylithInt cells[numCells*numCorners] = {
+    static const pylith::integer cells[numCells*numCorners] = {
         0, 1, 2, 3,
         0, 4, 5, 6,
         0, 4, 6, 7,
@@ -472,20 +472,20 @@ pylith::meshio::TestMeshIOCubit_Cases::Tet_v16(void) {
         1, 7, 4, 0,
     };
     delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
-    static const PylithInt materialIds[numCells] = {
+    static const pylith::integer materialIds[numCells] = {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
     };
-    data->materialIds = const_cast<PylithInt*>(materialIds);
+    data->materialIds = const_cast<pylith::integer*>(materialIds);
 
     data->numVertexGroups = 2;
-    static const PylithInt vertexGroupSizes[2] = { 4,  6, };
-    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
-    static const PylithInt vertexGroups[4+6] = {
+    static const pylith::integer vertexGroupSizes[2] = { 4,  6, };
+    data->vertexGroupSizes = const_cast<pylith::integer*>(vertexGroupSizes);
+    static const pylith::integer vertexGroups[4+6] = {
         4, 6, 7, 11,
         4, 5, 6, 8, 9, 10,
     };
-    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
+    data->vertexGroups = const_cast<pylith::integer*>(vertexGroups);
     static const char* vertexGroupNames[2] = {
         "vertices_xneg",
         "vertices_zneg",
@@ -494,9 +494,9 @@ pylith::meshio::TestMeshIOCubit_Cases::Tet_v16(void) {
 
     data->numFaceGroups = 2;
     data->numFaceVertices = 3;
-    static const PylithInt faceGroupSizes[2] = { 2,  4, };
-    data->faceGroupSizes = const_cast<PylithInt*>(faceGroupSizes);
-    static const PylithInt faceGroups[(2+4)*(1+3)] = {
+    static const pylith::integer faceGroupSizes[2] = { 2,  4, };
+    data->faceGroupSizes = const_cast<pylith::integer*>(faceGroupSizes);
+    static const pylith::integer faceGroups[(2+4)*(1+3)] = {
         2,     4,  6,  7,
         15,    7, 11,  4,
 
@@ -505,7 +505,7 @@ pylith::meshio::TestMeshIOCubit_Cases::Tet_v16(void) {
         7,     8,  5,  9,
         13,    9, 10,  8,
     };
-    data->faceGroups = const_cast<PylithInt*>(faceGroups);
+    data->faceGroups = const_cast<pylith::integer*>(faceGroups);
     static const char* faceGroupNames[2] = {
         "boundary_xneg",
         "boundary_zneg",
@@ -546,24 +546,24 @@ pylith::meshio::TestMeshIOCubit_Cases::Hex_v12(void) {
     };
     delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
-    static const PylithInt cells[numCells*numCorners] = {
+    static const pylith::integer cells[numCells*numCorners] = {
         0,  1,  2,  3,  4,  5,  6,  7,
         4,  5,  6,  7,  8,  9, 10, 11
     };
     delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
-    static const PylithInt materialIds[numCells] = {
+    static const pylith::integer materialIds[numCells] = {
         7, 8,
     };
-    data->materialIds = const_cast<PylithInt*>(materialIds);
+    data->materialIds = const_cast<pylith::integer*>(materialIds);
 
     data->numVertexGroups = 2;
-    static const PylithInt vertexGroupSizes[2] = { 4,  6, };
-    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
-    static const PylithInt vertexGroups[4+6] = {
+    static const pylith::integer vertexGroupSizes[2] = { 4,  6, };
+    data->vertexGroupSizes = const_cast<pylith::integer*>(vertexGroupSizes);
+    static const pylith::integer vertexGroups[4+6] = {
         8,  9, 10, 11,
         0,  3,  4,  7,  8, 11
     };
-    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
+    data->vertexGroups = const_cast<pylith::integer*>(vertexGroups);
     static const char* vertexGroupNames[2] = {
         "right_face",
         "top_face",
@@ -615,24 +615,24 @@ pylith::meshio::TestMeshIOCubit_Cases::Hex_v16(void) {
     };
     delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
-    static const PylithInt cells[numCells*numCorners] = {
+    static const pylith::integer cells[numCells*numCorners] = {
         0, 1, 2, 3, 4, 5, 6, 7,
         4, 5, 6, 7, 8, 9, 10, 11,
     };
     delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
-    static const PylithInt materialIds[numCells] = {
+    static const pylith::integer materialIds[numCells] = {
         1, 1,
     };
-    data->materialIds = const_cast<PylithInt*>(materialIds);
+    data->materialIds = const_cast<pylith::integer*>(materialIds);
 
     data->numVertexGroups = 2;
-    static const PylithInt vertexGroupSizes[2] = { 4,  6, };
-    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
-    static const PylithInt vertexGroups[4+6] = {
+    static const pylith::integer vertexGroupSizes[2] = { 4,  6, };
+    data->vertexGroupSizes = const_cast<pylith::integer*>(vertexGroupSizes);
+    static const pylith::integer vertexGroups[4+6] = {
         0,  1,  2,  3,
         1,  2,  5,  6,  9, 10,
     };
-    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
+    data->vertexGroups = const_cast<pylith::integer*>(vertexGroups);
     static const char* vertexGroupNames[2] = {
         "vertices_xneg",
         "vertices_zneg",
@@ -641,15 +641,15 @@ pylith::meshio::TestMeshIOCubit_Cases::Hex_v16(void) {
 
     data->numFaceGroups = 2;
     data->numFaceVertices = 4;
-    static const PylithInt faceGroupSizes[2] = { 1,  2, };
-    data->faceGroupSizes = const_cast<PylithInt*>(faceGroupSizes);
-    static const PylithInt faceGroups[(1+2)*(1+4)] = {
+    static const pylith::integer faceGroupSizes[2] = { 1,  2, };
+    data->faceGroupSizes = const_cast<pylith::integer*>(faceGroupSizes);
+    static const pylith::integer faceGroups[(1+2)*(1+4)] = {
         0,   0,  3,  2,  1,
 
         0,   1,  2,  6,  5,
         1,   5,  6, 10,  9,
     };
-    data->faceGroups = const_cast<PylithInt*>(faceGroups);
+    data->faceGroups = const_cast<pylith::integer*>(faceGroups);
     static const char* faceGroupNames[2] = {
         "boundary_xneg",
         "boundary_zneg",

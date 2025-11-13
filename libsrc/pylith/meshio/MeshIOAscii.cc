@@ -15,7 +15,7 @@
 #include "pylith/meshio/MeshBuilder.hh" // USES MeshBuilder
 #include "pylith/topology/Mesh.hh" // USES Mesh
 
-#include "pylith/utils/array.hh" // USES scalar_array, int_array, string_vector
+#include "pylith/utils/array.hh" // USES scalar_array, pylith::integer_array, string_vector
 #include "spatialdata/utils/LineParser.hh" // USES LineParser
 
 #include "pylith/utils/error.hh" // USES PYLITH_METHOD_*
@@ -57,7 +57,7 @@ namespace pylith {
              * @param[in] useIndexZero True if using zero-based indexing.
              */
             void readCells(pylith::meshio::MeshBuilder::Topology* topology,
-                           int_array* materialIds,
+                           pylith::integer_array* materialIds,
                            spatialdata::utils::LineParser& parser,
                            const bool useIndexZero);
 
@@ -68,7 +68,7 @@ namespace pylith {
              */
             void writeCells(std::ostream& fileout,
                             const pylith::meshio::MeshBuilder::Topology& topology,
-                            const int_array& materialIds);
+                            const pylith::integer_array& materialIds);
 
             /** Read a point group with vertices.
              *
@@ -77,7 +77,7 @@ namespace pylith {
              * @param[inout] parser Input parser.
              * @param[in] useIndexZero True if using zero-based indexing.
              */
-            void readVertexGroup(int_array* points,
+            void readVertexGroup(pylith::integer_array* points,
                                  std::string* name,
                                  spatialdata::utils::LineParser& parser,
                                  const bool useIndexZero);
@@ -89,7 +89,7 @@ namespace pylith {
              * @param[in] name Name of group.
              */
             void writeVertexGroup(std::ostream& fileout,
-                                  const int_array& points,
+                                  const pylith::integer_array& points,
                                   const char* name);
 
             /** Read a point group with facs.
@@ -100,7 +100,7 @@ namespace pylith {
              * @param[in] faceShape Shape of face.
              * @param[in] useIndexZero True if using zero-based indexing.
              */
-            void readFaceGroup(int_array* faceValues,
+            void readFaceGroup(pylith::integer_array* faceValues,
                                std::string* name,
                                spatialdata::utils::LineParser& parser,
                                pylith::meshio::MeshBuilder::shape_t faceShape,
@@ -114,7 +114,7 @@ namespace pylith {
              * @param[in] name Name of group.
              */
             void writeFaceGroup(std::ostream& fileout,
-                                const int_array& faceValues,
+                                const pylith::integer_array& faceValues,
                                 const pylith::meshio::MeshBuilder::shape_t faceShape,
                                 const char* name);
 
@@ -176,7 +176,7 @@ pylith::meshio::MeshIOAscii::_read(void) {
     const int commRank = _mesh->getCommRank();
     pylith::meshio::MeshBuilder::Topology topology;
     pylith::meshio::MeshBuilder::Geometry geometry;
-    int_array materialIds;
+    pylith::integer_array materialIds;
 
     if (0 == commRank) {
         std::ifstream filein(_filename.c_str());
@@ -238,7 +238,7 @@ pylith::meshio::MeshIOAscii::_read(void) {
                     } // if
 
                     std::string name;
-                    int_array points;
+                    pylith::integer_array points;
                     _MeshIOAscii::readVertexGroup(&points, &name, parser, _useIndexZero);
                     pylith::meshio::MeshBuilder::setVertexGroup(_mesh, name.c_str(), points);
                 } else if (0 == strcasecmp(token.c_str(), "face-group")) {
@@ -248,7 +248,7 @@ pylith::meshio::MeshIOAscii::_read(void) {
                     } // if
 
                     std::string name;
-                    int_array faceValues;
+                    pylith::integer_array faceValues;
                     pylith::meshio::MeshBuilder::shape_t faceShape = pylith::meshio::MeshBuilder::faceShapeFromCellShape(topology.cellShape);
                     _MeshIOAscii::readFaceGroup(&faceValues, &name, parser, faceShape, _useIndexZero);
                     pylith::meshio::MeshBuilder::setFaceGroupFromCellVertices(_mesh, name.c_str(), faceValues, faceShape);
@@ -320,7 +320,7 @@ pylith::meshio::MeshIOAscii::_write(void) const {
 
     pylith::meshio::MeshBuilder::Topology topology;
     pylith::meshio::MeshBuilder::getCells(&topology, *_mesh);
-    int_array materialIds;
+    pylith::integer_array materialIds;
     pylith::meshio::MeshBuilder::getMaterials(&materialIds, *_mesh);
     _MeshIOAscii::writeCells(fileout, topology, materialIds);
 
@@ -329,7 +329,7 @@ pylith::meshio::MeshIOAscii::_write(void) const {
     pylith::meshio::MeshBuilder::getVertexGroupNames(&groupNames, *_mesh);
     size_t numGroups = groupNames.size();
     for (int i = 0; i < numGroups; ++i) {
-        int_array points;
+        pylith::integer_array points;
         pylith::meshio::MeshBuilder::getVertexGroup(&points, *_mesh, groupNames[i].c_str());
         _MeshIOAscii::writeVertexGroup(fileout, points, groupNames[i].c_str());
     } // for
@@ -337,7 +337,7 @@ pylith::meshio::MeshIOAscii::_write(void) const {
     pylith::meshio::MeshBuilder::getFaceGroupNames(&groupNames, *_mesh);
     numGroups = groupNames.size();
     for (int i = 0; i < numGroups; ++i) {
-        int_array faceValues;
+        pylith::integer_array faceValues;
         pylith::meshio::MeshBuilder::shape_t faceShape = pylith::meshio::MeshBuilder::faceShapeFromCellShape(topology.cellShape);
         pylith::meshio::MeshBuilder::getFaceGroup(&faceValues, *_mesh, groupNames[i].c_str());
         _MeshIOAscii::writeFaceGroup(fileout, faceValues, faceShape, groupNames[i].c_str());
@@ -442,7 +442,7 @@ pylith::meshio::_MeshIOAscii::writeVertices(std::ostream& fileout,
 // Read mesh cells.
 void
 pylith::meshio::_MeshIOAscii::readCells(pylith::meshio::MeshBuilder::Topology* topology,
-                                        int_array* materialIds,
+                                        pylith::integer_array* materialIds,
                                         spatialdata::utils::LineParser& parser,
                                         const bool useIndexZero) {
     PYLITH_METHOD_BEGIN;
@@ -534,7 +534,7 @@ pylith::meshio::_MeshIOAscii::readCells(pylith::meshio::MeshBuilder::Topology* t
 void
 pylith::meshio::_MeshIOAscii::writeCells(std::ostream& fileout,
                                          const pylith::meshio::MeshBuilder::Topology& topology,
-                                         const int_array& materialIds) {
+                                         const pylith::integer_array& materialIds) {
     PYLITH_METHOD_BEGIN;
 
     fileout
@@ -570,7 +570,7 @@ pylith::meshio::_MeshIOAscii::writeCells(std::ostream& fileout,
 // ------------------------------------------------------------------------------------------------
 // Read group of vertices.
 void
-pylith::meshio::_MeshIOAscii::readVertexGroup(int_array* points,
+pylith::meshio::_MeshIOAscii::readVertexGroup(pylith::integer_array* points,
                                               std::string* name,
                                               spatialdata::utils::LineParser& parser,
                                               const bool useIndexZero) {
@@ -642,7 +642,7 @@ pylith::meshio::_MeshIOAscii::readVertexGroup(int_array* points,
 // Write group of faces.
 void
 pylith::meshio::_MeshIOAscii::writeVertexGroup(std::ostream& fileout,
-                                               const int_array& points,
+                                               const pylith::integer_array& points,
                                                const char* name) {
     PYLITH_METHOD_BEGIN;
 
@@ -666,7 +666,7 @@ pylith::meshio::_MeshIOAscii::writeVertexGroup(std::ostream& fileout,
 // ------------------------------------------------------------------------------------------------
 // Read group of faces.
 void
-pylith::meshio::_MeshIOAscii::readFaceGroup(int_array* faceValues,
+pylith::meshio::_MeshIOAscii::readFaceGroup(pylith::integer_array* faceValues,
                                             std::string* name,
                                             spatialdata::utils::LineParser& parser,
                                             const pylith::meshio::MeshBuilder::shape_t faceShape,
@@ -742,7 +742,7 @@ pylith::meshio::_MeshIOAscii::readFaceGroup(int_array* faceValues,
 // Write group of faces.
 void
 pylith::meshio::_MeshIOAscii::writeFaceGroup(std::ostream& fileout,
-                                             const int_array& faceValues,
+                                             const pylith::integer_array& faceValues,
                                              const pylith::meshio::MeshBuilder::shape_t faceShape,
                                              const char* name) {
     PYLITH_METHOD_BEGIN;

@@ -36,7 +36,7 @@ public:
      * @param[in] solution Solution field.
      * @param[in\ physicsMesh Finite-element mesh associated with physics.
      *
-     * @returns Auxiliary field if applicable, otherwise NULL.
+     * @returns Auxiliary field if applicable, otherwise nullptr.
      */
     pylith::topology::Field* createAuxiliaryField(const pylith::topology::Field& solution,
                                                   const pylith::topology::Mesh& physicsMesh);
@@ -45,7 +45,7 @@ public:
      *
      * @param[in] solution Solution field.
      * @param[in] materials Materials in problem.
-     * @returns Integrator if applicable, otherwise NULL.
+     * @returns Integrator if applicable, otherwise nullptr.
      */
     pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution,
                                                      const std::vector<pylith::materials::Material*>& materials);
@@ -82,8 +82,8 @@ protected:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    FaultCohesiveStub(const FaultCohesiveStub&); ///< Not implemented.
-    const FaultCohesiveStub& operator=(const FaultCohesiveStub&); ///< Not implemented.
+    FaultCohesiveStub(const FaultCohesiveStub&) = delete;
+    const FaultCohesiveStub& operator=(const FaultCohesiveStub&) = delete;
 
 }; // class FaultCohesiveStub
 

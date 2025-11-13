@@ -112,7 +112,7 @@ pylith::meshio::TestDataWriterVTKPoints::testWriteVertexField(void) {
         writer.writeVertexField(t, *subfield);
         assert(writer._wroteVertexHeader);
         CHECK(false == writer._wroteCellHeader);
-        delete subfield;subfield = NULL;
+        delete subfield;subfield = nullptr;
     } // for
     writer.closeTimeStep();
     writer.close();

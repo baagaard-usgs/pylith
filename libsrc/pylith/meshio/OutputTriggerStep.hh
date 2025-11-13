@@ -23,7 +23,7 @@ public:
     OutputTriggerStep(void);
 
     /// Destructor
-    ~OutputTriggerStep(void);
+    ~OutputTriggerStep(void) override;
 
     /** Check whether we want to write output at time t.
      *
@@ -32,7 +32,7 @@ public:
      * @returns True if output should be written at time t, false otherwise.
      */
     bool shouldWrite(const pylith::real t,
-                     const pylith::integer tindex);
+                     const pylith::integer tindex) override;
 
     /** Set number of steps to skip between writes.
      *
@@ -55,8 +55,8 @@ private:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    OutputTriggerStep(const OutputTriggerStep&); ///< Not implemented.
-    const OutputTriggerStep& operator=(const OutputTriggerStep&); ///< Not implemented
+    OutputTriggerStep(const OutputTriggerStep&) = delete;
+    const OutputTriggerStep& operator=(const OutputTriggerStep&) = delete;
 
 };
 

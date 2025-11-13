@@ -26,13 +26,9 @@
 
 // ------------------------------------------------------------------------------------------------
 // Default constructor.
-pylith::feassemble::PhysicsImplementation::PhysicsImplementation(pylith::problems::Physics* const physics) :
+pylith::feassemble::PhysicsImplementation::PhysicsImplementation(const std::shared_ptr<pylith::problems::Physics>& physics) :
     _physics(physics),
-    _auxiliaryField(NULL),
-    _diagnosticField(NULL),
-    _derivedField(NULL),
-    _observers(NULL),
-    _logger(NULL) {}
+    _logger(nullptr) {}
 
 
 // ------------------------------------------------------------------------------------------------
@@ -48,11 +44,12 @@ void
 pylith::feassemble::PhysicsImplementation::deallocate(void) {
     PYLITH_METHOD_BEGIN;
 
-    delete _auxiliaryField;_auxiliaryField = NULL;
-    delete _diagnosticField;_diagnosticField = NULL;
-    delete _derivedField;_derivedField = NULL;
-    _observers = NULL; // :KLUDGE: Use shared pointer. _observers held by physics.
-    delete _logger;_logger = NULL;
+    _physics.reset();
+    _observers.reset();
+    _auxiliaryField.reset();
+    _diagnosticField.reset();
+    _derivedField.reset();
+    _logger.reset();
 
     PYLITH_METHOD_END;
 } // deallocate
@@ -80,7 +77,7 @@ pylith::feassemble::PhysicsImplementation::getPhysicsLabelValue(void) const {
 // Get auxiliary field.
 const pylith::topology::Field*
 pylith::feassemble::PhysicsImplementation::getAuxiliaryField(void) const {
-    return _auxiliaryField;
+    return _auxiliaryField.get();
 } // getAuxiliaryField
 
 
@@ -88,7 +85,7 @@ pylith::feassemble::PhysicsImplementation::getAuxiliaryField(void) const {
 // Get diagnostic field.
 const pylith::topology::Field*
 pylith::feassemble::PhysicsImplementation::getDiagnosticField(void) const {
-    return _diagnosticField;
+    return _diagnosticField.get();
 } // getDiagnosticField
 
 
@@ -96,15 +93,15 @@ pylith::feassemble::PhysicsImplementation::getDiagnosticField(void) const {
 // Get derived field.
 const pylith::topology::Field*
 pylith::feassemble::PhysicsImplementation::getDerivedField(void) const {
-    return _derivedField;
+    return _derivedField.get();
 } // getDerivedField
 
 
 // ------------------------------------------------------------------------------------------------
 // Notify observers of current solution.
 void
-pylith::feassemble::PhysicsImplementation::notifyObservers(const PylithReal t,
-                                                           const PylithInt tindex,
+pylith::feassemble::PhysicsImplementation::notifyObservers(const pylith::real t,
+                                                           const pylith::integer tindex,
                                                            const pylith::topology::Field& solution,
                                                            const pylith::problems::Observer::NotificationType notification) {
     if (!_observers) {

@@ -29,12 +29,11 @@
 
 // ------------------------------------------------------------------------------------------------
 // Default constructor.
-pylith::feassemble::Constraint::Constraint(pylith::problems::Physics* const physics) :
+pylith::feassemble::Constraint::Constraint(const std::shared_ptr<pylith::problems::Physics>& physics) :
     PhysicsImplementation(physics),
     _subfieldName(""),
     _labelName(""),
-    _labelValue(1),
-    _boundaryMesh(NULL) {}
+    _labelValue(1) {}
 
 
 // ------------------------------------------------------------------------------------------------
@@ -50,7 +49,7 @@ void
 pylith::feassemble::Constraint::deallocate(void) {
     PYLITH_METHOD_BEGIN;
 
-    delete _boundaryMesh;_boundaryMesh = NULL;
+    _boundaryMesh.reset();
 
     PYLITH_METHOD_END;
 } // deallocate
@@ -122,22 +121,20 @@ pylith::feassemble::Constraint::getLabelValue(void) const {
 // ------------------------------------------------------------------------------------------------
 // Set indices of constrained degrees of freedom at each location.
 void
-pylith::feassemble::Constraint::setConstrainedDOF(const int* flags,
-                                                  const int size) {
+pylith::feassemble::Constraint::setConstrainedDOF(const pylith::integer_array& dof) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("setConstrainedDOF(flags="<<flags<<", size="<<size<<")");
+    PYLITH_JOURNAL_DEBUG("setConstrainedDOF(#dof="<<dof.size()<<")");
 
-    assert((size > 0 && flags) || (!size && !flags));
-
+    const size_t size = dof.size();
     _constrainedDOF.resize(size);
     for (int i = 0; i < size; ++i) {
-        if (flags[i] < 0) {
+        if (dof[i] < 0) {
             std::ostringstream msg;
             assert(_physics);
-            msg << "Constrained DOF '" << flags[i] << "' must be nonnegative in constraint component '" << _physics->getIdentifier() << "'.";
+            msg << "Constrained DOF '" << dof[i] << "' must be nonnegative in constraint component '" << _physics->getIdentifier() << "'.";
             throw std::runtime_error(msg.str());
         } // if
-        _constrainedDOF[i] = flags[i];
+        _constrainedDOF[i] = dof[i];
     } // for
 
     PYLITH_METHOD_END;
@@ -146,7 +143,7 @@ pylith::feassemble::Constraint::setConstrainedDOF(const int* flags,
 
 // ------------------------------------------------------------------------------------------------
 // Get indices of constrained degrees of freedom.
-const pylith::int_array&
+const pylith::integer_array&
 pylith::feassemble::Constraint::getConstrainedDOF(void) const {
     return _constrainedDOF;
 } // getConstrainedDOF
@@ -178,18 +175,18 @@ pylith::feassemble::Constraint::setKernelsDiagnosticField(const std::vector<Proj
 void
 pylith::feassemble::Constraint::initialize(const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("initialize(solution="<<solution.getLabel()<<")");
+    PYLITH_JOURNAL_DEBUG("initialize(solution="<<solution.getName()<<")");
 
     const char* componentName = _physics->getFullIdentifier();
-    delete _boundaryMesh;_boundaryMesh = pylith::topology::MeshOps::createLowerDimMesh(solution.getMesh(), _labelName.c_str(), _labelValue, componentName);
+    _boundaryMesh = pylith::topology::MeshOps::createLowerDimMesh(solution.getMesh(), _labelName.c_str(), _labelValue, componentName);
     assert(_boundaryMesh);
     PetscDM dmBoundary = _boundaryMesh->getDM();assert(dmBoundary);
     pylith::topology::CoordsVisitor::optimizeClosure(dmBoundary);
 
     assert(_physics);
-    _observers = _physics->getObservers(); // Memory managed by Physics
+    _observers = _physics->getObservers();
     if (_observers) {
-        _observers->setPhysicsImplementation(this);
+        _observers->setPhysicsImplementation(shared_from_this());
         _observers->setTimeScale(_physics->getNormalizer().getTimeScale());
     } // if
 
@@ -200,9 +197,9 @@ pylith::feassemble::Constraint::initialize(const pylith::topology::Field& soluti
 // ------------------------------------------------------------------------------------------------
 // Update at end of time step.
 void
-pylith::feassemble::Constraint::poststep(const PylithReal t,
-                                         const PylithInt tindex,
-                                         const PylithReal dt,
+pylith::feassemble::Constraint::poststep(const pylith::real t,
+                                         const pylith::integer tindex,
+                                         const pylith::real dt,
                                          const pylith::topology::Field& solution,
                                          const pylith::problems::Observer::NotificationType notification) {
     PYLITH_METHOD_BEGIN;
@@ -217,7 +214,7 @@ pylith::feassemble::Constraint::poststep(const PylithReal t,
 // ---------------------------------------------------------------------------------------------------------------------
 // Set auxiliary field values for current time.
 void
-pylith::feassemble::Constraint::setState(const PylithReal t) {
+pylith::feassemble::Constraint::setState(const pylith::real t) {
     PYLITH_METHOD_BEGIN;
     PYLITH_JOURNAL_DEBUG("setState(t="<<t<<") empty method");
 
@@ -240,25 +237,25 @@ pylith::feassemble::Constraint::_computeDiagnosticField(void) {
 
     assert(_auxiliaryField);
     assert(_diagnosticField);
-    const PylithScalar t = 0.0;
-    const PylithScalar dt = 0.0;
+    const pylith::real t = 0.0;
+    const pylith::real dt = 0.0;
     _setKernelConstants(*_auxiliaryField, dt);
 
     const size_t numKernels = _kernelsDiagnosticField.size();
     assert(numKernels > 0);
-    PetscBdPointFunc* kernelsArray = (numKernels > 0) ? new PetscBdPointFunc[numKernels] : NULL;
+    PetscBdPointFunc* kernelsArray = (numKernels > 0) ? new PetscBdPointFunc[numKernels] : nullptr;
     for (size_t iKernel = 0; iKernel < numKernels; ++iKernel) {
         const pylith::topology::Field::SubfieldInfo& sinfo = _diagnosticField->getSubfieldInfo(_kernelsDiagnosticField[iKernel].subfield.c_str());
         kernelsArray[sinfo.index] = _kernelsDiagnosticField[iKernel].f;
     } // for
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     PetscDM diagnosticDM = _diagnosticField->getDM();
-    PetscDMLabel diagnosticFieldLabel = NULL;
-    const PetscInt labelValue = 1;
+    PetscDMLabel diagnosticFieldLabel = nullptr;
+    const pylith::integer labelValue = 1;
     err = DMGetLabel(diagnosticDM, "output", &diagnosticFieldLabel);PYLITH_CHECK_ERROR(err);
-    err = DMProjectBdFieldLabelLocal(diagnosticDM, t, diagnosticFieldLabel, 1, &labelValue, PETSC_DETERMINE, NULL, _auxiliaryField->getLocalVector(), kernelsArray, INSERT_VALUES, _diagnosticField->getLocalVector());PYLITH_CHECK_ERROR(err);
-    delete[] kernelsArray;kernelsArray = NULL;
+    err = DMProjectBdFieldLabelLocal(diagnosticDM, t, diagnosticFieldLabel, 1, &labelValue, PETSC_DETERMINE, nullptr, _auxiliaryField->getLocalVector(), kernelsArray, INSERT_VALUES, _diagnosticField->getLocalVector());PYLITH_CHECK_ERROR(err);
+    delete[] kernelsArray;kernelsArray = nullptr;
 
     pythia::journal::debug_t debug(GenericComponent::getName());
     if (debug.state()) {
@@ -274,23 +271,24 @@ pylith::feassemble::Constraint::_computeDiagnosticField(void) {
 // Set constants used in finite-element kernels (point-wise functions).
 void
 pylith::feassemble::Constraint::_setKernelConstants(const pylith::topology::Field& solution,
-                                                    const PylithReal dt) const {
+                                                    const pylith::real dt) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("_setKernelConstants(solution="<<solution.getLabel()<<", dt="<<dt<<")");
+    PYLITH_JOURNAL_DEBUG("_setKernelConstants(solution="<<solution.getName()<<", dt="<<dt<<")");
 
     assert(_physics);
     const pylith::real_array& constants = _physics->getKernelConstants(dt);
 
-    PetscDS prob = NULL;
+    PetscDS prob = nullptr;
     PetscDM dmSoln = solution.getDM();assert(dmSoln);
 
-    // :KLUDGE: Potentially we may have multiple PetscDS objects. This assumes that the first one (with a NULL label) is
+    // :KLUDGE: Potentially we may have multiple PetscDS objects. This assumes that the first one (with a nullptr label)
+    // is
     // the correct one.
     PetscErrorCode err = DMGetDS(dmSoln, &prob);PYLITH_CHECK_ERROR(err);assert(prob);
     if (constants.size() > 0) {
         err = PetscDSSetConstants(prob, constants.size(), const_cast<double*>(&constants[0]));PYLITH_CHECK_ERROR(err);
     } else {
-        err = PetscDSSetConstants(prob, 0, NULL);PYLITH_CHECK_ERROR(err);
+        err = PetscDSSetConstants(prob, 0, nullptr);PYLITH_CHECK_ERROR(err);
     } // if/else
 
     PYLITH_METHOD_END;

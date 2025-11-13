@@ -47,7 +47,7 @@ pylith::TestIncompressibleElasticity::TestIncompressibleElasticity(TestIncompres
 // ------------------------------------------------------------------------------------------------
 // Destructor.
 pylith::TestIncompressibleElasticity::~TestIncompressibleElasticity(void) {
-    delete _data;_data = NULL;
+    delete _data;_data = nullptr;
 } // destructor
 
 
@@ -59,7 +59,7 @@ pylith::TestIncompressibleElasticity::_initialize(void) {
     assert(_mesh);
     assert(_data);
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     if (_data->useAsciiMesh) {
         pylith::meshio::MeshIOAscii iohandler;
@@ -67,7 +67,7 @@ pylith::TestIncompressibleElasticity::_initialize(void) {
         iohandler.read(_mesh);assert(_mesh);
     } else {
         if (_data->meshOptions) {
-            err = PetscOptionsInsertString(NULL, _data->meshOptions);PYLITH_CHECK_ERROR(err);
+            err = PetscOptionsInsertString(nullptr, _data->meshOptions);PYLITH_CHECK_ERROR(err);
         } // if
         pylith::meshio::MeshIOPetsc iohandler;
         iohandler.setFilename(_data->meshFilename);
@@ -107,7 +107,7 @@ pylith::TestIncompressibleElasticity::_initialize(void) {
     // Set up solution field.
     assert(!_solution);
     _solution = new pylith::topology::Field(*_mesh);assert(_solution);
-    _solution->setLabel("solution");
+    _solution->setName("solution");
     pylith::problems::SolutionFactory factory(*_solution, _data->normalizer);
     int iField = 0;
     factory.addDisplacement(_data->solnDiscretizations[iField++]);
@@ -135,13 +135,13 @@ pylith::TestIncompressibleElasticity::_setExactSolution(void) {
 
     const pylith::topology::Field* solution = _problem->getSolution();assert(solution);
 
-    PetscErrorCode err = 0;
-    PetscDS ds = NULL;
+    PetscErrorCode err = PETSC_SUCCESS;
+    PetscDS ds = nullptr;
     err = DMGetDS(solution->getDM(), &ds);PYLITH_CHECK_ERROR(err);
     for (size_t i = 0; i < _data->numSolnSubfields; ++i) {
-        err = PetscDSSetExactSolution(ds, i, _data->exactSolnFns[i], NULL);PYLITH_CHECK_ERROR(err);
+        err = PetscDSSetExactSolution(ds, i, _data->exactSolnFns[i], nullptr);PYLITH_CHECK_ERROR(err);
         if (_data->exactSolnDotFns) {
-            err = PetscDSSetExactSolutionTimeDerivative(ds, i, _data->exactSolnDotFns[i], NULL);PYLITH_CHECK_ERROR(err);
+            err = PetscDSSetExactSolutionTimeDerivative(ds, i, _data->exactSolnDotFns[i], nullptr);PYLITH_CHECK_ERROR(err);
         } // if
     } // for
 } // _setExactSolution
@@ -151,9 +151,9 @@ pylith::TestIncompressibleElasticity::_setExactSolution(void) {
 // Constructor
 pylith::TestIncompressibleElasticity_Data::TestIncompressibleElasticity_Data(void) :
     spaceDim(2),
-    meshFilename(NULL),
-    meshOptions(NULL),
-    boundaryLabel(NULL),
+    meshFilename(nullptr),
+    meshOptions(nullptr),
+    boundaryLabel(nullptr),
     useAsciiMesh(true),
 
     jacobianConvergenceRate(1.0),
@@ -165,14 +165,14 @@ pylith::TestIncompressibleElasticity_Data::TestIncompressibleElasticity_Data(voi
     dt(0.05),
     formulation(pylith::problems::Physics::QUASISTATIC),
 
-    gravityField(NULL),
+    gravityField(nullptr),
 
     numSolnSubfields(0),
-    solnDiscretizations(NULL),
+    solnDiscretizations(nullptr),
 
     numAuxSubfields(0),
-    auxSubfields(NULL),
-    auxDiscretizations(NULL) {
+    auxSubfields(nullptr),
+    auxDiscretizations(nullptr) {
     auxDB.setDescription("material auxiliary field spatial database");
     cs.setSpaceDim(spaceDim);
 } // constructor
@@ -182,9 +182,9 @@ pylith::TestIncompressibleElasticity_Data::TestIncompressibleElasticity_Data(voi
 // Destructor
 pylith::TestIncompressibleElasticity_Data::~TestIncompressibleElasticity_Data(void) {
     for (size_t i = 0; i < bcs.size(); ++i) {
-        delete bcs[i];bcs[i] = NULL;
+        delete bcs[i];bcs[i] = nullptr;
     } // for
-    delete gravityField;gravityField = NULL;
+    delete gravityField;gravityField = nullptr;
 } // destructor
 
 

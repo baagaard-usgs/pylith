@@ -15,7 +15,7 @@
 
 #include "pylith/feassemble/feassemblefwd.hh" // USES PhysicsImplementation
 #include "pylith/topology/topologyfwd.hh" // USES Field
-#include "pylith/utils/types.hh" // USES PylithReal, PylithInt
+#include "pylith/utils/types.hh" // USES pylith::real, pylith::integer
 
 class pylith::problems::ObserverPhysics : public pylith::problems::Observer {
     friend class TestObserverPhysics; // unit testing
@@ -37,7 +37,7 @@ public:
      *
      * @param[in] physics Physics implementation to observe.
      */
-    void setPhysicsImplementation(const std::shared_ptr<pylith::feassemble::PhysicsImplementation>& const physics);
+    void setPhysicsImplementation(const std::shared_ptr<pylith::feassemble::PhysicsImplementation>& physics);
 
     /** Set time scale.
      *
@@ -69,13 +69,13 @@ public:
     // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
 protected:
 
-    const std::shared_ptr<pylith::feassemble::PhysicsImplementation> _physics; ///< Physics implementation to observe.
+    std::shared_ptr<pylith::feassemble::PhysicsImplementation> _physics; ///< Physics implementation to observe.
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    ObserverPhysics(const ObserverPhysics&); ///< Not implemented.
-    const ObserverPhysics& operator=(const ObserverPhysics&); ///< Not implemented
+    ObserverPhysics(const ObserverPhysics&) = delete;
+    const ObserverPhysics& operator=(const ObserverPhysics&) = delete;
 
 }; // ObserverPhysics
 

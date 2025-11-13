@@ -41,7 +41,7 @@ inline
 pylith::feassemble::FEKernelKey*
 pylith::feassemble::FEKernelKey::create(PetscWeakForm weakForm,
                                         const char* name,
-                                        const int value) {
+                                        const pylith::integer value) {
     FEKernelKey* key = new FEKernelKey();assert(key);
     if (key) {
         key->_weakForm = weakForm;
@@ -75,19 +75,19 @@ pylith::feassemble::FEKernelKey::getValue(void) const {
 inline
 PetscFormKey
 pylith::feassemble::FEKernelKey::getPetscKey(const pylith::topology::Field& solution,
-                                             const PetscInt equationPart,
+                                             const pylith::integer equationPart,
                                              const char* fieldTrial,
                                              const char* fieldBasis) const {
     PetscDM dmSoln = solution.getDM();
-    PetscDMLabel label = NULL;
+    PetscDMLabel label = nullptr;
     PetscErrorCode err = DMGetLabel(dmSoln, _name.c_str(), &label);PYLITH_CHECK_ERROR(err);
-    PetscInt fieldIndex = -1;
+    pylith::integer fieldIndex = -1;
     if (fieldTrial && !fieldBasis) {
         fieldIndex = solution.getSubfieldInfo(fieldTrial).index;assert(fieldIndex >= 0);
     } else if (fieldTrial && fieldBasis) {
-        PetscInt i_field = -1;
-        PetscInt j_field = -1;
-        PetscInt numFields = 0;
+        pylith::integer i_field = -1;
+        pylith::integer j_field = -1;
+        pylith::integer numFields = 0;
         err = DMGetNumFields(dmSoln, &numFields);PYLITH_CHECK_ERROR(err);
         i_field = solution.getSubfieldInfo(fieldTrial).index;assert(i_field >= 0);
         j_field = solution.getSubfieldInfo(fieldBasis).index;assert(j_field >= 0);

@@ -40,12 +40,12 @@ public:
                 void init(void);
 
                 static pylith::utils::EventLogger logger;
-                static PylithInt initialize;
-                static PylithInt poststep;
-                static PylithInt setState;
-                static PylithInt updateStateVars;
-                static PylithInt computeDiagnosticField;
-                static PylithInt computeDerivedField;
+                static pylith::integer initialize;
+                static pylith::integer poststep;
+                static pylith::integer setState;
+                static pylith::integer updateStateVars;
+                static pylith::integer computeDiagnosticField;
+                static pylith::integer computeDerivedField;
             };
 
         }; // _Integrator
@@ -53,8 +53,8 @@ public:
 } // pylith
 
 pylith::utils::EventLogger pylith::feassemble::_Integrator::Events::logger;
-PylithInt pylith::feassemble::_Integrator::Events::initialize;
-PylithInt pylith::feassemble::_Integrator::Events::poststep;
+pylith::integer pylith::feassemble::_Integrator::Events::initialize;
+pylith::integer pylith::feassemble::_Integrator::Events::poststep;
 
 // ------------------------------------------------------------------------------------------------
 void
@@ -68,7 +68,7 @@ pylith::feassemble::_Integrator::Events::init(void) {
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Constructor
-pylith::feassemble::Integrator::Integrator(pylith::problems::Physics* const physics) :
+pylith::feassemble::Integrator::Integrator(std::shared_ptr<pylith::problems::Physics>& physics) :
     PhysicsImplementation(physics),
     _labelName(""),
     _labelValue(1),
@@ -179,24 +179,25 @@ pylith::feassemble::Integrator::setLHSJacobianLumpedTriggers(const int value) {
 void
 pylith::feassemble::Integrator::initialize(const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("initialize(solution="<<solution.getLabel()<<")");
+    PYLITH_JOURNAL_DEBUG("initialize(solution="<<solution.getName()<<")");
     _Integrator::Events::logger.eventBegin(_Integrator::Events::initialize);
 
     const pylith::topology::Mesh& physicsDomainMesh = getPhysicsDomainMesh();
-    delete _auxiliaryField;_auxiliaryField = _physics->createAuxiliaryField(solution, physicsDomainMesh);
-    delete _diagnosticField;_diagnosticField = _physics->createDiagnosticField(solution, physicsDomainMesh);
+    _auxiliaryField = _physics->createAuxiliaryField(solution, physicsDomainMesh);
+    _diagnosticField = _physics->createDiagnosticField(solution, physicsDomainMesh);
     _computeDiagnosticField();
+
     _observers = _physics->getObservers(); // Memory managed by Physics
     if (_observers) {
-        _observers->setPhysicsImplementation(this);
+        _observers->setPhysicsImplementation(shared_from_this());
         _observers->setTimeScale(_physics->getNormalizer().getTimeScale());
 
         const pylith::problems::Observer::NotificationType notification = pylith::problems::ObserverPhysics::DIAGNOSTIC;
         _observers->notifyObservers(0.0, 0, solution, notification);
     } // if
-    delete _diagnosticField;_diagnosticField = NULL;
+    _diagnosticField = nullptr;
 
-    delete _derivedField;_derivedField = _physics->createDerivedField(solution, physicsDomainMesh);
+    _derivedField = _physics->createDerivedField(solution, physicsDomainMesh);
 
     _Integrator::Events::logger.eventEnd(_Integrator::Events::initialize);
     PYLITH_METHOD_END;
@@ -206,7 +207,7 @@ pylith::feassemble::Integrator::initialize(const pylith::topology::Field& soluti
 // ---------------------------------------------------------------------------------------------------------------------
 // Set auxiliary field values for current time.
 void
-pylith::feassemble::Integrator::setState(const PylithReal t) {
+pylith::feassemble::Integrator::setState(const pylith::real t) {
     PYLITH_METHOD_BEGIN;
     PYLITH_JOURNAL_DEBUG("setState(t="<<t<<") empty method");
 
@@ -217,9 +218,9 @@ pylith::feassemble::Integrator::setState(const PylithReal t) {
 // ---------------------------------------------------------------------------------------------------------------------
 // Update auxiliary fields at end of time step.
 void
-pylith::feassemble::Integrator::poststep(const PylithReal t,
-                                         const PylithInt tindex,
-                                         const PylithReal dt,
+pylith::feassemble::Integrator::poststep(const pylith::real t,
+                                         const pylith::integer tindex,
+                                         const pylith::real dt,
                                          const pylith::topology::Field& solution,
                                          const pylith::problems::Observer::NotificationType notification) {
     PYLITH_METHOD_BEGIN;
@@ -239,25 +240,25 @@ pylith::feassemble::Integrator::poststep(const PylithReal t,
 // Set constants used in finite-element kernels (point-wise functions).
 void
 pylith::feassemble::Integrator::_setKernelConstants(const pylith::topology::Field& solution,
-                                                    const PylithReal dt) const {
+                                                    const pylith::real dt) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("_setKernelConstants(solution="<<solution.getLabel()<<", dt="<<dt<<")");
+    PYLITH_JOURNAL_DEBUG("_setKernelConstants(solution="<<solution.getName()<<", dt="<<dt<<")");
 
     assert(_physics);
     const pylith::real_array& constants = _physics->getKernelConstants(dt);
 
     PetscDM dmSoln = solution.getDM();assert(dmSoln);
-    PetscInt numDS = 0;
+    pylith::integer numDS = 0;
     PetscErrorCode err = DMGetNumDS(dmSoln, &numDS);PYLITH_CHECK_ERROR(err);
-    for (PetscInt i = 0; i < numDS; ++i) {
-        PetscDMLabel* label = NULL;
-        PetscIS* fields = NULL;
-        PetscDS ds = NULL;
-        err = DMGetRegionNumDS(dmSoln, i, label, fields, &ds, NULL);PYLITH_CHECK_ERROR(err);
+    for (pylith::integer i = 0; i < numDS; ++i) {
+        PetscDMLabel* label = nullptr;
+        PetscIS* fields = nullptr;
+        PetscDS ds = nullptr;
+        err = DMGetRegionNumDS(dmSoln, i, label, fields, &ds, nullptr);PYLITH_CHECK_ERROR(err);
         if (constants.size() > 0) {
             err = PetscDSSetConstants(ds, constants.size(), const_cast<double*>(&constants[0]));PYLITH_CHECK_ERROR(err);
         } else {
-            err = PetscDSSetConstants(ds, 0, NULL);PYLITH_CHECK_ERROR(err);
+            err = PetscDSSetConstants(ds, 0, nullptr);PYLITH_CHECK_ERROR(err);
         } // if/else
     } // for
 
@@ -268,11 +269,11 @@ pylith::feassemble::Integrator::_setKernelConstants(const pylith::topology::Fiel
 // ---------------------------------------------------------------------------------------------------------------------
 // Update state variables as needed.
 void
-pylith::feassemble::Integrator::_updateStateVars(const PylithReal t,
-                                                 const PylithReal dt,
+pylith::feassemble::Integrator::_updateStateVars(const pylith::real t,
+                                                 const pylith::real dt,
                                                  const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("_updateStateVars(t="<<t<<", dt="<<dt<<", solution="<<solution.getLabel()<<") empty method");
+    PYLITH_JOURNAL_DEBUG("_updateStateVars(t="<<t<<", dt="<<dt<<", solution="<<solution.getName()<<") empty method");
 
     // Default is to do nothing.
 
@@ -296,11 +297,11 @@ pylith::feassemble::Integrator::_computeDiagnosticField(void) {
 // ---------------------------------------------------------------------------------------------------------------------
 // Compute field derived from solution and auxiliary field.
 void
-pylith::feassemble::Integrator::_computeDerivedField(const PylithReal t,
-                                                     const PylithReal dt,
+pylith::feassemble::Integrator::_computeDerivedField(const pylith::real t,
+                                                     const pylith::real dt,
                                                      const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("_computeDerivedField(t="<<t<<", dt="<<dt<<", solution="<<solution.getLabel()<<") empty method");
+    PYLITH_JOURNAL_DEBUG("_computeDerivedField(t="<<t<<", dt="<<dt<<", solution="<<solution.getName()<<") empty method");
 
     // Default is to do nothing.
 

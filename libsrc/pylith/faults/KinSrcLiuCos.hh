@@ -171,8 +171,8 @@ protected:
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    KinSrcLiuCos(const KinSrcLiuCos&); ///< Not implemented
-    const KinSrcLiuCos& operator=(const KinSrcLiuCos&); ///< Not implemented
+    KinSrcLiuCos(const KinSrcLiuCos&) = delete;
+    const KinSrcLiuCos& operator=(const KinSrcLiuCos&) = delete;
 
 }; // class KinSrcLiuCos
 

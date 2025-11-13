@@ -24,7 +24,6 @@
 // ------------------------------------------------------------------------------------------------
 // Constructor
 pylith::meshio::OutputSolnBoundary::OutputSolnBoundary(void) :
-    _boundaryMesh(NULL),
     _labelName(""),
     _labelValue(1) {
     PyreComponent::setName("outputsolnboundary");
@@ -46,7 +45,7 @@ pylith::meshio::OutputSolnBoundary::deallocate(void) {
 
     OutputSoln::deallocate();
 
-    delete _boundaryMesh;_boundaryMesh = NULL;
+    _boundaryMesh.reset();
 
     PYLITH_METHOD_END;
 } // deallocate
@@ -81,7 +80,7 @@ pylith::meshio::OutputSolnBoundary::setLabelValue(const int value) {
 void
 pylith::meshio::OutputSolnBoundary::verifyConfiguration(const pylith::topology::Field& solution) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("verifyConfiguration(solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("verifyConfiguration(solution="<<solution.getName()<<")");
 
     OutputSoln::verifyConfiguration(solution);
 
@@ -102,11 +101,11 @@ pylith::meshio::OutputSolnBoundary::verifyConfiguration(const pylith::topology::
 // ------------------------------------------------------------------------------------------------
 // Write data for step in solution.
 void
-pylith::meshio::OutputSolnBoundary::_writeSolnStep(const PylithReal t,
-                                                   const PylithInt tindex,
+pylith::meshio::OutputSolnBoundary::_writeSolnStep(const pylith::real t,
+                                                   const pylith::integer tindex,
                                                    const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("_writeSolnStep(t="<<t<<", tindex="<<tindex<<", solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("_writeSolnStep(t="<<t<<", tindex="<<tindex<<", solution="<<solution.getName()<<")");
 
     if (!_boundaryMesh) {
         const char* componentName = this->getFullIdentifier();
@@ -121,7 +120,7 @@ pylith::meshio::OutputSolnBoundary::_writeSolnStep(const PylithReal t,
     for (size_t iField = 0; iField < numSubfieldNames; iField++) {
         assert(solution.hasSubfield(subfieldNames[iField].c_str()));
 
-        OutputSubfield* subfield = NULL;
+        OutputSubfield* subfield = nullptr;
         subfield = OutputObserver::_getSubfield(solution, *_boundaryMesh, subfieldNames[iField].c_str());assert(subfield);
         subfield->project(solutionVector);
 

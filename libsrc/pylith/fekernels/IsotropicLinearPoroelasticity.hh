@@ -95,14 +95,14 @@ class pylith::fekernels::IsotropicLinearPoroelasticity {
 public:
 
     struct Context {
-        PylithReal pressure;
-        PylithReal trace_strain;
-        PylithReal trace_strain_t;
-        PylithReal fluidViscosity; // Poroelastic Auxiliaries
-        PylithReal shearModulus; // Rheologic Auxiliaries
-        PylithReal drainedBulkModulus;
-        PylithReal biotCoefficient;
-        PylithReal biotModulus;
+        pylith::real pressure;
+        pylith::real trace_strain;
+        pylith::real trace_strain_t;
+        pylith::real fluidViscosity; // Poroelastic Auxiliaries
+        pylith::real shearModulus; // Rheologic Auxiliaries
+        pylith::real drainedBulkModulus;
+        pylith::real biotCoefficient;
+        pylith::real biotModulus;
         pylith::fekernels::Tensor permeability;
         pylith::fekernels::Tensor refStress;
         pylith::fekernels::Tensor refStrain;
@@ -114,37 +114,37 @@ public:
     // --------------------------------------------------------------------------------------------
     static inline
     void setContext(Context* context,
-                    const PylithInt dim,
-                    const PylithInt numS,
-                    const PylithInt numA,
-                    const PylithInt sOff[],
-                    const PylithInt sOff_x[],
+                    const pylith::integer dim,
+                    const pylith::integer numS,
+                    const pylith::integer numA,
+                    const pylith::integer sOff[],
+                    const pylith::integer sOff_x[],
                     const PylithScalar s[],
                     const PylithScalar s_t[],
                     const PylithScalar s_x[],
-                    const PylithInt aOff[],
-                    const PylithInt aOff_x[],
+                    const pylith::integer aOff[],
+                    const pylith::integer aOff_x[],
                     const PylithScalar a[],
                     const PylithScalar a_t[],
                     const PylithScalar a_x[],
-                    const PylithReal t,
+                    const pylith::real t,
                     const PylithScalar x[],
-                    const PylithInt numConstants,
+                    const pylith::integer numConstants,
                     const PylithScalar constants[],
                     const pylith::fekernels::TensorOps& tensorOps) {
         assert(context);
 
         // Incoming solution subfields
-        const PylithInt i_pressure = 1;
+        const pylith::integer i_pressure = 1;
 
         // Incoming poroelastic auxiliary subfields
-        const PylithInt i_fluidViscosity = 2;
+        const pylith::integer i_fluidViscosity = 2;
 
         // Incoming rheology auxiliary subfields.
-        const PylithInt i_shearModulus = numA - 5;
-        const PylithInt i_drainedBulkModulus = numA - 4;
-        const PylithInt i_biotCoefficient = numA - 3;
-        const PylithInt i_biotModulus = numA - 2;
+        const pylith::integer i_shearModulus = numA - 5;
+        const pylith::integer i_drainedBulkModulus = numA - 4;
+        const pylith::integer i_biotCoefficient = numA - 3;
+        const pylith::integer i_biotModulus = numA - 2;
 
         assert(numA >= 3); // also have density
         assert(s);
@@ -175,28 +175,28 @@ public:
     // --------------------------------------------------------------------------------------------
     static inline
     void setContextIsotropicPerm(Context* context,
-                                 const PylithInt dim,
-                                 const PylithInt numS,
-                                 const PylithInt numA,
-                                 const PylithInt sOff[],
-                                 const PylithInt sOff_x[],
+                                 const pylith::integer dim,
+                                 const pylith::integer numS,
+                                 const pylith::integer numA,
+                                 const pylith::integer sOff[],
+                                 const pylith::integer sOff_x[],
                                  const PylithScalar s[],
                                  const PylithScalar s_t[],
                                  const PylithScalar s_x[],
-                                 const PylithInt aOff[],
-                                 const PylithInt aOff_x[],
+                                 const pylith::integer aOff[],
+                                 const pylith::integer aOff_x[],
                                  const PylithScalar a[],
                                  const PylithScalar a_t[],
                                  const PylithScalar a_x[],
-                                 const PylithReal t,
+                                 const pylith::real t,
                                  const PylithScalar x[],
-                                 const PylithInt numConstants,
+                                 const pylith::integer numConstants,
                                  const PylithScalar constants[],
                                  const pylith::fekernels::TensorOps& tensorOps) {
         assert(context);
 
         // Incoming auxiliary fields.
-        const PylithInt i_isotropicPermeability = numA - 1;
+        const pylith::integer i_isotropicPermeability = numA - 1;
 
         // Using isotropic permeability
         tensorOps.fromScalar(a[aOff[i_isotropicPermeability]], &context->permeability);
@@ -206,28 +206,28 @@ public:
     // --------------------------------------------------------------------------------------------
     static inline
     void setContextTensorPerm(Context* context,
-                              const PylithInt dim,
-                              const PylithInt numS,
-                              const PylithInt numA,
-                              const PylithInt sOff[],
-                              const PylithInt sOff_x[],
+                              const pylith::integer dim,
+                              const pylith::integer numS,
+                              const pylith::integer numA,
+                              const pylith::integer sOff[],
+                              const pylith::integer sOff_x[],
                               const PylithScalar s[],
                               const PylithScalar s_t[],
                               const PylithScalar s_x[],
-                              const PylithInt aOff[],
-                              const PylithInt aOff_x[],
+                              const pylith::integer aOff[],
+                              const pylith::integer aOff_x[],
                               const PylithScalar a[],
                               const PylithScalar a_t[],
                               const PylithScalar a_x[],
-                              const PylithReal t,
+                              const pylith::real t,
                               const PylithScalar x[],
-                              const PylithInt numConstants,
+                              const pylith::integer numConstants,
                               const PylithScalar constants[],
                               const pylith::fekernels::TensorOps& tensorOps) {
         assert(context);
 
         // Incoming auxiliary fields.
-        const PylithInt i_tensorPermeability = numA - 1;
+        const pylith::integer i_tensorPermeability = numA - 1;
 
         // Using tensor permeability
         tensorOps.fromVector(&a[aOff[i_tensorPermeability]], &context->permeability);
@@ -237,28 +237,28 @@ public:
     // --------------------------------------------------------------------------------------------
     static inline
     void setContextRefState(Context* context,
-                            const PylithInt dim,
-                            const PylithInt numS,
-                            const PylithInt numA,
-                            const PylithInt sOff[],
-                            const PylithInt sOff_x[],
+                            const pylith::integer dim,
+                            const pylith::integer numS,
+                            const pylith::integer numA,
+                            const pylith::integer sOff[],
+                            const pylith::integer sOff_x[],
                             const PylithScalar s[],
                             const PylithScalar s_t[],
                             const PylithScalar s_x[],
-                            const PylithInt aOff[],
-                            const PylithInt aOff_x[],
+                            const pylith::integer aOff[],
+                            const pylith::integer aOff_x[],
                             const PylithScalar a[],
                             const PylithScalar a_t[],
                             const PylithScalar a_x[],
-                            const PylithReal t,
+                            const pylith::real t,
                             const PylithScalar x[],
-                            const PylithInt numConstants,
+                            const pylith::integer numConstants,
                             const PylithScalar constants[],
                             const pylith::fekernels::TensorOps& tensorOps) {
         assert(context);
         // Incoming auxiliary fields.
-        const PylithInt i_refStress = numA - 7;
-        const PylithInt i_refStrain = numA - 6;
+        const pylith::integer i_refStress = numA - 7;
+        const pylith::integer i_refStrain = numA - 6;
 
         // Reference stress and strain
         tensorOps.fromVector(&a[aOff[i_refStress]], &context->refStress);
@@ -269,27 +269,27 @@ public:
     // --------------------------------------------------------------------------------------------
     static inline
     void setContextQuasistatic(Context* context,
-                               const PylithInt dim,
-                               const PylithInt numS,
-                               const PylithInt numA,
-                               const PylithInt sOff[],
-                               const PylithInt sOff_x[],
+                               const pylith::integer dim,
+                               const pylith::integer numS,
+                               const pylith::integer numA,
+                               const pylith::integer sOff[],
+                               const pylith::integer sOff_x[],
                                const PylithScalar s[],
                                const PylithScalar s_t[],
                                const PylithScalar s_x[],
-                               const PylithInt aOff[],
-                               const PylithInt aOff_x[],
+                               const pylith::integer aOff[],
+                               const pylith::integer aOff_x[],
                                const PylithScalar a[],
                                const PylithScalar a_t[],
                                const PylithScalar a_x[],
-                               const PylithReal t,
+                               const pylith::real t,
                                const PylithScalar x[],
-                               const PylithInt numConstants,
+                               const pylith::integer numConstants,
                                const PylithScalar constants[],
                                const pylith::fekernels::TensorOps& tensorOps) {
         assert(context);
         // Incoming solution fields.
-        const PylithInt i_trace_strain = 2;
+        const pylith::integer i_trace_strain = 2;
         assert(sOff[i_trace_strain] >= 0);
 
         // Variables &c
@@ -300,29 +300,29 @@ public:
     // --------------------------------------------------------------------------------------------
     static inline
     void setContextDynamic(Context* context,
-                           const PylithInt dim,
-                           const PylithInt numS,
-                           const PylithInt numA,
-                           const PylithInt sOff[],
-                           const PylithInt sOff_x[],
+                           const pylith::integer dim,
+                           const pylith::integer numS,
+                           const pylith::integer numA,
+                           const pylith::integer sOff[],
+                           const pylith::integer sOff_x[],
                            const PylithScalar s[],
                            const PylithScalar s_t[],
                            const PylithScalar s_x[],
-                           const PylithInt aOff[],
-                           const PylithInt aOff_x[],
+                           const pylith::integer aOff[],
+                           const pylith::integer aOff_x[],
                            const PylithScalar a[],
                            const PylithScalar a_t[],
                            const PylithScalar a_x[],
-                           const PylithReal t,
+                           const pylith::real t,
                            const PylithScalar x[],
-                           const PylithInt numConstants,
+                           const pylith::integer numConstants,
                            const PylithScalar constants[],
                            const pylith::fekernels::TensorOps& tensorOps) {
         assert(context);
         // Incoming solution fields.
-        const PylithInt i_displacement = 0;
-        // const PylithInt i_pressure = 1;
-        const PylithInt i_velocity = 2;
+        const pylith::integer i_displacement = 0;
+        // const pylith::integer i_pressure = 1;
+        const pylith::integer i_velocity = 2;
 
         assert(sOff[i_displacement] >= 0);
         // assert(sOff[i_pressure] >= 0);
@@ -333,12 +333,12 @@ public:
         const PylithScalar *velocity_x = &s_x[sOff_x[i_velocity]];
 
         PylithScalar trace_strain = 0.0;
-        for (PylithInt d = 0; d < dim; ++d) {
+        for (pylith::integer d = 0; d < dim; ++d) {
             trace_strain += displacement_x[d * dim + d];
         }
 
         PylithScalar trace_strain_t = 0.0;
-        for (PylithInt d = 0; d < dim; ++d) {
+        for (pylith::integer d = 0; d < dim; ++d) {
             trace_strain_t += velocity_x[d * dim + d];
         }
 
@@ -398,17 +398,17 @@ public:
     /** Calculate mean (volumetric) stress WITHOUT reference stress and reference strain.
      */
     static inline
-    void meanStress(const PylithReal pressure,
-                    const PylithReal strainTrace,
-                    const PylithReal drainedBulkModulus,
-                    const PylithReal biotCoefficient,
+    void meanStress(const pylith::real pressure,
+                    const pylith::real strainTrace,
+                    const pylith::real drainedBulkModulus,
+                    const pylith::real biotCoefficient,
                     const pylith::fekernels::Tensor& strain,
                     pylith::fekernels::Tensor* stress) {
         assert(drainedBulkModulus > 0.0);
         assert(stress);
 
-        // const PylithReal strainTrace = strain.xx + strain.yy + strain.zz;
-        const PylithReal meanStress = drainedBulkModulus * strainTrace - biotCoefficient*pressure;
+        // const pylith::real strainTrace = strain.xx + strain.yy + strain.zz;
+        const pylith::real meanStress = drainedBulkModulus * strainTrace - biotCoefficient*pressure;
 
         stress->xx += meanStress;
         stress->yy += meanStress;
@@ -419,15 +419,15 @@ public:
     /** Calculate deviatoric stress WITHOUT reference stress and strain.
      */
     static inline
-    void deviatoricStress(const PylithReal strainTrace,
-                          const PylithReal shearModulus,
+    void deviatoricStress(const pylith::real strainTrace,
+                          const pylith::real shearModulus,
                           const pylith::fekernels::Tensor& strain,
                           pylith::fekernels::Tensor* stress) {
         assert(shearModulus > 0.0);
         assert(stress);
 
-        // const PylithReal strainTrace = strain.xx + strain.yy + strain.zz;
-        const PylithReal traceTerm = -2.0/3.0*shearModulus * strainTrace;
+        // const pylith::real strainTrace = strain.xx + strain.yy + strain.zz;
+        const pylith::real traceTerm = -2.0/3.0*shearModulus * strainTrace;
 
         stress->xx += 2.0*shearModulus*strain.xx + traceTerm;
         stress->yy += 2.0*shearModulus*strain.yy + traceTerm;
@@ -441,10 +441,10 @@ public:
     /** Calculate mean stress WITH reference stress and reference strain.
      */
     static inline
-    void meanStress_refState(const PylithReal pressure,
-                             const PylithReal strainTrace,
-                             const PylithReal drainedBulkModulus,
-                             const PylithReal biotCoefficient,
+    void meanStress_refState(const pylith::real pressure,
+                             const pylith::real strainTrace,
+                             const pylith::real drainedBulkModulus,
+                             const pylith::real biotCoefficient,
                              const pylith::fekernels::Tensor& refStress,
                              const pylith::fekernels::Tensor& refStrain,
                              const pylith::fekernels::Tensor& strain,
@@ -453,11 +453,11 @@ public:
         assert(drainedBulkModulus > 0.0);
         assert(stress);
 
-        // const PylithReal strainTrace = strain.xx + strain.yy + strain.zz;
-        const PylithReal refStrainTrace = refStrain.xx + refStrain.yy + refStrain.zz;
+        // const pylith::real strainTrace = strain.xx + strain.yy + strain.zz;
+        const pylith::real refStrainTrace = refStrain.xx + refStrain.yy + refStrain.zz;
 
-        const PylithReal meanRefStress = (refStress.xx + refStress.yy + refStress.zz) / 3.0;
-        const PylithReal meanStress = meanRefStress + drainedBulkModulus * (strainTrace - refStrainTrace) - biotCoefficient*pressure;
+        const pylith::real meanRefStress = (refStress.xx + refStress.yy + refStress.zz) / 3.0;
+        const pylith::real meanStress = meanRefStress + drainedBulkModulus * (strainTrace - refStrainTrace) - biotCoefficient*pressure;
 
         stress->xx += meanStress;
         stress->yy += meanStress;
@@ -468,8 +468,8 @@ public:
     /** Calculate deviatoric stress WITH reference stress and strain.
      */
     static inline
-    void deviatoricStress_refState(const PylithReal strainTrace,
-                                   const PylithReal shearModulus,
+    void deviatoricStress_refState(const pylith::real strainTrace,
+                                   const pylith::real shearModulus,
                                    const pylith::fekernels::Tensor& refStress,
                                    const pylith::fekernels::Tensor& refStrain,
                                    const pylith::fekernels::Tensor& strain,
@@ -477,10 +477,10 @@ public:
         assert(shearModulus > 0.0);
         assert(stress);
 
-        // const PylithReal strainTrace = strain.xx + strain.yy + strain.zz;
-        const PylithReal refStrainTrace = refStrain.xx + refStrain.yy + refStrain.zz;
-        const PylithReal meanRefStress = (refStress.xx + refStress.yy + refStress.zz) / 3.0;
-        const PylithReal traceTerm = -2.0/3.0*shearModulus * (strainTrace - refStrainTrace);
+        // const pylith::real strainTrace = strain.xx + strain.yy + strain.zz;
+        const pylith::real refStrainTrace = refStrain.xx + refStrain.yy + refStrain.zz;
+        const pylith::real meanRefStress = (refStress.xx + refStress.yy + refStress.zz) / 3.0;
+        const pylith::real traceTerm = -2.0/3.0*shearModulus * (strainTrace - refStrainTrace);
 
         stress->xx += refStress.xx - meanRefStress + 2.0*shearModulus*(strain.xx-refStrain.xx) + traceTerm;
         stress->yy += refStress.yy - meanRefStress + 2.0*shearModulus*(strain.yy-refStrain.yy) + traceTerm;
@@ -510,7 +510,7 @@ public:
         assert(context);
         assert(fluxRate);
 
-        const PylithInt dim = poroelasticContext.dim;
+        const pylith::integer dim = poroelasticContext.dim;
         // Solution Variables
         const PylithScalar *pressure_x = poroelasticContext.pressure_x;
 
@@ -526,8 +526,8 @@ public:
         PylithScalar fluxRateVector[3] = {0.0, 0.0, 0.0};
         tensorOps.toTensor(context->permeability, tensorPermeability);
 
-        for (PylithInt i = 0; i < dim; ++i) {
-            for (PylithInt j = 0; j < dim; j++) {
+        for (pylith::integer i = 0; i < dim; ++i) {
+            for (pylith::integer j = 0; j < dim; j++) {
                 fluxRateVector[i] += (tensorPermeability[i * dim + j] / fluidViscosity) * (pressure_x[j] - bodyForce[j] - fluidDensity * gravityField[j]);
             } // for
         } // for
@@ -553,25 +553,25 @@ public:
     // ----------------------------------------------------------------------
     // f0p function for generic poroelasticity terms (source density).
     static inline
-    void f0p_explicit(const PylithInt dim,
-                      const PylithInt numS,
-                      const PylithInt numA,
-                      const PylithInt sOff[],
-                      const PylithInt sOff_x[],
+    void f0p_explicit(const pylith::integer dim,
+                      const pylith::integer numS,
+                      const pylith::integer numA,
+                      const pylith::integer sOff[],
+                      const pylith::integer sOff_x[],
                       const PylithScalar s[],
                       const PylithScalar s_t[],
                       const PylithScalar s_x[],
-                      const PylithInt aOff[],
-                      const PylithInt aOff_x[],
+                      const pylith::integer aOff[],
+                      const pylith::integer aOff_x[],
                       const PylithScalar a[],
                       const PylithScalar a_t[],
                       const PylithScalar a_x[],
-                      const PylithReal t,
+                      const pylith::real t,
                       const PylithScalar x[],
-                      const PylithInt numConstants,
+                      const pylith::integer numConstants,
                       const PylithScalar constants[],
                       PylithScalar f0[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
         pylith::fekernels::Poroelasticity::setContextDynamic(
@@ -595,25 +595,25 @@ public:
     // ----------------------------------------------------------------------
     // f0p function for generic poroelasticity terms.
     static inline
-    void f0p_implicit(const PylithInt dim,
-                      const PylithInt numS,
-                      const PylithInt numA,
-                      const PylithInt sOff[],
-                      const PylithInt sOff_x[],
+    void f0p_implicit(const pylith::integer dim,
+                      const pylith::integer numS,
+                      const pylith::integer numA,
+                      const pylith::integer sOff[],
+                      const pylith::integer sOff_x[],
                       const PylithScalar s[],
                       const PylithScalar s_t[],
                       const PylithScalar s_x[],
-                      const PylithInt aOff[],
-                      const PylithInt aOff_x[],
+                      const pylith::integer aOff[],
+                      const pylith::integer aOff_x[],
                       const PylithScalar a[],
                       const PylithScalar a_t[],
                       const PylithScalar a_x[],
-                      const PylithReal t,
+                      const pylith::real t,
                       const PylithScalar x[],
-                      const PylithInt numConstants,
+                      const pylith::integer numConstants,
                       const PylithScalar constants[],
                       PylithScalar f0[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
         pylith::fekernels::Poroelasticity::setContextQuasistatic(
@@ -630,8 +630,8 @@ public:
         PylithScalar trace_strain_t = (poroelasticContext.trace_strain_t ? poroelasticContext.trace_strain_t : 0.0);
 
         // Rheological Auxiliaries
-        const PylithReal biotCoefficient = rheologyContext.biotCoefficient;
-        const PylithReal biotModulus = rheologyContext.biotModulus;
+        const pylith::real biotCoefficient = rheologyContext.biotCoefficient;
+        const pylith::real biotModulus = rheologyContext.biotModulus;
 
         f0[0] += s_t ? (biotCoefficient * trace_strain_t) : 0.0;
         f0[0] += s_t ? (pressure_t / biotModulus) : 0.0;
@@ -641,25 +641,25 @@ public:
     // ----------------------------------------------------------------------
     // f0p function for generic poroelasticity terms (source density).
     static inline
-    void f0p_implicit_source(const PylithInt dim,
-                             const PylithInt numS,
-                             const PylithInt numA,
-                             const PylithInt sOff[],
-                             const PylithInt sOff_x[],
+    void f0p_implicit_source(const pylith::integer dim,
+                             const pylith::integer numS,
+                             const pylith::integer numA,
+                             const pylith::integer sOff[],
+                             const pylith::integer sOff_x[],
                              const PylithScalar s[],
                              const PylithScalar s_t[],
                              const PylithScalar s_x[],
-                             const PylithInt aOff[],
-                             const PylithInt aOff_x[],
+                             const pylith::integer aOff[],
+                             const pylith::integer aOff_x[],
                              const PylithScalar a[],
                              const PylithScalar a_t[],
                              const PylithScalar a_x[],
-                             const PylithReal t,
+                             const pylith::real t,
                              const PylithScalar x[],
-                             const PylithInt numConstants,
+                             const pylith::integer numConstants,
                              const PylithScalar constants[],
                              PylithScalar f0[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
         pylith::fekernels::Poroelasticity::setContextQuasistatic(
@@ -675,8 +675,8 @@ public:
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
         // Solution Variables
-        const PylithReal pressure_t = poroelasticContext.pressure_t;
-        const PylithReal trace_strain_t = poroelasticContext.trace_strain_t;
+        const pylith::real pressure_t = poroelasticContext.pressure_t;
+        const pylith::real trace_strain_t = poroelasticContext.trace_strain_t;
 
         // Poroelastic Auxiliaries
         const PylithScalar source = poroelasticContext.sourceDensity;
@@ -693,25 +693,25 @@ public:
     // ----------------------------------------------------------------------
     // f0p function for generic poroelasticity terms (source density).
     static
-    void f0p_implicit_source_body(const PylithInt dim,
-                                  const PylithInt numS,
-                                  const PylithInt numA,
-                                  const PylithInt sOff[],
-                                  const PylithInt sOff_x[],
+    void f0p_implicit_source_body(const pylith::integer dim,
+                                  const pylith::integer numS,
+                                  const pylith::integer numA,
+                                  const pylith::integer sOff[],
+                                  const pylith::integer sOff_x[],
                                   const PylithScalar s[],
                                   const PylithScalar s_t[],
                                   const PylithScalar s_x[],
-                                  const PylithInt aOff[],
-                                  const PylithInt aOff_x[],
+                                  const pylith::integer aOff[],
+                                  const pylith::integer aOff_x[],
                                   const PylithScalar a[],
                                   const PylithScalar a_t[],
                                   const PylithScalar a_x[],
-                                  const PylithReal t,
+                                  const pylith::real t,
                                   const PylithScalar x[],
-                                  const PylithInt numConstants,
+                                  const pylith::integer numConstants,
                                   const PylithScalar constants[],
                                   PylithScalar f0[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
         pylith::fekernels::Poroelasticity::setContextQuasistatic(
@@ -727,8 +727,8 @@ public:
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
         // Solution Variables
-        const PylithReal pressure_t = poroelasticContext.pressure_t;
-        const PylithReal trace_strain_t = poroelasticContext.trace_strain_t;
+        const pylith::real pressure_t = poroelasticContext.pressure_t;
+        const pylith::real trace_strain_t = poroelasticContext.trace_strain_t;
 
         // Poroelastic Auxiliaries
         const PylithScalar source = poroelasticContext.sourceDensity;
@@ -745,25 +745,25 @@ public:
     // ----------------------------------------------------------------------
     // f0p function for generic poroelasticity terms (source density).
     static inline
-    void f0p_implicit_source_grav(const PylithInt dim,
-                                  const PylithInt numS,
-                                  const PylithInt numA,
-                                  const PylithInt sOff[],
-                                  const PylithInt sOff_x[],
+    void f0p_implicit_source_grav(const pylith::integer dim,
+                                  const pylith::integer numS,
+                                  const pylith::integer numA,
+                                  const pylith::integer sOff[],
+                                  const pylith::integer sOff_x[],
                                   const PylithScalar s[],
                                   const PylithScalar s_t[],
                                   const PylithScalar s_x[],
-                                  const PylithInt aOff[],
-                                  const PylithInt aOff_x[],
+                                  const pylith::integer aOff[],
+                                  const pylith::integer aOff_x[],
                                   const PylithScalar a[],
                                   const PylithScalar a_t[],
                                   const PylithScalar a_x[],
-                                  const PylithReal t,
+                                  const pylith::real t,
                                   const PylithScalar x[],
-                                  const PylithInt numConstants,
+                                  const pylith::integer numConstants,
                                   const PylithScalar constants[],
                                   PylithScalar f0[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
         pylith::fekernels::Poroelasticity::setContextQuasistatic(
@@ -779,8 +779,8 @@ public:
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
         // Solution Variables
-        const PylithReal pressure_t = poroelasticContext.pressure_t;
-        const PylithReal trace_strain_t = poroelasticContext.trace_strain_t;
+        const pylith::real pressure_t = poroelasticContext.pressure_t;
+        const pylith::real trace_strain_t = poroelasticContext.trace_strain_t;
 
         // Poroelastic Auxiliaries
         const PylithScalar source = poroelasticContext.sourceDensity;
@@ -797,25 +797,25 @@ public:
     // ----------------------------------------------------------------------
     // f0p function for generic poroelasticity terms (source density).
     static inline
-    void f0p_implicit_source_grav_body(const PylithInt dim,
-                                       const PylithInt numS,
-                                       const PylithInt numA,
-                                       const PylithInt sOff[],
-                                       const PylithInt sOff_x[],
+    void f0p_implicit_source_grav_body(const pylith::integer dim,
+                                       const pylith::integer numS,
+                                       const pylith::integer numA,
+                                       const pylith::integer sOff[],
+                                       const pylith::integer sOff_x[],
                                        const PylithScalar s[],
                                        const PylithScalar s_t[],
                                        const PylithScalar s_x[],
-                                       const PylithInt aOff[],
-                                       const PylithInt aOff_x[],
+                                       const pylith::integer aOff[],
+                                       const pylith::integer aOff_x[],
                                        const PylithScalar a[],
                                        const PylithScalar a_t[],
                                        const PylithScalar a_x[],
-                                       const PylithReal t,
+                                       const pylith::real t,
                                        const PylithScalar x[],
-                                       const PylithInt numConstants,
+                                       const pylith::integer numConstants,
                                        const PylithScalar constants[],
                                        PylithScalar f0[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
         pylith::fekernels::Poroelasticity::setContextQuasistatic(
@@ -831,8 +831,8 @@ public:
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
         // Solution Variables
-        const PylithReal pressure_t = poroelasticContext.pressure_t;
-        const PylithReal trace_strain_t = poroelasticContext.trace_strain_t;
+        const pylith::real pressure_t = poroelasticContext.pressure_t;
+        const pylith::real trace_strain_t = poroelasticContext.trace_strain_t;
 
         // Poroelastic Auxiliaries
         const PylithScalar source = poroelasticContext.sourceDensity;
@@ -853,25 +853,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), ...]
      */
     static inline
-    void f1u(const PylithInt dim,
-             const PylithInt numS,
-             const PylithInt numA,
-             const PylithInt sOff[],
-             const PylithInt sOff_x[],
+    void f1u(const pylith::integer dim,
+             const pylith::integer numS,
+             const pylith::integer numA,
+             const pylith::integer sOff[],
+             const pylith::integer sOff_x[],
              const PylithScalar s[],
              const PylithScalar s_t[],
              const PylithScalar s_x[],
-             const PylithInt aOff[],
-             const PylithInt aOff_x[],
+             const pylith::integer aOff[],
+             const pylith::integer aOff_x[],
              const PylithScalar a[],
              const PylithScalar a_t[],
              const PylithScalar a_x[],
-             const PylithReal t,
+             const pylith::real t,
              const PylithScalar x[],
-             const PylithInt numConstants,
+             const pylith::integer numConstants,
              const PylithScalar constants[],
              PylithScalar f1[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Strain Context
         pylith::fekernels::Elasticity::StrainContext strainContext;
@@ -902,25 +902,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), ..., refstress(4), refstrain(4)]
      */
     static inline
-    void f1u_refstate(const PylithInt dim,
-                      const PylithInt numS,
-                      const PylithInt numA,
-                      const PylithInt sOff[],
-                      const PylithInt sOff_x[],
+    void f1u_refstate(const pylith::integer dim,
+                      const pylith::integer numS,
+                      const pylith::integer numA,
+                      const pylith::integer sOff[],
+                      const pylith::integer sOff_x[],
                       const PylithScalar s[],
                       const PylithScalar s_t[],
                       const PylithScalar s_x[],
-                      const PylithInt aOff[],
-                      const PylithInt aOff_x[],
+                      const pylith::integer aOff[],
+                      const pylith::integer aOff_x[],
                       const PylithScalar a[],
                       const PylithScalar a_t[],
                       const PylithScalar a_x[],
-                      const PylithReal t,
+                      const pylith::real t,
                       const PylithScalar x[],
-                      const PylithInt numConstants,
+                      const pylith::integer numConstants,
                       const PylithScalar constants[],
                       PylithScalar f1[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Strain Context
         pylith::fekernels::Elasticity::StrainContext strainContext;
@@ -952,25 +952,25 @@ public:
      *
      */
     static inline
-    void f1p(const PylithInt dim,
-             const PylithInt numS,
-             const PylithInt numA,
-             const PylithInt sOff[],
-             const PylithInt sOff_x[],
+    void f1p(const pylith::integer dim,
+             const pylith::integer numS,
+             const pylith::integer numA,
+             const pylith::integer sOff[],
+             const pylith::integer sOff_x[],
              const PylithScalar s[],
              const PylithScalar s_t[],
              const PylithScalar s_x[],
-             const PylithInt aOff[],
-             const PylithInt aOff_x[],
+             const pylith::integer aOff[],
+             const pylith::integer aOff_x[],
              const PylithScalar a[],
              const PylithScalar a_t[],
              const PylithScalar a_x[],
-             const PylithReal t,
+             const pylith::real t,
              const PylithScalar x[],
-             const PylithInt numConstants,
+             const pylith::integer numConstants,
              const PylithScalar constants[],
              PylithScalar f1[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
         pylith::fekernels::Poroelasticity::setContextQuasistatic(
@@ -1002,25 +1002,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void f1p_tensor_permeability(const PylithInt dim,
-                                 const PylithInt numS,
-                                 const PylithInt numA,
-                                 const PylithInt sOff[],
-                                 const PylithInt sOff_x[],
+    void f1p_tensor_permeability(const pylith::integer dim,
+                                 const pylith::integer numS,
+                                 const pylith::integer numA,
+                                 const pylith::integer sOff[],
+                                 const pylith::integer sOff_x[],
                                  const PylithScalar s[],
                                  const PylithScalar s_t[],
                                  const PylithScalar s_x[],
-                                 const PylithInt aOff[],
-                                 const PylithInt aOff_x[],
+                                 const pylith::integer aOff[],
+                                 const pylith::integer aOff_x[],
                                  const PylithScalar a[],
                                  const PylithScalar a_t[],
                                  const PylithScalar a_x[],
-                                 const PylithReal t,
+                                 const pylith::real t,
                                  const PylithScalar x[],
-                                 const PylithInt numConstants,
+                                 const pylith::integer numConstants,
                                  const PylithScalar constants[],
                                  PylithScalar f1[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
         pylith::fekernels::Poroelasticity::setContextQuasistatic(
@@ -1052,25 +1052,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void f1p_body(const PylithInt dim,
-                  const PylithInt numS,
-                  const PylithInt numA,
-                  const PylithInt sOff[],
-                  const PylithInt sOff_x[],
+    void f1p_body(const pylith::integer dim,
+                  const pylith::integer numS,
+                  const pylith::integer numA,
+                  const pylith::integer sOff[],
+                  const pylith::integer sOff_x[],
                   const PylithScalar s[],
                   const PylithScalar s_t[],
                   const PylithScalar s_x[],
-                  const PylithInt aOff[],
-                  const PylithInt aOff_x[],
+                  const pylith::integer aOff[],
+                  const pylith::integer aOff_x[],
                   const PylithScalar a[],
                   const PylithScalar a_t[],
                   const PylithScalar a_x[],
-                  const PylithReal t,
+                  const pylith::real t,
                   const PylithScalar x[],
-                  const PylithInt numConstants,
+                  const pylith::integer numConstants,
                   const PylithScalar constants[],
                   PylithScalar f1[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
         pylith::fekernels::Poroelasticity::setContextQuasistatic(
@@ -1105,25 +1105,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void f1p_body_tensor_permeability(const PylithInt dim,
-                                      const PylithInt numS,
-                                      const PylithInt numA,
-                                      const PylithInt sOff[],
-                                      const PylithInt sOff_x[],
+    void f1p_body_tensor_permeability(const pylith::integer dim,
+                                      const pylith::integer numS,
+                                      const pylith::integer numA,
+                                      const pylith::integer sOff[],
+                                      const pylith::integer sOff_x[],
                                       const PylithScalar s[],
                                       const PylithScalar s_t[],
                                       const PylithScalar s_x[],
-                                      const PylithInt aOff[],
-                                      const PylithInt aOff_x[],
+                                      const pylith::integer aOff[],
+                                      const pylith::integer aOff_x[],
                                       const PylithScalar a[],
                                       const PylithScalar a_t[],
                                       const PylithScalar a_x[],
-                                      const PylithReal t,
+                                      const pylith::real t,
                                       const PylithScalar x[],
-                                      const PylithInt numConstants,
+                                      const pylith::integer numConstants,
                                       const PylithScalar constants[],
                                       PylithScalar f1[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
         pylith::fekernels::Poroelasticity::setContextQuasistatic(
@@ -1158,25 +1158,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void f1p_gravity(const PylithInt dim,
-                     const PylithInt numS,
-                     const PylithInt numA,
-                     const PylithInt sOff[],
-                     const PylithInt sOff_x[],
+    void f1p_gravity(const pylith::integer dim,
+                     const pylith::integer numS,
+                     const pylith::integer numA,
+                     const pylith::integer sOff[],
+                     const pylith::integer sOff_x[],
                      const PylithScalar s[],
                      const PylithScalar s_t[],
                      const PylithScalar s_x[],
-                     const PylithInt aOff[],
-                     const PylithInt aOff_x[],
+                     const pylith::integer aOff[],
+                     const pylith::integer aOff_x[],
                      const PylithScalar a[],
                      const PylithScalar a_t[],
                      const PylithScalar a_x[],
-                     const PylithReal t,
+                     const pylith::real t,
                      const PylithScalar x[],
-                     const PylithInt numConstants,
+                     const pylith::integer numConstants,
                      const PylithScalar constants[],
                      PylithScalar f1[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
         pylith::fekernels::Poroelasticity::setContextQuasistatic(
@@ -1209,25 +1209,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void f1p_gravity_tensor_permeability(const PylithInt dim,
-                                         const PylithInt numS,
-                                         const PylithInt numA,
-                                         const PylithInt sOff[],
-                                         const PylithInt sOff_x[],
+    void f1p_gravity_tensor_permeability(const pylith::integer dim,
+                                         const pylith::integer numS,
+                                         const pylith::integer numA,
+                                         const pylith::integer sOff[],
+                                         const pylith::integer sOff_x[],
                                          const PylithScalar s[],
                                          const PylithScalar s_t[],
                                          const PylithScalar s_x[],
-                                         const PylithInt aOff[],
-                                         const PylithInt aOff_x[],
+                                         const pylith::integer aOff[],
+                                         const pylith::integer aOff_x[],
                                          const PylithScalar a[],
                                          const PylithScalar a_t[],
                                          const PylithScalar a_x[],
-                                         const PylithReal t,
+                                         const pylith::real t,
                                          const PylithScalar x[],
-                                         const PylithInt numConstants,
+                                         const pylith::integer numConstants,
                                          const PylithScalar constants[],
                                          PylithScalar f1[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -1261,25 +1261,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void f1p_body_gravity(const PylithInt dim,
-                          const PylithInt numS,
-                          const PylithInt numA,
-                          const PylithInt sOff[],
-                          const PylithInt sOff_x[],
+    void f1p_body_gravity(const pylith::integer dim,
+                          const pylith::integer numS,
+                          const pylith::integer numA,
+                          const pylith::integer sOff[],
+                          const pylith::integer sOff_x[],
                           const PylithScalar s[],
                           const PylithScalar s_t[],
                           const PylithScalar s_x[],
-                          const PylithInt aOff[],
-                          const PylithInt aOff_x[],
+                          const pylith::integer aOff[],
+                          const pylith::integer aOff_x[],
                           const PylithScalar a[],
                           const PylithScalar a_t[],
                           const PylithScalar a_x[],
-                          const PylithReal t,
+                          const pylith::real t,
                           const PylithScalar x[],
-                          const PylithInt numConstants,
+                          const pylith::integer numConstants,
                           const PylithScalar constants[],
                           PylithScalar f1[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -1313,25 +1313,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void f1p_body_gravity_tensor_permeability(const PylithInt dim,
-                                              const PylithInt numS,
-                                              const PylithInt numA,
-                                              const PylithInt sOff[],
-                                              const PylithInt sOff_x[],
+    void f1p_body_gravity_tensor_permeability(const pylith::integer dim,
+                                              const pylith::integer numS,
+                                              const pylith::integer numA,
+                                              const pylith::integer sOff[],
+                                              const pylith::integer sOff_x[],
                                               const PylithScalar s[],
                                               const PylithScalar s_t[],
                                               const PylithScalar s_x[],
-                                              const PylithInt aOff[],
-                                              const PylithInt aOff_x[],
+                                              const pylith::integer aOff[],
+                                              const pylith::integer aOff_x[],
                                               const PylithScalar a[],
                                               const PylithScalar a_t[],
                                               const PylithScalar a_x[],
-                                              const PylithReal t,
+                                              const pylith::real t,
                                               const PylithScalar x[],
-                                              const PylithInt numConstants,
+                                              const pylith::integer numConstants,
                                               const PylithScalar constants[],
                                               PylithScalar f1[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -1365,26 +1365,26 @@ public:
     /* Jf3_uu entry function for isotropic linear poroelasticity.
      */
     static inline
-    void Jf3uu(const PylithInt dim,
-               const PylithInt numS,
-               const PylithInt numA,
-               const PylithInt sOff[],
-               const PylithInt sOff_x[],
+    void Jf3uu(const pylith::integer dim,
+               const pylith::integer numS,
+               const pylith::integer numA,
+               const pylith::integer sOff[],
+               const pylith::integer sOff_x[],
                const PylithScalar s[],
                const PylithScalar s_t[],
                const PylithScalar s_x[],
-               const PylithInt aOff[],
-               const PylithInt aOff_x[],
+               const pylith::integer aOff[],
+               const pylith::integer aOff_x[],
                const PylithScalar a[],
                const PylithScalar a_t[],
                const PylithScalar a_x[],
-               const PylithReal t,
-               const PylithReal s_tshift,
+               const pylith::real t,
+               const pylith::real s_tshift,
                const PylithScalar x[],
-               const PylithInt numConstants,
+               const pylith::integer numConstants,
                const PylithScalar constants[],
                PylithScalar Jf3[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Rheology Context
         pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
@@ -1395,8 +1395,8 @@ public:
         // Rheological Auxiliaries
         const PylithScalar shearModulus = rheologyContext.shearModulus;
 
-        for (PylithInt i = 0; i < _dim; ++i) {
-            for (PylithInt j = 0; j < _dim; ++j) {
+        for (pylith::integer i = 0; i < _dim; ++i) {
+            for (pylith::integer j = 0; j < _dim; ++j) {
                 Jf3[((i * _dim + i) * _dim + j) * _dim + j] -= shearModulus;
                 Jf3[((i * _dim + j) * _dim + j) * _dim + i] -= shearModulus;
             }
@@ -1409,26 +1409,26 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void Jf2up(const PylithInt dim,
-               const PylithInt numS,
-               const PylithInt numA,
-               const PylithInt sOff[],
-               const PylithInt sOff_x[],
+    void Jf2up(const pylith::integer dim,
+               const pylith::integer numS,
+               const pylith::integer numA,
+               const pylith::integer sOff[],
+               const pylith::integer sOff_x[],
                const PylithScalar s[],
                const PylithScalar s_t[],
                const PylithScalar s_x[],
-               const PylithInt aOff[],
-               const PylithInt aOff_x[],
+               const pylith::integer aOff[],
+               const pylith::integer aOff_x[],
                const PylithScalar a[],
                const PylithScalar a_t[],
                const PylithScalar a_x[],
-               const PylithReal t,
-               const PylithReal s_tshift,
+               const pylith::real t,
+               const pylith::real s_tshift,
                const PylithScalar x[],
-               const PylithInt numConstants,
+               const pylith::integer numConstants,
                const PylithScalar constants[],
                PylithScalar Jf2[]) {
-        const PylithInt _dim = 2;
+        const pylith::integer _dim = 2;
 
         // Rheology Context
         pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
@@ -1439,7 +1439,7 @@ public:
         // Rheology Auxiliaries
         const PylithScalar biotCoefficient = rheologyContext.biotCoefficient;
 
-        for (PylithInt d = 0; d < _dim; ++d) {
+        for (pylith::integer d = 0; d < _dim; ++d) {
             Jf2[d * _dim + d] += biotCoefficient;
         } // for
     } // Jf2up
@@ -1447,26 +1447,26 @@ public:
     // -----------------------------------------------------------------------------
     // Jf2ue function for isotropic linear poroelasticity.
     static inline
-    void Jf2ue(const PylithInt dim,
-               const PylithInt numS,
-               const PylithInt numA,
-               const PylithInt sOff[],
-               const PylithInt sOff_x[],
+    void Jf2ue(const pylith::integer dim,
+               const pylith::integer numS,
+               const pylith::integer numA,
+               const pylith::integer sOff[],
+               const pylith::integer sOff_x[],
                const PylithScalar s[],
                const PylithScalar s_t[],
                const PylithScalar s_x[],
-               const PylithInt aOff[],
-               const PylithInt aOff_x[],
+               const pylith::integer aOff[],
+               const pylith::integer aOff_x[],
                const PylithScalar a[],
                const PylithScalar a_t[],
                const PylithScalar a_x[],
-               const PylithReal t,
-               const PylithReal s_tshift,
+               const pylith::real t,
+               const pylith::real s_tshift,
                const PylithScalar x[],
-               const PylithInt numConstants,
+               const pylith::integer numConstants,
                const PylithScalar constants[],
                PylithScalar Jf2[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Rheology Context
         pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
@@ -1478,7 +1478,7 @@ public:
         const PylithScalar shearModulus = rheologyContext.shearModulus;
         const PylithScalar drainedBulkModulus = rheologyContext.drainedBulkModulus;
 
-        for (PylithInt d = 0; d < _dim; ++d) {
+        for (pylith::integer d = 0; d < _dim; ++d) {
             Jf2[d * _dim + d] -= drainedBulkModulus - (2.0 * shearModulus) / 3.0;
         } // for
     } // Jf2ue
@@ -1490,26 +1490,26 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void Jf3pp(const PylithInt dim,
-               const PylithInt numS,
-               const PylithInt numA,
-               const PylithInt sOff[],
-               const PylithInt sOff_x[],
+    void Jf3pp(const pylith::integer dim,
+               const pylith::integer numS,
+               const pylith::integer numA,
+               const pylith::integer sOff[],
+               const pylith::integer sOff_x[],
                const PylithScalar s[],
                const PylithScalar s_t[],
                const PylithScalar s_x[],
-               const PylithInt aOff[],
-               const PylithInt aOff_x[],
+               const pylith::integer aOff[],
+               const pylith::integer aOff_x[],
                const PylithScalar a[],
                const PylithScalar a_t[],
                const PylithScalar a_x[],
-               const PylithReal t,
-               const PylithReal s_tshift,
+               const pylith::real t,
+               const pylith::real s_tshift,
                const PylithScalar x[],
-               const PylithInt numConstants,
+               const pylith::integer numConstants,
                const PylithScalar constants[],
                PylithScalar Jf3[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Rheology Context
         pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
@@ -1528,8 +1528,8 @@ public:
         PylithScalar tensorPermeability[4] = {0.0, 0.0, 0.0, 0.0};
         pylith::fekernels::Tensor::ops2D.toTensor(rheologyContext.permeability, tensorPermeability);
 
-        for (PylithInt i = 0; i < _dim; ++i) {
-            for (PylithInt j = 0; j < _dim; j++) {
+        for (pylith::integer i = 0; i < _dim; ++i) {
+            for (pylith::integer j = 0; j < _dim; j++) {
                 Jf3[i * _dim + j] += tensorPermeability[i * _dim + j] / fluidViscosity;
             } // for
         } // for
@@ -1543,26 +1543,26 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void Jf3pp_tensor_permeability(const PylithInt dim,
-                                   const PylithInt numS,
-                                   const PylithInt numA,
-                                   const PylithInt sOff[],
-                                   const PylithInt sOff_x[],
+    void Jf3pp_tensor_permeability(const pylith::integer dim,
+                                   const pylith::integer numS,
+                                   const pylith::integer numA,
+                                   const pylith::integer sOff[],
+                                   const pylith::integer sOff_x[],
                                    const PylithScalar s[],
                                    const PylithScalar s_t[],
                                    const PylithScalar s_x[],
-                                   const PylithInt aOff[],
-                                   const PylithInt aOff_x[],
+                                   const pylith::integer aOff[],
+                                   const pylith::integer aOff_x[],
                                    const PylithScalar a[],
                                    const PylithScalar a_t[],
                                    const PylithScalar a_x[],
-                                   const PylithReal t,
-                                   const PylithReal s_tshift,
+                                   const pylith::real t,
+                                   const pylith::real s_tshift,
                                    const PylithScalar x[],
-                                   const PylithInt numConstants,
+                                   const pylith::integer numConstants,
                                    const PylithScalar constants[],
                                    PylithScalar Jf3[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Rheology Context
         pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
@@ -1580,8 +1580,8 @@ public:
         PylithScalar tensorPermeability[4] = {0.0, 0.0, 0.0, 0.0};
         pylith::fekernels::Tensor::ops2D.toTensor(rheologyContext.permeability, tensorPermeability);
 
-        for (PylithInt i = 0; i < _dim; ++i) {
-            for (PylithInt j = 0; j < _dim; j++) {
+        for (pylith::integer i = 0; i < _dim; ++i) {
+            for (pylith::integer j = 0; j < _dim; j++) {
                 Jf3[i * _dim + j] += tensorPermeability[i * _dim + j] / fluidViscosity;
             } // for
         } // for
@@ -1594,26 +1594,26 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void Jf0pp(const PylithInt dim,
-               const PylithInt numS,
-               const PylithInt numA,
-               const PylithInt sOff[],
-               const PylithInt sOff_x[],
+    void Jf0pp(const pylith::integer dim,
+               const pylith::integer numS,
+               const pylith::integer numA,
+               const pylith::integer sOff[],
+               const pylith::integer sOff_x[],
                const PylithScalar s[],
                const PylithScalar s_t[],
                const PylithScalar s_x[],
-               const PylithInt aOff[],
-               const PylithInt aOff_x[],
+               const pylith::integer aOff[],
+               const pylith::integer aOff_x[],
                const PylithScalar a[],
                const PylithScalar a_t[],
                const PylithScalar a_x[],
-               const PylithReal t,
-               const PylithReal s_tshift,
+               const pylith::real t,
+               const pylith::real s_tshift,
                const PylithScalar x[],
-               const PylithInt numConstants,
+               const pylith::integer numConstants,
                const PylithScalar constants[],
                PylithScalar Jf0[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Rheology Context
         pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
@@ -1635,26 +1635,26 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void Jf0pe(const PylithInt dim,
-               const PylithInt numS,
-               const PylithInt numA,
-               const PylithInt sOff[],
-               const PylithInt sOff_x[],
+    void Jf0pe(const pylith::integer dim,
+               const pylith::integer numS,
+               const pylith::integer numA,
+               const pylith::integer sOff[],
+               const pylith::integer sOff_x[],
                const PylithScalar s[],
                const PylithScalar s_t[],
                const PylithScalar s_x[],
-               const PylithInt aOff[],
-               const PylithInt aOff_x[],
+               const pylith::integer aOff[],
+               const pylith::integer aOff_x[],
                const PylithScalar a[],
                const PylithScalar a_t[],
                const PylithScalar a_x[],
-               const PylithReal t,
-               const PylithReal s_tshift,
+               const pylith::real t,
+               const pylith::real s_tshift,
                const PylithScalar x[],
-               const PylithInt numConstants,
+               const pylith::integer numConstants,
                const PylithScalar constants[],
                PylithScalar Jf0[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Rheology Context
         pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
@@ -1675,25 +1675,25 @@ public:
     // \left( \alpha \frac{\partial \epsilon_{v}}{\partial t} + \frac{1}{M} \frac{\partial p_{f}}{\partial t} \right)
     // \frac{\partial \epsilon)_{v}}{\partial t} = \frac{\nabla \cdot \vec{u}}{dt}
     static inline
-    void g0p(const PylithInt dim,
-             const PylithInt numS,
-             const PylithInt numA,
-             const PylithInt sOff[],
-             const PylithInt sOff_x[],
+    void g0p(const pylith::integer dim,
+             const pylith::integer numS,
+             const pylith::integer numA,
+             const pylith::integer sOff[],
+             const pylith::integer sOff_x[],
              const PylithScalar s[],
              const PylithScalar s_t[],
              const PylithScalar s_x[],
-             const PylithInt aOff[],
-             const PylithInt aOff_x[],
+             const pylith::integer aOff[],
+             const pylith::integer aOff_x[],
              const PylithScalar a[],
              const PylithScalar a_t[],
              const PylithScalar a_x[],
-             const PylithReal t,
+             const pylith::real t,
              const PylithScalar x[],
-             const PylithInt numConstants,
+             const pylith::integer numConstants,
              const PylithScalar constants[],
              PylithScalar g0[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -1720,25 +1720,25 @@ public:
     // \left( \alpha \frac{\partial \epsilon_{v}}{\partial t} + \frac{1}{M} \frac{\partial p_{f}}{\partial t} \right)
     // \frac{\partial \epsilon)_{v}}{\partial t} = \frac{\nabla \cdot \vec{u}}{dt}
     static inline
-    void g0p_source(const PylithInt dim,
-                    const PylithInt numS,
-                    const PylithInt numA,
-                    const PylithInt sOff[],
-                    const PylithInt sOff_x[],
+    void g0p_source(const pylith::integer dim,
+                    const pylith::integer numS,
+                    const pylith::integer numA,
+                    const pylith::integer sOff[],
+                    const pylith::integer sOff_x[],
                     const PylithScalar s[],
                     const PylithScalar s_t[],
                     const PylithScalar s_x[],
-                    const PylithInt aOff[],
-                    const PylithInt aOff_x[],
+                    const pylith::integer aOff[],
+                    const pylith::integer aOff_x[],
                     const PylithScalar a[],
                     const PylithScalar a_t[],
                     const PylithScalar a_x[],
-                    const PylithReal t,
+                    const pylith::real t,
                     const PylithScalar x[],
-                    const PylithInt numConstants,
+                    const pylith::integer numConstants,
                     const PylithScalar constants[],
                     PylithScalar g0[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -1771,25 +1771,25 @@ public:
     // \left( \alpha \frac{\partial \epsilon_{v}}{\partial t} + \frac{1}{M} \frac{\partial p_{f}}{\partial t} \right)
     // \frac{\partial \epsilon)_{v}}{\partial t} = \frac{\nabla \cdot \vec{u}}{dt}
     static inline
-    void g0p_source_body(const PylithInt dim,
-                         const PylithInt numS,
-                         const PylithInt numA,
-                         const PylithInt sOff[],
-                         const PylithInt sOff_x[],
+    void g0p_source_body(const pylith::integer dim,
+                         const pylith::integer numS,
+                         const pylith::integer numA,
+                         const pylith::integer sOff[],
+                         const pylith::integer sOff_x[],
                          const PylithScalar s[],
                          const PylithScalar s_t[],
                          const PylithScalar s_x[],
-                         const PylithInt aOff[],
-                         const PylithInt aOff_x[],
+                         const pylith::integer aOff[],
+                         const pylith::integer aOff_x[],
                          const PylithScalar a[],
                          const PylithScalar a_t[],
                          const PylithScalar a_x[],
-                         const PylithReal t,
+                         const pylith::real t,
                          const PylithScalar x[],
-                         const PylithInt numConstants,
+                         const pylith::integer numConstants,
                          const PylithScalar constants[],
                          PylithScalar g0[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -1822,25 +1822,25 @@ public:
     // \left( \alpha \frac{\partial \epsilon_{v}}{\partial t} + \frac{1}{M} \frac{\partial p_{f}}{\partial t} \right)
     // \frac{\partial \epsilon)_{v}}{\partial t} = \frac{\nabla \cdot \vec{u}}{dt}
     static inline
-    void g0p_source_grav(const PylithInt dim,
-                         const PylithInt numS,
-                         const PylithInt numA,
-                         const PylithInt sOff[],
-                         const PylithInt sOff_x[],
+    void g0p_source_grav(const pylith::integer dim,
+                         const pylith::integer numS,
+                         const pylith::integer numA,
+                         const pylith::integer sOff[],
+                         const pylith::integer sOff_x[],
                          const PylithScalar s[],
                          const PylithScalar s_t[],
                          const PylithScalar s_x[],
-                         const PylithInt aOff[],
-                         const PylithInt aOff_x[],
+                         const pylith::integer aOff[],
+                         const pylith::integer aOff_x[],
                          const PylithScalar a[],
                          const PylithScalar a_t[],
                          const PylithScalar a_x[],
-                         const PylithReal t,
+                         const pylith::real t,
                          const PylithScalar x[],
-                         const PylithInt numConstants,
+                         const pylith::integer numConstants,
                          const PylithScalar constants[],
                          PylithScalar g0[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -1873,25 +1873,25 @@ public:
     // \left( \alpha \frac{\partial \epsilon_{v}}{\partial t} + \frac{1}{M} \frac{\partial p_{f}}{\partial t} \right)
     // \frac{\partial \epsilon)_{v}}{\partial t} = \frac{\nabla \cdot \vec{u}}{dt}
     static inline
-    void g0p_source_grav_body(const PylithInt dim,
-                              const PylithInt numS,
-                              const PylithInt numA,
-                              const PylithInt sOff[],
-                              const PylithInt sOff_x[],
+    void g0p_source_grav_body(const pylith::integer dim,
+                              const pylith::integer numS,
+                              const pylith::integer numA,
+                              const pylith::integer sOff[],
+                              const pylith::integer sOff_x[],
                               const PylithScalar s[],
                               const PylithScalar s_t[],
                               const PylithScalar s_x[],
-                              const PylithInt aOff[],
-                              const PylithInt aOff_x[],
+                              const pylith::integer aOff[],
+                              const pylith::integer aOff_x[],
                               const PylithScalar a[],
                               const PylithScalar a_t[],
                               const PylithScalar a_x[],
-                              const PylithReal t,
+                              const pylith::real t,
                               const PylithScalar x[],
-                              const PylithInt numConstants,
+                              const pylith::integer numConstants,
                               const PylithScalar constants[],
                               PylithScalar g0[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -1926,25 +1926,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void g1p(const PylithInt dim,
-             const PylithInt numS,
-             const PylithInt numA,
-             const PylithInt sOff[],
-             const PylithInt sOff_x[],
+    void g1p(const pylith::integer dim,
+             const pylith::integer numS,
+             const pylith::integer numA,
+             const pylith::integer sOff[],
+             const pylith::integer sOff_x[],
              const PylithScalar s[],
              const PylithScalar s_t[],
              const PylithScalar s_x[],
-             const PylithInt aOff[],
-             const PylithInt aOff_x[],
+             const pylith::integer aOff[],
+             const pylith::integer aOff_x[],
              const PylithScalar a[],
              const PylithScalar a_t[],
              const PylithScalar a_x[],
-             const PylithReal t,
+             const pylith::real t,
              const PylithScalar x[],
-             const PylithInt numConstants,
+             const pylith::integer numConstants,
              const PylithScalar constants[],
              PylithScalar g1[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -1976,25 +1976,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void g1p_tensor_permeability(const PylithInt dim,
-                                 const PylithInt numS,
-                                 const PylithInt numA,
-                                 const PylithInt sOff[],
-                                 const PylithInt sOff_x[],
+    void g1p_tensor_permeability(const pylith::integer dim,
+                                 const pylith::integer numS,
+                                 const pylith::integer numA,
+                                 const pylith::integer sOff[],
+                                 const pylith::integer sOff_x[],
                                  const PylithScalar s[],
                                  const PylithScalar s_t[],
                                  const PylithScalar s_x[],
-                                 const PylithInt aOff[],
-                                 const PylithInt aOff_x[],
+                                 const pylith::integer aOff[],
+                                 const pylith::integer aOff_x[],
                                  const PylithScalar a[],
                                  const PylithScalar a_t[],
                                  const PylithScalar a_x[],
-                                 const PylithReal t,
+                                 const pylith::real t,
                                  const PylithScalar x[],
-                                 const PylithInt numConstants,
+                                 const pylith::integer numConstants,
                                  const PylithScalar constants[],
                                  PylithScalar g1[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -2026,25 +2026,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void g1p_gravity(const PylithInt dim,
-                     const PylithInt numS,
-                     const PylithInt numA,
-                     const PylithInt sOff[],
-                     const PylithInt sOff_x[],
+    void g1p_gravity(const pylith::integer dim,
+                     const pylith::integer numS,
+                     const pylith::integer numA,
+                     const pylith::integer sOff[],
+                     const pylith::integer sOff_x[],
                      const PylithScalar s[],
                      const PylithScalar s_t[],
                      const PylithScalar s_x[],
-                     const PylithInt aOff[],
-                     const PylithInt aOff_x[],
+                     const pylith::integer aOff[],
+                     const pylith::integer aOff_x[],
                      const PylithScalar a[],
                      const PylithScalar a_t[],
                      const PylithScalar a_x[],
-                     const PylithReal t,
+                     const pylith::real t,
                      const PylithScalar x[],
-                     const PylithInt numConstants,
+                     const pylith::integer numConstants,
                      const PylithScalar constants[],
                      PylithScalar g1[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -2078,25 +2078,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void g1p_gravity_tensor_permeability(const PylithInt dim,
-                                         const PylithInt numS,
-                                         const PylithInt numA,
-                                         const PylithInt sOff[],
-                                         const PylithInt sOff_x[],
+    void g1p_gravity_tensor_permeability(const pylith::integer dim,
+                                         const pylith::integer numS,
+                                         const pylith::integer numA,
+                                         const pylith::integer sOff[],
+                                         const pylith::integer sOff_x[],
                                          const PylithScalar s[],
                                          const PylithScalar s_t[],
                                          const PylithScalar s_x[],
-                                         const PylithInt aOff[],
-                                         const PylithInt aOff_x[],
+                                         const pylith::integer aOff[],
+                                         const pylith::integer aOff_x[],
                                          const PylithScalar a[],
                                          const PylithScalar a_t[],
                                          const PylithScalar a_x[],
-                                         const PylithReal t,
+                                         const pylith::real t,
                                          const PylithScalar x[],
-                                         const PylithInt numConstants,
+                                         const pylith::integer numConstants,
                                          const PylithScalar constants[],
                                          PylithScalar g1[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -2130,25 +2130,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), ...]
      */
     static inline
-    void g1v(const PylithInt dim,
-             const PylithInt numS,
-             const PylithInt numA,
-             const PylithInt sOff[],
-             const PylithInt sOff_x[],
+    void g1v(const pylith::integer dim,
+             const pylith::integer numS,
+             const pylith::integer numA,
+             const pylith::integer sOff[],
+             const pylith::integer sOff_x[],
              const PylithScalar s[],
              const PylithScalar s_t[],
              const PylithScalar s_x[],
-             const PylithInt aOff[],
-             const PylithInt aOff_x[],
+             const pylith::integer aOff[],
+             const pylith::integer aOff_x[],
              const PylithScalar a[],
              const PylithScalar a_t[],
              const PylithScalar a_x[],
-             const PylithReal t,
+             const pylith::real t,
              const PylithScalar x[],
-             const PylithInt numConstants,
+             const pylith::integer numConstants,
              const PylithScalar constants[],
              PylithScalar g1[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Strain Context
         pylith::fekernels::Elasticity::StrainContext strainContext;
@@ -2179,25 +2179,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), ..., refstress(4), refstrain(4)]
      */
     static inline
-    void g1v_refstate(const PylithInt dim,
-                      const PylithInt numS,
-                      const PylithInt numA,
-                      const PylithInt sOff[],
-                      const PylithInt sOff_x[],
+    void g1v_refstate(const pylith::integer dim,
+                      const pylith::integer numS,
+                      const pylith::integer numA,
+                      const pylith::integer sOff[],
+                      const pylith::integer sOff_x[],
                       const PylithScalar s[],
                       const PylithScalar s_t[],
                       const PylithScalar s_x[],
-                      const PylithInt aOff[],
-                      const PylithInt aOff_x[],
+                      const pylith::integer aOff[],
+                      const pylith::integer aOff_x[],
                       const PylithScalar a[],
                       const PylithScalar a_t[],
                       const PylithScalar a_x[],
-                      const PylithReal t,
+                      const pylith::real t,
                       const PylithScalar x[],
-                      const PylithInt numConstants,
+                      const pylith::integer numConstants,
                       const PylithScalar constants[],
                       PylithScalar g1[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Strain Context
         pylith::fekernels::Elasticity::StrainContext strainContext;
@@ -2238,25 +2238,25 @@ public:
      * Auxiliary fields: [..., biot_coefficient(1), shear_modulus(1), drained_bulk_modulus(1)]
      */
     static inline
-    void cauchyStress_infinitesimalStrain_asVector(const PylithInt dim,
-                                                   const PylithInt numS,
-                                                   const PylithInt numA,
-                                                   const PylithInt sOff[],
-                                                   const PylithInt sOff_x[],
+    void cauchyStress_infinitesimalStrain_asVector(const pylith::integer dim,
+                                                   const pylith::integer numS,
+                                                   const pylith::integer numA,
+                                                   const pylith::integer sOff[],
+                                                   const pylith::integer sOff_x[],
                                                    const PylithScalar s[],
                                                    const PylithScalar s_t[],
                                                    const PylithScalar s_x[],
-                                                   const PylithInt aOff[],
-                                                   const PylithInt aOff_x[],
+                                                   const pylith::integer aOff[],
+                                                   const pylith::integer aOff_x[],
                                                    const PylithScalar a[],
                                                    const PylithScalar a_t[],
                                                    const PylithScalar a_x[],
-                                                   const PylithReal t,
+                                                   const pylith::real t,
                                                    const PylithScalar x[],
-                                                   const PylithInt numConstants,
+                                                   const pylith::integer numConstants,
                                                    const PylithScalar constants[],
                                                    PylithScalar stressVector[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Strain Context
         pylith::fekernels::Elasticity::StrainContext strainContext;
@@ -2292,25 +2292,25 @@ public:
      * Auxiliary fields: [..., biot_coefficient(1), shear_modulus(1), drained_bulk_modulus(1)]
      */
     static inline
-    void cauchyStress_infinitesimalStrain_refState_asVector(const PylithInt dim,
-                                                            const PylithInt numS,
-                                                            const PylithInt numA,
-                                                            const PylithInt sOff[],
-                                                            const PylithInt sOff_x[],
+    void cauchyStress_infinitesimalStrain_refState_asVector(const pylith::integer dim,
+                                                            const pylith::integer numS,
+                                                            const pylith::integer numA,
+                                                            const pylith::integer sOff[],
+                                                            const pylith::integer sOff_x[],
                                                             const PylithScalar s[],
                                                             const PylithScalar s_t[],
                                                             const PylithScalar s_x[],
-                                                            const PylithInt aOff[],
-                                                            const PylithInt aOff_x[],
+                                                            const pylith::integer aOff[],
+                                                            const pylith::integer aOff_x[],
                                                             const PylithScalar a[],
                                                             const PylithScalar a_t[],
                                                             const PylithScalar a_x[],
-                                                            const PylithReal t,
+                                                            const pylith::real t,
                                                             const PylithScalar x[],
-                                                            const PylithInt numConstants,
+                                                            const pylith::integer numConstants,
                                                             const PylithScalar constants[],
                                                             PylithScalar stressVector[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Strain Context
         pylith::fekernels::Elasticity::StrainContext strainContext;
@@ -2339,24 +2339,24 @@ public:
 
     // Calculate water content
     static inline
-    void waterContent_asScalar(const PylithInt dim,
-                               const PylithInt numS,
-                               const PylithInt numA,
-                               const PylithInt sOff[],
-                               const PylithInt sOff_x[],
+    void waterContent_asScalar(const pylith::integer dim,
+                               const pylith::integer numS,
+                               const pylith::integer numA,
+                               const pylith::integer sOff[],
+                               const pylith::integer sOff_x[],
                                const PylithScalar s[],
                                const PylithScalar s_t[],
                                const PylithScalar s_x[],
-                               const PylithInt aOff[],
-                               const PylithInt aOff_x[],
+                               const pylith::integer aOff[],
+                               const pylith::integer aOff_x[],
                                const PylithScalar a[],
                                const PylithScalar a_t[],
                                const PylithScalar a_x[],
-                               const PylithReal t,
+                               const pylith::real t,
                                const PylithScalar x[],
-                               const PylithInt numConstants,
+                               const pylith::integer numConstants,
                                const PylithScalar constants[],
-                               PylithReal* waterContent) {
+                               pylith::real* waterContent) {
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
         pylith::fekernels::Poroelasticity::setContextQuasistatic(
@@ -2373,8 +2373,8 @@ public:
         PylithScalar trace_strain = poroelasticContext.trace_strain;
 
         // Rheological Auxiliaries
-        const PylithReal biotCoefficient = rheologyContext.biotCoefficient;
-        const PylithReal biotModulus = rheologyContext.biotModulus;
+        const pylith::real biotCoefficient = rheologyContext.biotCoefficient;
+        const pylith::real biotModulus = rheologyContext.biotModulus;
 
         *waterContent = biotCoefficient * trace_strain + pressure / biotModulus;
 
@@ -2386,38 +2386,38 @@ public:
     /* Update porosity for a linear poroelastic material, implicit.
      */
     static inline
-    void updatePorosityImplicit(const PylithInt dim,
-                                const PylithInt numS,
-                                const PylithInt numA,
-                                const PylithInt sOff[],
-                                const PylithInt sOff_x[],
+    void updatePorosityImplicit(const pylith::integer dim,
+                                const pylith::integer numS,
+                                const pylith::integer numA,
+                                const pylith::integer sOff[],
+                                const pylith::integer sOff_x[],
                                 const PylithScalar s[],
                                 const PylithScalar s_t[],
                                 const PylithScalar s_x[],
-                                const PylithInt aOff[],
-                                const PylithInt aOff_x[],
+                                const pylith::integer aOff[],
+                                const pylith::integer aOff_x[],
                                 const PylithScalar a[],
                                 const PylithScalar a_t[],
                                 const PylithScalar a_x[],
-                                const PylithReal t,
+                                const pylith::real t,
                                 const PylithScalar x[],
-                                const PylithInt numConstants,
+                                const pylith::integer numConstants,
                                 const PylithScalar constants[],
                                 PylithScalar porosity[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Incoming solution fields.
-        const PylithInt i_pressure_t = 4;
-        const PylithInt i_trace_strain_t = 5;
+        const pylith::integer i_pressure_t = 4;
+        const pylith::integer i_trace_strain_t = 5;
 
         // Incoming re-packed auxiliary field.
 
         // Poroelasticity
-        const PylithInt i_porosityPrev = 3;
+        const pylith::integer i_porosityPrev = 3;
 
         // IsotropicLinearPoroelasticity
-        const PylithInt i_drainedBulkModulus = numA - 4;
-        const PylithInt i_biotCoefficient = numA - 3;
+        const pylith::integer i_drainedBulkModulus = numA - 4;
+        const pylith::integer i_biotCoefficient = numA - 3;
 
         // Constants
         const PylithScalar dt = constants[0];
@@ -2484,25 +2484,25 @@ public:
     /* Update porosity for a linear poroelastic material, explicit.
      */
     static inline
-    void updatePorosityExplicit(const PylithInt dim,
-                                const PylithInt numS,
-                                const PylithInt numA,
-                                const PylithInt sOff[],
-                                const PylithInt sOff_x[],
+    void updatePorosityExplicit(const pylith::integer dim,
+                                const pylith::integer numS,
+                                const pylith::integer numA,
+                                const pylith::integer sOff[],
+                                const pylith::integer sOff_x[],
                                 const PylithScalar s[],
                                 const PylithScalar s_t[],
                                 const PylithScalar s_x[],
-                                const PylithInt aOff[],
-                                const PylithInt aOff_x[],
+                                const pylith::integer aOff[],
+                                const pylith::integer aOff_x[],
                                 const PylithScalar a[],
                                 const PylithScalar a_t[],
                                 const PylithScalar a_x[],
-                                const PylithReal t,
+                                const pylith::real t,
                                 const PylithScalar x[],
-                                const PylithInt numConstants,
+                                const pylith::integer numConstants,
                                 const PylithScalar constants[],
                                 PylithScalar porosity[]) {
-        const PylithInt _dim = 2;assert(_dim == dim);
+        const pylith::integer _dim = 2;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -2549,25 +2549,25 @@ public:
     // ----------------------------------------------------------------------
     // f0p function for generic poroelasticity terms (source density).
     static inline
-    void f0p_explicit(const PylithInt dim,
-                      const PylithInt numS,
-                      const PylithInt numA,
-                      const PylithInt sOff[],
-                      const PylithInt sOff_x[],
+    void f0p_explicit(const pylith::integer dim,
+                      const pylith::integer numS,
+                      const pylith::integer numA,
+                      const pylith::integer sOff[],
+                      const pylith::integer sOff_x[],
                       const PylithScalar s[],
                       const PylithScalar s_t[],
                       const PylithScalar s_x[],
-                      const PylithInt aOff[],
-                      const PylithInt aOff_x[],
+                      const pylith::integer aOff[],
+                      const pylith::integer aOff_x[],
                       const PylithScalar a[],
                       const PylithScalar a_t[],
                       const PylithScalar a_x[],
-                      const PylithReal t,
+                      const pylith::real t,
                       const PylithScalar x[],
-                      const PylithInt numConstants,
+                      const pylith::integer numConstants,
                       const PylithScalar constants[],
                       PylithScalar f0[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -2592,25 +2592,25 @@ public:
     // ----------------------------------------------------------------------
     // f0p function for generic poroelasticity terms.
     static inline
-    void f0p_implicit(const PylithInt dim,
-                      const PylithInt numS,
-                      const PylithInt numA,
-                      const PylithInt sOff[],
-                      const PylithInt sOff_x[],
+    void f0p_implicit(const pylith::integer dim,
+                      const pylith::integer numS,
+                      const pylith::integer numA,
+                      const pylith::integer sOff[],
+                      const pylith::integer sOff_x[],
                       const PylithScalar s[],
                       const PylithScalar s_t[],
                       const PylithScalar s_x[],
-                      const PylithInt aOff[],
-                      const PylithInt aOff_x[],
+                      const pylith::integer aOff[],
+                      const pylith::integer aOff_x[],
                       const PylithScalar a[],
                       const PylithScalar a_t[],
                       const PylithScalar a_x[],
-                      const PylithReal t,
+                      const pylith::real t,
                       const PylithScalar x[],
-                      const PylithInt numConstants,
+                      const pylith::integer numConstants,
                       const PylithScalar constants[],
                       PylithScalar f0[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -2628,8 +2628,8 @@ public:
         PylithScalar trace_strain_t = (poroelasticContext.trace_strain_t ? poroelasticContext.trace_strain_t : 0.0);
 
         // Rheological Auxiliaries
-        const PylithReal biotCoefficient = rheologyContext.biotCoefficient;
-        const PylithReal biotModulus = rheologyContext.biotModulus;
+        const pylith::real biotCoefficient = rheologyContext.biotCoefficient;
+        const pylith::real biotModulus = rheologyContext.biotModulus;
 
         f0[0] += biotCoefficient * trace_strain_t;
         f0[0] += pressure_t / biotModulus;
@@ -2639,25 +2639,25 @@ public:
     // ----------------------------------------------------------------------
     // f0p function for generic poroelasticity terms (source density).
     static inline
-    void f0p_implicit_source(const PylithInt dim,
-                             const PylithInt numS,
-                             const PylithInt numA,
-                             const PylithInt sOff[],
-                             const PylithInt sOff_x[],
+    void f0p_implicit_source(const pylith::integer dim,
+                             const pylith::integer numS,
+                             const pylith::integer numA,
+                             const pylith::integer sOff[],
+                             const pylith::integer sOff_x[],
                              const PylithScalar s[],
                              const PylithScalar s_t[],
                              const PylithScalar s_x[],
-                             const PylithInt aOff[],
-                             const PylithInt aOff_x[],
+                             const pylith::integer aOff[],
+                             const pylith::integer aOff_x[],
                              const PylithScalar a[],
                              const PylithScalar a_t[],
                              const PylithScalar a_x[],
-                             const PylithReal t,
+                             const pylith::real t,
                              const PylithScalar x[],
-                             const PylithInt numConstants,
+                             const pylith::integer numConstants,
                              const PylithScalar constants[],
                              PylithScalar f0[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -2691,25 +2691,25 @@ public:
     // ----------------------------------------------------------------------
     // f0p function for generic poroelasticity terms (source density).
     static inline
-    void f0p_implicit_source_body(const PylithInt dim,
-                                  const PylithInt numS,
-                                  const PylithInt numA,
-                                  const PylithInt sOff[],
-                                  const PylithInt sOff_x[],
+    void f0p_implicit_source_body(const pylith::integer dim,
+                                  const pylith::integer numS,
+                                  const pylith::integer numA,
+                                  const pylith::integer sOff[],
+                                  const pylith::integer sOff_x[],
                                   const PylithScalar s[],
                                   const PylithScalar s_t[],
                                   const PylithScalar s_x[],
-                                  const PylithInt aOff[],
-                                  const PylithInt aOff_x[],
+                                  const pylith::integer aOff[],
+                                  const pylith::integer aOff_x[],
                                   const PylithScalar a[],
                                   const PylithScalar a_t[],
                                   const PylithScalar a_x[],
-                                  const PylithReal t,
+                                  const pylith::real t,
                                   const PylithScalar x[],
-                                  const PylithInt numConstants,
+                                  const pylith::integer numConstants,
                                   const PylithScalar constants[],
                                   PylithScalar f0[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -2743,25 +2743,25 @@ public:
     // ----------------------------------------------------------------------
     // f0p function for generic poroelasticity terms (source density).
     static inline
-    void f0p_implicit_source_grav(const PylithInt dim,
-                                  const PylithInt numS,
-                                  const PylithInt numA,
-                                  const PylithInt sOff[],
-                                  const PylithInt sOff_x[],
+    void f0p_implicit_source_grav(const pylith::integer dim,
+                                  const pylith::integer numS,
+                                  const pylith::integer numA,
+                                  const pylith::integer sOff[],
+                                  const pylith::integer sOff_x[],
                                   const PylithScalar s[],
                                   const PylithScalar s_t[],
                                   const PylithScalar s_x[],
-                                  const PylithInt aOff[],
-                                  const PylithInt aOff_x[],
+                                  const pylith::integer aOff[],
+                                  const pylith::integer aOff_x[],
                                   const PylithScalar a[],
                                   const PylithScalar a_t[],
                                   const PylithScalar a_x[],
-                                  const PylithReal t,
+                                  const pylith::real t,
                                   const PylithScalar x[],
-                                  const PylithInt numConstants,
+                                  const pylith::integer numConstants,
                                   const PylithScalar constants[],
                                   PylithScalar f0[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -2795,25 +2795,25 @@ public:
     // ----------------------------------------------------------------------
     // f0p function for generic poroelasticity terms (source density).
     static inline
-    void f0p_implicit_source_grav_body(const PylithInt dim,
-                                       const PylithInt numS,
-                                       const PylithInt numA,
-                                       const PylithInt sOff[],
-                                       const PylithInt sOff_x[],
+    void f0p_implicit_source_grav_body(const pylith::integer dim,
+                                       const pylith::integer numS,
+                                       const pylith::integer numA,
+                                       const pylith::integer sOff[],
+                                       const pylith::integer sOff_x[],
                                        const PylithScalar s[],
                                        const PylithScalar s_t[],
                                        const PylithScalar s_x[],
-                                       const PylithInt aOff[],
-                                       const PylithInt aOff_x[],
+                                       const pylith::integer aOff[],
+                                       const pylith::integer aOff_x[],
                                        const PylithScalar a[],
                                        const PylithScalar a_t[],
                                        const PylithScalar a_x[],
-                                       const PylithReal t,
+                                       const pylith::real t,
                                        const PylithScalar x[],
-                                       const PylithInt numConstants,
+                                       const pylith::integer numConstants,
                                        const PylithScalar constants[],
                                        PylithScalar f0[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -2851,25 +2851,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), ...]
      */
     static inline
-    void f1u(const PylithInt dim,
-             const PylithInt numS,
-             const PylithInt numA,
-             const PylithInt sOff[],
-             const PylithInt sOff_x[],
+    void f1u(const pylith::integer dim,
+             const pylith::integer numS,
+             const pylith::integer numA,
+             const pylith::integer sOff[],
+             const pylith::integer sOff_x[],
              const PylithScalar s[],
              const PylithScalar s_t[],
              const PylithScalar s_x[],
-             const PylithInt aOff[],
-             const PylithInt aOff_x[],
+             const pylith::integer aOff[],
+             const pylith::integer aOff_x[],
              const PylithScalar a[],
              const PylithScalar a_t[],
              const PylithScalar a_x[],
-             const PylithReal t,
+             const pylith::real t,
              const PylithScalar x[],
-             const PylithInt numConstants,
+             const pylith::integer numConstants,
              const PylithScalar constants[],
              PylithScalar f1[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Strain Context
         pylith::fekernels::Elasticity::StrainContext strainContext;
@@ -2901,25 +2901,25 @@ public:
      */
 
     static inline
-    void f1u_refstate(const PylithInt dim,
-                      const PylithInt numS,
-                      const PylithInt numA,
-                      const PylithInt sOff[],
-                      const PylithInt sOff_x[],
+    void f1u_refstate(const pylith::integer dim,
+                      const pylith::integer numS,
+                      const pylith::integer numA,
+                      const pylith::integer sOff[],
+                      const pylith::integer sOff_x[],
                       const PylithScalar s[],
                       const PylithScalar s_t[],
                       const PylithScalar s_x[],
-                      const PylithInt aOff[],
-                      const PylithInt aOff_x[],
+                      const pylith::integer aOff[],
+                      const pylith::integer aOff_x[],
                       const PylithScalar a[],
                       const PylithScalar a_t[],
                       const PylithScalar a_x[],
-                      const PylithReal t,
+                      const pylith::real t,
                       const PylithScalar x[],
-                      const PylithInt numConstants,
+                      const pylith::integer numConstants,
                       const PylithScalar constants[],
                       PylithScalar f1[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Strain Context
         pylith::fekernels::Elasticity::StrainContext strainContext;
@@ -2953,25 +2953,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void f1p(const PylithInt dim,
-             const PylithInt numS,
-             const PylithInt numA,
-             const PylithInt sOff[],
-             const PylithInt sOff_x[],
+    void f1p(const pylith::integer dim,
+             const pylith::integer numS,
+             const pylith::integer numA,
+             const pylith::integer sOff[],
+             const pylith::integer sOff_x[],
              const PylithScalar s[],
              const PylithScalar s_t[],
              const PylithScalar s_x[],
-             const PylithInt aOff[],
-             const PylithInt aOff_x[],
+             const pylith::integer aOff[],
+             const pylith::integer aOff_x[],
              const PylithScalar a[],
              const PylithScalar a_t[],
              const PylithScalar a_x[],
-             const PylithReal t,
+             const pylith::real t,
              const PylithScalar x[],
-             const PylithInt numConstants,
+             const pylith::integer numConstants,
              const PylithScalar constants[],
              PylithScalar f1[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -3004,25 +3004,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void f1p_tensor_permeability(const PylithInt dim,
-                                 const PylithInt numS,
-                                 const PylithInt numA,
-                                 const PylithInt sOff[],
-                                 const PylithInt sOff_x[],
+    void f1p_tensor_permeability(const pylith::integer dim,
+                                 const pylith::integer numS,
+                                 const pylith::integer numA,
+                                 const pylith::integer sOff[],
+                                 const pylith::integer sOff_x[],
                                  const PylithScalar s[],
                                  const PylithScalar s_t[],
                                  const PylithScalar s_x[],
-                                 const PylithInt aOff[],
-                                 const PylithInt aOff_x[],
+                                 const pylith::integer aOff[],
+                                 const pylith::integer aOff_x[],
                                  const PylithScalar a[],
                                  const PylithScalar a_t[],
                                  const PylithScalar a_x[],
-                                 const PylithReal t,
+                                 const pylith::real t,
                                  const PylithScalar x[],
-                                 const PylithInt numConstants,
+                                 const pylith::integer numConstants,
                                  const PylithScalar constants[],
                                  PylithScalar f1[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -3054,25 +3054,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void f1p_body(const PylithInt dim,
-                  const PylithInt numS,
-                  const PylithInt numA,
-                  const PylithInt sOff[],
-                  const PylithInt sOff_x[],
+    void f1p_body(const pylith::integer dim,
+                  const pylith::integer numS,
+                  const pylith::integer numA,
+                  const pylith::integer sOff[],
+                  const pylith::integer sOff_x[],
                   const PylithScalar s[],
                   const PylithScalar s_t[],
                   const PylithScalar s_x[],
-                  const PylithInt aOff[],
-                  const PylithInt aOff_x[],
+                  const pylith::integer aOff[],
+                  const pylith::integer aOff_x[],
                   const PylithScalar a[],
                   const PylithScalar a_t[],
                   const PylithScalar a_x[],
-                  const PylithReal t,
+                  const pylith::real t,
                   const PylithScalar x[],
-                  const PylithInt numConstants,
+                  const pylith::integer numConstants,
                   const PylithScalar constants[],
                   PylithScalar f1[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -3106,25 +3106,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void f1p_body_tensor_permeability(const PylithInt dim,
-                                      const PylithInt numS,
-                                      const PylithInt numA,
-                                      const PylithInt sOff[],
-                                      const PylithInt sOff_x[],
+    void f1p_body_tensor_permeability(const pylith::integer dim,
+                                      const pylith::integer numS,
+                                      const pylith::integer numA,
+                                      const pylith::integer sOff[],
+                                      const pylith::integer sOff_x[],
                                       const PylithScalar s[],
                                       const PylithScalar s_t[],
                                       const PylithScalar s_x[],
-                                      const PylithInt aOff[],
-                                      const PylithInt aOff_x[],
+                                      const pylith::integer aOff[],
+                                      const pylith::integer aOff_x[],
                                       const PylithScalar a[],
                                       const PylithScalar a_t[],
                                       const PylithScalar a_x[],
-                                      const PylithReal t,
+                                      const pylith::real t,
                                       const PylithScalar x[],
-                                      const PylithInt numConstants,
+                                      const pylith::integer numConstants,
                                       const PylithScalar constants[],
                                       PylithScalar f1[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -3158,25 +3158,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void f1p_gravity(const PylithInt dim,
-                     const PylithInt numS,
-                     const PylithInt numA,
-                     const PylithInt sOff[],
-                     const PylithInt sOff_x[],
+    void f1p_gravity(const pylith::integer dim,
+                     const pylith::integer numS,
+                     const pylith::integer numA,
+                     const pylith::integer sOff[],
+                     const pylith::integer sOff_x[],
                      const PylithScalar s[],
                      const PylithScalar s_t[],
                      const PylithScalar s_x[],
-                     const PylithInt aOff[],
-                     const PylithInt aOff_x[],
+                     const pylith::integer aOff[],
+                     const pylith::integer aOff_x[],
                      const PylithScalar a[],
                      const PylithScalar a_t[],
                      const PylithScalar a_x[],
-                     const PylithReal t,
+                     const pylith::real t,
                      const PylithScalar x[],
-                     const PylithInt numConstants,
+                     const pylith::integer numConstants,
                      const PylithScalar constants[],
                      PylithScalar f1[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -3210,25 +3210,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void f1p_gravity_tensor_permeability(const PylithInt dim,
-                                         const PylithInt numS,
-                                         const PylithInt numA,
-                                         const PylithInt sOff[],
-                                         const PylithInt sOff_x[],
+    void f1p_gravity_tensor_permeability(const pylith::integer dim,
+                                         const pylith::integer numS,
+                                         const pylith::integer numA,
+                                         const pylith::integer sOff[],
+                                         const pylith::integer sOff_x[],
                                          const PylithScalar s[],
                                          const PylithScalar s_t[],
                                          const PylithScalar s_x[],
-                                         const PylithInt aOff[],
-                                         const PylithInt aOff_x[],
+                                         const pylith::integer aOff[],
+                                         const pylith::integer aOff_x[],
                                          const PylithScalar a[],
                                          const PylithScalar a_t[],
                                          const PylithScalar a_x[],
-                                         const PylithReal t,
+                                         const pylith::real t,
                                          const PylithScalar x[],
-                                         const PylithInt numConstants,
+                                         const pylith::integer numConstants,
                                          const PylithScalar constants[],
                                          PylithScalar f1[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -3263,25 +3263,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void f1p_body_gravity(const PylithInt dim,
-                          const PylithInt numS,
-                          const PylithInt numA,
-                          const PylithInt sOff[],
-                          const PylithInt sOff_x[],
+    void f1p_body_gravity(const pylith::integer dim,
+                          const pylith::integer numS,
+                          const pylith::integer numA,
+                          const pylith::integer sOff[],
+                          const pylith::integer sOff_x[],
                           const PylithScalar s[],
                           const PylithScalar s_t[],
                           const PylithScalar s_x[],
-                          const PylithInt aOff[],
-                          const PylithInt aOff_x[],
+                          const pylith::integer aOff[],
+                          const pylith::integer aOff_x[],
                           const PylithScalar a[],
                           const PylithScalar a_t[],
                           const PylithScalar a_x[],
-                          const PylithReal t,
+                          const pylith::real t,
                           const PylithScalar x[],
-                          const PylithInt numConstants,
+                          const pylith::integer numConstants,
                           const PylithScalar constants[],
                           PylithScalar f1[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -3313,25 +3313,25 @@ public:
      * Solution fields: [...]
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
-    static inline void f1p_body_gravity_tensor_permeability(const PylithInt dim,
-                                                            const PylithInt numS,
-                                                            const PylithInt numA,
-                                                            const PylithInt sOff[],
-                                                            const PylithInt sOff_x[],
+    static inline void f1p_body_gravity_tensor_permeability(const pylith::integer dim,
+                                                            const pylith::integer numS,
+                                                            const pylith::integer numA,
+                                                            const pylith::integer sOff[],
+                                                            const pylith::integer sOff_x[],
                                                             const PylithScalar s[],
                                                             const PylithScalar s_t[],
                                                             const PylithScalar s_x[],
-                                                            const PylithInt aOff[],
-                                                            const PylithInt aOff_x[],
+                                                            const pylith::integer aOff[],
+                                                            const pylith::integer aOff_x[],
                                                             const PylithScalar a[],
                                                             const PylithScalar a_t[],
                                                             const PylithScalar a_x[],
-                                                            const PylithReal t,
+                                                            const pylith::real t,
                                                             const PylithScalar x[],
-                                                            const PylithInt numConstants,
+                                                            const pylith::integer numConstants,
                                                             const PylithScalar constants[],
                                                             PylithScalar f1[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -3364,26 +3364,26 @@ public:
     /* Jf3_uu entry function for isotropic linear poroelasticity.
      */
     static inline
-    void Jf3uu(const PylithInt dim,
-               const PylithInt numS,
-               const PylithInt numA,
-               const PylithInt sOff[],
-               const PylithInt sOff_x[],
+    void Jf3uu(const pylith::integer dim,
+               const pylith::integer numS,
+               const pylith::integer numA,
+               const pylith::integer sOff[],
+               const pylith::integer sOff_x[],
                const PylithScalar s[],
                const PylithScalar s_t[],
                const PylithScalar s_x[],
-               const PylithInt aOff[],
-               const PylithInt aOff_x[],
+               const pylith::integer aOff[],
+               const pylith::integer aOff_x[],
                const PylithScalar a[],
                const PylithScalar a_t[],
                const PylithScalar a_x[],
-               const PylithReal t,
-               const PylithReal s_tshift,
+               const pylith::real t,
+               const pylith::real s_tshift,
                const PylithScalar x[],
-               const PylithInt numConstants,
+               const pylith::integer numConstants,
                const PylithScalar constants[],
                PylithScalar Jf3[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Rheology Context
         pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
@@ -3394,8 +3394,8 @@ public:
         // Rheological Auxiliaries
         const PylithScalar shearModulus = rheologyContext.shearModulus;
 
-        for (PylithInt i = 0; i < _dim; ++i) {
-            for (PylithInt j = 0; j < _dim; ++j) {
+        for (pylith::integer i = 0; i < _dim; ++i) {
+            for (pylith::integer j = 0; j < _dim; ++j) {
                 Jf3[((i * _dim + i) * _dim + j) * _dim + j] -= shearModulus;
                 Jf3[((i * _dim + j) * _dim + j) * _dim + i] -= shearModulus;
             } // for
@@ -3409,26 +3409,26 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void Jf2up(const PylithInt dim,
-               const PylithInt numS,
-               const PylithInt numA,
-               const PylithInt sOff[],
-               const PylithInt sOff_x[],
+    void Jf2up(const pylith::integer dim,
+               const pylith::integer numS,
+               const pylith::integer numA,
+               const pylith::integer sOff[],
+               const pylith::integer sOff_x[],
                const PylithScalar s[],
                const PylithScalar s_t[],
                const PylithScalar s_x[],
-               const PylithInt aOff[],
-               const PylithInt aOff_x[],
+               const pylith::integer aOff[],
+               const pylith::integer aOff_x[],
                const PylithScalar a[],
                const PylithScalar a_t[],
                const PylithScalar a_x[],
-               const PylithReal t,
-               const PylithReal s_tshift,
+               const pylith::real t,
+               const pylith::real s_tshift,
                const PylithScalar x[],
-               const PylithInt numConstants,
+               const pylith::integer numConstants,
                const PylithScalar constants[],
                PylithScalar Jf2[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Rheology Context
         pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
@@ -3439,7 +3439,7 @@ public:
         // Rheological Auxiliaries
         const PylithScalar biotCoefficient = rheologyContext.biotCoefficient;
 
-        for (PylithInt d = 0; d < _dim; ++d) {
+        for (pylith::integer d = 0; d < _dim; ++d) {
             Jf2[d * _dim + d] += biotCoefficient;
         } // for
 
@@ -3448,26 +3448,26 @@ public:
     // -----------------------------------------------------------------------------
     // Jf2ue function for isotropic linear poroelasticity.
     static inline
-    void Jf2ue(const PylithInt dim,
-               const PylithInt numS,
-               const PylithInt numA,
-               const PylithInt sOff[],
-               const PylithInt sOff_x[],
+    void Jf2ue(const pylith::integer dim,
+               const pylith::integer numS,
+               const pylith::integer numA,
+               const pylith::integer sOff[],
+               const pylith::integer sOff_x[],
                const PylithScalar s[],
                const PylithScalar s_t[],
                const PylithScalar s_x[],
-               const PylithInt aOff[],
-               const PylithInt aOff_x[],
+               const pylith::integer aOff[],
+               const pylith::integer aOff_x[],
                const PylithScalar a[],
                const PylithScalar a_t[],
                const PylithScalar a_x[],
-               const PylithReal t,
-               const PylithReal s_tshift,
+               const pylith::real t,
+               const pylith::real s_tshift,
                const PylithScalar x[],
-               const PylithInt numConstants,
+               const pylith::integer numConstants,
                const PylithScalar constants[],
                PylithScalar Jf2[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Rheology Context
         pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
@@ -3479,7 +3479,7 @@ public:
         const PylithScalar shearModulus = rheologyContext.shearModulus;
         const PylithScalar drainedBulkModulus = rheologyContext.drainedBulkModulus;
 
-        for (PylithInt d = 0; d < _dim; ++d) {
+        for (pylith::integer d = 0; d < _dim; ++d) {
             Jf2[d * _dim + d] -= drainedBulkModulus - (2.0 * shearModulus) / 3.0;
         } // for
 
@@ -3492,26 +3492,26 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void Jf3pp(const PylithInt dim,
-               const PylithInt numS,
-               const PylithInt numA,
-               const PylithInt sOff[],
-               const PylithInt sOff_x[],
+    void Jf3pp(const pylith::integer dim,
+               const pylith::integer numS,
+               const pylith::integer numA,
+               const pylith::integer sOff[],
+               const pylith::integer sOff_x[],
                const PylithScalar s[],
                const PylithScalar s_t[],
                const PylithScalar s_x[],
-               const PylithInt aOff[],
-               const PylithInt aOff_x[],
+               const pylith::integer aOff[],
+               const pylith::integer aOff_x[],
                const PylithScalar a[],
                const PylithScalar a_t[],
                const PylithScalar a_x[],
-               const PylithReal t,
-               const PylithReal s_tshift,
+               const pylith::real t,
+               const pylith::real s_tshift,
                const PylithScalar x[],
-               const PylithInt numConstants,
+               const pylith::integer numConstants,
                const PylithScalar constants[],
                PylithScalar Jf3[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Rheology Context
         pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
@@ -3530,8 +3530,8 @@ public:
         PylithScalar tensorPermeability[9] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
         pylith::fekernels::Tensor::ops3D.toTensor(rheologyContext.permeability, tensorPermeability);
 
-        for (PylithInt i = 0; i < _dim; ++i) {
-            for (PylithInt j = 0; j < _dim; j++) {
+        for (pylith::integer i = 0; i < _dim; ++i) {
+            for (pylith::integer j = 0; j < _dim; j++) {
                 Jf3[i * _dim + j] += tensorPermeability[i * _dim + j] / fluidViscosity;
             } // for
         } // for
@@ -3545,26 +3545,26 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void Jf3pp_tensor_permeability(const PylithInt dim,
-                                   const PylithInt numS,
-                                   const PylithInt numA,
-                                   const PylithInt sOff[],
-                                   const PylithInt sOff_x[],
+    void Jf3pp_tensor_permeability(const pylith::integer dim,
+                                   const pylith::integer numS,
+                                   const pylith::integer numA,
+                                   const pylith::integer sOff[],
+                                   const pylith::integer sOff_x[],
                                    const PylithScalar s[],
                                    const PylithScalar s_t[],
                                    const PylithScalar s_x[],
-                                   const PylithInt aOff[],
-                                   const PylithInt aOff_x[],
+                                   const pylith::integer aOff[],
+                                   const pylith::integer aOff_x[],
                                    const PylithScalar a[],
                                    const PylithScalar a_t[],
                                    const PylithScalar a_x[],
-                                   const PylithReal t,
-                                   const PylithReal s_tshift,
+                                   const pylith::real t,
+                                   const pylith::real s_tshift,
                                    const PylithScalar x[],
-                                   const PylithInt numConstants,
+                                   const pylith::integer numConstants,
                                    const PylithScalar constants[],
                                    PylithScalar Jf3[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Rheology Context
         pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
@@ -3583,8 +3583,8 @@ public:
         PylithScalar tensorPermeability[9] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
         pylith::fekernels::Tensor::ops3D.toTensor(rheologyContext.permeability, tensorPermeability);
 
-        for (PylithInt i = 0; i < _dim; ++i) {
-            for (PylithInt j = 0; j < _dim; j++) {
+        for (pylith::integer i = 0; i < _dim; ++i) {
+            for (pylith::integer j = 0; j < _dim; j++) {
                 Jf3[i * _dim + j] += tensorPermeability[i * _dim + j] / fluidViscosity;
             } // for
         } // for
@@ -3597,26 +3597,26 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void Jf0pp(const PylithInt dim,
-               const PylithInt numS,
-               const PylithInt numA,
-               const PylithInt sOff[],
-               const PylithInt sOff_x[],
+    void Jf0pp(const pylith::integer dim,
+               const pylith::integer numS,
+               const pylith::integer numA,
+               const pylith::integer sOff[],
+               const pylith::integer sOff_x[],
                const PylithScalar s[],
                const PylithScalar s_t[],
                const PylithScalar s_x[],
-               const PylithInt aOff[],
-               const PylithInt aOff_x[],
+               const pylith::integer aOff[],
+               const pylith::integer aOff_x[],
                const PylithScalar a[],
                const PylithScalar a_t[],
                const PylithScalar a_x[],
-               const PylithReal t,
-               const PylithReal s_tshift,
+               const pylith::real t,
+               const pylith::real s_tshift,
                const PylithScalar x[],
-               const PylithInt numConstants,
+               const pylith::integer numConstants,
                const PylithScalar constants[],
                PylithScalar Jf0[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Rheology Context
         pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
@@ -3638,26 +3638,26 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void Jf0pe(const PylithInt dim,
-               const PylithInt numS,
-               const PylithInt numA,
-               const PylithInt sOff[],
-               const PylithInt sOff_x[],
+    void Jf0pe(const pylith::integer dim,
+               const pylith::integer numS,
+               const pylith::integer numA,
+               const pylith::integer sOff[],
+               const pylith::integer sOff_x[],
                const PylithScalar s[],
                const PylithScalar s_t[],
                const PylithScalar s_x[],
-               const PylithInt aOff[],
-               const PylithInt aOff_x[],
+               const pylith::integer aOff[],
+               const pylith::integer aOff_x[],
                const PylithScalar a[],
                const PylithScalar a_t[],
                const PylithScalar a_x[],
-               const PylithReal t,
-               const PylithReal s_tshift,
+               const pylith::real t,
+               const pylith::real s_tshift,
                const PylithScalar x[],
-               const PylithInt numConstants,
+               const pylith::integer numConstants,
                const PylithScalar constants[],
                PylithScalar Jf0[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Rheology Context
         pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContext;
@@ -3679,25 +3679,25 @@ public:
     // \left( \alpha \frac{\partial \epsilon_{v}}{\partial t} + \frac{1}{M} \frac{\partial p_{f}}{\partial t} \right)
     // \frac{\partial \epsilon)_{v}}{\partial t} = \frac{\nabla \cdot \vec{u}}{dt}
     static inline
-    void g0p(const PylithInt dim,
-             const PylithInt numS,
-             const PylithInt numA,
-             const PylithInt sOff[],
-             const PylithInt sOff_x[],
+    void g0p(const pylith::integer dim,
+             const pylith::integer numS,
+             const pylith::integer numA,
+             const pylith::integer sOff[],
+             const pylith::integer sOff_x[],
              const PylithScalar s[],
              const PylithScalar s_t[],
              const PylithScalar s_x[],
-             const PylithInt aOff[],
-             const PylithInt aOff_x[],
+             const pylith::integer aOff[],
+             const pylith::integer aOff_x[],
              const PylithScalar a[],
              const PylithScalar a_t[],
              const PylithScalar a_x[],
-             const PylithReal t,
+             const pylith::real t,
              const PylithScalar x[],
-             const PylithInt numConstants,
+             const pylith::integer numConstants,
              const PylithScalar constants[],
              PylithScalar g0[]) {
-        const PylithInt _dim = 3;
+        const pylith::integer _dim = 3;
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -3724,25 +3724,25 @@ public:
     // \left( \alpha \frac{\partial \epsilon_{v}}{\partial t} + \frac{1}{M} \frac{\partial p_{f}}{\partial t} \right)
     // \frac{\partial \epsilon)_{v}}{\partial t} = \frac{\nabla \cdot \vec{u}}{dt}
     static inline
-    void g0p_source(const PylithInt dim,
-                    const PylithInt numS,
-                    const PylithInt numA,
-                    const PylithInt sOff[],
-                    const PylithInt sOff_x[],
+    void g0p_source(const pylith::integer dim,
+                    const pylith::integer numS,
+                    const pylith::integer numA,
+                    const pylith::integer sOff[],
+                    const pylith::integer sOff_x[],
                     const PylithScalar s[],
                     const PylithScalar s_t[],
                     const PylithScalar s_x[],
-                    const PylithInt aOff[],
-                    const PylithInt aOff_x[],
+                    const pylith::integer aOff[],
+                    const pylith::integer aOff_x[],
                     const PylithScalar a[],
                     const PylithScalar a_t[],
                     const PylithScalar a_x[],
-                    const PylithReal t,
+                    const pylith::real t,
                     const PylithScalar x[],
-                    const PylithInt numConstants,
+                    const pylith::integer numConstants,
                     const PylithScalar constants[],
                     PylithScalar g0[]) {
-        const PylithInt _dim = 3;
+        const pylith::integer _dim = 3;
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -3773,25 +3773,25 @@ public:
     // \left( \alpha \frac{\partial \epsilon_{v}}{\partial t} + \frac{1}{M} \frac{\partial p_{f}}{\partial t} \right)
     // \frac{\partial \epsilon)_{v}}{\partial t} = \frac{\nabla \cdot \vec{u}}{dt}
     static inline
-    void g0p_source_body(const PylithInt dim,
-                         const PylithInt numS,
-                         const PylithInt numA,
-                         const PylithInt sOff[],
-                         const PylithInt sOff_x[],
+    void g0p_source_body(const pylith::integer dim,
+                         const pylith::integer numS,
+                         const pylith::integer numA,
+                         const pylith::integer sOff[],
+                         const pylith::integer sOff_x[],
                          const PylithScalar s[],
                          const PylithScalar s_t[],
                          const PylithScalar s_x[],
-                         const PylithInt aOff[],
-                         const PylithInt aOff_x[],
+                         const pylith::integer aOff[],
+                         const pylith::integer aOff_x[],
                          const PylithScalar a[],
                          const PylithScalar a_t[],
                          const PylithScalar a_x[],
-                         const PylithReal t,
+                         const pylith::real t,
                          const PylithScalar x[],
-                         const PylithInt numConstants,
+                         const pylith::integer numConstants,
                          const PylithScalar constants[],
                          PylithScalar g0[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -3822,25 +3822,25 @@ public:
     // \left( \alpha \frac{\partial \epsilon_{v}}{\partial t} + \frac{1}{M} \frac{\partial p_{f}}{\partial t} \right)
     // \frac{\partial \epsilon)_{v}}{\partial t} = \frac{\nabla \cdot \vec{u}}{dt}
     static inline
-    void g0p_source_grav(const PylithInt dim,
-                         const PylithInt numS,
-                         const PylithInt numA,
-                         const PylithInt sOff[],
-                         const PylithInt sOff_x[],
+    void g0p_source_grav(const pylith::integer dim,
+                         const pylith::integer numS,
+                         const pylith::integer numA,
+                         const pylith::integer sOff[],
+                         const pylith::integer sOff_x[],
                          const PylithScalar s[],
                          const PylithScalar s_t[],
                          const PylithScalar s_x[],
-                         const PylithInt aOff[],
-                         const PylithInt aOff_x[],
+                         const pylith::integer aOff[],
+                         const pylith::integer aOff_x[],
                          const PylithScalar a[],
                          const PylithScalar a_t[],
                          const PylithScalar a_x[],
-                         const PylithReal t,
+                         const pylith::real t,
                          const PylithScalar x[],
-                         const PylithInt numConstants,
+                         const pylith::integer numConstants,
                          const PylithScalar constants[],
                          PylithScalar g0[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -3871,25 +3871,25 @@ public:
     // \left( \alpha \frac{\partial \epsilon_{v}}{\partial t} + \frac{1}{M} \frac{\partial p_{f}}{\partial t} \right)
     // \frac{\partial \epsilon)_{v}}{\partial t} = \frac{\nabla \cdot \vec{u}}{dt}
     static inline
-    void g0p_source_grav_body(const PylithInt dim,
-                              const PylithInt numS,
-                              const PylithInt numA,
-                              const PylithInt sOff[],
-                              const PylithInt sOff_x[],
+    void g0p_source_grav_body(const pylith::integer dim,
+                              const pylith::integer numS,
+                              const pylith::integer numA,
+                              const pylith::integer sOff[],
+                              const pylith::integer sOff_x[],
                               const PylithScalar s[],
                               const PylithScalar s_t[],
                               const PylithScalar s_x[],
-                              const PylithInt aOff[],
-                              const PylithInt aOff_x[],
+                              const pylith::integer aOff[],
+                              const pylith::integer aOff_x[],
                               const PylithScalar a[],
                               const PylithScalar a_t[],
                               const PylithScalar a_x[],
-                              const PylithReal t,
+                              const pylith::real t,
                               const PylithScalar x[],
-                              const PylithInt numConstants,
+                              const pylith::integer numConstants,
                               const PylithScalar constants[],
                               PylithScalar g0[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -3922,25 +3922,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void g1p(const PylithInt dim,
-             const PylithInt numS,
-             const PylithInt numA,
-             const PylithInt sOff[],
-             const PylithInt sOff_x[],
+    void g1p(const pylith::integer dim,
+             const pylith::integer numS,
+             const pylith::integer numA,
+             const pylith::integer sOff[],
+             const pylith::integer sOff_x[],
              const PylithScalar s[],
              const PylithScalar s_t[],
              const PylithScalar s_x[],
-             const PylithInt aOff[],
-             const PylithInt aOff_x[],
+             const pylith::integer aOff[],
+             const pylith::integer aOff_x[],
              const PylithScalar a[],
              const PylithScalar a_t[],
              const PylithScalar a_x[],
-             const PylithReal t,
+             const pylith::real t,
              const PylithScalar x[],
-             const PylithInt numConstants,
+             const pylith::integer numConstants,
              const PylithScalar constants[],
              PylithScalar g1[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -3972,25 +3972,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void g1p_tensor_permeability(const PylithInt dim,
-                                 const PylithInt numS,
-                                 const PylithInt numA,
-                                 const PylithInt sOff[],
-                                 const PylithInt sOff_x[],
+    void g1p_tensor_permeability(const pylith::integer dim,
+                                 const pylith::integer numS,
+                                 const pylith::integer numA,
+                                 const pylith::integer sOff[],
+                                 const pylith::integer sOff_x[],
                                  const PylithScalar s[],
                                  const PylithScalar s_t[],
                                  const PylithScalar s_x[],
-                                 const PylithInt aOff[],
-                                 const PylithInt aOff_x[],
+                                 const pylith::integer aOff[],
+                                 const pylith::integer aOff_x[],
                                  const PylithScalar a[],
                                  const PylithScalar a_t[],
                                  const PylithScalar a_x[],
-                                 const PylithReal t,
+                                 const pylith::real t,
                                  const PylithScalar x[],
-                                 const PylithInt numConstants,
+                                 const pylith::integer numConstants,
                                  const PylithScalar constants[],
                                  PylithScalar g1[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -4022,25 +4022,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void g1p_gravity(const PylithInt dim,
-                     const PylithInt numS,
-                     const PylithInt numA,
-                     const PylithInt sOff[],
-                     const PylithInt sOff_x[],
+    void g1p_gravity(const pylith::integer dim,
+                     const pylith::integer numS,
+                     const pylith::integer numA,
+                     const pylith::integer sOff[],
+                     const pylith::integer sOff_x[],
                      const PylithScalar s[],
                      const PylithScalar s_t[],
                      const PylithScalar s_x[],
-                     const PylithInt aOff[],
-                     const PylithInt aOff_x[],
+                     const pylith::integer aOff[],
+                     const pylith::integer aOff_x[],
                      const PylithScalar a[],
                      const PylithScalar a_t[],
                      const PylithScalar a_x[],
-                     const PylithReal t,
+                     const pylith::real t,
                      const PylithScalar x[],
-                     const PylithInt numConstants,
+                     const pylith::integer numConstants,
                      const PylithScalar constants[],
                      PylithScalar g1[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
@@ -4074,25 +4074,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), other poroelastic related param ...]
      */
     static inline
-    void g1p_gravity_tensor_permeability(const PylithInt dim,
-                                         const PylithInt numS,
-                                         const PylithInt numA,
-                                         const PylithInt sOff[],
-                                         const PylithInt sOff_x[],
+    void g1p_gravity_tensor_permeability(const pylith::integer dim,
+                                         const pylith::integer numS,
+                                         const pylith::integer numA,
+                                         const pylith::integer sOff[],
+                                         const pylith::integer sOff_x[],
                                          const PylithScalar s[],
                                          const PylithScalar s_t[],
                                          const PylithScalar s_x[],
-                                         const PylithInt aOff[],
-                                         const PylithInt aOff_x[],
+                                         const pylith::integer aOff[],
+                                         const pylith::integer aOff_x[],
                                          const PylithScalar a[],
                                          const PylithScalar a_t[],
                                          const PylithScalar a_x[],
-                                         const PylithReal t,
+                                         const pylith::real t,
                                          const PylithScalar x[],
-                                         const PylithInt numConstants,
+                                         const pylith::integer numConstants,
                                          const PylithScalar constants[],
                                          PylithScalar g1[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
         pylith::fekernels::Poroelasticity::setContextDynamic(
@@ -4125,25 +4125,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), ...]
      */
     static inline
-    void g1v(const PylithInt dim,
-             const PylithInt numS,
-             const PylithInt numA,
-             const PylithInt sOff[],
-             const PylithInt sOff_x[],
+    void g1v(const pylith::integer dim,
+             const pylith::integer numS,
+             const pylith::integer numA,
+             const pylith::integer sOff[],
+             const pylith::integer sOff_x[],
              const PylithScalar s[],
              const PylithScalar s_t[],
              const PylithScalar s_x[],
-             const PylithInt aOff[],
-             const PylithInt aOff_x[],
+             const pylith::integer aOff[],
+             const pylith::integer aOff_x[],
              const PylithScalar a[],
              const PylithScalar a_t[],
              const PylithScalar a_x[],
-             const PylithReal t,
+             const pylith::real t,
              const PylithScalar x[],
-             const PylithInt numConstants,
+             const pylith::integer numConstants,
              const PylithScalar constants[],
              PylithScalar g1[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Strain Context
         pylith::fekernels::Elasticity::StrainContext strainContext;
@@ -4174,25 +4174,25 @@ public:
      * Auxiliary fields: [density(1), shear_modulus(1), bulk_modulus(1), ..., refstress(4), refstrain(4)]
      */
     static inline
-    void g1v_refstate(const PylithInt dim,
-                      const PylithInt numS,
-                      const PylithInt numA,
-                      const PylithInt sOff[],
-                      const PylithInt sOff_x[],
+    void g1v_refstate(const pylith::integer dim,
+                      const pylith::integer numS,
+                      const pylith::integer numA,
+                      const pylith::integer sOff[],
+                      const pylith::integer sOff_x[],
                       const PylithScalar s[],
                       const PylithScalar s_t[],
                       const PylithScalar s_x[],
-                      const PylithInt aOff[],
-                      const PylithInt aOff_x[],
+                      const pylith::integer aOff[],
+                      const pylith::integer aOff_x[],
                       const PylithScalar a[],
                       const PylithScalar a_t[],
                       const PylithScalar a_x[],
-                      const PylithReal t,
+                      const pylith::real t,
                       const PylithScalar x[],
-                      const PylithInt numConstants,
+                      const pylith::integer numConstants,
                       const PylithScalar constants[],
                       PylithScalar g1[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Strain Context
         pylith::fekernels::Elasticity::StrainContext strainContext;
@@ -4233,25 +4233,25 @@ public:
      * Auxiliary fields: [..., biot_coefficient(1), shear_modulus(1), drained_bulk_modulus(1)]
      */
     static inline
-    void cauchyStress_infinitesimalStrain_asVector(const PylithInt dim,
-                                                   const PylithInt numS,
-                                                   const PylithInt numA,
-                                                   const PylithInt sOff[],
-                                                   const PylithInt sOff_x[],
+    void cauchyStress_infinitesimalStrain_asVector(const pylith::integer dim,
+                                                   const pylith::integer numS,
+                                                   const pylith::integer numA,
+                                                   const pylith::integer sOff[],
+                                                   const pylith::integer sOff_x[],
                                                    const PylithScalar s[],
                                                    const PylithScalar s_t[],
                                                    const PylithScalar s_x[],
-                                                   const PylithInt aOff[],
-                                                   const PylithInt aOff_x[],
+                                                   const pylith::integer aOff[],
+                                                   const pylith::integer aOff_x[],
                                                    const PylithScalar a[],
                                                    const PylithScalar a_t[],
                                                    const PylithScalar a_x[],
-                                                   const PylithReal t,
+                                                   const pylith::real t,
                                                    const PylithScalar x[],
-                                                   const PylithInt numConstants,
+                                                   const pylith::integer numConstants,
                                                    const PylithScalar constants[],
                                                    PylithScalar stressVector[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Strain Context
         pylith::fekernels::Elasticity::StrainContext strainContext;
@@ -4287,25 +4287,25 @@ public:
      * Auxiliary fields: [..., biot_coefficient(1), shear_modulus(1), drained_bulk_modulus(1)]
      */
     static inline
-    void cauchyStress_infinitesimalStrain_refState_asVector(const PylithInt dim,
-                                                            const PylithInt numS,
-                                                            const PylithInt numA,
-                                                            const PylithInt sOff[],
-                                                            const PylithInt sOff_x[],
+    void cauchyStress_infinitesimalStrain_refState_asVector(const pylith::integer dim,
+                                                            const pylith::integer numS,
+                                                            const pylith::integer numA,
+                                                            const pylith::integer sOff[],
+                                                            const pylith::integer sOff_x[],
                                                             const PylithScalar s[],
                                                             const PylithScalar s_t[],
                                                             const PylithScalar s_x[],
-                                                            const PylithInt aOff[],
-                                                            const PylithInt aOff_x[],
+                                                            const pylith::integer aOff[],
+                                                            const pylith::integer aOff_x[],
                                                             const PylithScalar a[],
                                                             const PylithScalar a_t[],
                                                             const PylithScalar a_x[],
-                                                            const PylithReal t,
+                                                            const pylith::real t,
                                                             const PylithScalar x[],
-                                                            const PylithInt numConstants,
+                                                            const pylith::integer numConstants,
                                                             const PylithScalar constants[],
                                                             PylithScalar stressVector[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Strain Context
         pylith::fekernels::Elasticity::StrainContext strainContext;
@@ -4334,24 +4334,24 @@ public:
 
     // Calculate water content
     static inline
-    void waterContent_asScalar(const PylithInt dim,
-                               const PylithInt numS,
-                               const PylithInt numA,
-                               const PylithInt sOff[],
-                               const PylithInt sOff_x[],
+    void waterContent_asScalar(const pylith::integer dim,
+                               const pylith::integer numS,
+                               const pylith::integer numA,
+                               const pylith::integer sOff[],
+                               const pylith::integer sOff_x[],
                                const PylithScalar s[],
                                const PylithScalar s_t[],
                                const PylithScalar s_x[],
-                               const PylithInt aOff[],
-                               const PylithInt aOff_x[],
+                               const pylith::integer aOff[],
+                               const pylith::integer aOff_x[],
                                const PylithScalar a[],
                                const PylithScalar a_t[],
                                const PylithScalar a_x[],
-                               const PylithReal t,
+                               const pylith::real t,
                                const PylithScalar x[],
-                               const PylithInt numConstants,
+                               const pylith::integer numConstants,
                                const PylithScalar constants[],
-                               PylithReal* waterContent) {
+                               pylith::real* waterContent) {
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;
         pylith::fekernels::Poroelasticity::setContextQuasistatic(
@@ -4368,8 +4368,8 @@ public:
         PylithScalar trace_strain = (poroelasticContext.trace_strain ? poroelasticContext.trace_strain : 0.0);
 
         // Rheological Auxiliaries
-        const PylithReal biotCoefficient = rheologyContext.biotCoefficient;
-        const PylithReal biotModulus = rheologyContext.biotModulus;
+        const pylith::real biotCoefficient = rheologyContext.biotCoefficient;
+        const pylith::real biotModulus = rheologyContext.biotModulus;
 
         *waterContent = biotCoefficient * trace_strain + pressure / biotModulus;
 
@@ -4381,38 +4381,38 @@ public:
     /* Update porosity for a linear poroelastic material, implicit.
      */
     static inline
-    void updatePorosityImplicit(const PylithInt dim,
-                                const PylithInt numS,
-                                const PylithInt numA,
-                                const PylithInt sOff[],
-                                const PylithInt sOff_x[],
+    void updatePorosityImplicit(const pylith::integer dim,
+                                const pylith::integer numS,
+                                const pylith::integer numA,
+                                const pylith::integer sOff[],
+                                const pylith::integer sOff_x[],
                                 const PylithScalar s[],
                                 const PylithScalar s_t[],
                                 const PylithScalar s_x[],
-                                const PylithInt aOff[],
-                                const PylithInt aOff_x[],
+                                const pylith::integer aOff[],
+                                const pylith::integer aOff_x[],
                                 const PylithScalar a[],
                                 const PylithScalar a_t[],
                                 const PylithScalar a_x[],
-                                const PylithReal t,
+                                const pylith::real t,
                                 const PylithScalar x[],
-                                const PylithInt numConstants,
+                                const pylith::integer numConstants,
                                 const PylithScalar constants[],
                                 PylithScalar porosity[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Incoming solution fields.
-        const PylithInt i_pressure_t = 4;
-        const PylithInt i_trace_strain_t = 5;
+        const pylith::integer i_pressure_t = 4;
+        const pylith::integer i_trace_strain_t = 5;
 
         // Incoming re-packed auxiliary field.
 
         // Poroelasticity
-        const PylithInt i_porosityPrev = 3;
+        const pylith::integer i_porosityPrev = 3;
 
         // IsotropicLinearPoroelasticity
-        const PylithInt i_drainedBulkModulus = numA - 4;
-        const PylithInt i_biotCoefficient = numA - 3;
+        const pylith::integer i_drainedBulkModulus = numA - 4;
+        const pylith::integer i_biotCoefficient = numA - 3;
 
         // Constants
         const PylithScalar dt = constants[0];
@@ -4478,25 +4478,25 @@ public:
     /* Update porosity for a linear poroelastic material, explicit.
      */
     static inline
-    void updatePorosityExplicit(const PylithInt dim,
-                                const PylithInt numS,
-                                const PylithInt numA,
-                                const PylithInt sOff[],
-                                const PylithInt sOff_x[],
+    void updatePorosityExplicit(const pylith::integer dim,
+                                const pylith::integer numS,
+                                const pylith::integer numA,
+                                const pylith::integer sOff[],
+                                const pylith::integer sOff_x[],
                                 const PylithScalar s[],
                                 const PylithScalar s_t[],
                                 const PylithScalar s_x[],
-                                const PylithInt aOff[],
-                                const PylithInt aOff_x[],
+                                const pylith::integer aOff[],
+                                const pylith::integer aOff_x[],
                                 const PylithScalar a[],
                                 const PylithScalar a_t[],
                                 const PylithScalar a_x[],
-                                const PylithReal t,
+                                const pylith::real t,
                                 const PylithScalar x[],
-                                const PylithInt numConstants,
+                                const pylith::integer numConstants,
                                 const PylithScalar constants[],
                                 PylithScalar porosity[]) {
-        const PylithInt _dim = 3;assert(_dim == dim);
+        const pylith::integer _dim = 3;assert(_dim == dim);
 
         // Poroelastic Context
         pylith::fekernels::Poroelasticity::Context poroelasticContext;

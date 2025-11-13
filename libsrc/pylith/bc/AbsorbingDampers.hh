@@ -16,17 +16,21 @@
 class pylith::bc::AbsorbingDampers : public pylith::bc::BoundaryCondition {
     friend class TestAbsorbingDampers; // unit testing
 
-    // PUBLIC METHODS //////////////////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 
-    /// Default constructor.
-    AbsorbingDampers(void);
+    /** Factory for std::shared_ptr.
+     *
+     * @param[in] physics Physics implemented by constraint.
+     */
+    static
+    std::shared_ptr<AbsorbingDampers> create(void);
 
     /// Destructor.
-    ~AbsorbingDampers(void);
+    ~AbsorbingDampers(void) override;
 
     /// Deallocate PETSc and local data structures.
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Verify configuration is acceptable.
      *
@@ -37,32 +41,38 @@ public:
     /** Create integrator and set kernels.
      *
      * @param[in] solution Solution field.
-     * @returns Integrator if applicable, otherwise NULL.
+     * @returns Integrator if applicable, otherwise nullptr.
      */
-    pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution) override;
+    std::shared_ptr<pylith::feassemble::Integrator> createIntegrator(const pylith::topology::Field& solution) override;
 
     /** Create constraint and set kernels.
      *
      * @param[in] solution Solution field.
-     * @returns Constraint if applicable, otherwise NULL.
+     * @returns Constraint if applicable, otherwise nullptr.
      */
-    std::vector<pylith::feassemble::Constraint*> createConstraints(const pylith::topology::Field& solution) override;
+    std::vector<std::shared_ptr<pylith::feassemble::Constraint> > createConstraints(const pylith::topology::Field& solution) override;
 
     /** Create auxiliary field.
      *
      * @param[in] solution Solution field.
      * @param[in\ domainMesh Finite-element mesh associated with integration domain.
      *
-     * @returns Auxiliary field if applicable, otherwise NULL.
+     * @returns Auxiliary field if applicable, otherwise nullptr.
      */
-    pylith::topology::Field* createAuxiliaryField(const pylith::topology::Field& solution,
-                                                  const pylith::topology::Mesh& domainMesh) override;
+    std::shared_ptr<pylith::topology::Field> createAuxiliaryField(const pylith::topology::Field& solution,
+                                                                  const pylith::topology::Mesh& domainMesh) override;
 
-    // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
+    // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
+protected:
+
+    /// Default constructor.
+    AbsorbingDampers(void);
+
+    // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    AbsorbingDampers(const AbsorbingDampers&); ///< Not implemented.
-    const AbsorbingDampers& operator=(const AbsorbingDampers&); ///< Not implemented.
+    AbsorbingDampers(const AbsorbingDampers&) = delete;
+    const AbsorbingDampers& operator=(const AbsorbingDampers&) = delete;
 
 };
 

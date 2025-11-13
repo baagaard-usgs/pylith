@@ -37,10 +37,8 @@ public:
     /** Set names of solution subfields requested for output.
      *
      * @param[in] names Array of subfield names.
-     * @param[in] numNames Length of array.
      */
-    void setOutputSubfields(const char* names[],
-                            const int numNames);
+    void setOutputSubfields(const pylith::string_vector& names);
 
     /** Get names of solution subfields requested for output.
      *
@@ -119,8 +117,8 @@ protected:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    OutputSoln(const OutputSoln&); ///< Not implemented.
-    const OutputSoln& operator=(const OutputSoln&); ///< Not implemented
+    OutputSoln(const OutputSoln&) = delete;
+    const OutputSoln& operator=(const OutputSoln&) = delete;
 
 }; // OutputSoln
 

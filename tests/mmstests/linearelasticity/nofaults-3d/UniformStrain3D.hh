@@ -38,7 +38,7 @@ public:
 
 private:
 
-    UniformStrain3D(void); ///< Not implemented
+    UniformStrain3D(void) = delete;
 }; // UniformStrain3D
 
 // End of file

@@ -41,8 +41,8 @@ public:
                 void init(void);
 
                 static pylith::utils::EventLogger logger;
-                static PylithInt getSubfield;
-                static PylithInt appendField;
+                static pylith::integer getSubfield;
+                static pylith::integer appendField;
             };
 
         }; // _OutputObserver
@@ -50,8 +50,8 @@ public:
 } // pylith
 
 pylith::utils::EventLogger pylith::meshio::_OutputObserver::Events::logger;
-PylithInt pylith::meshio::_OutputObserver::Events::getSubfield;
-PylithInt pylith::meshio::_OutputObserver::Events::appendField;
+pylith::integer pylith::meshio::_OutputObserver::Events::getSubfield;
+pylith::integer pylith::meshio::_OutputObserver::Events::appendField;
 
 // ------------------------------------------------------------------------------------------------
 void
@@ -67,9 +67,6 @@ pylith::meshio::_OutputObserver::Events::init(void) {
 // Constructor
 pylith::meshio::OutputObserver::OutputObserver(void) :
     _timeScale(1.0),
-    _outputMesh(NULL),
-    _writer(NULL),
-    _trigger(NULL),
     _outputBasisOrder(1) {
     _OutputObserver::Events::init();
 }
@@ -89,25 +86,19 @@ pylith::meshio::OutputObserver::deallocate(void) {
     if (_writer) {
         _writer->close();
         _writer->deallocate();
-    }
+    } // if
 
-    typedef std::map<std::string, OutputSubfield*> subfield_t;
-    for (subfield_t::iterator iter = _subfields.begin(); iter != _subfields.end(); ++iter) {
-        delete iter->second;iter->second = NULL;
-    } // for
     _subfields.clear();
-    delete _outputMesh;_outputMesh = NULL;
-
-    _writer = NULL; // :TODO: Use shared pointer
-    _trigger = NULL; // :TODO: Use shared pointer
-
+    _outputMesh.reset();
+    _writer.reset();
+    _trigger.reset();
 } // deallocate
 
 
 // ------------------------------------------------------------------------------------------------
 // Set trigger for how often to write output.
 void
-pylith::meshio::OutputObserver::setTrigger(pylith::meshio::OutputTrigger* const trigger) {
+pylith::meshio::OutputObserver::setTrigger(const std::shared_ptr<pylith::meshio::OutputTrigger>& trigger) {
     PYLITH_COMPONENT_DEBUG("OutputObserver::setTrigger(otrigger="<<typeid(trigger).name()<<")");
 
     _trigger = trigger;
@@ -116,7 +107,7 @@ pylith::meshio::OutputObserver::setTrigger(pylith::meshio::OutputTrigger* const 
 
 // ------------------------------------------------------------------------------------------------
 // Get trigger for how often to write otuput.
-const pylith::meshio::OutputTrigger*
+const std::shared_ptr<pylith::meshio::OutputTrigger>&
 pylith::meshio::OutputObserver::getTrigger(void) const {
     return _trigger;
 } // getTrigger
@@ -125,11 +116,11 @@ pylith::meshio::OutputObserver::getTrigger(void) const {
 // ------------------------------------------------------------------------------------------------
 // Set writer to write data to file.
 void
-pylith::meshio::OutputObserver::setWriter(DataWriter* const writer) {
+pylith::meshio::OutputObserver::setWriter(const std::shared_ptr<pylith::meshio::DataWriter>& writer) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("OutputObserver::setWrite(datawriter="<<typeid(writer).name()<<")");
 
-    _writer = writer; // :TODO: Use shared pointer
+    _writer = writer;
 
     PYLITH_METHOD_END;
 } // setWriter
@@ -138,15 +129,9 @@ pylith::meshio::OutputObserver::setWriter(DataWriter* const writer) {
 // ------------------------------------------------------------------------------------------------
 // Set basis order for output.
 void
-pylith::meshio::OutputObserver::setOutputBasisOrder(const int value) {
+pylith::meshio::OutputObserver::setOutputBasisOrder(const size_t value) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("OutputObserver::setBasisOrder(value="<<value<<")");
-
-    if (value < 0) {
-        std::ostringstream msg;
-        msg << "Basis order for output (" << value << ") must be nonnegative.";
-        throw std::out_of_range(msg.str());
-    } // if
 
     _outputBasisOrder = value;
 
@@ -158,15 +143,9 @@ pylith::meshio::OutputObserver::setOutputBasisOrder(const int value) {
 
 // Set number of refinement levels for output.
 void
-pylith::meshio::OutputObserver::setRefineLevels(const int value) {
+pylith::meshio::OutputObserver::setRefineLevels(const size_t value) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("OutputObserver::setRefineLevels(value="<<value<<")");
-
-    if (value < 0) {
-        std::ostringstream msg;
-        msg << "Number of refinement levels for output (" << value << ") must be nonnegative.";
-        throw std::out_of_range(msg.str());
-    } // if
 
     _refineLevels = value;
 
@@ -177,7 +156,7 @@ pylith::meshio::OutputObserver::setRefineLevels(const int value) {
 // ------------------------------------------------------------------------------------------------
 // Set time scale.
 void
-pylith::meshio::OutputObserver::setTimeScale(const PylithReal value) {
+pylith::meshio::OutputObserver::setTimeScale(const pylith::real value) {
     if (value <= 0.0) {
         std::ostringstream msg;
         msg << "Time scale ("<<value<<") for output observer is nonpositive.";
@@ -189,29 +168,29 @@ pylith::meshio::OutputObserver::setTimeScale(const PylithReal value) {
 
 // ------------------------------------------------------------------------------------------------
 // Get mesh associated with subfield output.
-pylith::topology::Mesh*
+pylith::topology::Mesh* const
 pylith::meshio::OutputObserver::_getOutputMesh(const pylith::meshio::OutputSubfield& subfield) {
     PYLITH_METHOD_BEGIN;
 
     if (!_outputMesh) {
-        _outputMesh = new pylith::topology::Mesh();
+        _outputMesh = std::make_unique<pylith::topology::Mesh>();
         PetscDM dmOutput = subfield.getOutputDM();
         PetscObjectReference((PetscObject) dmOutput);
         _outputMesh->setDM(dmOutput);
     } // if
 
-    PYLITH_METHOD_RETURN(_outputMesh);
+    PYLITH_METHOD_RETURN(_outputMesh.get());
 } // _getOutputMesh
 
 
 // ------------------------------------------------------------------------------------------------
 // Get output subfield, creating if necessary.
-pylith::meshio::OutputSubfield*
+pylith::meshio::OutputSubfield* const
 pylith::meshio::OutputObserver::_getSubfield(const pylith::topology::Field& field,
                                              const pylith::topology::Mesh& submesh,
                                              const char* name) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("_getSubfield(field="<<field.getLabel()<<", name="<<name<<", submesh="<<typeid(submesh).name()<<")");
+    PYLITH_COMPONENT_DEBUG("_getSubfield(field="<<field.getName()<<", name="<<name<<", submesh="<<typeid(submesh).name()<<")");
     _OutputObserver::Events::logger.eventBegin(_OutputObserver::Events::getSubfield);
 
     if (0 == _subfields.count(name) ) {
@@ -219,14 +198,14 @@ pylith::meshio::OutputObserver::_getSubfield(const pylith::topology::Field& fiel
     } // if
 
     _OutputObserver::Events::logger.eventEnd(_OutputObserver::Events::getSubfield);
-    PYLITH_METHOD_RETURN(_subfields[name]);
+    PYLITH_METHOD_RETURN(_subfields[name].get());
 } // _getSubfield
 
 
 // ------------------------------------------------------------------------------------------------
 // Append finite-element vertex field to file.
 void
-pylith::meshio::OutputObserver::_appendField(const PylithReal t,
+pylith::meshio::OutputObserver::_appendField(const pylith::real t,
                                              const pylith::meshio::OutputSubfield& subfield) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("_appendField(t="<<t<<", subfield="<<typeid(subfield).name()<<")");

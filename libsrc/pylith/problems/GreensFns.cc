@@ -49,10 +49,10 @@ public:
 pylith::problems::GreensFns::GreensFns(void) :
     _faultLabelName(pylith::topology::Mesh::cells_label_name),
     _faultLabelValue(100),
-    _faultImpulses(NULL),
-    _integratorImpulses(NULL),
-    _snes(NULL),
-    _monitor(NULL) {
+    _faultImpulses(nullptr),
+    _integratorImpulses(nullptr),
+    _snes(nullptr),
+    _monitor(nullptr) {
     PyreComponent::setName(_GreensFns::pyreComponent);
 
     _integrationData->setScalar(pylith::feassemble::IntegrationData::dt_jacobian, -1.0);
@@ -75,10 +75,10 @@ pylith::problems::GreensFns::deallocate(void) {
 
     Problem::deallocate();
 
-    _faultImpulses = NULL; // Memory handle in Python. :TODO: Use shared pointer.
-    _integratorImpulses = NULL; // Memory handle in Problem. :TODO: Use shared pointer.
+    _faultImpulses = nullptr; // Memory handle in Python. :TODO: Use shared pointer.
+    _integratorImpulses = nullptr; // Memory handle in Problem. :TODO: Use shared pointer.
 
-    _monitor = NULL; // Memory handle in Python. :TODO: Use shared pointer.
+    _monitor = nullptr; // Memory handle in Python. :TODO: Use shared pointer.
 
     PetscErrorCode err = SNESDestroy(&_snes);PYLITH_CHECK_ERROR(err);
 
@@ -140,7 +140,7 @@ PetscDM
 pylith::problems::GreensFns::getPetscDM(void) {
     PYLITH_METHOD_BEGIN;
 
-    PetscDM dm = NULL;
+    PetscDM dm = nullptr;
     PetscErrorCode err = SNESGetDM(_snes, &dm);PYLITH_CHECK_ERROR(err);
 
     PYLITH_METHOD_RETURN(dm);
@@ -158,7 +158,7 @@ pylith::problems::GreensFns::verifyConfiguration(void) const {
 
     // Verify we have fault for the impulses.
     const size_t numInterfaces = _interfaces.size();
-    pylith::faults::FaultCohesiveImpulses* faultImpulses = NULL;
+    pylith::faults::FaultCohesiveImpulses* faultImpulses = nullptr;
     for (size_t i = 0; i < numInterfaces; ++i) {
         if ((_faultLabelName == std::string(_interfaces[i]->getSurfaceLabelName())) &&
             (_faultLabelValue == _interfaces[i]->getSurfaceLabelValue())) {
@@ -219,12 +219,12 @@ pylith::problems::GreensFns::initialize(void) {
 
     // Initialize solution_dot.
     pylith::topology::Field* solutionDot = new pylith::topology::Field(*solution);assert(solutionDot);
-    solutionDot->setLabel("solution_dot");
+    solutionDot->setName("solution_dot");
     _integrationData->setField(pylith::feassemble::IntegrationData::solution_dot, solutionDot);
 
     // Initialize residual.
     pylith::topology::Field* residual = new pylith::topology::Field(*solution);assert(residual);
-    residual->setLabel("residual");
+    residual->setName("residual");
     _integrationData->setField(pylith::feassemble::IntegrationData::residual, residual);
 
     _integrationData->setScalar(pylith::feassemble::IntegrationData::time, 0.0);
@@ -234,8 +234,8 @@ pylith::problems::GreensFns::initialize(void) {
     switch (_formulation) {
     case pylith::problems::Physics::QUASISTATIC:
         PYLITH_COMPONENT_DEBUG("Setting PetscSNES callbacks SNESSetFunction() and SNESSetJacobian().");
-        err = SNESSetFunction(_snes, NULL, computeResidual, (void*)this);PYLITH_CHECK_ERROR(err);
-        err = SNESSetJacobian(_snes, NULL, NULL, computeJacobian, (void*)this);PYLITH_CHECK_ERROR(err);
+        err = SNESSetFunction(_snes, nullptr, computeResidual, (void*)this);PYLITH_CHECK_ERROR(err);
+        err = SNESSetJacobian(_snes, nullptr, nullptr, computeJacobian, (void*)this);PYLITH_CHECK_ERROR(err);
         err = SNESSetType(_snes, SNESKSPONLY);PYLITH_CHECK_ERROR(err);
         err = SNESSetLagJacobian(_snes, -2);PYLITH_CHECK_ERROR(err);
         break;
@@ -270,7 +270,7 @@ pylith::problems::GreensFns::initialize(void) {
 
     pythia::journal::debug_t debug(pylith::utils::PyreComponent::getName());
     if (debug.state()) {
-        PetscDS dsSoln = NULL;
+        PetscDS dsSoln = nullptr;
         err = DMGetDS(solution->getDM(), &dsSoln);PYLITH_CHECK_ERROR(err);
         debug << pythia::journal::at(__HERE__)
               << "Solution Discretization" << pythia::journal::endl;
@@ -297,7 +297,7 @@ pylith::problems::GreensFns::solve(void) {
     assert(solution);
     pylith::topology::Field* residual = _integrationData->getField(pylith::feassemble::IntegrationData::residual);assert(residual);
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     int mpiRank = 0;
     int mpiNumProcs = 0;
     PetscDM dm = getPetscDM();
@@ -305,9 +305,9 @@ pylith::problems::GreensFns::solve(void) {
     err = MPI_Comm_rank(comm, &mpiRank);
     err = MPI_Comm_size(comm, &mpiNumProcs);PYLITH_CHECK_ERROR(err);
 
-    PetscInt numImpulsesLocal = _faultImpulses->getNumImpulsesLocal();
+    pylith::integer numImpulsesLocal = _faultImpulses->getNumImpulsesLocal();
     PYLITH_COMPONENT_DEBUG("[" << mpiRank << "] Contributing " << numImpulsesLocal << " impulses for Green's functions.");
-    int_array numImpulses(mpiNumProcs);
+    pylith::integer_array numImpulses(mpiNumProcs);
     err = MPI_Allgather(&numImpulsesLocal, 1, MPI_INT, &numImpulses[0], 1, MPI_INT, comm);PYLITH_CHECK_ERROR(err);
 
     size_t numImpulsesGlobal = 0;
@@ -315,7 +315,7 @@ pylith::problems::GreensFns::solve(void) {
         numImpulsesGlobal += numImpulses[iProc];
     } // for
 
-    const PylithReal tolerance = 1.0e-4;
+    const pylith::real tolerance = 1.0e-4;
     for (int iProc = 0, iImpulseGlobal = 0; iProc < mpiNumProcs; ++iProc) {
         for (int iImpulseLocal = 0; iImpulseLocal < numImpulses[iProc]; ++iImpulseLocal, ++iImpulseGlobal) {
             if (0 == mpiRank) {
@@ -323,7 +323,7 @@ pylith::problems::GreensFns::solve(void) {
             } // if
 
             // Update impulse on fault
-            const PetscReal impulseReal = (mpiRank == iProc) ? iImpulseLocal + tolerance : -1.0;
+            const pylith::real impulseReal = (mpiRank == iProc) ? iImpulseLocal + tolerance : -1.0;
             _integratorImpulses->setState(impulseReal);
 
             err = SNESSolve(_snes, residual->getGlobalVector(), solution->getGlobalVector());PYLITH_CHECK_ERROR(err);
@@ -346,8 +346,8 @@ pylith::problems::GreensFns::poststep(const size_t impulse,
     PYLITH_COMPONENT_DEBUG("poststep(impulse"<<impulse<<")");
 
     // Get current solution. ParaView needs valid times.
-    const PetscReal t = impulse / _normalizer->getTimeScale();
-    const PetscReal dt = 1.0;
+    const pylith::real t = impulse / _normalizer->getTimeScale();
+    const pylith::real dt = 1.0;
     const pylith::problems::Observer::NotificationType notification = pylith::problems::Observer::SOLUTION;
 
     assert(_integrationData);
@@ -453,8 +453,8 @@ pylith::problems::GreensFns::computeJacobian(PetscMat jacobianMat,
     assert(solution);
 
     // Zero Jacobian
-    PetscErrorCode err = 0;
-    PetscDS dsSoln = NULL;
+    PetscErrorCode err = PETSC_SUCCESS;
+    PetscDS dsSoln = nullptr;
     err = DMGetDS(solution->getDM(), &dsSoln);PYLITH_CHECK_ERROR(err);
 
     PetscBool hasJacobian = PETSC_FALSE;

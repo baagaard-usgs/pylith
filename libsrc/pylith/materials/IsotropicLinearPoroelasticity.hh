@@ -183,8 +183,8 @@ private:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    IsotropicLinearPoroelasticity(const IsotropicLinearPoroelasticity&); ///< Not implemented.
-    const IsotropicLinearPoroelasticity& operator=(const IsotropicLinearPoroelasticity&); ///< Not implemented
+    IsotropicLinearPoroelasticity(const IsotropicLinearPoroelasticity&) = delete;
+    const IsotropicLinearPoroelasticity& operator=(const IsotropicLinearPoroelasticity&) = delete;
 
 }; // class IsotropicLinearPoroelasticity
 

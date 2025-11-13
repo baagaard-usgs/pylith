@@ -129,7 +129,7 @@ pylith::topology::TestMesh::testDMMesh(void) { // testDMMesh
     PYLITH_METHOD_BEGIN;
 
     const int dim = 2;
-    PetscInt dmDim;
+    pylith::integer dmDim;
     Mesh mesh(dim);
 
     PetscDM dmMesh = mesh.getDM();assert(dmMesh);
@@ -249,9 +249,9 @@ pylith::topology::TestMesh::testView(void) { // testView
     mesh.view("hdf5:mesh_xdmf.h5:hdf5_xdmf");
     mesh.view("hdf5:mesh_petsc.h5:hdf5_petsc");
 
-    PetscErrorCode err = 0;
-    PetscViewer viewer = NULL;
-    PetscDM dm = NULL;
+    PetscErrorCode err = PETSC_SUCCESS;
+    PetscViewer viewer = nullptr;
+    PetscDM dm = nullptr;
     err = PetscViewerHDF5Open(PETSC_COMM_SELF, "mesh_petsc.h5", FILE_MODE_READ, &viewer);REQUIRE(!err);
     err = DMCreate(PETSC_COMM_SELF, &dm);REQUIRE(!err);
     err = DMLoad(dm, viewer);REQUIRE(!err);

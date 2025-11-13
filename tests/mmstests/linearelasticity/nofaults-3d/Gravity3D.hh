@@ -31,7 +31,7 @@ public:
 
 private:
 
-    Gravity3D(void); ///< Not implemented
+    Gravity3D(void) = delete;
 }; // Gravity3D
 
 // End of file

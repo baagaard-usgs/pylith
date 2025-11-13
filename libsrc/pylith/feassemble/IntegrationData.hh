@@ -133,8 +133,8 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    IntegrationData(const IntegrationData&); ///< Not implemented.
-    const IntegrationData& operator=(const IntegrationData&); ///< Not implemented.
+    IntegrationData(const IntegrationData&) = delete;
+    const IntegrationData& operator=(const IntegrationData&) = delete;
 
 }; // IntegrationData
 

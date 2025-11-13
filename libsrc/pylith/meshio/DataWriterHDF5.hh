@@ -53,10 +53,10 @@ public:
     DataWriterHDF5(void);
 
     /// Destructor
-    ~DataWriterHDF5(void);
+    ~DataWriterHDF5(void) override;
 
     /// Deallocate PETSc and local data structures.
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set filename for HDF5 file.
      *
@@ -81,10 +81,10 @@ public:
      * @param[in] isInfo True if only writing info values.
      */
     void open(const topology::Mesh& mesh,
-              const bool isInfo);
+              const bool isInfo) override;
 
     /// Close output files.
-    void close(void);
+    void close(void) override;
 
     /** Write field over vertices to file.
      *
@@ -92,7 +92,7 @@ public:
      * @param[in] subfield Subfield with basis order 1.
      */
     void writeVertexField(const pylith::real t,
-                          const pylith::meshio::OutputSubfield& field);
+                          const pylith::meshio::OutputSubfield& field) override;
 
     /** Write field over cells to file.
      *
@@ -100,7 +100,7 @@ public:
      * @param[in] subfield Subfield with basis order 0.
      */
     void writeCellField(const pylith::real t,
-                        const pylith::meshio::OutputSubfield& subfield);
+                        const pylith::meshio::OutputSubfield& subfield) override;
 
     /** Write dataset with names of points to file.
      *
@@ -110,7 +110,7 @@ public:
      * Primarily used with OutputSolnPoints.
      */
     void writePointNames(const pylith::string_vector& names,
-                         const topology::Mesh& mesh);
+                         const topology::Mesh& mesh) override;
 
     // PRIVATE METHODS /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
@@ -130,17 +130,15 @@ private:
     PetscViewer _viewer; ///< Output file.
     PetscVec _tstamp; ///< Single value vector holding time stamp.
 
-    std::map<std::string, int> _timesteps; ///< # of time steps written per field.
-    int _tstampIndex; ///< Index of last time stamp written.
+    std::map<std::string, size_t> _timesteps; ///< # of time steps written per field.
+    size_t _tstampIndex; ///< Index of last time stamp written.
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    DataWriterHDF5(const DataWriterHDF5&); ///< Not implemented
-    const DataWriterHDF5& operator=(const DataWriterHDF5&); ///< Not implemented
+    DataWriterHDF5(const DataWriterHDF5&) = delete;
+    const DataWriterHDF5& operator=(const DataWriterHDF5&) = delete;
 
 }; // DataWriterHDF5
-
-#include "DataWriterHDF5.icc" // inline methods
 
 // End of file

@@ -63,7 +63,7 @@ public:
 public:
 
     const char* filename; ///< Name of mesh file.
-    const char* faultLabel; ///< Label for fault (use NULL for no fault).
+    const char* faultLabel; ///< Label for fault (use nullptr for no fault).
 
 };  // TestReverseCuthillMcKee_Data
 

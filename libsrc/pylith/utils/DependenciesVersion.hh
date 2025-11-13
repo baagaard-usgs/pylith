@@ -64,8 +64,8 @@ public:
     // PRIVATE METHODS //////////////////////////////////////////////////////
 private:
 
-    DependenciesVersion(const DependenciesVersion&); ///< Not implemented
-    const DependenciesVersion& operator=(const DependenciesVersion&); ///< Not implemented
+    DependenciesVersion(const DependenciesVersion&) = delete;
+    const DependenciesVersion& operator=(const DependenciesVersion&) = delete;
 
     // PRIVATE MEMBERS //////////////////////////////////////////////////////
 private:

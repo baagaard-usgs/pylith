@@ -21,11 +21,11 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Default constructor.
 pylith::feassemble::UpdateStateVars::UpdateStateVars(void) :
-    _stateVarsIS(NULL),
-    _stateVarsDM(NULL),
-    _stateVarsVecLocal(NULL),
-    _stateVarsVecGlobal(NULL),
-    _auxiliaryFieldVecGlobal(NULL) {}
+    _stateVarsIS(nullptr),
+    _stateVarsDM(nullptr),
+    _stateVarsVecLocal(nullptr),
+    _stateVarsVecGlobal(nullptr),
+    _auxiliaryFieldVecGlobal(nullptr) {}
 
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ void
 pylith::feassemble::UpdateStateVars::deallocate(void) {
     PYLITH_METHOD_BEGIN;
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     err = ISDestroy(&_stateVarsIS);PYLITH_CHECK_ERROR(err);
     err = DMDestroy(&_stateVarsDM);PYLITH_CHECK_ERROR(err);
     err = VecDestroy(&_stateVarsVecLocal);PYLITH_CHECK_ERROR(err);
@@ -74,16 +74,16 @@ void
 pylith::feassemble::UpdateStateVars::initialize(const pylith::topology::Field& auxiliaryField) {
     PYLITH_METHOD_BEGIN;
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     PetscDM auxiliaryDM = auxiliaryField.getDM();
 
     const pylith::string_vector& subfieldNames = auxiliaryField.getSubfieldNames();
     const size_t numAuxiliarySubfields = subfieldNames.size();
-    pylith::int_array stateSubfieldIndices(numAuxiliarySubfields);
+    pylith::integer_array stateSubfieldIndices(numAuxiliarySubfields);
 
     size_t numStateSubfields = 0;
-    for (size_t iSubfield = 0; iSubfield < numAuxiliarySubfields; ++iSubfield) {
-        const pylith::topology::Field::SubfieldInfo& info = auxiliaryField.getSubfieldInfo(subfieldNames[iSubfield].c_str());
+    for (auto subfieldName : subfieldNames) {
+        const pylith::topology::Field::SubfieldInfo& info = auxiliaryField.getSubfieldInfo(subfieldName.c_str());
         if (info.description.hasHistory) {
             stateSubfieldIndices[numStateSubfields++] = info.index;
         } // if
@@ -110,7 +110,7 @@ pylith::feassemble::UpdateStateVars::prepare(pylith::topology::Field* auxiliaryF
 
     // :TODO: Verify that we need the global vectors and can't get by with just using VecISCopy() with the local vector.
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     err = VecSet(_stateVarsVecLocal, 0.0);PYLITH_CHECK_ERROR(err);
 
     // Move auxiliaryDM data to global vector.
@@ -129,7 +129,7 @@ void
 pylith::feassemble::UpdateStateVars::restore(pylith::topology::Field* auxiliaryField) {
     PYLITH_METHOD_BEGIN;
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     assert(auxiliaryField);
     PetscDM auxiliaryDM = auxiliaryField->getDM();
 

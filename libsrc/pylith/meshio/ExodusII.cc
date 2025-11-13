@@ -24,7 +24,7 @@
 #include <stdexcept> // USES std::runtime_error
 #include <sstream> // USES std::ostringstream
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Constructor
 pylith::meshio::ExodusII::ExodusII(void) :
     _filename(""),
@@ -32,26 +32,26 @@ pylith::meshio::ExodusII::ExodusII(void) :
 } // constructor
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Constructor with filename
 pylith::meshio::ExodusII::ExodusII(const char* filename) :
     _filename(filename),
-    _file(0) { // constructor
+    _file(0) {
     open();
 } // constructor
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Destructor
-pylith::meshio::ExodusII::~ExodusII(void) { // destructor
+pylith::meshio::ExodusII::~ExodusII(void) {
     deallocate();
 } // destructor
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Deallocate data structures.
 void
-pylith::meshio::ExodusII::deallocate(void) { // deallocate
+pylith::meshio::ExodusII::deallocate(void) {
     PYLITH_METHOD_BEGIN;
 
     close();
@@ -60,26 +60,26 @@ pylith::meshio::ExodusII::deallocate(void) { // deallocate
 } // deallocate
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Set filename.
 void
-pylith::meshio::ExodusII::filename(const char* name) { // filename
+pylith::meshio::ExodusII::setFilename(const char* name) {
     _filename = name;
 } // filename
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Get filename.
 const char*
-pylith::meshio::ExodusII::filename(void) const { // filename
+pylith::meshio::ExodusII::getFilename(void) const {
     return _filename.c_str();
 } // filename
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Open file.
 void
-pylith::meshio::ExodusII::open(void) { // open
+pylith::meshio::ExodusII::open(void) {
     PYLITH_METHOD_BEGIN;
 
     close();
@@ -95,10 +95,10 @@ pylith::meshio::ExodusII::open(void) { // open
 } // open
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Close file.
 void
-pylith::meshio::ExodusII::close(void) { // close
+pylith::meshio::ExodusII::close(void) {
     PYLITH_METHOD_BEGIN;
 
     if (_file) {
@@ -114,11 +114,11 @@ pylith::meshio::ExodusII::close(void) { // close
 } // close
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Check if Cubit Exodus file constains dimension.
 bool
 pylith::meshio::ExodusII::hasDim(const char* name,
-                                 int* id) const { // hasDim
+                                 int* id) const {
     PYLITH_METHOD_BEGIN;
 
     assert(_file);
@@ -140,7 +140,7 @@ pylith::meshio::ExodusII::hasDim(const char* name,
 } // hasDim
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Check if Cubit Exodus file constains attribute.
 bool
 pylith::meshio::ExodusII::hasAttr(const char* name,
@@ -172,7 +172,7 @@ pylith::meshio::ExodusII::hasAttr(const char* name,
 } // hasAttr
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Check if Cubit Exodus file constains variable.
 bool
 pylith::meshio::ExodusII::hasVar(const char* name,
@@ -198,10 +198,10 @@ pylith::meshio::ExodusII::hasVar(const char* name,
 } // hasVar
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Get value for dimension.
 int
-pylith::meshio::ExodusII::getDim(const char* name) const { // getDim
+pylith::meshio::ExodusII::getDim(const char* name) const {
     PYLITH_METHOD_BEGIN;
 
     assert(_file);
@@ -225,7 +225,7 @@ pylith::meshio::ExodusII::getDim(const char* name) const { // getDim
 } // getDim
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Get string attribute.
 void
 pylith::meshio::ExodusII::getAttr(std::string* value,
@@ -275,13 +275,13 @@ pylith::meshio::ExodusII::getAttr(std::string* value,
 } // getAttr
 
 
-// ----------------------------------------------------------------------
-// Get values for variable as an array of PylithScalars.
+// ------------------------------------------------------------------------------------------------
+// Get values for variable as an array of pylith::scalars.
 void
-pylith::meshio::ExodusII::getVar(PylithScalar* values,
+pylith::meshio::ExodusII::getVar(pylith::scalar* values,
                                  int* dims,
                                  int ndims,
-                                 const char* name) const { // getVar
+                                 const char* name) const {
     PYLITH_METHOD_BEGIN;
 
     assert(_file);
@@ -332,11 +332,11 @@ pylith::meshio::ExodusII::getVar(PylithScalar* values,
     } // for
     delete[] dimIds;dimIds = 0;
 
-    if (sizeof(PylithScalar) == sizeof(double)) {
+    if (sizeof(pylith::scalar) == sizeof(double)) {
         err = nc_get_var_double(_file, vid, values);
     } else {
         assert(0);
-        throw std::logic_error("Unknown size of PylithScalar in ExodusII::getVar().");
+        throw std::logic_error("Unknown size of pylith::scalar in ExodusII::getVar().");
     } // if/else
     if (err != NC_NOERR) {
         std::ostringstream msg;
@@ -348,13 +348,13 @@ pylith::meshio::ExodusII::getVar(PylithScalar* values,
 } // getVar
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Get values for variable as an array of ints.
 void
 pylith::meshio::ExodusII::getVar(int* values,
                                  int* dims,
                                  int ndims,
-                                 const char* name) const { // getVar
+                                 const char* name) const {
     PYLITH_METHOD_BEGIN;
 
     assert(_file);
@@ -416,12 +416,12 @@ pylith::meshio::ExodusII::getVar(int* values,
 } // getVar
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Get values for variable as an array of strings.
 void
 pylith::meshio::ExodusII::getVar(string_vector* values,
                                  int dim,
-                                 const char* name) const { // getVar
+                                 const char* name) const {
     PYLITH_METHOD_BEGIN;
 
     assert(_file);

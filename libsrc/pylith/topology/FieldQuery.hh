@@ -21,24 +21,17 @@
 #include <map> // HOLDSA std::map
 #include <string> // HASA std::string
 
-namespace pylith {
-    namespace feassemble {
-        class TestAuxiliaryFactory;
-    } // feassemble
-} // pylith
-
 class pylith::topology::FieldQuery {
     friend class _FieldQuery;
     friend class TestFieldQuery; // unit testing
     friend class pylith::testing::FieldTester; // unit testing
-    friend class pylith::feassemble::TestAuxiliaryFactory; // unit testing
 
-    // PUBLIC TYPEDEF ///////////////////////////////////////////////////////
+    // PUBLIC MEMBERS /////////////////////////////////////////////////////////////////////////////
 public:
 
     static const pylith::real SCALE_TOLERANCE;
 
-    // PUBLIC TYPEDEF ///////////////////////////////////////////////////////
+    // PUBLIC TYPEDEF /////////////////////////////////////////////////////////////////////////////
 public:
 
     /** Function prototype for converter functions.
@@ -68,30 +61,30 @@ public:
     /// Deallocate PETSc and local data structures.
     void deallocate(void);
 
-    /** Set query information for subfield.
+    /** Add subfield to query.
      *
      * Use the database passed in the call to openDB().
      *
-     * @param[in] subfield Name of subfield.
+     * @param[in] subfieldName Name of subfield.
      */
-    void setQuery(const char* subfield);
+    void addSubfield(const std::string& subfieldName);
 
-    /** Set query information for subfield.
+    /** Add subfield to query.
      *
      * Use the provided spatial database in the query.
      *
      * If the names of the values to query in the spatial database are not given via queryValues,
      * then the names of the subfield components are used.
      *
-     * @param[in] subfield Name of subfield.
+     * @param[in] subfieldName Name of subfield.
      * @param[in] db Spatial database to query (optional).
      * @param[in] queryValues Array of names of spatial database values for subfield.
      * @param[in] converter Function to convert spatial database values to subfield value (optional).
      */
-    void setQuery(const char* subfield,
-                  std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db,
-                  const pylith::string_vector& queryValues=pylith::string_vector(),
-                  convertfn_type converter=nullptr);
+    void addSubfield(const std::string& subfieldName,
+                     std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db,
+                     const pylith::string_vector& queryValues=pylith::string_vector(),
+                     convertfn_type converter=nullptr);
 
     /// Initialize query with default query information.
     void initializeWithDefaultQueries(void);
@@ -102,24 +95,24 @@ public:
      * @param lengthScale Length scale for dimensionalization of
      * location coordinates.
      */
-    void openDB(std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db,
-                const pylith::real lengthScale);
+    void open(const std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db,
+              const pylith::real lengthScale);
 
     /// Query spatial database to set values in field.
-    void queryDB(void);
+    void query(void);
 
     /** Query spatial database for points in label to set values in field.
      *
-     * @param[in] name Name of label.
-     * @param[in] value Value of label.
+     * @param[in] labelName Name of label.
+     * @param[in] labelValue Value of label.
      */
-    void queryDBLabel(const char* name,
-                      const pylith::integer value=1);
+    void queryUsingLabel(const char* labelName,
+                         const pylith::integer labelValue=1);
 
     /// Close spatial database query for setting values in field.
-    void closeDB(void);
+    void close(void);
 
-    /** Query of values from spatial databaseat point.
+    /** Query of values from spatial database point.
      *
      * Includes nondimensionalization but no conversion of values.
      *
@@ -132,57 +125,12 @@ public:
      * @returns PETSc error code (0 for success).
      */
     static
-    PetscErrorCode queryDBPointFn(pylith::integer dim,
-                                  pylith::real t,
-                                  const pylith::real x[],
-                                  pylith::integer nvalues,
-                                  pylith::scalar* values,
-                                  void* context);
-
-    /** Validator for positive values.
-     *
-     * If scale and tolerance are greater than zero, then the value must be
-     * in the range [scale/tolerance, scale*tolerance].
-     *
-     * @param[in] value Value to validate.
-     * @param[in] scale Scale for nondimensionalization.
-     * @param[in] tolerance Tolerance relative to scale for validation.
-     * @returns Error message if not positive, empty string otherwise.
-     */
-    static
-    std::string validatorPositive(const pylith::real value,
-                                  const pylith::real scale,
-                                  const pylith::real tolerance);
-
-    /** Validator for nonnegative values.
-     *
-     * If scale and tolerance are greater than zero, then the value must be
-     * in the range [scale/tolerance, scale*tolerance].
-     *
-     * @param[in] value Value to validate.
-     * @param[in] scale Scale for nondimensionalization.
-     * @param[in] tolerance Tolerance relative to scale for validation.
-     * @returns Error message if negative, empty string otherwise.
-     */
-    static
-    std::string validatorNonnegative(const pylith::real value,
-                                     const pylith::real scale,
-                                     const pylith::real tolerance);
-
-    /** Validator for scale only.
-     *
-     * If scale and tolerance are greater than zero, then the value must be
-     * in the range [scale/tolerance, scale*tolerance].
-     *
-     * @param[in] value Value to validate.
-     * @param[in] scale Scale for nondimensionalization.
-     * @param[in] tolerance Tolerance relative to scale for validation.
-     * @returns Error message if negative, empty string otherwise.
-     */
-    static
-    std::string validatorScale(const pylith::real value,
-                               const pylith::real scale,
-                               const pylith::real tolerance);
+    PetscErrorCode queryPointFn(pylith::integer dim,
+                                pylith::real t,
+                                const pylith::real x[],
+                                pylith::integer nvalues,
+                                pylith::scalar* values,
+                                void* context);
 
     // PRIVATE TYPEDEFS /////////////////////////////////////////////////////
 private:
@@ -198,7 +146,7 @@ private:
 
     }; // SubfieldQuery
 
-    typedef std::map<std::string, SubfieldQuery> subfieldquery_map_type;
+    typedef std::map<std::string, SubfieldQuery> subfieldquery_t;
 
     /// Function prototype for query functions.
     typedef PetscErrorCode (*queryfn_type)(pylith::integer,
@@ -240,13 +188,66 @@ private:
     std::vector<queryfn_type> _functions; ///< Functions implementing queries.
     std::vector<DBQueryContext> _contexts; ///< Contexts for performing query for each subfield.
     std::vector<DBQueryContext*> _contextPtrs; ///< Contexts for performing query for each subfield.
-    subfieldquery_map_type _subfieldQueries;
+    subfieldquery_t _subfieldQueries;
 
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    FieldQuery(const FieldQuery&); ///< Not implemented
-    const FieldQuery& operator=(const FieldQuery&); ///< Not implemented
+    FieldQuery(const FieldQuery&) = delete;
+    const FieldQuery& operator=(const FieldQuery&) = delete;
+
+    // Validators /////////////////////////////////////////////////////////////////////////////////
+public:
+
+    class Validators {
+public:
+
+        /** Validator for positive values.
+         *
+         * If scale and tolerance are greater than zero, then the value must be
+         * in the range [scale/tolerance, scale*tolerance].
+         *
+         * @param[in] value Value to validate.
+         * @param[in] scale Scale for nondimensionalization.
+         * @param[in] tolerance Tolerance relative to scale for validation.
+         * @returns Error message if not positive, empty string otherwise.
+         */
+        static
+        std::string positive(const pylith::real value,
+                             const pylith::real scale,
+                             const pylith::real tolerance);
+
+        /** Validator for nonnegative values.
+         *
+         * If scale and tolerance are greater than zero, then the value must be
+         * in the range [scale/tolerance, scale*tolerance].
+         *
+         * @param[in] value Value to validate.
+         * @param[in] scale Scale for nondimensionalization.
+         * @param[in] tolerance Tolerance relative to scale for validation.
+         * @returns Error message if negative, empty string otherwise.
+         */
+        static
+        std::string nonnegative(const pylith::real value,
+                                const pylith::real scale,
+                                const pylith::real tolerance);
+
+        /** Validator for scale only.
+         *
+         * If scale and tolerance are greater than zero, then the value must be
+         * in the range [scale/tolerance, scale*tolerance].
+         *
+         * @param[in] value Value to validate.
+         * @param[in] scale Scale for nondimensionalization.
+         * @param[in] tolerance Tolerance relative to scale for validation.
+         * @returns Error message if negative, empty string otherwise.
+         */
+        static
+        std::string scale(const pylith::real value,
+                          const pylith::real scale,
+                          const pylith::real tolerance);
+
+    }; // Validators
 
 }; // FieldQuery
 

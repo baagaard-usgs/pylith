@@ -39,10 +39,10 @@ public:
     DataWriterVTK(void);
 
     /// Destructor
-    ~DataWriterVTK(void);
+    ~DataWriterVTK(void) override;
 
     /// Deallocate PETSc and local data structures.
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set filename for VTK file.
      *
@@ -77,10 +77,10 @@ public:
      * @param[in] isInfo True if only writing info values.
      */
     void open(const topology::Mesh& mesh,
-              const bool isInfo);
+              const bool isInfo) override;
 
     /// Close output files.
-    void close(void);
+    void close(void) override;
 
     /** Prepare file for data at a new time step.
      *
@@ -88,10 +88,10 @@ public:
      * @param[in] mesh Finite-element mesh.
      */
     void openTimeStep(const pylith::real t,
-                      const topology::Mesh& mesh);
+                      const topology::Mesh& mesh) override;
 
     /// Cleanup after writing data for a time step.
-    void closeTimeStep(void);
+    void closeTimeStep(void) override;
 
     /** Write field over vertices to file.
      *
@@ -99,7 +99,7 @@ public:
      * @param[in] subfield Subfield with basis order 1.
      */
     void writeVertexField(const pylith::real t,
-                          const pylith::meshio::OutputSubfield& field);
+                          const pylith::meshio::OutputSubfield& field) override;
 
     /** Write field over cells to file.
      *
@@ -107,7 +107,7 @@ public:
      * @param[in] subfield Subfield with basis order 0.
      */
     void writeCellField(const pylith::real t,
-                        const pylith::meshio::OutputSubfield& subfield);
+                        const pylith::meshio::OutputSubfield& subfield) override;
 
     // PRIVATE METHODS //////////////////////////////////////////////////////
 private:
@@ -116,13 +116,13 @@ private:
      *
      * @param[in] t Time in seconds.
      */
-    std::string _vtkFilename(const pylith::real t) const;
+    std::string _getVTKFilename(const pylith::real t) const;
 
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    DataWriterVTK(const DataWriterVTK&); ///< Not implemented
-    const DataWriterVTK& operator=(const DataWriterVTK&); ///< Not implemented
+    DataWriterVTK(const DataWriterVTK&) = delete;
+    const DataWriterVTK& operator=(const DataWriterVTK&) = delete;
 
     // PRIVATE MEMBERS //////////////////////////////////////////////////////
 private:
@@ -142,7 +142,5 @@ private:
     bool _wroteCellHeader; ///< True if wrote header for cell data
 
 }; // DataWriterVTK
-
-#include "DataWriterVTK.icc" // inline methods
 
 // End of file

@@ -90,8 +90,8 @@ protected:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    KinSrcStep(const KinSrcStep&); ///< Not implemented
-    const KinSrcStep& operator=(const KinSrcStep&); ///< Not implemented
+    KinSrcStep(const KinSrcStep&) = delete;
+    const KinSrcStep& operator=(const KinSrcStep&) = delete;
 
 }; // class KinSrcStep
 

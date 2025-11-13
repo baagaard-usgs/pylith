@@ -178,7 +178,7 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxTri(void) {
     };
     delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
-    static const PylithInt cells[numCells*numCorners] = {
+    static const pylith::integer cells[numCells*numCorners] = {
         8, 7, 0,
         7, 8, 4,
         1, 8, 0,
@@ -190,11 +190,11 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxTri(void) {
     };
     delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
 
-    static const PylithInt materialIds[numCells] = {
+    static const pylith::integer materialIds[numCells] = {
         2, 2, 2, 2,
         1, 1, 1, 1,
     };
-    data->materialIds = const_cast<PylithInt*>(materialIds);
+    data->materialIds = const_cast<pylith::integer*>(materialIds);
 
     return data;
 } // GmshBoxTri
@@ -208,9 +208,9 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxTriVerticesAscii(void) {
     data->filename = "data/box_tri_vertices_ascii.msh";
 
     data->numVertexGroups = 6;
-    static const PylithInt vertexGroupSizes[6] = {3, 3, 3, 3, 3, 1};
-    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
-    static const PylithInt vertexGroups[16] = {
+    static const pylith::integer vertexGroupSizes[6] = {3, 3, 3, 3, 3, 1};
+    data->vertexGroupSizes = const_cast<pylith::integer*>(vertexGroupSizes);
+    static const pylith::integer vertexGroups[16] = {
         0, 5, 7,
         2, 3, 6,
         0, 1, 2,
@@ -218,7 +218,7 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxTriVerticesAscii(void) {
         1, 4, 8,
         1,
     };
-    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
+    data->vertexGroups = const_cast<pylith::integer*>(vertexGroups);
     static const char* vertexGroupNames[6] = {
         "boundary_xneg",
         "boundary_xpos",
@@ -228,10 +228,10 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxTriVerticesAscii(void) {
         "fault_end",
     };
     data->vertexGroupNames = const_cast<char**>(vertexGroupNames);
-    static const PylithInt vertexGroupTags[6] = {
+    static const pylith::integer vertexGroupTags[6] = {
         10, 11, 12, 13, 20, 21,
     };
-    data->vertexGroupTags = const_cast<PylithInt*>(vertexGroupTags);
+    data->vertexGroupTags = const_cast<pylith::integer*>(vertexGroupTags);
 
     return data;
 } // GmshBoxTriVerticesAscii
@@ -257,9 +257,9 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxTriBoundaryAscii(void) {
 
     data->numFaceGroups = 5;
     data->numFaceVertices = 2;
-    static const PylithInt faceGroupSizes[5] = {2, 2, 2, 2, 2};
-    data->faceGroupSizes = const_cast<PylithInt*>(faceGroupSizes);
-    static const PylithInt faceGroups[(5*2)*(1+2)] = {
+    static const pylith::integer faceGroupSizes[5] = {2, 2, 2, 2, 2};
+    data->faceGroupSizes = const_cast<pylith::integer*>(faceGroupSizes);
+    static const pylith::integer faceGroups[(5*2)*(1+2)] = {
         0,   7, 0, // xneg
         3,   5, 7,
 
@@ -275,7 +275,7 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxTriBoundaryAscii(void) {
         1,   8, 4, // fault
         2,   1, 8,
     };
-    data->faceGroups = const_cast<PylithInt*>(faceGroups);
+    data->faceGroups = const_cast<pylith::integer*>(faceGroups);
     static const char* faceGroupNames[5] = {
         "boundary_xneg",
         "boundary_xpos",
@@ -284,10 +284,10 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxTriBoundaryAscii(void) {
         "fault",
     };
     data->faceGroupNames = const_cast<char**>(faceGroupNames);
-    static const PylithInt faceGroupTags[5] = {
+    static const pylith::integer faceGroupTags[5] = {
         10, 11, 12, 13, 20,
     };
-    data->faceGroupTags = const_cast<PylithInt*>(faceGroupTags);
+    data->faceGroupTags = const_cast<pylith::integer*>(faceGroupTags);
 
     return data;
 } // GmshBoxTriBoundaryAscii
@@ -334,7 +334,7 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxQuad(void) {
     };
     delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
-    static const PylithInt cells[numCells*numCorners] = {
+    static const pylith::integer cells[numCells*numCorners] = {
         0, 1, 10, 9,
         9, 10, 11, 8,
         8, 11, 4, 5,
@@ -344,11 +344,11 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxQuad(void) {
     };
     delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
 
-    static const PylithInt materialIds[numCells] = {
+    static const pylith::integer materialIds[numCells] = {
         2, 2, 2,
         1, 1, 1,
     };
-    data->materialIds = const_cast<PylithInt*>(materialIds);
+    data->materialIds = const_cast<pylith::integer*>(materialIds);
 
     return data;
 } // GmshBoxQuad
@@ -362,9 +362,9 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxQuadVerticesAscii(void) {
     data->filename = "data/box_quad_vertices_ascii.msh";
 
     data->numVertexGroups = 6;
-    static const PylithInt vertexGroupSizes[6] = {4, 4, 3, 3, 4, 1};
-    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
-    static const PylithInt vertexGroups[19] = {
+    static const pylith::integer vertexGroupSizes[6] = {4, 4, 3, 3, 4, 1};
+    data->vertexGroupSizes = const_cast<pylith::integer*>(vertexGroupSizes);
+    static const pylith::integer vertexGroups[19] = {
         0, 5, 8, 9,
         2, 3, 6, 7,
         0, 1, 2,
@@ -372,7 +372,7 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxQuadVerticesAscii(void) {
         1, 4, 10, 11,
         1,
     };
-    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
+    data->vertexGroups = const_cast<pylith::integer*>(vertexGroups);
     static const char* vertexGroupNames[6] = {
         "boundary_xneg",
         "boundary_xpos",
@@ -382,10 +382,10 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxQuadVerticesAscii(void) {
         "fault_end",
     };
     data->vertexGroupNames = const_cast<char**>(vertexGroupNames);
-    static const PylithInt vertexGroupTags[6] = {
+    static const pylith::integer vertexGroupTags[6] = {
         10, 11, 12, 13, 20, 21
     };
-    data->vertexGroupTags = const_cast<PylithInt*>(vertexGroupTags);
+    data->vertexGroupTags = const_cast<pylith::integer*>(vertexGroupTags);
 
     return data;
 } // GmshBoxQuadVerticesAscii
@@ -411,9 +411,9 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxQuadBoundaryAscii(void) {
 
     data->numFaceGroups = 5;
     data->numFaceVertices = 2;
-    static const PylithInt faceGroupSizes[5] = {3, 3, 2, 2, 3};
-    data->faceGroupSizes = const_cast<PylithInt*>(faceGroupSizes);
-    static const PylithInt faceGroups[(3+3+2+2+3)*(1+2)] = {
+    static const pylith::integer faceGroupSizes[5] = {3, 3, 2, 2, 3};
+    data->faceGroupSizes = const_cast<pylith::integer*>(faceGroupSizes);
+    static const pylith::integer faceGroups[(3+3+2+2+3)*(1+2)] = {
         0,   9,  0, // xneg
         1,   8,  9,
         2,   5,  8,
@@ -432,7 +432,7 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxQuadBoundaryAscii(void) {
         1,   10, 11,
         2,   11,  4,
     };
-    data->faceGroups = const_cast<PylithInt*>(faceGroups);
+    data->faceGroups = const_cast<pylith::integer*>(faceGroups);
     static const char* faceGroupNames[5] = {
         "boundary_xneg",
         "boundary_xpos",
@@ -441,10 +441,10 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxQuadBoundaryAscii(void) {
         "fault",
     };
     data->faceGroupNames = const_cast<char**>(faceGroupNames);
-    static const PylithInt faceGroupTags[5] = {
+    static const pylith::integer faceGroupTags[5] = {
         10, 11, 12, 13, 20,
     };
-    data->faceGroupTags = const_cast<PylithInt*>(faceGroupTags);
+    data->faceGroupTags = const_cast<pylith::integer*>(faceGroupTags);
 
     return data;
 } // GmshBoxQuadBoundaryAscii
@@ -510,7 +510,7 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxTet(void) {
     };
     delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
-    static const PylithInt cells[numCells*numCorners] = {
+    static const pylith::integer cells[numCells*numCorners] = {
         25, 5, 17, 27,
         5, 25, 16, 27,
         24, 16, 25, 27,
@@ -584,7 +584,7 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxTet(void) {
     };
     delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
 
-    static const PylithInt materialIds[70] = {
+    static const pylith::integer materialIds[70] = {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -594,7 +594,7 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxTet(void) {
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
         2,
     };
-    data->materialIds = const_cast<PylithInt*>(materialIds);
+    data->materialIds = const_cast<pylith::integer*>(materialIds);
 
     return data;
 } // GmshBoxTet
@@ -608,9 +608,9 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxTetVerticesAscii(void) {
     data->filename = "data/box_tet_vertices_ascii.msh";
 
     data->numVertexGroups = 8;
-    static const PylithInt vertexGroupSizes[8] = {9, 9, 9, 9, 9, 9, 9, 3};
-    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
-    static const PylithInt vertexGroups[66] = {
+    static const pylith::integer vertexGroupSizes[8] = {9, 9, 9, 9, 9, 9, 9, 3};
+    data->vertexGroupSizes = const_cast<pylith::integer*>(vertexGroupSizes);
+    static const pylith::integer vertexGroups[66] = {
         0, 1, 2, 3, 12, 13, 14, 15, 24,
         8, 9, 10, 11, 20, 21, 22, 23, 26,
         0, 1, 4, 5, 8, 9, 12, 16, 20,
@@ -620,7 +620,7 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxTetVerticesAscii(void) {
         4, 5, 6, 7, 16, 17, 18, 19, 25,
         4, 5, 16,
     };
-    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
+    data->vertexGroups = const_cast<pylith::integer*>(vertexGroups);
     static const char* vertexGroupNames[8] = {
         "boundary_xneg",
         "boundary_xpos",
@@ -632,10 +632,10 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxTetVerticesAscii(void) {
         "fault_end",
     };
     data->vertexGroupNames = const_cast<char**>(vertexGroupNames);
-    static const PylithInt vertexGroupTags[8] = {
+    static const pylith::integer vertexGroupTags[8] = {
         10, 11, 12, 13, 14, 15, 20, 21
     };
-    data->vertexGroupTags = const_cast<PylithInt*>(vertexGroupTags);
+    data->vertexGroupTags = const_cast<pylith::integer*>(vertexGroupTags);
 
     return data;
 } // GmshBoxTetVerticesAscii
@@ -661,9 +661,9 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxTetBoundaryAscii(void) {
 
     data->numFaceGroups = 7;
     data->numFaceVertices = 3;
-    static const PylithInt faceGroupSizes[7] = {8, 8, 8, 8, 8, 8, 8 };
-    data->faceGroupSizes = const_cast<PylithInt*>(faceGroupSizes);
-    static const PylithInt faceGroups[(7*8)*(1+3)] = {
+    static const pylith::integer faceGroupSizes[7] = {8, 8, 8, 8, 8, 8, 8 };
+    data->faceGroupSizes = const_cast<pylith::integer*>(faceGroupSizes);
+    static const pylith::integer faceGroups[(7*8)*(1+3)] = {
         4,     0, 13, 12, // xneg
         11,   15, 24,  3,
         15,   13,  2, 14,
@@ -727,7 +727,7 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxTetBoundaryAscii(void) {
         17,  18, 17, 25,
         21,   6, 17, 18,
     };
-    data->faceGroups = const_cast<PylithInt*>(faceGroups);
+    data->faceGroups = const_cast<pylith::integer*>(faceGroups);
     static const char* faceGroupNames[8] = {
         "boundary_xneg",
         "boundary_xpos",
@@ -738,10 +738,10 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxTetBoundaryAscii(void) {
         "fault",
     };
     data->faceGroupNames = const_cast<char**>(faceGroupNames);
-    static const PylithInt faceGroupTags[8] = {
+    static const pylith::integer faceGroupTags[8] = {
         10, 11, 12, 13, 14, 15, 20, 21
     };
-    data->faceGroupTags = const_cast<PylithInt*>(faceGroupTags);
+    data->faceGroupTags = const_cast<pylith::integer*>(faceGroupTags);
 
     return data;
 } // GmshBoxTetBoundaryAscii
@@ -824,7 +824,7 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxHex(void) {
     };
     delete data->geometry;data->geometry = new pylith::meshio::MeshBuilder::Geometry(numVertices, spaceDim, vertices);
 
-    static const PylithInt cells[numCells*numCorners] = {
+    static const pylith::integer cells[numCells*numCorners] = {
         36, 12, 1, 18, 41, 21, 4, 26,
         37, 36, 18, 19, 43, 41, 26, 27,
         16, 37, 19, 3, 25, 43, 27, 7,
@@ -846,11 +846,11 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxHex(void) {
     };
     delete data->topology;data->topology = new pylith::meshio::MeshBuilder::Topology(cellDim, numCells, numCorners, cellShape, cells);
 
-    static const PylithInt materialIds[numCells] = {
+    static const pylith::integer materialIds[numCells] = {
         1, 1, 1, 1, 1, 1, 1, 1, 1,
         2, 2, 2, 2, 2, 2, 2, 2, 2,
     };
-    data->materialIds = const_cast<PylithInt*>(materialIds);
+    data->materialIds = const_cast<pylith::integer*>(materialIds);
 
     return data;
 } // GmshBoxHex
@@ -864,9 +864,9 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxHexVerticesAscii(void) {
     data->filename = "data/box_hex_vertices_ascii.msh";
 
     data->numVertexGroups = 8;
-    static const PylithInt vertexGroupSizes[8] = {16, 16, 12, 12, 12, 12, 16, 4};
-    data->vertexGroupSizes = const_cast<PylithInt*>(vertexGroupSizes);
-    static const PylithInt vertexGroups[100] = {
+    static const pylith::integer vertexGroupSizes[8] = {16, 16, 12, 12, 12, 12, 16, 4};
+    data->vertexGroupSizes = const_cast<pylith::integer*>(vertexGroupSizes);
+    static const pylith::integer vertexGroups[100] = {
         0, 1, 2, 3, 12, 13, 14, 15, 16, 17, 18, 19, 36, 37, 38, 39,
         8, 9, 10, 11, 28, 29, 30, 31, 32, 33, 34, 35, 44, 45, 46, 47,
         0, 1, 4, 5, 8, 9, 12, 13, 20, 21, 28, 29,
@@ -876,7 +876,7 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxHexVerticesAscii(void) {
         4, 5, 6, 7, 20, 21, 22, 23, 24, 25, 26, 27, 40, 41, 42, 43,
         4, 5, 20, 21,
     };
-    data->vertexGroups = const_cast<PylithInt*>(vertexGroups);
+    data->vertexGroups = const_cast<pylith::integer*>(vertexGroups);
     static const char* vertexGroupNames[9] = {
         "boundary_xneg",
         "boundary_xpos",
@@ -888,10 +888,10 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxHexVerticesAscii(void) {
         "fault_end",
     };
     data->vertexGroupNames = const_cast<char**>(vertexGroupNames);
-    static const PylithInt vertexGroupTags[8] = {
+    static const pylith::integer vertexGroupTags[8] = {
         10, 11, 12, 13, 14, 15, 20, 21,
     };
-    data->vertexGroupTags = const_cast<PylithInt*>(vertexGroupTags);
+    data->vertexGroupTags = const_cast<pylith::integer*>(vertexGroupTags);
 
     return data;
 } // GmshBoxHexVerticesAscii
@@ -917,9 +917,9 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxHexBoundaryAscii(void) {
 
     data->numFaceGroups = 7;
     data->numFaceVertices = 4;
-    static const PylithInt faceGroupSizes[7] = {9, 9, 6, 6, 6, 6, 9};
-    data->faceGroupSizes = const_cast<PylithInt*>(faceGroupSizes);
-    static const PylithInt faceGroups[(9+9+6+6+6+6+9)*(1+4)] = {
+    static const pylith::integer faceGroupSizes[7] = {9, 9, 6, 6, 6, 6, 9};
+    data->faceGroupSizes = const_cast<pylith::integer*>(faceGroupSizes);
+    static const pylith::integer faceGroups[(9+9+6+6+6+6+9)*(1+4)] = {
         0,   36, 18,  1, 12, // xneg
         1,   37, 19, 18, 36,
         2,   16,  3, 19, 37,
@@ -978,7 +978,7 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxHexBoundaryAscii(void) {
         7,   23, 22, 40, 42,
         8,    6, 23, 42, 24,
     };
-    data->faceGroups = const_cast<PylithInt*>(faceGroups);
+    data->faceGroups = const_cast<pylith::integer*>(faceGroups);
     static const char* faceGroupNames[7] = {
         "boundary_xneg",
         "boundary_xpos",
@@ -989,10 +989,10 @@ pylith::meshio::TestMeshIOPetsc_Cases::GmshBoxHexBoundaryAscii(void) {
         "fault",
     };
     data->faceGroupNames = const_cast<char**>(faceGroupNames);
-    static const PylithInt faceGroupTags[7] = {
+    static const pylith::integer faceGroupTags[7] = {
         10, 11, 12, 13, 14, 15, 20,
     };
-    data->faceGroupTags = const_cast<PylithInt*>(faceGroupTags);
+    data->faceGroupTags = const_cast<pylith::integer*>(faceGroupTags);
 
     return data;
 } // GmshBoxHexBoundaryAscii
@@ -1015,10 +1015,10 @@ pylith::meshio::TestMeshIOPetsc_Cases::HDF5BoxTri(void) {
     TestMeshIO_Data* data = GmshBoxTriBoundaryBinary();assert(data);
 
     data->filename = "box_tri.h5";
-    static const PylithInt faceGroupTags[5] = {
+    static const pylith::integer faceGroupTags[5] = {
         1, 1, 1, 1, 1,
     };
-    data->faceGroupTags = const_cast<PylithInt*>(faceGroupTags);
+    data->faceGroupTags = const_cast<pylith::integer*>(faceGroupTags);
 
     return data;
 } // HDF5BoxTri
@@ -1030,10 +1030,10 @@ pylith::meshio::TestMeshIOPetsc_Cases::HDF5BoxQuad(void) {
     TestMeshIO_Data* data = GmshBoxQuadBoundaryBinary();assert(data);
 
     data->filename = "box_quad.h5";
-    static const PylithInt faceGroupTags[5] = {
+    static const pylith::integer faceGroupTags[5] = {
         1, 1, 1, 1, 1,
     };
-    data->faceGroupTags = const_cast<PylithInt*>(faceGroupTags);
+    data->faceGroupTags = const_cast<pylith::integer*>(faceGroupTags);
 
     return data;
 } // HDF5BoxQuad
@@ -1045,10 +1045,10 @@ pylith::meshio::TestMeshIOPetsc_Cases::HDF5BoxTet(void) {
     TestMeshIO_Data* data = GmshBoxTetBoundaryBinary();assert(data);
 
     data->filename = "box_tet.h5";
-    static const PylithInt faceGroupTags[7] = {
+    static const pylith::integer faceGroupTags[7] = {
         1, 1, 1, 1, 1, 1, 1,
     };
-    data->faceGroupTags = const_cast<PylithInt*>(faceGroupTags);
+    data->faceGroupTags = const_cast<pylith::integer*>(faceGroupTags);
 
     return data;
 } // HDF5BoxTet
@@ -1060,10 +1060,10 @@ pylith::meshio::TestMeshIOPetsc_Cases::HDF5BoxHex(void) {
     TestMeshIO_Data* data = GmshBoxHexBoundaryBinary();assert(data);
 
     data->filename = "box_hex.h5";
-    static const PylithInt faceGroupTags[7] = {
+    static const pylith::integer faceGroupTags[7] = {
         1, 1, 1, 1, 1, 1, 1,
     };
-    data->faceGroupTags = const_cast<PylithInt*>(faceGroupTags);
+    data->faceGroupTags = const_cast<pylith::integer*>(faceGroupTags);
 
     return data;
 } // HDF5BoxHex

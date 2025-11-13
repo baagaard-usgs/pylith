@@ -88,7 +88,7 @@ public:
      * @param names Names of datasets.
      * @param group Name of parent.
      */
-    void getGroupDatasets(string_vector* names,
+    void getGroupDatasets(pylith::string_vector* names,
                           const char* parent);
 
     /** Create group.

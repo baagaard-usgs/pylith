@@ -40,7 +40,7 @@ public:
 
 private:
 
-    Gravity2D(void); ///< Not implemented
+    Gravity2D(void) = delete;
 }; // Gravity2D
 
 // End of file

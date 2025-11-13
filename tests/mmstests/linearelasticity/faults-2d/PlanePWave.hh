@@ -38,7 +38,7 @@ public:
 
 private:
 
-    PlanePWave(void); ///< Not implemented
+    PlanePWave(void) = delete;
 }; // PlanePWave
 
 // End of file

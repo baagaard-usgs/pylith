@@ -24,8 +24,7 @@
 
 // ----------------------------------------------------------------------
 // Constructor
-pylith::problems::InitialConditionDomain::InitialConditionDomain(void) :
-    _db(NULL) {
+pylith::problems::InitialConditionDomain::InitialConditionDomain(void) {
     PyreComponent::setName("initialconditiondomain");
 } // constructor
 
@@ -43,7 +42,7 @@ void
 pylith::problems::InitialConditionDomain::deallocate(void) {
     PYLITH_METHOD_BEGIN;
 
-    _db = NULL; // :KLLUDGE: Should use shared pointer.
+    _db = nullptr; // :KLLUDGE: Should use shared pointer.
 
     PYLITH_METHOD_END;
 } // deallocate
@@ -52,7 +51,7 @@ pylith::problems::InitialConditionDomain::deallocate(void) {
 // ---------------------------------------------------------------------------------------------------------------------
 // Set spatial database holding initial conditions.
 void
-pylith::problems::InitialConditionDomain::setDB(spatialdata::spatialdb::SpatialDB* db) {
+pylith::problems::InitialConditionDomain::setDB(const std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("setDB(db="<<db<<")");
 
@@ -65,26 +64,21 @@ pylith::problems::InitialConditionDomain::setDB(spatialdata::spatialdb::SpatialD
 // ---------------------------------------------------------------------------------------------------------------------
 // Set solver type.
 void
-pylith::problems::InitialConditionDomain::setValues(pylith::topology::Field* solution,
+pylith::problems::InitialConditionDomain::setValues(const std::shared_ptr<pylith::topology::Field>& solution,
                                                     const spatialdata::units::Nondimensional& normalizer) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("setValues(solution="<<solution<<", normalizer)");
-
     assert(solution);
 
-    pylith::topology::FieldQuery fieldQuery(*solution);
+    pylith::topology::FieldQuery fieldQuery(solution);
 
-    const size_t numSubfields = _subfields.size();
-    for (size_t i = 0; i < numSubfields; ++i) {
-        const char** queryValues = NULL;
-        const size_t numValues = 0;
-        const pylith::topology::FieldQuery::convertfn_type convertFn = NULL;
-        fieldQuery.setQuery(_subfields[i].c_str(), queryValues, numValues, convertFn, _db);
+    for (auto subfield : _subfields) {
+        fieldQuery.addSubfield(subfield);
     } // for
 
-    fieldQuery.openDB(_db, normalizer.getLengthScale());
-    fieldQuery.queryDB();
-    fieldQuery.closeDB(_db);
+    fieldQuery.open(_db, normalizer.getLengthScale());
+    fieldQuery.query();
+    fieldQuery.close();
 
     pythia::journal::debug_t debug(PyreComponent::getName());
     if (debug.state()) {

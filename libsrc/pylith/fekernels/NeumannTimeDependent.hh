@@ -60,25 +60,25 @@ public:
      * f_0(x)
      */
     static inline
-    void f0_initial_scalar(const PylithInt dim,
-                           const PylithInt numS,
-                           const PylithInt numA,
-                           const PylithInt sOff[],
-                           const PylithInt sOff_x[],
-                           const PylithScalar s[],
-                           const PylithScalar s_t[],
-                           const PylithScalar s_x[],
-                           const PylithInt aOff[],
-                           const PylithInt aOff_x[],
-                           const PylithScalar a[],
-                           const PylithScalar a_t[],
-                           const PylithScalar a_x[],
-                           const PylithReal t,
-                           const PylithReal x[],
-                           const PylithReal n[],
-                           const PylithInt numConstants,
-                           const PylithScalar constants[],
-                           PylithScalar f0[]) {
+    void f0_initial_scalar(const pylith::integer dim,
+                           const pylith::integer numS,
+                           const pylith::integer numA,
+                           const pylith::integer sOff[],
+                           const pylith::integer sOff_x[],
+                           const pylith::scalar s[],
+                           const pylith::scalar s_t[],
+                           const pylith::scalar s_x[],
+                           const pylith::integer aOff[],
+                           const pylith::integer aOff_x[],
+                           const pylith::scalar a[],
+                           const pylith::scalar a_t[],
+                           const pylith::scalar a_x[],
+                           const pylith::real t,
+                           const pylith::real x[],
+                           const pylith::real n[],
+                           const pylith::integer numConstants,
+                           const pylith::scalar constants[],
+                           pylith::scalar f0[]) {
         pylith::fekernels::TimeDependentFn::initial_scalar_boundary(
             dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, n, numConstants, constants, f0);
@@ -90,26 +90,26 @@ public:
      * f_0(x)
      */
     static inline
-    void f0_initial_vector(const PylithInt dim,
-                           const PylithInt numS,
-                           const PylithInt numA,
-                           const PylithInt sOff[],
-                           const PylithInt sOff_x[],
-                           const PylithScalar s[],
-                           const PylithScalar s_t[],
-                           const PylithScalar s_x[],
-                           const PylithInt aOff[],
-                           const PylithInt aOff_x[],
-                           const PylithScalar a[],
-                           const PylithScalar a_t[],
-                           const PylithScalar a_x[],
-                           const PylithReal t,
-                           const PylithReal x[],
-                           const PylithReal n[],
-                           const PylithInt numConstants,
-                           const PylithScalar constants[],
-                           PylithScalar f0[]) {
-        PylithScalar values[3] = { 0.0, 0.0, 0.0 };
+    void f0_initial_vector(const pylith::integer dim,
+                           const pylith::integer numS,
+                           const pylith::integer numA,
+                           const pylith::integer sOff[],
+                           const pylith::integer sOff_x[],
+                           const pylith::scalar s[],
+                           const pylith::scalar s_t[],
+                           const pylith::scalar s_x[],
+                           const pylith::integer aOff[],
+                           const pylith::integer aOff_x[],
+                           const pylith::scalar a[],
+                           const pylith::scalar a_t[],
+                           const pylith::scalar a_x[],
+                           const pylith::real t,
+                           const pylith::real x[],
+                           const pylith::real n[],
+                           const pylith::integer numConstants,
+                           const pylith::scalar constants[],
+                           pylith::scalar f0[]) {
+        pylith::scalar values[3] = { 0.0, 0.0, 0.0 };
         pylith::fekernels::TimeDependentFn::initial_vector_boundary(
             dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, n, numConstants, constants, values);
@@ -119,8 +119,8 @@ public:
             pylith::fekernels::BoundaryDirections::toXY(f0, values, n);
             break;
         case 3: {
-            const PylithScalar* refDir1 = &constants[0];
-            const PylithScalar* refDir2 = &constants[3];
+            const pylith::scalar* refDir1 = &constants[0];
+            const pylith::scalar* refDir2 = &constants[3];
             pylith::fekernels::BoundaryDirections::toXYZ(f0, values, refDir1, refDir2, n);
             break;
         }
@@ -135,25 +135,25 @@ public:
      * \dot{f}_1(x) * (t-t_1(x)) for t >= t_1(x).
      */
     static inline
-    void f0_rate_scalar(const PylithInt dim,
-                        const PylithInt numS,
-                        const PylithInt numA,
-                        const PylithInt sOff[],
-                        const PylithInt sOff_x[],
-                        const PylithScalar s[],
-                        const PylithScalar s_t[],
-                        const PylithScalar s_x[],
-                        const PylithInt aOff[],
-                        const PylithInt aOff_x[],
-                        const PylithScalar a[],
-                        const PylithScalar a_t[],
-                        const PylithScalar a_x[],
-                        const PylithReal t,
-                        const PylithReal x[],
-                        const PylithReal n[],
-                        const PylithInt numConstants,
-                        const PylithScalar constants[],
-                        PylithScalar f0[]) {
+    void f0_rate_scalar(const pylith::integer dim,
+                        const pylith::integer numS,
+                        const pylith::integer numA,
+                        const pylith::integer sOff[],
+                        const pylith::integer sOff_x[],
+                        const pylith::scalar s[],
+                        const pylith::scalar s_t[],
+                        const pylith::scalar s_x[],
+                        const pylith::integer aOff[],
+                        const pylith::integer aOff_x[],
+                        const pylith::scalar a[],
+                        const pylith::scalar a_t[],
+                        const pylith::scalar a_x[],
+                        const pylith::real t,
+                        const pylith::real x[],
+                        const pylith::real n[],
+                        const pylith::integer numConstants,
+                        const pylith::scalar constants[],
+                        pylith::scalar f0[]) {
         pylith::fekernels::TimeDependentFn::rate_scalar_boundary(
             dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, n, numConstants, constants, f0);
@@ -165,26 +165,26 @@ public:
      * \dot{f}_1(x) * (t-t_1(x)) for t >= t_1(x).
      */
     static inline
-    void f0_rate_vector(const PylithInt dim,
-                        const PylithInt numS,
-                        const PylithInt numA,
-                        const PylithInt sOff[],
-                        const PylithInt sOff_x[],
-                        const PylithScalar s[],
-                        const PylithScalar s_t[],
-                        const PylithScalar s_x[],
-                        const PylithInt aOff[],
-                        const PylithInt aOff_x[],
-                        const PylithScalar a[],
-                        const PylithScalar a_t[],
-                        const PylithScalar a_x[],
-                        const PylithReal t,
-                        const PylithReal x[],
-                        const PylithReal n[],
-                        const PylithInt numConstants,
-                        const PylithScalar constants[],
-                        PylithScalar f0[]) {
-        PylithScalar values[3] = { 0.0, 0.0, 0.0 };
+    void f0_rate_vector(const pylith::integer dim,
+                        const pylith::integer numS,
+                        const pylith::integer numA,
+                        const pylith::integer sOff[],
+                        const pylith::integer sOff_x[],
+                        const pylith::scalar s[],
+                        const pylith::scalar s_t[],
+                        const pylith::scalar s_x[],
+                        const pylith::integer aOff[],
+                        const pylith::integer aOff_x[],
+                        const pylith::scalar a[],
+                        const pylith::scalar a_t[],
+                        const pylith::scalar a_x[],
+                        const pylith::real t,
+                        const pylith::real x[],
+                        const pylith::real n[],
+                        const pylith::integer numConstants,
+                        const pylith::scalar constants[],
+                        pylith::scalar f0[]) {
+        pylith::scalar values[3] = { 0.0, 0.0, 0.0 };
         pylith::fekernels::TimeDependentFn::rate_vector_boundary(
             dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, n, numConstants, constants, values);
@@ -194,8 +194,8 @@ public:
             pylith::fekernels::BoundaryDirections::toXY(f0, values, n);
             break;
         case 3: {
-            const PylithScalar* refDir1 = &constants[0];
-            const PylithScalar* refDir2 = &constants[3];
+            const pylith::scalar* refDir1 = &constants[0];
+            const pylith::scalar* refDir2 = &constants[3];
             pylith::fekernels::BoundaryDirections::toXYZ(f0, values, refDir1, refDir2, n);
             break;
         }
@@ -210,25 +210,25 @@ public:
      * f_2(x) * a(t-t_2(x)) for t >= t_2(x).
      */
     static inline
-    void f0_timeHistory_scalar(const PylithInt dim,
-                               const PylithInt numS,
-                               const PylithInt numA,
-                               const PylithInt sOff[],
-                               const PylithInt sOff_x[],
-                               const PylithScalar s[],
-                               const PylithScalar s_t[],
-                               const PylithScalar s_x[],
-                               const PylithInt aOff[],
-                               const PylithInt aOff_x[],
-                               const PylithScalar a[],
-                               const PylithScalar a_t[],
-                               const PylithScalar a_x[],
-                               const PylithReal t,
-                               const PylithReal x[],
-                               const PylithReal n[],
-                               const PylithInt numConstants,
-                               const PylithScalar constants[],
-                               PylithScalar f0[]) {
+    void f0_timeHistory_scalar(const pylith::integer dim,
+                               const pylith::integer numS,
+                               const pylith::integer numA,
+                               const pylith::integer sOff[],
+                               const pylith::integer sOff_x[],
+                               const pylith::scalar s[],
+                               const pylith::scalar s_t[],
+                               const pylith::scalar s_x[],
+                               const pylith::integer aOff[],
+                               const pylith::integer aOff_x[],
+                               const pylith::scalar a[],
+                               const pylith::scalar a_t[],
+                               const pylith::scalar a_x[],
+                               const pylith::real t,
+                               const pylith::real x[],
+                               const pylith::real n[],
+                               const pylith::integer numConstants,
+                               const pylith::scalar constants[],
+                               pylith::scalar f0[]) {
         pylith::fekernels::TimeDependentFn::timeHistory_scalar_boundary(
             dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, n, numConstants, constants, f0);
@@ -240,26 +240,26 @@ public:
      * f_2(x) * a(t-t_2(x)) for t >= t_2(x).
      */
     static inline
-    void f0_timeHistory_vector(const PylithInt dim,
-                               const PylithInt numS,
-                               const PylithInt numA,
-                               const PylithInt sOff[],
-                               const PylithInt sOff_x[],
-                               const PylithScalar s[],
-                               const PylithScalar s_t[],
-                               const PylithScalar s_x[],
-                               const PylithInt aOff[],
-                               const PylithInt aOff_x[],
-                               const PylithScalar a[],
-                               const PylithScalar a_t[],
-                               const PylithScalar a_x[],
-                               const PylithReal t,
-                               const PylithReal x[],
-                               const PylithReal n[],
-                               const PylithInt numConstants,
-                               const PylithScalar constants[],
-                               PylithScalar f0[]) {
-        PylithScalar values[3] = { 0.0, 0.0, 0.0 };
+    void f0_timeHistory_vector(const pylith::integer dim,
+                               const pylith::integer numS,
+                               const pylith::integer numA,
+                               const pylith::integer sOff[],
+                               const pylith::integer sOff_x[],
+                               const pylith::scalar s[],
+                               const pylith::scalar s_t[],
+                               const pylith::scalar s_x[],
+                               const pylith::integer aOff[],
+                               const pylith::integer aOff_x[],
+                               const pylith::scalar a[],
+                               const pylith::scalar a_t[],
+                               const pylith::scalar a_x[],
+                               const pylith::real t,
+                               const pylith::real x[],
+                               const pylith::real n[],
+                               const pylith::integer numConstants,
+                               const pylith::scalar constants[],
+                               pylith::scalar f0[]) {
+        pylith::scalar values[3] = { 0.0, 0.0, 0.0 };
         pylith::fekernels::TimeDependentFn::timeHistory_vector_boundary(
             dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, n, numConstants, constants, values);
@@ -269,8 +269,8 @@ public:
             pylith::fekernels::BoundaryDirections::toXY(f0, values, n);
             break;
         case 3: {
-            const PylithScalar* refDir1 = &constants[0];
-            const PylithScalar* refDir2 = &constants[3];
+            const pylith::scalar* refDir1 = &constants[0];
+            const pylith::scalar* refDir2 = &constants[3];
             pylith::fekernels::BoundaryDirections::toXYZ(f0, values, refDir1, refDir2, n);
             break;
         }
@@ -286,25 +286,25 @@ public:
      * \dot{f}_1(x) * H(t-t_1(x)) +
      */
     static inline
-    void f0_initialRate_scalar(const PylithInt dim,
-                               const PylithInt numS,
-                               const PylithInt numA,
-                               const PylithInt sOff[],
-                               const PylithInt sOff_x[],
-                               const PylithScalar s[],
-                               const PylithScalar s_t[],
-                               const PylithScalar s_x[],
-                               const PylithInt aOff[],
-                               const PylithInt aOff_x[],
-                               const PylithScalar a[],
-                               const PylithScalar a_t[],
-                               const PylithScalar a_x[],
-                               const PylithReal t,
-                               const PylithReal x[],
-                               const PylithReal n[],
-                               const PylithInt numConstants,
-                               const PylithScalar constants[],
-                               PylithScalar f0[]) {
+    void f0_initialRate_scalar(const pylith::integer dim,
+                               const pylith::integer numS,
+                               const pylith::integer numA,
+                               const pylith::integer sOff[],
+                               const pylith::integer sOff_x[],
+                               const pylith::scalar s[],
+                               const pylith::scalar s_t[],
+                               const pylith::scalar s_x[],
+                               const pylith::integer aOff[],
+                               const pylith::integer aOff_x[],
+                               const pylith::scalar a[],
+                               const pylith::scalar a_t[],
+                               const pylith::scalar a_x[],
+                               const pylith::real t,
+                               const pylith::real x[],
+                               const pylith::real n[],
+                               const pylith::integer numConstants,
+                               const pylith::scalar constants[],
+                               pylith::scalar f0[]) {
         pylith::fekernels::TimeDependentFn::initialRate_scalar_boundary(
             dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, n, numConstants, constants, f0);
@@ -317,26 +317,26 @@ public:
      * \dot{f}_1(x) * H(t-t_1(x)) +
      */
     static inline
-    void f0_initialRate_vector(const PylithInt dim,
-                               const PylithInt numS,
-                               const PylithInt numA,
-                               const PylithInt sOff[],
-                               const PylithInt sOff_x[],
-                               const PylithScalar s[],
-                               const PylithScalar s_t[],
-                               const PylithScalar s_x[],
-                               const PylithInt aOff[],
-                               const PylithInt aOff_x[],
-                               const PylithScalar a[],
-                               const PylithScalar a_t[],
-                               const PylithScalar a_x[],
-                               const PylithReal t,
-                               const PylithReal x[],
-                               const PylithReal n[],
-                               const PylithInt numConstants,
-                               const PylithScalar constants[],
-                               PylithScalar f0[]) {
-        PylithScalar values[3] = { 0.0, 0.0, 0.0 };
+    void f0_initialRate_vector(const pylith::integer dim,
+                               const pylith::integer numS,
+                               const pylith::integer numA,
+                               const pylith::integer sOff[],
+                               const pylith::integer sOff_x[],
+                               const pylith::scalar s[],
+                               const pylith::scalar s_t[],
+                               const pylith::scalar s_x[],
+                               const pylith::integer aOff[],
+                               const pylith::integer aOff_x[],
+                               const pylith::scalar a[],
+                               const pylith::scalar a_t[],
+                               const pylith::scalar a_x[],
+                               const pylith::real t,
+                               const pylith::real x[],
+                               const pylith::real n[],
+                               const pylith::integer numConstants,
+                               const pylith::scalar constants[],
+                               pylith::scalar f0[]) {
+        pylith::scalar values[3] = { 0.0, 0.0, 0.0 };
         pylith::fekernels::TimeDependentFn::initialRate_vector_boundary(
             dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, n, numConstants, constants, values);
@@ -346,8 +346,8 @@ public:
             pylith::fekernels::BoundaryDirections::toXY(f0, values, n);
             break;
         case 3: {
-            const PylithScalar* refDir1 = &constants[0];
-            const PylithScalar* refDir2 = &constants[3];
+            const pylith::scalar* refDir1 = &constants[0];
+            const pylith::scalar* refDir2 = &constants[3];
             pylith::fekernels::BoundaryDirections::toXYZ(f0, values, refDir1, refDir2, n);
             break;
         }
@@ -364,25 +364,25 @@ public:
      * f_2(x) * a(t-t_2(x)) * H(t-t_2(s).
      */
     static inline
-    void f0_initialTimeHistory_scalar(const PylithInt dim,
-                                      const PylithInt numS,
-                                      const PylithInt numA,
-                                      const PylithInt sOff[],
-                                      const PylithInt sOff_x[],
-                                      const PylithScalar s[],
-                                      const PylithScalar s_t[],
-                                      const PylithScalar s_x[],
-                                      const PylithInt aOff[],
-                                      const PylithInt aOff_x[],
-                                      const PylithScalar a[],
-                                      const PylithScalar a_t[],
-                                      const PylithScalar a_x[],
-                                      const PylithReal t,
-                                      const PylithReal x[],
-                                      const PylithReal n[],
-                                      const PylithInt numConstants,
-                                      const PylithScalar constants[],
-                                      PylithScalar f0[]) {
+    void f0_initialTimeHistory_scalar(const pylith::integer dim,
+                                      const pylith::integer numS,
+                                      const pylith::integer numA,
+                                      const pylith::integer sOff[],
+                                      const pylith::integer sOff_x[],
+                                      const pylith::scalar s[],
+                                      const pylith::scalar s_t[],
+                                      const pylith::scalar s_x[],
+                                      const pylith::integer aOff[],
+                                      const pylith::integer aOff_x[],
+                                      const pylith::scalar a[],
+                                      const pylith::scalar a_t[],
+                                      const pylith::scalar a_x[],
+                                      const pylith::real t,
+                                      const pylith::real x[],
+                                      const pylith::real n[],
+                                      const pylith::integer numConstants,
+                                      const pylith::scalar constants[],
+                                      pylith::scalar f0[]) {
         pylith::fekernels::TimeDependentFn::initialTimeHistory_scalar_boundary(
             dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, n, numConstants, constants, f0);
@@ -396,26 +396,26 @@ public:
      * f_2(x) * a(t-t_2(x)) * H(t-t_2(s).
      */
     static inline
-    void f0_initialTimeHistory_vector(const PylithInt dim,
-                                      const PylithInt numS,
-                                      const PylithInt numA,
-                                      const PylithInt sOff[],
-                                      const PylithInt sOff_x[],
-                                      const PylithScalar s[],
-                                      const PylithScalar s_t[],
-                                      const PylithScalar s_x[],
-                                      const PylithInt aOff[],
-                                      const PylithInt aOff_x[],
-                                      const PylithScalar a[],
-                                      const PylithScalar a_t[],
-                                      const PylithScalar a_x[],
-                                      const PylithReal t,
-                                      const PylithReal x[],
-                                      const PylithReal n[],
-                                      const PylithInt numConstants,
-                                      const PylithScalar constants[],
-                                      PylithScalar f0[]) {
-        PylithScalar values[3] = { 0.0, 0.0, 0.0 };
+    void f0_initialTimeHistory_vector(const pylith::integer dim,
+                                      const pylith::integer numS,
+                                      const pylith::integer numA,
+                                      const pylith::integer sOff[],
+                                      const pylith::integer sOff_x[],
+                                      const pylith::scalar s[],
+                                      const pylith::scalar s_t[],
+                                      const pylith::scalar s_x[],
+                                      const pylith::integer aOff[],
+                                      const pylith::integer aOff_x[],
+                                      const pylith::scalar a[],
+                                      const pylith::scalar a_t[],
+                                      const pylith::scalar a_x[],
+                                      const pylith::real t,
+                                      const pylith::real x[],
+                                      const pylith::real n[],
+                                      const pylith::integer numConstants,
+                                      const pylith::scalar constants[],
+                                      pylith::scalar f0[]) {
+        pylith::scalar values[3] = { 0.0, 0.0, 0.0 };
         pylith::fekernels::TimeDependentFn::initialTimeHistory_vector_boundary(
             dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, n, numConstants, constants, values);
@@ -425,8 +425,8 @@ public:
             pylith::fekernels::BoundaryDirections::toXY(f0, values, n);
             break;
         case 3: {
-            const PylithScalar* refDir1 = &constants[0];
-            const PylithScalar* refDir2 = &constants[3];
+            const pylith::scalar* refDir1 = &constants[0];
+            const pylith::scalar* refDir2 = &constants[3];
             pylith::fekernels::BoundaryDirections::toXYZ(f0, values, refDir1, refDir2, n);
             break;
         }
@@ -442,25 +442,25 @@ public:
      * f_2(x) * a(t-t_2(x)) * H(t-t_2(s).
      */
     static inline
-    void f0_rateTimeHistory_scalar(const PylithInt dim,
-                                   const PylithInt numS,
-                                   const PylithInt numA,
-                                   const PylithInt sOff[],
-                                   const PylithInt sOff_x[],
-                                   const PylithScalar s[],
-                                   const PylithScalar s_t[],
-                                   const PylithScalar s_x[],
-                                   const PylithInt aOff[],
-                                   const PylithInt aOff_x[],
-                                   const PylithScalar a[],
-                                   const PylithScalar a_t[],
-                                   const PylithScalar a_x[],
-                                   const PylithReal t,
-                                   const PylithReal x[],
-                                   const PylithReal n[],
-                                   const PylithInt numConstants,
-                                   const PylithScalar constants[],
-                                   PylithScalar f0[]) {
+    void f0_rateTimeHistory_scalar(const pylith::integer dim,
+                                   const pylith::integer numS,
+                                   const pylith::integer numA,
+                                   const pylith::integer sOff[],
+                                   const pylith::integer sOff_x[],
+                                   const pylith::scalar s[],
+                                   const pylith::scalar s_t[],
+                                   const pylith::scalar s_x[],
+                                   const pylith::integer aOff[],
+                                   const pylith::integer aOff_x[],
+                                   const pylith::scalar a[],
+                                   const pylith::scalar a_t[],
+                                   const pylith::scalar a_x[],
+                                   const pylith::real t,
+                                   const pylith::real x[],
+                                   const pylith::real n[],
+                                   const pylith::integer numConstants,
+                                   const pylith::scalar constants[],
+                                   pylith::scalar f0[]) {
         pylith::fekernels::TimeDependentFn::rateTimeHistory_scalar_boundary(
             dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, n, numConstants, constants, f0);
@@ -473,26 +473,26 @@ public:
      * f_2(x) * a(t-t_2(x)) * H(t-t_2(s).
      */
     static inline
-    void f0_rateTimeHistory_vector(const PylithInt dim,
-                                   const PylithInt numS,
-                                   const PylithInt numA,
-                                   const PylithInt sOff[],
-                                   const PylithInt sOff_x[],
-                                   const PylithScalar s[],
-                                   const PylithScalar s_t[],
-                                   const PylithScalar s_x[],
-                                   const PylithInt aOff[],
-                                   const PylithInt aOff_x[],
-                                   const PylithScalar a[],
-                                   const PylithScalar a_t[],
-                                   const PylithScalar a_x[],
-                                   const PylithReal t,
-                                   const PylithReal x[],
-                                   const PylithReal n[],
-                                   const PylithInt numConstants,
-                                   const PylithScalar constants[],
-                                   PylithScalar f0[]) {
-        PylithScalar values[3] = { 0.0, 0.0, 0.0 };
+    void f0_rateTimeHistory_vector(const pylith::integer dim,
+                                   const pylith::integer numS,
+                                   const pylith::integer numA,
+                                   const pylith::integer sOff[],
+                                   const pylith::integer sOff_x[],
+                                   const pylith::scalar s[],
+                                   const pylith::scalar s_t[],
+                                   const pylith::scalar s_x[],
+                                   const pylith::integer aOff[],
+                                   const pylith::integer aOff_x[],
+                                   const pylith::scalar a[],
+                                   const pylith::scalar a_t[],
+                                   const pylith::scalar a_x[],
+                                   const pylith::real t,
+                                   const pylith::real x[],
+                                   const pylith::real n[],
+                                   const pylith::integer numConstants,
+                                   const pylith::scalar constants[],
+                                   pylith::scalar f0[]) {
+        pylith::scalar values[3] = { 0.0, 0.0, 0.0 };
         pylith::fekernels::TimeDependentFn::rateTimeHistory_vector_boundary(
             dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, n, numConstants, constants, values);
@@ -502,8 +502,8 @@ public:
             pylith::fekernels::BoundaryDirections::toXY(f0, values, n);
             break;
         case 3: {
-            const PylithScalar* refDir1 = &constants[0];
-            const PylithScalar* refDir2 = &constants[3];
+            const pylith::scalar* refDir1 = &constants[0];
+            const pylith::scalar* refDir2 = &constants[3];
             pylith::fekernels::BoundaryDirections::toXYZ(f0, values, refDir1, refDir2, n);
             break;
         }
@@ -520,25 +520,25 @@ public:
      * f_2(x) * a(t-t_2(x)) * H(t-t_2(s).
      */
     static inline
-    void f0_initialRateTimeHistory_scalar(const PylithInt dim,
-                                          const PylithInt numS,
-                                          const PylithInt numA,
-                                          const PylithInt sOff[],
-                                          const PylithInt sOff_x[],
-                                          const PylithScalar s[],
-                                          const PylithScalar s_t[],
-                                          const PylithScalar s_x[],
-                                          const PylithInt aOff[],
-                                          const PylithInt aOff_x[],
-                                          const PylithScalar a[],
-                                          const PylithScalar a_t[],
-                                          const PylithScalar a_x[],
-                                          const PylithReal t,
-                                          const PylithReal x[],
-                                          const PylithReal n[],
-                                          const PylithInt numConstants,
-                                          const PylithScalar constants[],
-                                          PylithScalar f0[]) {
+    void f0_initialRateTimeHistory_scalar(const pylith::integer dim,
+                                          const pylith::integer numS,
+                                          const pylith::integer numA,
+                                          const pylith::integer sOff[],
+                                          const pylith::integer sOff_x[],
+                                          const pylith::scalar s[],
+                                          const pylith::scalar s_t[],
+                                          const pylith::scalar s_x[],
+                                          const pylith::integer aOff[],
+                                          const pylith::integer aOff_x[],
+                                          const pylith::scalar a[],
+                                          const pylith::scalar a_t[],
+                                          const pylith::scalar a_x[],
+                                          const pylith::real t,
+                                          const pylith::real x[],
+                                          const pylith::real n[],
+                                          const pylith::integer numConstants,
+                                          const pylith::scalar constants[],
+                                          pylith::scalar f0[]) {
         pylith::fekernels::TimeDependentFn::initialRateTimeHistory_scalar_boundary(
             dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, n, numConstants, constants, f0);
@@ -552,26 +552,26 @@ public:
      * f_2(x) * a(t-t_2(x)) * H(t-t_2(s).
      */
     static inline
-    void f0_initialRateTimeHistory_vector(const PylithInt dim,
-                                          const PylithInt numS,
-                                          const PylithInt numA,
-                                          const PylithInt sOff[],
-                                          const PylithInt sOff_x[],
-                                          const PylithScalar s[],
-                                          const PylithScalar s_t[],
-                                          const PylithScalar s_x[],
-                                          const PylithInt aOff[],
-                                          const PylithInt aOff_x[],
-                                          const PylithScalar a[],
-                                          const PylithScalar a_t[],
-                                          const PylithScalar a_x[],
-                                          const PylithReal t,
-                                          const PylithReal x[],
-                                          const PylithReal n[],
-                                          const PylithInt numConstants,
-                                          const PylithScalar constants[],
-                                          PylithScalar f0[]) {
-        PylithScalar values[3] = { 0.0, 0.0, 0.0 };
+    void f0_initialRateTimeHistory_vector(const pylith::integer dim,
+                                          const pylith::integer numS,
+                                          const pylith::integer numA,
+                                          const pylith::integer sOff[],
+                                          const pylith::integer sOff_x[],
+                                          const pylith::scalar s[],
+                                          const pylith::scalar s_t[],
+                                          const pylith::scalar s_x[],
+                                          const pylith::integer aOff[],
+                                          const pylith::integer aOff_x[],
+                                          const pylith::scalar a[],
+                                          const pylith::scalar a_t[],
+                                          const pylith::scalar a_x[],
+                                          const pylith::real t,
+                                          const pylith::real x[],
+                                          const pylith::real n[],
+                                          const pylith::integer numConstants,
+                                          const pylith::scalar constants[],
+                                          pylith::scalar f0[]) {
+        pylith::scalar values[3] = { 0.0, 0.0, 0.0 };
         pylith::fekernels::TimeDependentFn::initialRateTimeHistory_vector_boundary(
             dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, n, numConstants, constants, values);
@@ -581,8 +581,8 @@ public:
             pylith::fekernels::BoundaryDirections::toXY(f0, values, n);
             break;
         case 3: {
-            const PylithScalar* refDir1 = &constants[0];
-            const PylithScalar* refDir2 = &constants[3];
+            const pylith::scalar* refDir1 = &constants[0];
+            const pylith::scalar* refDir2 = &constants[3];
             pylith::fekernels::BoundaryDirections::toXYZ(f0, values, refDir1, refDir2, n);
             break;
         }

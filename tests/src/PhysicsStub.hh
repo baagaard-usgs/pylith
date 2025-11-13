@@ -37,14 +37,14 @@ public:
     /** Create integrator and set kernels.
      *
      * @param[in] solution Solution field.
-     * @returns Integrator if applicable, otherwise NULL.
+     * @returns Integrator if applicable, otherwise nullptr.
      */
     pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution);
 
     /** Create constraint and set kernels.
      *
      * @param[in] solution Solution field.
-     * @returns Constraint if applicable, otherwise NULL.
+     * @returns Constraint if applicable, otherwise nullptr.
      */
     std::vector<pylith::feassemble::Constraint*> createConstraints(const pylith::topology::Field& solution);
 
@@ -53,7 +53,7 @@ public:
      * @param[in] solution Solution field.
      * @param[in\ physicsMesh Finite-element mesh associated with physics.
      *
-     * @returns Auxiliary field if applicable, otherwise NULL.
+     * @returns Auxiliary field if applicable, otherwise nullptr.
      */
     pylith::topology::Field* createAuxiliaryField(const pylith::topology::Field& solution,
                                                   const pylith::topology::Mesh& physicsMesh);
@@ -75,8 +75,8 @@ private:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    PhysicsStub(const PhysicsStub&); ///< Not implemented.
-    const PhysicsStub& operator=(const PhysicsStub&); ///< Not implemented
+    PhysicsStub(const PhysicsStub&) = delete;
+    const PhysicsStub& operator=(const PhysicsStub&) = delete;
 
 }; // PhysicsStub
 

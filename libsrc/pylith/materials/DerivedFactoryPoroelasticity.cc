@@ -43,7 +43,7 @@ pylith::materials::DerivedFactoryPoroelasticity::addBulkDensity(void) {
     PYLITH_JOURNAL_DEBUG("addBulkDensity(void)");
 
     const char* fieldName = "bulk_density";
-    const PylithReal densityScale = _normalizer->getDensityScale();
+    const pylith::real densityScale = _normalizer->getDensityScale();
 
     pylith::topology::Field::Description description;
     description.label = fieldName;

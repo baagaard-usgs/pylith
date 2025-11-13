@@ -117,8 +117,8 @@ protected:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    RheologyIncompressibleElasticity(const RheologyIncompressibleElasticity&); ///< Not implemented.
-    const RheologyIncompressibleElasticity& operator=(const RheologyIncompressibleElasticity&); /// Not implemented.
+    RheologyIncompressibleElasticity(const RheologyIncompressibleElasticity&) = delete;
+    const RheologyIncompressibleElasticity& operator=(const RheologyIncompressibleElasticity&) = delete;
 
 };
 

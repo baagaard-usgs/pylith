@@ -197,8 +197,8 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    KinSrcTimeHistory(const KinSrcTimeHistory&); ///< Not implemented
-    const KinSrcTimeHistory& operator=(const KinSrcTimeHistory&); ///< Not implemented
+    KinSrcTimeHistory(const KinSrcTimeHistory&) = delete;
+    const KinSrcTimeHistory& operator=(const KinSrcTimeHistory&) = delete;
 
 }; // class KinSrcTimeHistory
 

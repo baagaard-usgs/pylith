@@ -131,8 +131,8 @@ protected:
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    DataWriter(const DataWriter&); ///< Not implemented
-    const DataWriter& operator=(const DataWriter&); ///< Not implemented
+    DataWriter(const DataWriter&) = delete;
+    const DataWriter& operator=(const DataWriter&) = delete;
 
     // PROTECTED MEMBERS ////////////////////////////////////////////////////
 protected:

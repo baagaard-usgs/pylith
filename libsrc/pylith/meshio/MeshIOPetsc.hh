@@ -28,10 +28,10 @@ public:
     MeshIOPetsc(void);
 
     /// Destructor
-    ~MeshIOPetsc(void);
+    ~MeshIOPetsc(void) override;
 
     /// Deallocate PETSc and local data structures.
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set filename for ASCII file.
      *
@@ -85,10 +85,10 @@ public:
 protected:
 
     /// Write mesh
-    void _write(void) const;
+    void _write(void) const override;
 
     /// Read mesh
-    void _read(void);
+    void _read(void) override;
 
     // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:

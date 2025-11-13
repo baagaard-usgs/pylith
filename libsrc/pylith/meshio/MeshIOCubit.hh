@@ -23,10 +23,10 @@ public:
     MeshIOCubit(void);
 
     /// Destructor
-    ~MeshIOCubit(void);
+    ~MeshIOCubit(void) override;
 
     /// Deallocate PETSc and local data structures.
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set filename for Cubit file.
      *
@@ -44,10 +44,10 @@ public:
 protected:
 
     /// Write mesh
-    void _write(void) const;
+    void _write(void) const override;
 
     /// Read mesh
-    void _read(void);
+    void _read(void) override;
 
     // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
 protected:

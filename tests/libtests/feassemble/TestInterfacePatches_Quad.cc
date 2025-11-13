@@ -34,7 +34,7 @@ pylith::feassemble::TestInterfacePatches_Quad::caseA(void) {
 
     data->filename = "data/quad_patches_a.mesh";
     data->faultLabel = "fault";
-    data->edgeLabel = NULL;
+    data->edgeLabel = nullptr;
 
     static const size_t numPatches = 6;
     data->numPatches = numPatches;
@@ -49,18 +49,18 @@ pylith::feassemble::TestInterfacePatches_Quad::caseA(void) {
     };
     data->patchKeys = const_cast<TestInterfacePatches_Data::KeyValues*>(patchKeys);
 
-    static const PylithInt patchNumCells[numPatches] = {
+    static const pylith::integer patchNumCells[numPatches] = {
         2, 1, 1, 1, 1, 1,
     };
-    data->patchNumCells = const_cast<PylithInt*>(patchNumCells);
+    data->patchNumCells = const_cast<pylith::integer*>(patchNumCells);
 
-    static const PylithInt patchCells11[2] = { 14, 15 };
-    static const PylithInt patchCells12[1] = { 16 };
-    static const PylithInt patchCells32[1] = { 17 };
-    static const PylithInt patchCells34[1] = { 18 };
-    static const PylithInt patchCells44[1] = { 19 };
-    static const PylithInt patchCells43[1] = { 20 };
-    static const PylithInt* patchCells[numPatches] = {
+    static const pylith::integer patchCells11[2] = { 14, 15 };
+    static const pylith::integer patchCells12[1] = { 16 };
+    static const pylith::integer patchCells32[1] = { 17 };
+    static const pylith::integer patchCells34[1] = { 18 };
+    static const pylith::integer patchCells44[1] = { 19 };
+    static const pylith::integer patchCells43[1] = { 20 };
+    static const pylith::integer* patchCells[numPatches] = {
         patchCells11,
         patchCells12,
         patchCells32,
@@ -68,7 +68,7 @@ pylith::feassemble::TestInterfacePatches_Quad::caseA(void) {
         patchCells44,
         patchCells43,
     };
-    data->patchCells = const_cast<PylithInt**>(patchCells);
+    data->patchCells = const_cast<pylith::integer**>(patchCells);
 
     return data;
 } // caseA

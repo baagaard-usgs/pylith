@@ -34,11 +34,11 @@
 // Setup testing data.
 void
 pylith::feassemble::TestIntegratorDomain::setUp(void) {
-    _integrator = NULL;
-    _data = NULL;
+    _integrator = nullptr;
+    _data = nullptr;
 
     _mesh = new pylith::topology::Mesh();CPPUNIT_ASSERT(_mesh);
-    _solutionFields = NULL;
+    _solutionFields = nullptr;
 } // setUp
 
 
@@ -46,11 +46,11 @@ pylith::feassemble::TestIntegratorDomain::setUp(void) {
 // Deallocate testing data.
 void
 pylith::feassemble::TestIntegratorDomain::tearDown(void) {
-    delete _integrator;_integrator = NULL;
-    delete _data;_data = NULL;
+    delete _integrator;_integrator = nullptr;
+    delete _data;_data = nullptr;
 
-    delete _solutionFields;_solutionFields = NULL;
-    delete _mesh;_mesh = NULL;
+    delete _solutionFields;_solutionFields = nullptr;
+    delete _mesh;_mesh = nullptr;
 } // tearDown
 
 
@@ -122,10 +122,10 @@ pylith::feassemble::TestIntegratorDomain::testInitialize(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("auxiliary subfields"), std::string(auxiliaryField->getLabel()));
     CPPUNIT_ASSERT_EQUAL(_data->dimension, auxiliaryField->getSpaceDim());
 
-    const PylithReal tolerance = 1.0e-6;
+    const pylith::real tolerance = 1.0e-6;
     CPPUNIT_ASSERT(_data->normalizer);
-    const PylithReal lengthScale = _data->normalizer->getLengthScale();
-    PylithReal norm = pylith::testing::FieldTester::checkFieldWithDB(*auxiliaryField, _data->auxiliaryDB, lengthScale);
+    const pylith::real lengthScale = _data->normalizer->getLengthScale();
+    pylith::real norm = pylith::testing::FieldTester::checkFieldWithDB(*auxiliaryField, _data->auxiliaryDB, lengthScale);
     CPPUNIT_ASSERT_DOUBLES_EQUAL_MESSAGE("Values in auxiliary field do not match spatial database.", 0.0, norm, tolerance);
 
     // Verify solution and perturbation fields can be exactly represented by discretization.
@@ -161,11 +161,11 @@ pylith::feassemble::TestIntegratorDomain::testPoststep(void) {
     CPPUNIT_ASSERT(_data);
     _integrator->poststep(_data->t, _data->tindex, _data->dt, perturbation);
 
-    const PylithReal tolerance = 1.0e-6;
+    const pylith::real tolerance = 1.0e-6;
     CPPUNIT_ASSERT(_data->normalizer);
-    const PylithReal lengthScale = _data->normalizer->getLengthScale();
-    PylithReal norm = pylith::testing::FieldTester::checkFieldWithDB(*_integrator->getAuxiliaryField(),
-                                                                     _data->auxiliaryUpdateDB, lengthScale);
+    const pylith::real lengthScale = _data->normalizer->getLengthScale();
+    pylith::real norm = pylith::testing::FieldTester::checkFieldWithDB(*_integrator->getAuxiliaryField(),
+                                                                       _data->auxiliaryUpdateDB, lengthScale);
     CPPUNIT_ASSERT_DOUBLES_EQUAL_MESSAGE("Updated auxiliary field values do not match spatial database.", 0.0, norm, tolerance);
 
     PYLITH_METHOD_END;
@@ -202,23 +202,23 @@ pylith::feassemble::TestIntegratorDomain::testComputeResidual(void) {
     pylith::topology::Field& solutionDot = _solutionFields->get("solution_dot");
 
     pylith::topology::Field residualRHS(solution);
-    residualRHS.setLabel("residual RHS");
+    residualRHS.setName("residual RHS");
     residualRHS.createDiscretization();
     residualRHS.allocate();
 
     pylith::topology::Field residualLHS(solution);
-    residualLHS.setLabel("residual LHS");
+    residualLHS.setName("residual LHS");
     residualLHS.createDiscretization();
     residualLHS.allocate();
 
 #if 0 // :DEBUG:
-    PetscOptionsSetValue(NULL, "-dm_plex_print_fem", "2"); // :DEBUG:
+    PetscOptionsSetValue(nullptr, "-dm_plex_print_fem", "2"); // :DEBUG:
     DMSetFromOptions(residualRHS.dmMesh()); // :DEBUG:
 #endif // :DEBUG:
 
     CPPUNIT_ASSERT(_data);
-    const PylithReal t = _data->t;
-    const PylithReal dt = _data->dt;
+    const pylith::real t = _data->t;
+    const pylith::real dt = _data->dt;
     CPPUNIT_ASSERT(_integrator);
     _integrator->computeRHSResidual(&residualRHS, t, dt, solution);
     _integrator->computeLHSResidual(&residualLHS, t, dt, solution, solutionDot);
@@ -234,19 +234,19 @@ pylith::feassemble::TestIntegratorDomain::testComputeResidual(void) {
     residualLHS.view("RESIDUAL LHS"); // :DEBUG:
 #endif // :DEBUG:
 
-    PetscErrorCode err;
-    PetscVec residualVec = NULL;
+    PetscErrorCode err = PETSC_SUCCESS;
+    PetscVec residualVec = nullptr;
     err = VecDuplicate(residualRHS.localVector(), &residualVec);CPPUNIT_ASSERT(!err);
     err = VecWAXPY(residualVec, -1.0, residualRHS.localVector(), residualLHS.localVector());CPPUNIT_ASSERT(!err);
 
-    PylithReal norm = 0.0;
-    PylithReal normRHS = 0.0;
-    PylithReal normLHS = 0.0;
+    pylith::real norm = 0.0;
+    pylith::real normRHS = 0.0;
+    pylith::real normLHS = 0.0;
     err = VecNorm(residualRHS.localVector(), NORM_2, &normRHS);CPPUNIT_ASSERT(!err);
     err = VecNorm(residualLHS.localVector(), NORM_2, &normLHS);CPPUNIT_ASSERT(!err);
     err = VecNorm(residualVec, NORM_2, &norm);CPPUNIT_ASSERT(!err);
     err = VecDestroy(&residualVec);CPPUNIT_ASSERT(!err);
-    const PylithReal tolerance = 1.0e-6;
+    const pylith::real tolerance = 1.0e-6;
     CPPUNIT_ASSERT_DOUBLES_EQUAL_MESSAGE("Test of F(s) - G(s) == 0 failed.", 0.0, norm, tolerance);
     CPPUNIT_ASSERT_MESSAGE("RHS and LHS residuals are both exactly zero, which is suspicious.", normRHS > 0.0 || normLHS > 0.0);
 
@@ -275,24 +275,24 @@ pylith::feassemble::TestIntegratorDomain::testComputeJacobian(void) {
     pylith::topology::Field& perturbationDot = _solutionFields->get("perturbation_dot");
 
     pylith::topology::Field residual1(solution);
-    residual1.setLabel("residual1");
+    residual1.setName("residual1");
     residual1.createDiscretization();
     residual1.allocate();
 
     pylith::topology::Field residual2(perturbation);
-    residual2.setLabel("residual2");
+    residual2.setName("residual2");
     residual2.createDiscretization();
     residual2.allocate();
 
 #if 0 // :DEBUG:
-    PetscOptionsSetValue(NULL, "-dm_plex_print_fem", "2"); // :DEBUG:
+    PetscOptionsSetValue(nullptr, "-dm_plex_print_fem", "2"); // :DEBUG:
     DMSetFromOptions(_solution1->dmMesh()); // :DEBUG:
 #endif // :DEBUG:
 
     CPPUNIT_ASSERT(_data);
-    const PylithReal t = _data->t;
-    const PylithReal dt = _data->dt;
-    const PylithReal s_tshift = _data->s_tshift;
+    const pylith::real t = _data->t;
+    const pylith::real dt = _data->dt;
+    const pylith::real s_tshift = _data->s_tshift;
     CPPUNIT_ASSERT(_integrator);
     _integrator->computeLHSResidual(&residual1, t, dt, solution, solutionDot);
     _integrator->computeLHSResidual(&residual2, t, dt, perturbation, perturbationDot);
@@ -300,18 +300,18 @@ pylith::feassemble::TestIntegratorDomain::testComputeJacobian(void) {
     // residual1.view("RESIDUAL 1 LHS"); // :DEBUG:
     // residual2.view("RESIDUAL 2 LHS"); // :DEBUG:
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
 
-    PetscVec residualVec = NULL;
+    PetscVec residualVec = nullptr;
     err = VecDuplicate(residual1.localVector(), &residualVec);CPPUNIT_ASSERT(!err);
     err = VecWAXPY(residualVec, -1.0, residual1.localVector(), residual2.localVector());CPPUNIT_ASSERT(!err);
 
-    PetscVec solutionIncrVec = NULL;
+    PetscVec solutionIncrVec = nullptr;
     err = VecDuplicate(solution.localVector(), &solutionIncrVec);CPPUNIT_ASSERT(!err);
     err = VecWAXPY(solutionIncrVec, -1.0, solution.localVector(), perturbation.localVector());CPPUNIT_ASSERT(!err);
 
     // Compute Jacobian
-    PetscMat jacobianMat = NULL;
+    PetscMat jacobianMat = nullptr;
     err = DMCreateMatrix(solution.dmMesh(), &jacobianMat);CPPUNIT_ASSERT(!err);
     err = MatZeroEntries(jacobianMat);CPPUNIT_ASSERT(!err);
     PetscMat precondMat = jacobianMat; // Use Jacobian == preconditioner
@@ -322,7 +322,7 @@ pylith::feassemble::TestIntegratorDomain::testComputeJacobian(void) {
     err = MatAssemblyEnd(jacobianMat, MAT_FINAL_ASSEMBLY);PYLITH_CHECK_ERROR(err);
 
     // result = J*(-solutionIncr) + residual
-    PetscVec resultVec = NULL;
+    PetscVec resultVec = nullptr;
     err = VecDuplicate(residualVec, &resultVec);CPPUNIT_ASSERT(!err);
     err = VecZeroEntries(resultVec);CPPUNIT_ASSERT(!err);
     err = VecScale(solutionIncrVec, -1.0);CPPUNIT_ASSERT(!err);
@@ -337,7 +337,7 @@ pylith::feassemble::TestIntegratorDomain::testComputeJacobian(void) {
     VecView(resultVec, PETSC_VIEWER_STDOUT_SELF);
 #endif // :DEBUG:
 
-    PylithReal norm = 0.0, normSolutionIncr = 0.0, normResidual = 0.0;
+    pylith::real norm = 0.0, normSolutionIncr = 0.0, normResidual = 0.0;
     err = VecNorm(resultVec, NORM_2, &norm);CPPUNIT_ASSERT(!err);
     err = VecNorm(solutionIncrVec, NORM_2, &normSolutionIncr);CPPUNIT_ASSERT(!err);
     err = VecNorm(residualVec, NORM_2, &normResidual);CPPUNIT_ASSERT(!err);
@@ -346,7 +346,7 @@ pylith::feassemble::TestIntegratorDomain::testComputeJacobian(void) {
     err = VecDestroy(&residualVec);CPPUNIT_ASSERT(!err);
     err = MatDestroy(&jacobianMat);CPPUNIT_ASSERT(!err);
 
-    const PylithReal tolerance = 1.0e-6;
+    const pylith::real tolerance = 1.0e-6;
     CPPUNIT_ASSERT_DOUBLES_EQUAL_MESSAGE("Check of Jf(s)*(p-s) - (F(p) - F(s)) == 0 failed.", 0.0, norm, tolerance);
     CPPUNIT_ASSERT_MESSAGE("Norm of resulting vector is exactly zero, which is suspicious.", (0 < normResidual && 0 < norm) || (0 == normResidual && 0 == norm));
 
@@ -478,12 +478,12 @@ pylith::feassemble::TestIntegratorDomain::_zeroBoundary(pylith::topology::Field*
     CPPUNIT_ASSERT(_data->boundaryLabel);
 
     PetscDM dmMesh = field->mesh().dmMesh();CPPUNIT_ASSERT(dmMesh);
-    PetscDMLabel label = NULL;
-    PetscIS pointIS = NULL;
-    const PetscInt *points;
-    PetscInt numPoints = 0;
+    PetscDMLabel label = nullptr;
+    PetscIS pointIS = nullptr;
+    const pylith::integer *points;
+    pylith::integer numPoints = 0;
     PetscBool hasLabel = PETSC_FALSE;
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     err = DMHasLabel(dmMesh, _data->boundaryLabel, &hasLabel);CPPUNIT_ASSERT(!err);CPPUNIT_ASSERT(hasLabel);
     err = DMGetLabel(dmMesh, _data->boundaryLabel, &label);CPPUNIT_ASSERT(!err);
     err = DMLabelGetStratumIS(label, 1, &pointIS);CPPUNIT_ASSERT(!err);CPPUNIT_ASSERT(pointIS);
@@ -493,12 +493,12 @@ pylith::feassemble::TestIntegratorDomain::_zeroBoundary(pylith::topology::Field*
     pylith::topology::VecVisitorMesh fieldVisitor(*field);
     PylithScalar* fieldArray = fieldVisitor.localArray();CPPUNIT_ASSERT(fieldArray);
 
-    for (PylithInt p = 0; p < numPoints; ++p) {
-        const PylithInt p_bc = points[p];
+    for (pylith::integer p = 0; p < numPoints; ++p) {
+        const pylith::integer p_bc = points[p];
 
-        const PylithInt off = fieldVisitor.sectionOffset(p_bc);
-        const PylithInt dof = fieldVisitor.sectionDof(p_bc);
-        for (PylithInt i = 0; i < dof; ++i) {
+        const pylith::integer off = fieldVisitor.sectionOffset(p_bc);
+        const pylith::integer dof = fieldVisitor.sectionDof(p_bc);
+        for (pylith::integer i = 0; i < dof; ++i) {
             fieldArray[off+i] = 0.0;
         } // for
     } // for
@@ -515,9 +515,9 @@ pylith::feassemble::TestIntegratorDomain::_zeroBoundary(pylith::topology::Field*
 pylith::feassemble::TestIntegratorDomain_Data::TestIntegratorDomain_Data(void) :
     dimension(0),
     meshFilename(0),
-    boundaryLabel(NULL),
+    boundaryLabel(nullptr),
     materialId(0),
-    cs(NULL),
+    cs(nullptr),
 
     normalizer(new spatialdata::units::Nondimensional),
 
@@ -527,15 +527,15 @@ pylith::feassemble::TestIntegratorDomain_Data::TestIntegratorDomain_Data(void) :
     s_tshift(0.0),
 
     numSolutionSubfields(0),
-    solutionDiscretizations(NULL),
+    solutionDiscretizations(nullptr),
     solutionDB(new spatialdata::spatialdb::UserFunctionDB),
     perturbationDB(new spatialdata::spatialdb::UserFunctionDB),
 
     numAuxiliarySubfields(0),
-    auxiliarySubfields(NULL),
-    auxiliaryDiscretizations(NULL),
+    auxiliarySubfields(nullptr),
+    auxiliaryDiscretizations(nullptr),
     auxiliaryDB(new spatialdata::spatialdb::UserFunctionDB),
-    auxiliaryUpdateDB(NULL),
+    auxiliaryUpdateDB(nullptr),
 
     hasLHSJacobianLumpedInv(false) {
     CPPUNIT_ASSERT(normalizer);
@@ -554,11 +554,11 @@ pylith::feassemble::TestIntegratorDomain_Data::TestIntegratorDomain_Data(void) :
 // ---------------------------------------------------------------------------------------------------------------------
 // Destructor
 pylith::feassemble::TestIntegratorDomain_Data::~TestIntegratorDomain_Data(void) {
-    delete cs;cs = NULL;
-    delete normalizer;normalizer = NULL;
-    delete solutionDB;solutionDB = NULL;
-    delete auxiliaryDB;auxiliaryDB = NULL;
-    delete auxiliaryUpdateDB;auxiliaryUpdateDB = NULL;
+    delete cs;cs = nullptr;
+    delete normalizer;normalizer = nullptr;
+    delete solutionDB;solutionDB = nullptr;
+    delete auxiliaryDB;auxiliaryDB = nullptr;
+    delete auxiliaryUpdateDB;auxiliaryUpdateDB = nullptr;
 } // destructor
 
 

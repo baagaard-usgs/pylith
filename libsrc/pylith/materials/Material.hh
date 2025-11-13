@@ -62,9 +62,9 @@ public:
 
     /** Set gravity field.
      *
-     * @param g Gravity field.
+     * @param gravityField Gravity field.
      */
-    void setGravityField(spatialdata::spatialdb::GravityField* const g);
+    void setGravityField(const std::shared_ptr<spatialdata::spatialdb::GravityField>& gravityField);
 
     /** Set body force kernels (intended for use in MMS tests).
      *
@@ -75,10 +75,10 @@ public:
     /** Create constraint and set kernels.
      *
      * @param[in] solution Solution field.
-     * @returns Constraint if applicable, otherwise NULL.
+     * @returns Constraint if applicable, otherwise nullptr.
      */
     virtual
-    std::vector<pylith::feassemble::Constraint*> createConstraints(const pylith::topology::Field& solution) override;
+    std::vector<std::shared_ptr<pylith::feassemble::Constraint> > createConstraints(const pylith::topology::Field& solution) override;
 
     /** Get default PETSc solver options appropriate for material.
      *
@@ -87,8 +87,8 @@ public:
      * @returns PETSc solver options.
      */
     virtual
-    pylith::utils::PetscOptions* getSolverDefaults(const bool isParallel,
-                                                   const bool hasFault) const;
+    std::unique_ptr<pylith::utils::PetscOptions> getSolverDefaults(const bool isParallel,
+                                                                   const bool hasFault) const;
 
     /** Get residual kernels for an interior interface bounding material.
      *
@@ -129,8 +129,8 @@ protected:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    Material(const Material&); ///< Not implemented.
-    const Material& operator=(const Material&); ///< Not implemented
+    Material(const Material&) = delete;
+    const Material& operator=(const Material&) = delete;
 
 }; // Material
 

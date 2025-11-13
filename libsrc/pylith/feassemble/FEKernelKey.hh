@@ -39,7 +39,7 @@ public:
     static
     FEKernelKey* create(PetscWeakForm weakForm,
                         const char* name,
-                        const int value);
+                        const pylith::integer value);
 
     /** Get name of label.
      *
@@ -51,7 +51,7 @@ public:
      *
      * @returns Label value.
      */
-    int getValue(void) const;
+    pylith::integer getValue(void) const;
 
     /** Get PETSc weak form.
      *
@@ -69,16 +69,16 @@ public:
      * @returns PETSc weak form key.
      */
     PetscFormKey getPetscKey(const pylith::topology::Field& solution,
-                             const PetscInt equationPart,
-                             const char* fieldTrial=NULL,
-                             const char* fieldBasis=NULL) const;
+                             const pylith::integer equationPart,
+                             const char* fieldTrial=nullptr,
+                             const char* fieldBasis=nullptr) const;
 
     // PRIVATE MEMBERS //////////////////////////////////////////////////////
 private:
 
     PetscWeakForm _weakForm; ///< PETSc weak form object associated with integration key.
     std::string _name; ///< Name of label designating integration domain.
-    int _value; ///< Value of label designating integration domain.
+    pylith::integer _value; ///< Value of label designating integration domain.
 
 }; // FEKernelKey
 

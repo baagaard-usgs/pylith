@@ -39,7 +39,7 @@ public:
 
 private:
 
-    PressureGradient(void); ///< Not implemented
+    PressureGradient(void) = delete;
 }; // PressureGradient
 
 // End of file

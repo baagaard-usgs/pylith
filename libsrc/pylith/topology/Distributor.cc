@@ -86,13 +86,13 @@ pylith::topology::Distributor::distribute(pylith::topology::Mesh* const newMesh,
              << "Partitioning mesh using PETSc '" << partitionerName << "' partitioner." << pythia::journal::endl;
     } // if
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     PetscPartitioner partitioner = 0;
     PetscDM dmOrig = origMesh.getDM();assert(dmOrig);
     err = DMPlexGetPartitioner(dmOrig, &partitioner);PYLITH_CHECK_ERROR(err);
     err = PetscPartitionerSetType(partitioner, partitionerName);PYLITH_CHECK_ERROR(err);
     if ((std::string(partitionerName) == std::string("parmetis")) && useEdgeWeighting) {
-        err = PetscOptionsSetValue(NULL, "-petscpartitioner_use_vertex_weights", "true");PYLITH_CHECK_ERROR(err);
+        err = PetscOptionsSetValue(nullptr, "-petscpartitioner_use_vertex_weights", "true");PYLITH_CHECK_ERROR(err);
         err = PetscPartitionerSetFromOptions(partitioner);PYLITH_CHECK_ERROR(err);
     } // if
 
@@ -101,14 +101,14 @@ pylith::topology::Distributor::distribute(pylith::topology::Mesh* const newMesh,
              << "Distributing partitioned mesh." << pythia::journal::endl;
     } // if
 
-    PetscDM dmTmp = NULL, dmNew = NULL;
-    const PetscInt overlap = 0;
-    err = DMPlexDistribute(origMesh.getDM(), overlap, NULL, &dmTmp);PYLITH_CHECK_ERROR(err);
+    PetscDM dmTmp = nullptr, dmNew = nullptr;
+    const pylith::integer overlap = 0;
+    err = DMPlexDistribute(origMesh.getDM(), overlap, nullptr, &dmTmp);PYLITH_CHECK_ERROR(err);
     err = _Distributor::distributeOverlap(&dmNew, dmTmp, faults, numFaults);PYLITH_CHECK_ERROR(err);
     err = DMDestroy(&dmTmp);PYLITH_CHECK_ERROR(err);
     err = DMPlexDistributeSetDefault(dmNew, PETSC_FALSE);PYLITH_CHECK_ERROR(err);
     err = DMPlexReorderCohesiveSupports(dmNew);PYLITH_CHECK_ERROR(err);
-    err = DMViewFromOptions(dmNew, NULL, "-pylith_dist_dm_view");PYLITH_CHECK_ERROR(err);
+    err = DMViewFromOptions(dmNew, nullptr, "-pylith_dist_dm_view");PYLITH_CHECK_ERROR(err);
     newMesh->setDM(dmNew, "domain");
 
     PYLITH_METHOD_END;
@@ -143,7 +143,7 @@ pylith::topology::Distributor::write(meshio::DataWriter* const writer,
     description.componentNames.resize(1);
     description.componentNames[0] = "rank";
     description.scale = 1.0;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     pylith::topology::Field::Discretization discretization(0, 1);
 
@@ -156,13 +156,13 @@ pylith::topology::Distributor::write(meshio::DataWriter* const writer,
 
     PetscDM dmMesh = mesh.getDM();assert(dmMesh);
     topology::Stratum cellsStratum(dmMesh, pylith::topology::Stratum::HEIGHT, 0);
-    const PetscInt cStart = cellsStratum.begin();
-    const PetscInt cEnd = cellsStratum.end();
+    const pylith::integer cStart = cellsStratum.begin();
+    const pylith::integer cEnd = cellsStratum.end();
 
     VecVisitorMesh partitionVisitor(partitionField);
-    PetscScalar* partitionArray = partitionVisitor.localArray();
-    for (PetscInt point = cStart; point < cEnd; ++point) {
-        const PetscInt off = partitionVisitor.sectionOffset(point);
+    pylith::scalar* partitionArray = partitionVisitor.localArray();
+    for (pylith::integer point = cStart; point < cEnd; ++point) {
+        const pylith::integer off = partitionVisitor.sectionOffset(point);
         if (partitionVisitor.sectionDof(point) > 0) {
             partitionArray[off] = rankReal;
         } // if
@@ -184,7 +184,7 @@ pylith::topology::Distributor::write(meshio::DataWriter* const writer,
     writer->closeTimeStep();
     writer->close();
 
-    delete outputField;outputField = NULL;
+    delete outputField;outputField = nullptr;
 
     PYLITH_METHOD_END;
 } // write
@@ -207,7 +207,7 @@ pylith::topology::_Distributor::distributeOverlap(PetscDM* dmOverlap,
     PetscDM dmCoord;
     PetscDMLabel lblOverlap;
     PetscSF sfOverlap, sfStratified, sfPoint;
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     if (0 == numFaults) {
         err = PetscObjectReference((PetscObject)dmMesh);PYLITH_CHECK_ERROR(err);
@@ -215,10 +215,10 @@ pylith::topology::_Distributor::distributeOverlap(PetscDM* dmOverlap,
         PYLITH_METHOD_RETURN(0);
     } // if
 
-    PetscDMLabel* ovIncludeLabels = (numFaults > 0) ? new PetscDMLabel[numFaults] : NULL;
-    PetscInt* ovIncludeLabelValues = (numFaults > 0) ? new PetscInt[numFaults] : NULL;
-    PetscDMLabel* ovExcludeLabels = (numFaults > 0) ? new PetscDMLabel[numFaults] : NULL;
-    PetscInt* ovExcludeLabelValues = (numFaults > 0) ? new PetscInt[numFaults] : NULL;
+    PetscDMLabel* ovIncludeLabels = (numFaults > 0) ? new PetscDMLabel[numFaults] : nullptr;
+    pylith::integer* ovIncludeLabelValues = (numFaults > 0) ? new pylith::integer[numFaults] : nullptr;
+    PetscDMLabel* ovExcludeLabels = (numFaults > 0) ? new PetscDMLabel[numFaults] : nullptr;
+    pylith::integer* ovExcludeLabelValues = (numFaults > 0) ? new pylith::integer[numFaults] : nullptr;
 
     for (int i = 0; i < numFaults; ++i) {
         const char* surfaceLabelName = faults[i]->getSurfaceLabelName();
@@ -240,10 +240,10 @@ pylith::topology::_Distributor::distributeOverlap(PetscDM* dmOverlap,
     PetscCall(DMPlexCreateOverlapLabelFromLabels(dmMesh, numFaults, ovIncludeLabels, ovIncludeLabelValues,
                                                  numFaults, ovExcludeLabels, ovExcludeLabelValues, rootSection, rootrank, leafSection, leafrank, &lblOverlap));
 
-    delete[] ovIncludeLabels;ovIncludeLabels = NULL;
-    delete[] ovIncludeLabelValues;ovIncludeLabelValues = NULL;
-    delete[] ovExcludeLabels;ovExcludeLabels = NULL;
-    delete[] ovExcludeLabelValues;ovExcludeLabelValues = NULL;
+    delete[] ovIncludeLabels;ovIncludeLabels = nullptr;
+    delete[] ovIncludeLabelValues;ovIncludeLabelValues = nullptr;
+    delete[] ovExcludeLabels;ovExcludeLabels = nullptr;
+    delete[] ovExcludeLabelValues;ovExcludeLabelValues = nullptr;
 
     /* Convert overlap label to stratified migration SF */
     PetscCall(DMPlexPartitionLabelCreateSF(dmMesh, lblOverlap, PETSC_TRUE, &sfOverlap));

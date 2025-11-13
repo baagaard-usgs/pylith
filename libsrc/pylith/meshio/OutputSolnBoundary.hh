@@ -27,10 +27,10 @@ public:
     OutputSolnBoundary(void);
 
     /// Destructor
-    ~OutputSolnBoundary(void);
+    ~OutputSolnBoundary(void) override;
 
     /// Deallocate PETSc and local data structures.
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set name of label identifier for subdomain.
      *
@@ -48,7 +48,7 @@ public:
      *
      * @param[in] solution Solution field.
      */
-    void verifyConfiguration(const pylith::topology::Field& solution) const;
+    void verifyConfiguration(const pylith::topology::Field& solution) const override;
 
     // PROTECTED METHODS ///////////////////////////////////////////////////////////////////////////////////////////////
 protected:
@@ -61,20 +61,20 @@ protected:
      */
     void _writeSolnStep(const pylith::real t,
                         const pylith::integer tindex,
-                        const pylith::topology::Field& solution);
+                        const pylith::topology::Field& solution) override;
 
     // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    pylith::topology::Mesh* _boundaryMesh; ///< Mesh of subdomain.
+    std::unique_ptr<pylith::topology::Mesh> _boundaryMesh; ///< Mesh of subdomain.
     std::string _labelName; ///< Name of label for subdomain.
     int _labelValue; ///< Value of label for subdomain.
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    OutputSolnBoundary(const OutputSolnBoundary&); ///< Not implemented.
-    const OutputSolnBoundary& operator=(const OutputSolnBoundary&); ///< Not implemented
+    OutputSolnBoundary(const OutputSolnBoundary&) = delete;
+    const OutputSolnBoundary& operator=(const OutputSolnBoundary&) = delete;
 
 }; // OutputSolnBoundary
 

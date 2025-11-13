@@ -27,7 +27,7 @@ pylith::meshio::OutputTrigger::~OutputTrigger(void) {}
 // ---------------------------------------------------------------------------------------------------------------------
 // Set time scale.
 void
-pylith::meshio::OutputTrigger::setTimeScale(const PylithReal value) {
+pylith::meshio::OutputTrigger::setTimeScale(const pylith::real value) {
     if (value <= 0.0) {
         std::ostringstream msg;
         msg << "Time scale ("<<value<<") for solution observer is nonpositive.";

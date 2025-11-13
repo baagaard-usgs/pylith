@@ -41,8 +41,8 @@ public:
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    RefineUniform(const RefineUniform&); ///< Not implemented
-    const RefineUniform& operator=(const RefineUniform&); ///< Not implemented
+    RefineUniform(const RefineUniform&) = delete;
+    const RefineUniform& operator=(const RefineUniform&) = delete;
 
 }; // RefineUniform
 

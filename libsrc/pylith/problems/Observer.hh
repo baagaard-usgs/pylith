@@ -34,8 +34,8 @@ public:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    Observer(const Observer&); ///< Not implemented.
-    const Observer& operator=(const Observer&); ///< Not implemented
+    Observer(const Observer&) = delete;
+    const Observer& operator=(const Observer&) = delete;
 
 }; // Observer
 

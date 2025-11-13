@@ -11,11 +11,11 @@
 
 #include "pylith/meshio/meshiofwd.hh" // forward declarations
 
+#include <cstddef> // USES size_t
 #include <iosfwd>
 
 class pylith::meshio::BinaryIO {
-    // PUBLIC METHODS
-    // //////////////////////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC METHODS//////////////////////////////////////////////////////////////////////////////
 public:
 
     /** Read fixed length string from binary file.
@@ -25,7 +25,7 @@ public:
      */
     static
     std::string readString(std::ifstream& fin,
-                           const int numChars);
+                           const size_t numChars);
 
     /** Change endian type by swapping byte order.
      *
@@ -35,8 +35,8 @@ public:
      */
     static
     void swapByteOrder(char* vals,
-                       const int numVals,
-                       const int typesize);
+                       const size_t numVals,
+                       const size_t typesize);
 
 }; // BinaryIO
 

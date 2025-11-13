@@ -52,18 +52,11 @@ pylith::meshio::OutputSoln::deallocate(void) {
 // ---------------------------------------------------------------------------------------------------------------------
 // Set names of solution subfields requested for output.
 void
-pylith::meshio::OutputSoln::setOutputSubfields(const char* names[],
-                                               const int numNames) {
+pylith::meshio::OutputSoln::setOutputSubfields(const pylith::string_vector& names) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("OutputSoln::dataFields(names="<<names<<", numNames="<<numNames<<")");
+    PYLITH_COMPONENT_DEBUG("OutputSoln::dataFields(#names="<<names.size()<<")");
 
-    assert((names && numNames) || (!names && !numNames));
-
-    _subfieldNames.resize(numNames);
-    for (int i = 0; i < numNames; ++i) {
-        assert(names[i]);
-        _subfieldNames[i] = names[i];
-    } // for
+    _subfieldNames = names;
 
     PYLITH_METHOD_END;
 } // setOutputSubfields
@@ -83,7 +76,7 @@ pylith::meshio::OutputSoln::getOutputSubfields(void) const {
 // ---------------------------------------------------------------------------------------------------------------------
 // Set time scale.
 void
-pylith::meshio::OutputSoln::setTimeScale(const PylithReal value) {
+pylith::meshio::OutputSoln::setTimeScale(const pylith::real value) {
     OutputObserver::setTimeScale(value);
 } // setTimeScale
 
@@ -93,14 +86,14 @@ pylith::meshio::OutputSoln::setTimeScale(const PylithReal value) {
 void
 pylith::meshio::OutputSoln::verifyConfiguration(const pylith::topology::Field& solution) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("verifyConfiguration(solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("verifyConfiguration(solution="<<solution.getName()<<")");
 
     const size_t numSubfieldNames = _subfieldNames.size();
     if ((numSubfieldNames > 0) && (std::string("all") != _subfieldNames[0])) {
         for (size_t iField = 0; iField < numSubfieldNames; iField++) {
             if (!solution.hasSubfield(_subfieldNames[iField].c_str())) {
                 std::ostringstream msg;
-                msg << "Could not find subfield '" << _subfieldNames[iField] << "' in solution '" << solution.getLabel()
+                msg << "Could not find subfield '" << _subfieldNames[iField] << "' in solution '" << solution.getName()
                     << "' for output using solution observer ''" << PyreComponent::getIdentifier() <<"''.";
                 throw std::runtime_error(msg.str());
             } // if
@@ -114,8 +107,8 @@ pylith::meshio::OutputSoln::verifyConfiguration(const pylith::topology::Field& s
 // ---------------------------------------------------------------------------------------------------------------------
 // Get update from integrator (subject of observer).
 void
-pylith::meshio::OutputSoln::update(const PylithReal t,
-                                   const PylithInt tindex,
+pylith::meshio::OutputSoln::update(const pylith::real t,
+                                   const pylith::integer tindex,
                                    const pylith::topology::Field& solution,
                                    const pylith::problems::Observer::NotificationType notification) {
     assert(_trigger);
@@ -165,7 +158,7 @@ pylith::meshio::OutputSoln::_close(void) {
 // ---------------------------------------------------------------------------------------------------------------------
 // Prepare for output at this solution step.
 void
-pylith::meshio::OutputSoln::_openSolnStep(const PylithReal t,
+pylith::meshio::OutputSoln::_openSolnStep(const pylith::real t,
                                           const pylith::topology::Mesh& mesh) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("OutputSoln::_openSolnStep(t="<<t<<", mesh="<<typeid(mesh).name()<<")");
@@ -193,11 +186,11 @@ pylith::meshio::OutputSoln::_closeSolnStep(void) {
 // ---------------------------------------------------------------------------------------------------------------------
 // Write data for step in solution.
 void
-pylith::meshio::OutputSoln::_writeSolnStep(const PylithReal t,
-                                           const PylithInt tindex,
+pylith::meshio::OutputSoln::_writeSolnStep(const pylith::real t,
+                                           const pylith::integer tindex,
                                            const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("OutputSoln::_writeSolnStep(t="<<t<<", tindex="<<tindex<<", solution="<<solution.getLabel()<<") empty method");
+    PYLITH_COMPONENT_DEBUG("OutputSoln::_writeSolnStep(t="<<t<<", tindex="<<tindex<<", solution="<<solution.getName()<<") empty method");
 
     // Empty method.
 

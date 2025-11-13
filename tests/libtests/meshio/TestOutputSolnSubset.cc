@@ -46,7 +46,7 @@ pylith::meshio::TestOutputSolnSubset::testLabel(void) { // testLabel
 
     const char* label = "boundary";
 
-    output.setLabel(label);
+    output.setName(label);
     CPPUNIT_ASSERT(0 == strcmp(label, output._label.c_str()));
 
     PYLITH_METHOD_END;
@@ -75,32 +75,32 @@ pylith::meshio::TestOutputSolnSubset::testSubdomainMesh(void) { // testSubdomain
     iohandler.read(&mesh);
 
     OutputSolnSubset output;
-    output.setLabel(label);
+    output.setName(label);
 
     PetscDM dmMesh = output.subdomainMesh(mesh).getDM();CPPUNIT_ASSERT(dmMesh);
 
     // Check vertices
     topology::Stratum verticesStratum(dmMesh, topology::Stratum::DEPTH, 0);
-    const PetscInt vStart = verticesStratum.begin();
-    const PetscInt vEnd = verticesStratum.end();
+    const pylith::integer vStart = verticesStratum.begin();
+    const pylith::integer vEnd = verticesStratum.end();
     CPPUNIT_ASSERT_EQUAL(nvertices, verticesStratum.size());
-    for (PetscInt v = vStart, index = 0; v < vEnd; ++v, ++index) {
+    for (pylith::integer v = vStart, index = 0; v < vEnd; ++v, ++index) {
         CPPUNIT_ASSERT_EQUAL(verticesE[index], v);
     } // for
 
     // Check cells
     topology::Stratum cellsStratum(dmMesh, topology::Stratum::HEIGHT, 1);
-    const PetscInt cStart = cellsStratum.begin();
-    const PetscInt cEnd = cellsStratum.end();
-    PetscErrorCode err = 0;
+    const pylith::integer cStart = cellsStratum.begin();
+    const pylith::integer cEnd = cellsStratum.end();
+    PetscErrorCode err = PETSC_SUCCESS;
     CPPUNIT_ASSERT_EQUAL(ncells, cellsStratum.size());
-    for (PetscInt c = cStart, index = 0; c < cEnd; ++c) {
-        PetscInt *closure = NULL;
-        PetscInt closureSize = 0;
+    for (pylith::integer c = cStart, index = 0; c < cEnd; ++c) {
+        pylith::integer *closure = nullptr;
+        pylith::integer closureSize = 0;
         err = DMPlexGetTransitiveClosure(dmMesh, c, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
         int count = 0;
         for (int i = 0; i < closureSize; ++i) {
-            const PetscInt p = closure[2*i];
+            const pylith::integer p = closure[2*i];
             if (( p >= vStart) && ( p < vEnd) ) {
                 CPPUNIT_ASSERT_EQUAL(cellsE[index], p);
                 ++count;

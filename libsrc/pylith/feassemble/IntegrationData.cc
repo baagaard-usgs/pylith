@@ -59,13 +59,13 @@ pylith::feassemble::IntegrationData::deallocate(void) {
 
     for (fields_map_t::iterator iter = _fields.begin(); iter != _fields.end(); ++iter) {
         if (iter->first != solution) { // Solution memory management handled by Python.
-            delete iter->second;iter->second = NULL;
+            delete iter->second;iter->second = nullptr;
         } // if
     } // for
     _fields.clear();
 
     for (meshes_map_t::iterator iter = _meshes.begin(); iter != _meshes.end(); ++iter) {
-        delete iter->second;iter->second = NULL;
+        delete iter->second;iter->second = nullptr;
     } // for
     _meshes.clear();
 } // deallocate
@@ -75,7 +75,7 @@ pylith::feassemble::IntegrationData::deallocate(void) {
 // Set scalar quantity.
 void
 pylith::feassemble::IntegrationData::setScalar(const std::string& name,
-                                               const PylithReal value) {
+                                               const pylith::real value) {
     PYLITH_METHOD_BEGIN;
     PYLITH_JOURNAL_DEBUG("setScalar(name="<<name<<", value="<<value<<")");
 
@@ -87,7 +87,7 @@ pylith::feassemble::IntegrationData::setScalar(const std::string& name,
 
 // ------------------------------------------------------------------------------------------------
 // Get scalar quantity.
-PylithReal
+pylith::real
 pylith::feassemble::IntegrationData::getScalar(const std::string& name) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_JOURNAL_DEBUG("getScalar(name="<<name<<")");
@@ -168,7 +168,7 @@ pylith::feassemble::IntegrationData::removeField(const std::string& name) {
 
     if (_fields.count(name)) {
         fields_map_t::iterator iter = _fields.find(name);
-        delete iter->second;iter->second = NULL;
+        delete iter->second;iter->second = nullptr;
         _fields.erase(name);
     } // if
 

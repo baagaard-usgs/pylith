@@ -30,17 +30,17 @@ const char* pylith::topology::Mesh::cells_label_name = "material-id";
 // ------------------------------------------------------------------------------------------------
 // Default constructor
 pylith::topology::Mesh::Mesh(void) :
-    _dm(NULL) {}
+    _dm(nullptr) {}
 
 
 // ------------------------------------------------------------------------------------------------
 // Constructor with dimension and communicator.
 pylith::topology::Mesh::Mesh(const int dim,
                              const MPI_Comm& comm) :
-    _dm(NULL) {
+    _dm(nullptr) {
     PYLITH_METHOD_BEGIN;
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     err = DMCreate(comm, &_dm);PYLITH_CHECK_ERROR(err);
     err = DMSetType(_dm, DMPLEX);PYLITH_CHECK_ERROR(err);
     err = DMSetDimension(_dm, dim);PYLITH_CHECK_ERROR(err);
@@ -81,11 +81,11 @@ pylith::topology::Mesh::clone(void) const {
 
     PetscErrorCode err = PETSC_SUCCESS;
     if (this->_dm) {
-        PetscDM dmClone = NULL;
+        PetscDM dmClone = nullptr;
         err = DMClone(this->_dm, &dmClone);
         mesh->setDM(dmClone);
 
-        const char* name = NULL;
+        const char* name = nullptr;
         err = PetscObjectGetName((PetscObject)this->_dm, &name);PYLITH_CHECK_ERROR(err);
         err = PetscObjectSetName((PetscObject)mesh->_dm,  name);PYLITH_CHECK_ERROR(err);
     } // if
@@ -142,7 +142,7 @@ int
 pylith::topology::Mesh::getDimension(void) const {
     PYLITH_METHOD_BEGIN;
 
-    PetscInt dim = 0;
+    pylith::integer dim = 0;
     if (_dm) {
         PetscErrorCode err = DMGetDimension(_dm, &dim);PYLITH_CHECK_ERROR(err);
     } // if
@@ -190,7 +190,7 @@ pylith::topology::Mesh::view(const char* viewOption) const {
 
     assert(_dm);
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     if (strlen(viewOption) > 0) {
         const char* label = 0;
         err = PetscObjectGetName((PetscObject) _dm, &label);PYLITH_CHECK_ERROR(err);
@@ -200,8 +200,8 @@ pylith::topology::Mesh::view(const char* viewOption) const {
         optionname << "-" << label << "_dm_view";
 
         err = DMSetOptionsPrefix(_dm, optionprefix.str().c_str());PYLITH_CHECK_ERROR(err);
-        err = PetscOptionsSetValue(NULL, optionname.str().c_str(), viewOption);PYLITH_CHECK_ERROR(err);
-        err = DMViewFromOptions(_dm, NULL, "-dm_view");PYLITH_CHECK_ERROR(err);
+        err = PetscOptionsSetValue(nullptr, optionname.str().c_str(), viewOption);PYLITH_CHECK_ERROR(err);
+        err = DMViewFromOptions(_dm, nullptr, "-dm_view");PYLITH_CHECK_ERROR(err);
 
     } else {
         err = DMView(_dm, PETSC_VIEWER_STDOUT_WORLD);PYLITH_CHECK_ERROR(err);

@@ -26,7 +26,7 @@ namespace pylith {
 
         class Constraint; ///< Abstract base class for finite-element constraints.
         class ConstraintSpatialDB; ///< Finite-element constraints via auxiliary field from spatial database.
-        class ConstraintUserFn; ///< Finite-element constraints via user-specified function (testing).
+        class ConstraintCxxFn; ///< Finite-element constraints via user-specified function (testing).
         class ConstraintSimple; ///< Finite-element simple constraints via user-specified function (testing).
 
     } // feassemble

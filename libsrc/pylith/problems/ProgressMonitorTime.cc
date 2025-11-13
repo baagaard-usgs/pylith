@@ -101,7 +101,7 @@ pylith::problems::ProgressMonitorTime::update(const double current,
         percentComplete = 0.0;
     } // if/else
     if (percentComplete >= _iUpdate * _updatePercent) {
-        time_t now = time(NULL);
+        time_t now = time(nullptr);
         const std::string& finished = ProgressMonitor::_calcFinishTime(percentComplete, now, _startTime);
         if (_isMaster) {
             _update(current, now, percentComplete, finished.c_str());

@@ -24,13 +24,13 @@
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Check to make sure field matches spatial database.
-PylithReal
+pylith::real
 pylith::testing::FieldTester::checkFieldWithDB(const pylith::topology::Field& field,
                                                spatialdata::spatialdb::SpatialDB* fieldDB,
-                                               const PylithReal lengthScale) {
+                                               const pylith::real lengthScale) {
     PYLITH_METHOD_BEGIN;
-    PylithReal norm = 0.0;
-    PylithReal t = 0.0;
+    pylith::real norm = 0.0;
+    pylith::real t = 0.0;
 
     const PetscDM dmField = field.getDM();assert(dmField);
     pylith::topology::FieldQuery fieldQuery(field);

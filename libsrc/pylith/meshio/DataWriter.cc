@@ -43,7 +43,7 @@ pylith::meshio::DataWriter::deallocate(void) {
 // ----------------------------------------------------------------------
 // Set time scale for simulation time.
 void
-pylith::meshio::DataWriter::setTimeScale(const PylithScalar value) {
+pylith::meshio::DataWriter::setTimeScale(const pylith::real value) {
     PYLITH_METHOD_BEGIN;
 
     if (value <= 0.0) {
@@ -77,7 +77,7 @@ pylith::meshio::DataWriter::open(const pylith::topology::Mesh& mesh,
     _isOpen = true;
 
     PetscDM dmMesh = mesh.getDM();assert(dmMesh);
-    const char* meshName = NULL;
+    const char* meshName = nullptr;
     PetscObjectGetName((PetscObject) dmMesh, &meshName);
 
     std::ostringstream s;
@@ -101,7 +101,7 @@ pylith::meshio::DataWriter::close(void) {
 // ----------------------------------------------------------------------
 // Prepare file for data at a new time step.
 void
-pylith::meshio::DataWriter::openTimeStep(const PylithScalar t,
+pylith::meshio::DataWriter::openTimeStep(const pylith::real t,
                                          const topology::Mesh& mesh) {
     // Default: no implementation.
 } // openTimeStep
@@ -143,28 +143,28 @@ pylith::meshio::DataWriter::getCoordsGlobalVec(PetscVec* coordsGlobalVec,
     assert(coordsGlobalVec);
 
     PetscDM dmMesh = mesh.getDM();assert(dmMesh);
-    PetscDM dmCoord = NULL;
+    PetscDM dmCoord = nullptr;
 
-    PetscSection section = NULL;
-    PetscSection newSection = NULL;
-    PetscSection gsection = NULL;
+    PetscSection section = nullptr;
+    PetscSection newSection = nullptr;
+    PetscSection gsection = nullptr;
 
-    PetscSection subSection = NULL;
-    PetscDMLabel subpointMap = NULL;
-    PetscDMLabel subpointMapF = NULL;
+    PetscSection subSection = nullptr;
+    PetscDMLabel subpointMap = nullptr;
+    PetscDMLabel subpointMapF = nullptr;
 
-    PylithInt dim, dimF, pStart, pEnd, qStart, qEnd, cStart, cEnd, cMax, vEnd, vMax = -1;
-    PetscErrorCode err;
+    pylith::integer dim, dimF, pStart, pEnd, qStart, qEnd, cStart, cEnd, cMax, vEnd, vMax = -1;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     err = DMGetCoordinateDM(dmMesh, &dmCoord);PYLITH_CHECK_ERROR(err);assert(dmCoord);
     err = DMPlexGetHeightStratum(dmCoord, 0, &cStart, &cEnd);PYLITH_CHECK_ERROR(err);
-    err = DMPlexGetDepthStratum(dmCoord, 0, NULL, &vEnd);PYLITH_CHECK_ERROR(err);
+    err = DMPlexGetDepthStratum(dmCoord, 0, nullptr, &vEnd);PYLITH_CHECK_ERROR(err);
     cMax = cStart;
-    for (PetscInt cell = cStart; cell < cEnd; ++cell, ++cMax) {
+    for (pylith::integer cell = cStart; cell < cEnd; ++cell, ++cMax) {
         if (pylith::topology::MeshOps::isCohesiveCell(dmMesh, cell)) { break; }
     }
-    PylithInt excludeRanges[4] = {cMax, cEnd, vMax, vEnd};
-    PylithInt numExcludes = (cMax < cEnd ? 1 : 0) + (vMax >= 0 ? 1 : 0);
+    pylith::integer excludeRanges[4] = {cMax, cEnd, vMax, vEnd};
+    pylith::integer numExcludes = (cMax < cEnd ? 1 : 0) + (vMax >= 0 ? 1 : 0);
 
     err = DMGetLocalSection(dmCoord, &section);PYLITH_CHECK_ERROR(err);
     err = DMGetDimension(dmMesh,  &dim);PYLITH_CHECK_ERROR(err);
@@ -174,9 +174,9 @@ pylith::meshio::DataWriter::getCoordsGlobalVec(PetscVec* coordsGlobalVec,
     err = DMPlexGetSubpointMap(dmMesh,  &subpointMap);PYLITH_CHECK_ERROR(err);
     err = DMPlexGetSubpointMap(dmCoord, &subpointMapF);PYLITH_CHECK_ERROR(err);
     if (((dim != dimF) || ((pEnd-pStart) < (qEnd-qStart))) && subpointMap && !subpointMapF) {
-        const PylithInt *indices = NULL;
-        PetscIS subpointIS = NULL;
-        PylithInt n = 0;
+        const pylith::integer *indices = nullptr;
+        PetscIS subpointIS = nullptr;
+        pylith::integer n = 0;
 
         err = PetscSectionGetChart(section, &qStart, &qEnd);PYLITH_CHECK_ERROR(err);
         err = DMPlexGetSubpointIS(dmMesh, &subpointIS);PYLITH_CHECK_ERROR(err);
@@ -186,8 +186,8 @@ pylith::meshio::DataWriter::getCoordsGlobalVec(PetscVec* coordsGlobalVec,
         } // if
         err = PetscSectionCreate(mesh.getComm(), &subSection);PYLITH_CHECK_ERROR(err);
         err = PetscSectionSetChart(subSection, pStart, pEnd);PYLITH_CHECK_ERROR(err);
-        for (PylithInt q = qStart; q < qEnd; ++q) {
-            PylithInt dof, off, p;
+        for (pylith::integer q = qStart; q < qEnd; ++q) {
+            pylith::integer dof, off, p;
 
             err = PetscSectionGetDof(section, q, &dof);PYLITH_CHECK_ERROR(err);
             if (dof) {
@@ -208,8 +208,8 @@ pylith::meshio::DataWriter::getCoordsGlobalVec(PetscVec* coordsGlobalVec,
         numExcludes = 0;
     } // if
 
-    PetscSF sf = NULL;
-    PetscDM dmCoordGlobal = NULL;
+    PetscSF sf = nullptr;
+    PetscDM dmCoordGlobal = nullptr;
     err = DMClone(dmCoord, &dmCoordGlobal);PYLITH_CHECK_ERROR(err);
     err = DMCopyDisc(dmCoord, dmCoordGlobal);PYLITH_CHECK_ERROR(err);
     err = PetscSectionClone(section, &newSection);PYLITH_CHECK_ERROR(err);
@@ -227,12 +227,12 @@ pylith::meshio::DataWriter::getCoordsGlobalVec(PetscVec* coordsGlobalVec,
     err = PetscSectionDestroy(&subSection);PYLITH_CHECK_ERROR(err);
 
     InsertMode mode = INSERT_VALUES;
-    PetscVec coordsLocalVec = NULL;
+    PetscVec coordsLocalVec = nullptr;
     err = DMGetCoordinatesLocal(dmMesh, &coordsLocalVec);PYLITH_CHECK_ERROR(err);
     err = DMLocalToGlobalBegin(dmCoordGlobal, coordsLocalVec, mode, *coordsGlobalVec);PYLITH_CHECK_ERROR(err);
     err = DMLocalToGlobalEnd(dmCoordGlobal, coordsLocalVec, mode, *coordsGlobalVec);PYLITH_CHECK_ERROR(err);
 
-    PylithReal lengthScale = 1.0;
+    pylith::real lengthScale = 1.0;
     err = DMPlexGetScale(dmMesh, PETSC_UNIT_LENGTH, &lengthScale);PYLITH_CHECK_ERROR(err);
     err = VecScale(*coordsGlobalVec, lengthScale);PYLITH_CHECK_ERROR(err);
     err = DMDestroy(&dmCoordGlobal);PYLITH_CHECK_ERROR(err);
@@ -250,7 +250,7 @@ pylith::meshio::DataWriter::_writeVec(PetscVec vector,
     /* To save vec in where we want, we create a new Vec (temp) with           */
     /* VecCreate(), wrap the vec data in temp, and call VecView(temp, viewer). */
     PetscVec temp;
-    const PetscScalar *array;
+    const pylith::scalar *array;
     const char* vecName;
     PetscLayout map;
     PetscErrorCode err = PETSC_SUCCESS;

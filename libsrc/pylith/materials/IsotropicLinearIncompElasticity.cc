@@ -46,7 +46,7 @@ void
 pylith::materials::IsotropicLinearIncompElasticity::deallocate(void) {
     RheologyIncompressibleElasticity::deallocate();
 
-    delete _auxiliaryFactory;_auxiliaryFactory = NULL;
+    delete _auxiliaryFactory;_auxiliaryFactory = nullptr;
 } // deallocate
 
 
@@ -110,7 +110,7 @@ pylith::materials::IsotropicLinearIncompElasticity::getKernelf0p(const spatialda
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearIncompElasticityPlaneStrain::f0p_infinitesimalStrain :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicLinearIncompElasticity3D::f0p_infinitesimalStrain_refState :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearIncompElasticityPlaneStrain::f0p_infinitesimalStrain_refState :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(f0p);
 } // getKernelResidualPressure
@@ -129,7 +129,7 @@ pylith::materials::IsotropicLinearIncompElasticity::getKernelf1u(const spatialda
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearIncompElasticityPlaneStrain::f1u_infinitesimalStrain :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicLinearIncompElasticity3D::f1u_infinitesimalStrain_refState :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearIncompElasticityPlaneStrain::f1u_infinitesimalStrain_refState :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(f1u);
 } // getKernelRHSResidualStress
@@ -146,7 +146,7 @@ pylith::materials::IsotropicLinearIncompElasticity::getKernelJf3uu(const spatial
     PetscPointJac Jg3uu =
         (3 == spaceDim) ? pylith::fekernels::IsotropicLinearIncompElasticity3D::Jf3uu_infinitesimalStrain :
         (2 == spaceDim) ? pylith::fekernels::IsotropicLinearIncompElasticityPlaneStrain::Jf3uu_infinitesimalStrain :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(Jg3uu);
 } // getKernelJacobianElasticConstants
@@ -178,7 +178,7 @@ pylith::materials::IsotropicLinearIncompElasticity::getKernelCauchyStressVector(
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearIncompElasticityPlaneStrain::cauchyStress_infinitesimalStrain_asVector :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicLinearIncompElasticity3D::cauchyStress_infinitesimalStrain_refState_asVector :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearIncompElasticityPlaneStrain::cauchyStress_infinitesimalStrain_refState_asVector :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(kernel);
 } // getKernelDerivedCauchyStress

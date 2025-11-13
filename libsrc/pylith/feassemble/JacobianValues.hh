@@ -19,7 +19,7 @@
 class pylith::feassemble::JacobianValues : public pylith::utils::GenericComponent {
     friend class TestJacobianValues; // unit testing
 
-    // PUBLIC STRUCTS //////////////////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC STRUCTS /////////////////////////////////////////////////////////////////////////////
 public:
 
     typedef void (*PointFn)(pylith::scalar_array*,
@@ -41,7 +41,7 @@ public:
         JacobianKernel(void) :
             subfieldTrial(""),
             subfieldBasis(""),
-            function(NULL) {}
+            function(nullptr) {}
 
 
         JacobianKernel(const char* subfieldTrialValue,
@@ -54,7 +54,7 @@ public:
 
     }; // JacobianKernel
 
-    // PUBLIC MEMBERS //////////////////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC MEMBERS /////////////////////////////////////////////////////////////////////////////
 public:
 
     /// Constructor
@@ -107,17 +107,17 @@ public:
                           const pylith::integer basisOff,
                           const pylith::integer totalDim);
 
-    // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
+    // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:
 
     std::vector<JacobianKernel> _kernelsJacobian; ///< Kernels for Jacobian.
     std::vector<JacobianKernel> _kernelsPrecond; ///< Kernels for preconditioner.
 
-    // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
+    // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    JacobianValues(const JacobianValues&); ///< Not implemented.
-    const JacobianValues& operator=(const JacobianValues&); ///< Not implemented.
+    JacobianValues(const JacobianValues&) = delete;
+    const JacobianValues& operator=(const JacobianValues&) = delete;
 
 }; // JacobianValues
 

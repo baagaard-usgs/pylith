@@ -105,8 +105,8 @@ public:
     // PRIVATE METHODS //////////////////////////////////////////////////////
 private:
 
-    EventLogger(const EventLogger&); ///< Not implemented
-    const EventLogger& operator=(const EventLogger&); ///< Not implemented
+    EventLogger(const EventLogger&) = delete;
+    const EventLogger& operator=(const EventLogger&) = delete;
 
     // PRIVATE TYPEDEFS /////////////////////////////////////////////////////
 private:

@@ -58,12 +58,12 @@ pylith::meshio::TestDataWriterPoints::setDataTri(TestDataWriterPoints_Data* data
 
     static const size_t numPoints = 3;
     data->numPoints = numPoints;
-    static const PylithReal points[numPoints*2] = {
+    static const pylith::real points[numPoints*2] = {
         -0.3333333, 0.0,
         0.0000001, 0.0,
         0.9999999, 0.0,
     };
-    data->points = const_cast<PylithReal*>(points);
+    data->points = const_cast<pylith::real*>(points);
     data->names = pylith::string_vector({"ZZ.A", "ZZ.B", "ZZ.C"});
 
     // Vertex fields ------------------------------------------------------------------------------
@@ -98,12 +98,12 @@ pylith::meshio::TestDataWriterPoints::setDataQuad(TestDataWriterPoints_Data* dat
 
     static const size_t numPoints = 3;
     data->numPoints = numPoints;
-    static const PylithReal points[numPoints*2] = {
+    static const pylith::real points[numPoints*2] = {
         -0.5, 0.0,
         0.00000001, 0.0,
         0.99999999, -0.99999999,
     };
-    data->points = const_cast<PylithReal*>(points);
+    data->points = const_cast<pylith::real*>(points);
     data->names = pylith::string_vector({"ZZ.A", "ZZ.B", "ZZ.C"});
 
     // Vertex fields ------------------------------------------------------------------------------
@@ -137,13 +137,13 @@ pylith::meshio::TestDataWriterPoints::setDataTet(TestDataWriterPoints_Data* data
 
     static const size_t numPoints = 4;
     data->numPoints = numPoints;
-    static const PylithReal points[numPoints*3] = {
+    static const pylith::real points[numPoints*3] = {
         -0.33333333, 0.0, 0.33333333,
         +0.00000001, 0.0, 0.33333333,
         +0.00000001, 0.0, 0.00000001,
         0.0, -0.99999999, 0.00000001,
     };
-    data->points = const_cast<PylithReal*>(points);
+    data->points = const_cast<pylith::real*>(points);
     data->names = pylith::string_vector({"ZZ.A", "ZZ.B", "ZZ.C", "ZZ.DD"});
 
     // Vertex fields ------------------------------------------------------------------------------
@@ -178,13 +178,13 @@ pylith::meshio::TestDataWriterPoints::setDataHex(TestDataWriterPoints_Data* data
 
     static const size_t numPoints = 4;
     data->numPoints = numPoints;
-    static const PylithReal points[numPoints*3] = {
+    static const pylith::real points[numPoints*3] = {
         -0.5, 0.0, 0.5,
         -0.00000001, 0.0, 0.0,
         -0.00000001, 0.0, 0.99999999,
         0.99999999, 0.99999999, -0.99999999,
     };
-    data->points = const_cast<PylithReal*>(points);
+    data->points = const_cast<pylith::real*>(points);
     data->names = pylith::string_vector({"ZZ.A", "ZZ.B", "ZZ.C", "ZZ.DD"});
 
     // Vertex fields ------------------------------------------------------------------------------
@@ -259,7 +259,7 @@ pylith::meshio::TestDataWriterPoints::_createVertexField(pylith::topology::Field
 // Constructor
 pylith::meshio::TestDataWriterPoints_Data::TestDataWriterPoints_Data(void) :
     numPoints(0),
-    points(NULL) {}
+    points(nullptr) {}
 
 
 // ------------------------------------------------------------------------------------------------

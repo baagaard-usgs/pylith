@@ -97,7 +97,7 @@ pylith::problems::TestObserversSoln::TestObserversSoln(void) :
 // ------------------------------------------------------------------------------------------------
 // Destructor
 pylith::problems::TestObserversSoln::~TestObserversSoln(void) {
-    delete _observers;_observers = NULL;
+    delete _observers;_observers = nullptr;
 } // tearDown
 
 
@@ -136,7 +136,7 @@ pylith::problems::TestObserversSoln::testTimeScale(void) {
     assert(_observers);
 
     // Check default
-    PylithReal value = 1.0;
+    pylith::real value = 1.0;
     CHECK(value == observerA.getTimeScale());
     CHECK(value == observerB.getTimeScale());
 
@@ -174,8 +174,8 @@ pylith::problems::TestObserversSoln::testNotifyObservers(void) {
     pylith::testing::StubMethodTracker tracker;
     tracker.clear();
 
-    const PylithReal t = 1.0;
-    const PylithInt tindex = 1;
+    const pylith::real t = 1.0;
+    const pylith::integer tindex = 1;
     pylith::topology::Mesh mesh;
     pylith::topology::Field solution(mesh);
     _observers->notifyObservers(t, tindex, solution, pylith::problems::Observer::SOLUTION);

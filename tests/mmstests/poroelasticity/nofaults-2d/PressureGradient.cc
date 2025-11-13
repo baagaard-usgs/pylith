@@ -143,11 +143,11 @@ class pylith::_PressureGradient {
         return -alpha  * (PRESSURE0 / PRESSURE_SCALE)  / (lambdaN + 2.0*muN) * (x / (XMAX / LENGTH_SCALE));
     } // trace_strain
 
-    static PetscErrorCode solnkernel_disp(PetscInt spaceDim,
-                                          PetscReal t,
-                                          const PetscReal x[],
-                                          PetscInt numComponents,
-                                          PetscScalar* s,
+    static PetscErrorCode solnkernel_disp(pylith::integer spaceDim,
+                                          pylith::real t,
+                                          const pylith::real x[],
+                                          pylith::integer numComponents,
+                                          pylith::scalar* s,
                                           void* context) {
         assert(2 == spaceDim);
         assert(2 == numComponents);
@@ -159,11 +159,11 @@ class pylith::_PressureGradient {
         return 0;
     } // solnkernel_disp
 
-    static PetscErrorCode solnkernel_fluid_pressure(PetscInt spaceDim,
-                                                    PetscReal t,
-                                                    const PetscReal x[],
-                                                    PetscInt numComponents,
-                                                    PetscScalar* s,
+    static PetscErrorCode solnkernel_fluid_pressure(pylith::integer spaceDim,
+                                                    pylith::real t,
+                                                    const pylith::real x[],
+                                                    pylith::integer numComponents,
+                                                    pylith::scalar* s,
                                                     void* context) {
         assert(2 == spaceDim);
         assert(1 == numComponents);
@@ -174,11 +174,11 @@ class pylith::_PressureGradient {
         return 0;
     } // solnkernel_fluid_pressure
 
-    static PetscErrorCode solnkernel_trace_strain(PetscInt spaceDim,
-                                                  PetscReal t,
-                                                  const PetscReal x[],
-                                                  PetscInt numComponents,
-                                                  PetscScalar* s,
+    static PetscErrorCode solnkernel_trace_strain(pylith::integer spaceDim,
+                                                  pylith::real t,
+                                                  const pylith::real x[],
+                                                  pylith::integer numComponents,
+                                                  pylith::scalar* s,
                                                   void* context) {
         assert(2 == spaceDim);
         assert(1 == numComponents);
@@ -189,11 +189,11 @@ class pylith::_PressureGradient {
         return 0;
     } // solnkernel_trace_strain
 
-    static PetscErrorCode solnkernel_vel(PetscInt spaceDim,
-                                         PetscReal t,
-                                         const PetscReal x[],
-                                         PetscInt numComponents,
-                                         PetscScalar* s,
+    static PetscErrorCode solnkernel_vel(pylith::integer spaceDim,
+                                         pylith::real t,
+                                         const pylith::real x[],
+                                         pylith::integer numComponents,
+                                         pylith::scalar* s,
                                          void* context) {
         assert(2 == spaceDim);
         assert(2 == numComponents);
@@ -205,11 +205,11 @@ class pylith::_PressureGradient {
         return 0;
     } // solnkernel_vel
 
-    static PetscErrorCode solnkernel_fluid_pressure_dot(PetscInt spaceDim,
-                                                        PetscReal t,
-                                                        const PetscReal x[],
-                                                        PetscInt numComponents,
-                                                        PetscScalar* s,
+    static PetscErrorCode solnkernel_fluid_pressure_dot(pylith::integer spaceDim,
+                                                        pylith::real t,
+                                                        const pylith::real x[],
+                                                        pylith::integer numComponents,
+                                                        pylith::scalar* s,
                                                         void* context) {
         assert(2 == spaceDim);
         assert(1 == numComponents);
@@ -220,11 +220,11 @@ class pylith::_PressureGradient {
         return 0;
     } // solnkernel_fluid_pressure_dot
 
-    static PetscErrorCode solnkernel_trace_strain_dot(PetscInt spaceDim,
-                                                      PetscReal t,
-                                                      const PetscReal x[],
-                                                      PetscInt numComponents,
-                                                      PetscScalar* s,
+    static PetscErrorCode solnkernel_trace_strain_dot(pylith::integer spaceDim,
+                                                      pylith::real t,
+                                                      const pylith::real x[],
+                                                      pylith::integer numComponents,
+                                                      pylith::scalar* s,
                                                       void* context) {
         assert(2 == spaceDim);
         assert(1 == numComponents);
@@ -300,12 +300,12 @@ public:
         data->material.setName("material-id=24");
         data->material.setLabelValue(24);
 
-        static const PylithInt constrainedX[1] = { 0 };
-        static const PylithInt constrainedY[1] = { 1 };
-        static const PylithInt numConstrained = 1;
+        static const pylith::integer constrainedX[1] = { 0 };
+        static const pylith::integer constrainedY[1] = { 1 };
+        static const pylith::integer numConstrained = 1;
         data->bcs.resize(6);
         { // Displacement -x
-            pylith::bc::DirichletUserFn*bc = new pylith::bc::DirichletUserFn();assert(bc);
+            pylith::bc::DirichletCxxFn*bc = new pylith::bc::DirichletCxxFn();assert(bc);
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_xneg");
             bc->setLabelValue(1);
@@ -314,7 +314,7 @@ public:
             data->bcs[0] = bc;
         }
         { // Displacement +x
-            pylith::bc::DirichletUserFn*bc = new pylith::bc::DirichletUserFn();assert(bc);
+            pylith::bc::DirichletCxxFn*bc = new pylith::bc::DirichletCxxFn();assert(bc);
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_xpos");
             bc->setLabelValue(1);
@@ -323,7 +323,7 @@ public:
             data->bcs[1] = bc;
         }
         { // Displacement -y
-            pylith::bc::DirichletUserFn*bc = new pylith::bc::DirichletUserFn();assert(bc);
+            pylith::bc::DirichletCxxFn*bc = new pylith::bc::DirichletCxxFn();assert(bc);
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_yneg");
             bc->setLabelValue(1);
@@ -332,7 +332,7 @@ public:
             data->bcs[2] = bc;
         }
         { // Displacement +y
-            pylith::bc::DirichletUserFn*bc = new pylith::bc::DirichletUserFn();assert(bc);
+            pylith::bc::DirichletCxxFn*bc = new pylith::bc::DirichletCxxFn();assert(bc);
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_ypos");
             bc->setLabelValue(1);
@@ -341,7 +341,7 @@ public:
             data->bcs[3] = bc;
         }
         { // Pressure -x
-            pylith::bc::DirichletUserFn*bc = new pylith::bc::DirichletUserFn();assert(bc);
+            pylith::bc::DirichletCxxFn*bc = new pylith::bc::DirichletCxxFn();assert(bc);
             bc->setSubfieldName("pressure");
             bc->setLabelName("boundary_xneg");
             bc->setLabelValue(1);
@@ -350,7 +350,7 @@ public:
             data->bcs[4] = bc;
         }
         { // Pressure +x
-            pylith::bc::DirichletUserFn*bc = new pylith::bc::DirichletUserFn();assert(bc);
+            pylith::bc::DirichletCxxFn*bc = new pylith::bc::DirichletCxxFn();assert(bc);
             bc->setSubfieldName("pressure");
             bc->setLabelName("boundary_xpos");
             bc->setLabelValue(1);

@@ -33,10 +33,10 @@ const int pylith::faults::KinSrc::GET_SLIP_ACC = 0x4;
 // Default constructor.
 pylith::faults::KinSrc::KinSrc(void) :
     _auxiliaryFactory(new pylith::faults::KinSrcAuxiliaryFactory),
-    _slipFnKernel(NULL),
-    _slipRateFnKernel(NULL),
-    _slipAccFnKernel(NULL),
-    _auxiliaryField(NULL),
+    _slipFnKernel(nullptr),
+    _slipRateFnKernel(nullptr),
+    _slipAccFnKernel(nullptr),
+    _auxiliaryField(nullptr),
     _originTime(0.0) {}
 
 
@@ -51,22 +51,22 @@ pylith::faults::KinSrc::~KinSrc(void) {
 // Deallocate PETSc and local data structures.
 void
 pylith::faults::KinSrc::deallocate(void) {
-    delete _auxiliaryField;_auxiliaryField = NULL;
-    delete _auxiliaryFactory;_auxiliaryFactory = NULL;
+    delete _auxiliaryField;_auxiliaryField = nullptr;
+    delete _auxiliaryFactory;_auxiliaryFactory = nullptr;
 } // deallocate
 
 
 // ------------------------------------------------------------------------------------------------
 // Set origin time for earthquake source.
 void
-pylith::faults::KinSrc::setOriginTime(const PylithReal value) {
+pylith::faults::KinSrc::setOriginTime(const pylith::real value) {
     _originTime = value;
 } // originTime
 
 
 // ------------------------------------------------------------------------------------------------
 // Get origin time for earthquake source.
-PylithReal
+pylith::real
 pylith::faults::KinSrc::getOriginTime(void) const {
     return _originTime;
 } // originTime
@@ -116,7 +116,7 @@ pylith::faults::KinSrc::initialize(const pylith::topology::Field& faultAuxField,
                                                  discretization.isBasisContinuous);
 
     delete _auxiliaryField;_auxiliaryField = new pylith::topology::Field(faultAuxField.getMesh());assert(_auxiliaryField);
-    _auxiliaryField->setLabel("auxiliary field");
+    _auxiliaryField->setName("auxiliary field");
     _auxiliaryFieldSetup(normalizer, cs);
     _auxiliaryField->subfieldsSetup();
     _auxiliaryField->createDiscretization();
@@ -170,11 +170,11 @@ pylith::faults::KinSrc::getSlipSubfields(PetscVec slipLocalVec,
     assert(faultAuxiliaryField->getSubfieldNames().size() == numSubfields);
 
     // Create local vector for slip for this source.
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     PetscDM faultAuxiliaryDM = faultAuxiliaryField->getDM();
-    PetscDMLabel dmLabel = NULL;
-    PetscInt labelValue = 0;
-    const PetscInt part = 0;
+    PetscDMLabel dmLabel = nullptr;
+    pylith::integer labelValue = 0;
+    const pylith::integer part = 0;
     err = DMSetAuxiliaryVec(faultAuxiliaryDM, dmLabel, labelValue, part,
                             _auxiliaryField->getLocalVector());PYLITH_CHECK_ERROR(err);
     err = DMProjectFieldLocal(faultAuxiliaryDM, t, slipLocalVec, subfieldKernels, INSERT_VALUES,
@@ -191,9 +191,10 @@ pylith::faults::KinSrc::_setFEConstants(const pylith::topology::Field& faultAuxF
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("_setFEConstants(faultAuxField="<<faultAuxField.getLabel()<<")");
 
-    // :KLUDGE: Potentially we may have multiple PetscDS objects. This assumes that the first one (with a NULL label) is
+    // :KLUDGE: Potentially we may have multiple PetscDS objects. This assumes that the first one (with a nullptr label)
+    // is
     // the correct one.
-    PetscDS ds = NULL;
+    PetscDS ds = nullptr;
     PetscDM dmAux = faultAuxField.getDM();assert(dmAux);
     PetscErrorCode err = DMGetDS(dmAux, &ds);PYLITH_CHECK_ERROR(err);assert(ds);
 

@@ -40,7 +40,7 @@ public:
 
 private:
 
-    UniformStrain2D(void); ///< Not implemented
+    UniformStrain2D(void) = delete;
 }; // UniformStrain2D
 
 // End of file

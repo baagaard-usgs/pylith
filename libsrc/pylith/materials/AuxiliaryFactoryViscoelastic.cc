@@ -46,7 +46,7 @@ pylith::materials::AuxiliaryFactoryViscoelastic::addMaxwellTime(void) {
     PYLITH_JOURNAL_DEBUG("addMaxwellTime(void)");
 
     const char* subfieldName = "maxwell_time";
-    const PylithReal timeScale = _normalizer->getTimeScale();
+    const pylith::real timeScale = _normalizer->getTimeScale();
 
     pylith::topology::Field::Description description;
     description.label = subfieldName;
@@ -78,7 +78,7 @@ pylith::materials::AuxiliaryFactoryViscoelastic::addMaxwellTimeGeneralizedMaxwel
         "maxwell_time_2",
         "maxwell_time_3"
     };
-    const PylithReal timeScale = _normalizer->getTimeScale();
+    const pylith::real timeScale = _normalizer->getTimeScale();
 
     pylith::topology::Field::Description description;
     description.label = subfieldName;
@@ -123,7 +123,7 @@ pylith::materials::AuxiliaryFactoryViscoelastic::addShearModulusRatioGeneralized
         description.componentNames[i] = componentNames[i];
     } // for
     description.scale = 1.0;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(subfieldName));
     pylith::materials::Query::generalizedMaxwellShearModulusRatiosFromVM(subfieldName, this);
@@ -140,7 +140,7 @@ pylith::materials::AuxiliaryFactoryViscoelastic::addPowerLawReferenceStrainRate(
     PYLITH_JOURNAL_DEBUG("addPowerLawReferenceStrainRate(void)");
 
     const char* subfieldName = "power_law_reference_strain_rate";
-    const PylithReal strainRateScale = 1.0/_normalizer->getTimeScale();
+    const pylith::real strainRateScale = 1.0/_normalizer->getTimeScale();
 
     pylith::topology::Field::Description description;
     description.label = subfieldName;
@@ -167,7 +167,7 @@ pylith::materials::AuxiliaryFactoryViscoelastic::addPowerLawReferenceStress(void
     PYLITH_JOURNAL_DEBUG("addPowerLawReferenceStress(void)");
 
     const char* subfieldName = "power_law_reference_stress";
-    const PylithReal pressureScale = _normalizer->getPressureScale();
+    const pylith::real pressureScale = _normalizer->getPressureScale();
 
     pylith::topology::Field::Description description;
     description.label = subfieldName;
@@ -242,7 +242,7 @@ pylith::materials::AuxiliaryFactoryViscoelastic::addTotalStrain(void) {
         description.componentNames[i] = componentNames[i];
     } // for
     description.scale = 1.0;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(subfieldName));
     this->setSubfieldQuery(subfieldName);
@@ -268,7 +268,7 @@ pylith::materials::AuxiliaryFactoryViscoelastic::addDeviatoricStress(void) {
         "deviatoric_stress_xz"
     };
     const int stressSize = (3 == _spaceDim) ? 6 : (2 == _spaceDim) ? 4 : 1;
-    const PylithReal pressureScale = _normalizer->getPressureScale();
+    const pylith::real pressureScale = _normalizer->getPressureScale();
 
     pylith::topology::Field::Description description;
     description.label = subfieldName;
@@ -282,7 +282,7 @@ pylith::materials::AuxiliaryFactoryViscoelastic::addDeviatoricStress(void) {
         description.componentNames[i] = componentNames[i];
     } // for
     description.scale = pressureScale;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(subfieldName));
     this->setSubfieldQuery(subfieldName);
@@ -321,7 +321,7 @@ pylith::materials::AuxiliaryFactoryViscoelastic::addViscousStrain(void) {
         description.componentNames[i] = componentNames[i];
     } // for
     description.scale = 1.0;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(subfieldName));
     this->setSubfieldQuery(subfieldName);
@@ -356,7 +356,7 @@ pylith::materials::AuxiliaryFactoryViscoelastic::addViscousStrainGeneralizedMaxw
         } // for i
     } // for j
     description.scale = 1.0;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(subfieldName));
     this->setSubfieldQuery(subfieldName);

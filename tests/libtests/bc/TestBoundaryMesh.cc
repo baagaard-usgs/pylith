@@ -29,7 +29,7 @@ void
 pylith::bc::TestBoundaryMesh::setUp(void) { // setUp
     PYLITH_METHOD_BEGIN;
 
-    _data = NULL;
+    _data = nullptr;
 
     PYLITH_METHOD_END;
 } // setUp
@@ -41,7 +41,7 @@ void
 pylith::bc::TestBoundaryMesh::tearDown(void) { // tearDown
     PYLITH_METHOD_BEGIN;
 
-    delete _data;_data = NULL;
+    delete _data;_data = nullptr;
 
     PYLITH_METHOD_END;
 } // tearDown
@@ -54,7 +54,7 @@ pylith::bc::TestBoundaryMesh::testSubmesh(void) { // testSubmesh
     PYLITH_METHOD_BEGIN;
 
     CPPUNIT_ASSERT(_data);
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     pylith::topology::Mesh mesh;
     pylith::meshio::MeshIOAscii iohandler;
@@ -76,21 +76,21 @@ pylith::bc::TestBoundaryMesh::testSubmesh(void) { // testSubmesh
 
     // Check vertices
     pylith::topology::Stratum verticesStratum(dmMesh, pylith::topology::Stratum::DEPTH, 0);
-    const PetscInt vStart = verticesStratum.begin();
-    const PetscInt vEnd = verticesStratum.end();
+    const pylith::integer vStart = verticesStratum.begin();
+    const pylith::integer vEnd = verticesStratum.end();
     CPPUNIT_ASSERT_EQUAL(_data->numVerticesNoFault, verticesStratum.size());
 
     // Check cells
     pylith::topology::Stratum cellsStratum(dmMesh, pylith::topology::Stratum::HEIGHT, 1);
-    const PetscInt cStart = cellsStratum.begin();
-    const PetscInt cEnd = cellsStratum.end();
+    const pylith::integer cStart = cellsStratum.begin();
+    const pylith::integer cEnd = cellsStratum.end();
     CPPUNIT_ASSERT_EQUAL(_data->numCells, cellsStratum.size());
-    for (PetscInt c = cStart; c < cEnd; ++c) {
-        PetscInt *closure = NULL;
-        PetscInt closureSize, numVertices = 0;
+    for (pylith::integer c = cStart; c < cEnd; ++c) {
+        pylith::integer *closure = nullptr;
+        pylith::integer closureSize, numVertices = 0;
 
         err = DMPlexGetTransitiveClosure(dmMesh, c, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
-        for (PetscInt p = 0; p < closureSize*2; p += 2) {
+        for (pylith::integer p = 0; p < closureSize*2; p += 2) {
             if ((closure[p] >= vStart) && (closure[p] < vEnd)) { numVertices++; }
         } // for
         err = DMPlexRestoreTransitiveClosure(dmMesh, c, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
@@ -108,7 +108,7 @@ pylith::bc::TestBoundaryMesh::testSubmeshFault(void) { // testSubmeshFault
     PYLITH_METHOD_BEGIN;
 
     CPPUNIT_ASSERT(_data);
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     pylith::topology::Mesh mesh;
     pylith::meshio::MeshIOAscii iohandler;
@@ -142,22 +142,22 @@ pylith::bc::TestBoundaryMesh::testSubmeshFault(void) { // testSubmeshFault
 
     // Check vertices
     pylith::topology::Stratum verticesStratum(dmMesh, pylith::topology::Stratum::DEPTH, 0);
-    const PetscInt vStart = verticesStratum.begin();
-    const PetscInt vEnd = verticesStratum.end();
+    const pylith::integer vStart = verticesStratum.begin();
+    const pylith::integer vEnd = verticesStratum.end();
     CPPUNIT_ASSERT_EQUAL(_data->numVerticesWithFault, verticesStratum.size());
 
     // Check cells
     topology::Stratum cellsStratum(dmMesh, pylith::topology::Stratum::HEIGHT, 1);
-    const PetscInt cStart = cellsStratum.begin();
-    const PetscInt cEnd = cellsStratum.end();
+    const pylith::integer cStart = cellsStratum.begin();
+    const pylith::integer cEnd = cellsStratum.end();
     CPPUNIT_ASSERT_EQUAL(_data->numCells, cellsStratum.size());
 
-    for (PetscInt c = cStart; c < cEnd; ++c) {
-        PetscInt *closure = NULL;
-        PetscInt closureSize, numVertices = 0;
+    for (pylith::integer c = cStart; c < cEnd; ++c) {
+        pylith::integer *closure = nullptr;
+        pylith::integer closureSize, numVertices = 0;
 
         err = DMPlexGetTransitiveClosure(dmMesh, c, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
-        for (PetscInt p = 0; p < closureSize*2; p += 2) {
+        for (pylith::integer p = 0; p < closureSize*2; p += 2) {
             if ((closure[p] >= vStart) && (closure[p] < vEnd)) { numVertices++; }
         } // for
         err = DMPlexRestoreTransitiveClosure(dmMesh, c, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
@@ -171,9 +171,9 @@ pylith::bc::TestBoundaryMesh::testSubmeshFault(void) { // testSubmeshFault
 // ----------------------------------------------------------------------
 // Constructor
 pylith::bc::TestBoundaryMesh_Data::TestBoundaryMesh_Data(void) :
-    filename(NULL),
-    bcLabel(NULL),
-    faultLabel(NULL),
+    filename(nullptr),
+    bcLabel(nullptr),
+    faultLabel(nullptr),
     faultId(0),
     numCorners(0),
     numCells(0),

@@ -112,8 +112,8 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    IsotropicLinearGenMaxwell(const IsotropicLinearGenMaxwell&); ///< Not implemented.
-    const IsotropicLinearGenMaxwell& operator=(const IsotropicLinearGenMaxwell&); ///< Not implemented
+    IsotropicLinearGenMaxwell(const IsotropicLinearGenMaxwell&) = delete;
+    const IsotropicLinearGenMaxwell& operator=(const IsotropicLinearGenMaxwell&) = delete;
 
 }; // class IsotropicLinearGenMaxwell
 

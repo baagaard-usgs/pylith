@@ -53,7 +53,7 @@ pylith::faults::DiagnosticFieldFactory::addNormalDir(void) {
         description.componentNames[i] = componentNames[i];
     } // for
     description.scale = 1.0;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(fieldName));
     // No query; computed during initialization.
@@ -82,7 +82,7 @@ pylith::faults::DiagnosticFieldFactory::addStrikeDir(void) {
         description.componentNames[i] = componentNames[i];
     } // for
     description.scale = 1.0;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(fieldName));
     // No query; computed during initialization.
@@ -111,7 +111,7 @@ pylith::faults::DiagnosticFieldFactory::addUpDipDir(void) {
         description.componentNames[i] = componentNames[i];
     } // for
     description.scale = 1.0;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(fieldName));
     // No query; computed during initialization.

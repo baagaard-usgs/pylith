@@ -20,7 +20,7 @@ pylith::problems::ProgressMonitorStub::ProgressMonitorStub(void) {
     _state.current = 0;
     _state.now = 0;
     _state.percentComplete = 0;
-    _state.finished = NULL;
+    _state.finished = nullptr;
 } // constructor
 
 

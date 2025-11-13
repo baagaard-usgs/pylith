@@ -41,7 +41,7 @@
   \node (constraint) [abstract-class, anchor=west] at ($(integrator.east)+(4em,0)$) {\umlemptyclass{Constraint}};
   
   \node (constraint-spatialdb) [concrete-class] at ($(constraint.south)-(0,4em)$) {\umlemptyclass{ConstraintSpatialDB}};
-  \node (constraint-userfn) [concrete-class] at ($(constraint-spatialdb.south)-(0,1ex)$) {\umlemptyclass{ConstraintUserFn}};
+  \node (constraint-userfn) [concrete-class] at ($(constraint-spatialdb.south)-(0,1ex)$) {\umlemptyclass{ConstraintCxxFn}};
   \node (constraint-simple) [concrete-class] at ($(constraint-userfn.south)-(0,1ex)$) {\umlemptyclass{ConstraintSimple}};
   
   \draw[inherit] (physics-implementation) -- (generic-component);

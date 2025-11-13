@@ -48,31 +48,32 @@ public:
      * We pass through the solution to the resulting field. The auxiliary field is ignored.
      */
     static inline
-    void passThruSubfield(const PylithInt dim,
-                          const PylithInt numS,
-                          const PylithInt numA,
-                          const PylithInt sOff[],
-                          const PylithInt sOff_x[],
-                          const PylithScalar s[],
-                          const PylithScalar s_t[],
-                          const PylithScalar s_x[],
-                          const PylithInt aOff[],
-                          const PylithInt aOff_x[],
-                          const PylithScalar a[],
-                          const PylithScalar a_t[],
-                          const PylithScalar a_x[],
-                          const PylithReal t,
-                          const PylithScalar x[],
-                          const PylithInt numConstants,
-                          const PylithScalar constants[],
-                          PylithScalar field[]) {
+    void passThruSubfield(const pylith::integer dim,
+                          const pylith::integer numS,
+                          const pylith::integer numA,
+                          const pylith::integer sOff[],
+                          const pylith::integer sOff_x[],
+                          const pylith::scalar s[],
+                          const pylith::scalar s_t[],
+                          const pylith::scalar s_x[],
+                          const pylith::integer aOff[],
+                          const pylith::integer aOff_x[],
+                          const pylith::scalar a[],
+                          const pylith::scalar a_t[],
+                          const pylith::scalar a_x[],
+                          const pylith::real t,
+                          const pylith::scalar x[],
+                          const pylith::integer numConstants,
+                          const pylith::scalar constants[],
+                          pylith::scalar field[]) {
         assert(s);
         assert(sOff);
         assert(field);
-        const PetscInt subfieldIndex = PetscInt(t); // :KLUDGE: Easiest way to get subfield to extract into fn.
+        const pylith::integer subfieldIndex = pylith::integer(t); // :KLUDGE: Easiest way to get subfield to extract
+                                                                  // into fn.
 
-        const PylithInt sEnd = sOff[subfieldIndex+1];
-        for (PylithInt iS = sOff[subfieldIndex], iF = 0; iS < sEnd; ++iS, ++iF) {
+        const pylith::integer sEnd = sOff[subfieldIndex+1];
+        for (pylith::integer iS = sOff[subfieldIndex], iF = 0; iS < sEnd; ++iS, ++iF) {
             field[iF] = s[iS];
         } // for
     } // passThruSubfield

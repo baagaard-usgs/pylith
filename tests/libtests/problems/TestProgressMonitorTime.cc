@@ -74,7 +74,7 @@ pylith::problems::TestProgressMonitorTime::TestProgressMonitorTime(void) {
 // ------------------------------------------------------------------------------------------------
 // Tear down testing data.
 pylith::problems::TestProgressMonitorTime::~TestProgressMonitorTime(void) {
-    delete _monitor;_monitor = NULL;
+    delete _monitor;_monitor = nullptr;
 } // tearDown
 
 

@@ -50,7 +50,7 @@ public:
     /// Test queryDB().
     void testQuery(void);
 
-    /// Test queryDB() with NULL database.
+    /// Test queryDB() with nullptr database.
     void testQueryNull(void);
 
     /// Test validatorPositive().

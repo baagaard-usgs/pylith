@@ -30,7 +30,7 @@ public:
     }
 
     ~FE() {
-        PetscInt refct = -1;
+        pylith::integer refct = -1;
 
         if (_fe) {PetscObjectGetReference((PetscObject) _fe, &refct);}
         PetscObjectDereference((PetscObject) _fe);
@@ -143,9 +143,8 @@ public:
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    FieldOps(void); ///< Not implemented.
-    FieldOps(const FieldOps&); ///< Not implemented.
-    const FieldOps& operator=(const FieldOps&); ///< Not implemented.
+    FieldOps(void) = delete;FieldOps(const FieldOps&) = delete;
+    const FieldOps& operator=(const FieldOps&) = delete;
 
     static std::map<FieldBase::Discretization, pylith::topology::FE> feStore;
 

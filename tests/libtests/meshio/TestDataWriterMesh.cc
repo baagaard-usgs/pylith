@@ -37,7 +37,7 @@ pylith::meshio::TestDataWriterMesh::TestDataWriterMesh(void) :
 pylith::meshio::TestDataWriterMesh::~TestDataWriterMesh(void) {
     PYLITH_METHOD_BEGIN;
 
-    delete _mesh;_mesh = NULL;
+    delete _mesh;_mesh = nullptr;
 
     PYLITH_METHOD_END;
 } // destructor

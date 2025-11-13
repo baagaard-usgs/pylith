@@ -40,7 +40,7 @@ public:
 
 private:
 
-    RigidBodyAcc2D(void); ///< Not implemented
+    RigidBodyAcc2D(void) = delete;
 }; // RigidBodyAcc2D
 
 // End of file

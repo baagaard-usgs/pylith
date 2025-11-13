@@ -24,7 +24,7 @@ public:
     OutputSolnDomain(void);
 
     /// Destructor
-    virtual ~OutputSolnDomain(void);
+    virtual ~OutputSolnDomain(void) override;
 
     // PROTECTED METHODS ///////////////////////////////////////////////////////////////////////////////////////////////
 protected:
@@ -37,13 +37,13 @@ protected:
      */
     void _writeSolnStep(const pylith::real t,
                         const pylith::integer tindex,
-                        const pylith::topology::Field& solution);
+                        const pylith::topology::Field& solution) override;
 
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    OutputSolnDomain(const OutputSolnDomain&); ///< Not implemented.
-    const OutputSolnDomain& operator=(const OutputSolnDomain&); ///< Not implemented
+    OutputSolnDomain(const OutputSolnDomain&) = delete;
+    const OutputSolnDomain& operator=(const OutputSolnDomain&) = delete;
 
 }; // OutputSolnDomain
 

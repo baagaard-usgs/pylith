@@ -17,9 +17,9 @@ subpkginclude_HEADERS = \
 	DiagnosticFieldFactory.hh \
 	TimeDependentAuxiliaryFactory.hh \
 	DirichletTimeDependent.hh \
-	DirichletUserFn.hh \
+	DirichletCxxFn.hh \
 	NeumannTimeDependent.hh \
-	NeumannUserFn.hh \
+	NeumannCxxFn.hh \
 	AbsorbingDampers.hh \
 	AbsorbingDampersAuxiliaryFactory.hh \
 	bcfwd.hh

@@ -14,7 +14,7 @@
 #include <Python.h>
 
 #include "pylith/utils/sievetypes.hh" // USES PETSc Mesh
-#include "pylith/utils/array.hh" // USES int_array
+#include "pylith/utils/array.hh" // USES pylith::integer_array
 
 #include "pylith/meshio/MeshIOLagrit.hh"
 
@@ -32,7 +32,7 @@ main(int argc,
      char** argv) { // main
     try {
         // Initialize PETSc
-        PetscErrorCode err = PetscInitialize(&argc, &argv, NULL, NULL);
+        PetscErrorCode err = PetscInitialize(&argc, &argv, nullptr, nullptr);
         CHKERRQ(err);
 
         // Initialize Python

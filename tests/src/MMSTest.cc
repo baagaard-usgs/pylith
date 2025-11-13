@@ -32,9 +32,9 @@
 pylith::testing::MMSTest::MMSTest(void) :
     _problem(new pylith::problems::TimeDependent),
     _mesh(new pylith::topology::Mesh()),
-    _solution(NULL),
-    _solutionExactVec(NULL),
-    _solutionDotExactVec(NULL),
+    _solution(nullptr),
+    _solutionExactVec(nullptr),
+    _solutionDotExactVec(nullptr),
     _jacobianConvergenceRate(0.0),
     _tolerance(1.0e-9),
     _isJacobianLinear(false),
@@ -54,9 +54,9 @@ pylith::testing::MMSTest::~MMSTest(void) {
     VecDestroy(&_solutionExactVec);
     VecDestroy(&_solutionDotExactVec);
 
-    delete _problem;_problem = NULL;
-    delete _mesh;_mesh = NULL;
-    delete _solution;_solution = NULL;
+    delete _problem;_problem = nullptr;
+    delete _mesh;_mesh = nullptr;
+    delete _solution;_solution = nullptr;
 } // tearDown
 
 
@@ -75,8 +75,8 @@ pylith::testing::MMSTest::testDiscretization(void) {
         solution->view("Solution field layout", pylith::topology::Field::VIEW_LAYOUT);
     } // if
 
-    PetscErrorCode err = 0;
-    const PylithReal tolerance = -1.0;
+    PetscErrorCode err = PETSC_SUCCESS;
+    const pylith::real tolerance = -1.0;
     const pylith::string_vector subfieldNames = solution->getSubfieldNames();
     const size_t numSubfields = subfieldNames.size();
     pylith::real_array error(numSubfields);
@@ -112,12 +112,12 @@ pylith::testing::MMSTest::testResidual(void) {
     PYLITH_METHOD_BEGIN;
     assert(_problem);
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     pythia::journal::debug_t debug(GenericComponent::getName());
     if (debug.state()) {
-        err = PetscOptionsSetValue(NULL, "-dm_plex_print_fem", "2");PYLITH_CHECK_ERROR(err);
-        err = PetscOptionsSetValue(NULL, "-petscds_print_integrate", "5");PYLITH_CHECK_ERROR(err);
-        err = PetscOptionsSetValue(NULL, "-dm_plex_print_l2", "2");PYLITH_CHECK_ERROR(err);
+        err = PetscOptionsSetValue(nullptr, "-dm_plex_print_fem", "2");PYLITH_CHECK_ERROR(err);
+        err = PetscOptionsSetValue(nullptr, "-petscds_print_integrate", "5");PYLITH_CHECK_ERROR(err);
+        err = PetscOptionsSetValue(nullptr, "-dm_plex_print_l2", "2");PYLITH_CHECK_ERROR(err);
     } // if
 
     _initialize();
@@ -127,8 +127,8 @@ pylith::testing::MMSTest::testResidual(void) {
 
     assert(_solutionExactVec);
     assert(_solutionDotExactVec);
-    PylithReal ignoreTolerance = -1.0;
-    PylithReal norm = 0.0;
+    pylith::real ignoreTolerance = -1.0;
+    pylith::real norm = 0.0;
     err = DMTSCheckResidual(_problem->getPetscTS(), _problem->getPetscDM(), _problem->getStartTime(), _solutionExactVec,
                             _solutionDotExactVec, ignoreTolerance, &norm);PYLITH_CHECK_ERROR(err);
     if (!_allowZeroResidual && (0.0 == norm)) {
@@ -155,10 +155,10 @@ pylith::testing::MMSTest::testJacobianTaylorSeries(void) {
 
     assert(_solutionExactVec);
     assert(_solutionDotExactVec);
-    PetscErrorCode err = 0;
-    const PylithReal tolerance = -1.0;
+    PetscErrorCode err = PETSC_SUCCESS;
+    const pylith::real tolerance = -1.0;
     PetscBool isLinear = PETSC_FALSE;
-    PylithReal convergenceRate = 0.0;
+    pylith::real convergenceRate = 0.0;
     err = DMTSCheckJacobian(_problem->getPetscTS(), _problem->getPetscDM(), _problem->getStartTime(), _solutionExactVec,
                             _solutionDotExactVec, tolerance, &isLinear, &convergenceRate);PYLITH_CHECK_ERROR(err);
 
@@ -180,24 +180,24 @@ pylith::testing::MMSTest::testJacobianFiniteDiff(void) {
     PYLITH_METHOD_BEGIN;
     assert(_problem);
 
-    PetscErrorCode err = 0;
-    err = PetscOptionsSetValue(NULL, "-ts_max_snes_failures", "1");PYLITH_CHECK_ERROR(err);
-    err = PetscOptionsSetValue(NULL, "-ts_error_if_step_fails", "false");PYLITH_CHECK_ERROR(err);
+    PetscErrorCode err = PETSC_SUCCESS;
+    err = PetscOptionsSetValue(nullptr, "-ts_max_snes_failures", "1");PYLITH_CHECK_ERROR(err);
+    err = PetscOptionsSetValue(nullptr, "-ts_error_if_step_fails", "false");PYLITH_CHECK_ERROR(err);
     _initialize();
 
     pythia::journal::debug_t debug(GenericComponent::getName());
     if (debug.state()) {
-        err = PetscOptionsSetValue(NULL, "-snes_test_jacobian_view", "");PYLITH_CHECK_ERROR(err);
+        err = PetscOptionsSetValue(nullptr, "-snes_test_jacobian_view", "");PYLITH_CHECK_ERROR(err);
     } // if
-    err = PetscOptionsSetValue(NULL, "-snes_test_jacobian", "1.0e-6");PYLITH_CHECK_ERROR(err);
-    err = PetscOptionsSetValue(NULL, "-snes_error_if_not_converged", "false");PYLITH_CHECK_ERROR(err);
+    err = PetscOptionsSetValue(nullptr, "-snes_test_jacobian", "1.0e-6");PYLITH_CHECK_ERROR(err);
+    err = PetscOptionsSetValue(nullptr, "-snes_error_if_not_converged", "false");PYLITH_CHECK_ERROR(err);
     err = SNESSetFromOptions(_problem->getPetscSNES());PYLITH_CHECK_ERROR(err);
 
     _problem->solve();
     INFO("IMPORTANT: You must check the Jacobian values printed here manually!\n"
          << "           They should be O(1.0e-6) or smaller.\n");
-    err = PetscOptionsClearValue(NULL, "-snes_test_jacobian");PYLITH_CHECK_ERROR(err);
-    err = PetscOptionsClearValue(NULL, "-snes_test_jacobian_view");PYLITH_CHECK_ERROR(err);
+    err = PetscOptionsClearValue(nullptr, "-snes_test_jacobian");PYLITH_CHECK_ERROR(err);
+    err = PetscOptionsClearValue(nullptr, "-snes_test_jacobian_view");PYLITH_CHECK_ERROR(err);
 
     PYLITH_METHOD_END;
 } // testJacobianFiniteDiff
@@ -221,7 +221,7 @@ pylith::testing::MMSTest::_initialize(void) {
 
     PetscErrorCode err = PETSC_SUCCESS;
     if (_problem->getFormulation() == pylith::problems::Physics::DYNAMIC) {
-        err = TSSetIFunction(_problem->getPetscTS(), NULL, pylith::problems::TimeDependent::computeLHSResidual,
+        err = TSSetIFunction(_problem->getPetscTS(), nullptr, pylith::problems::TimeDependent::computeLHSResidual,
                              (void*)_problem);PYLITH_CHECK_ERROR(err);
     } // if
 

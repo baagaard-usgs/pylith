@@ -11,7 +11,7 @@
 
 #include "pylith/feassemble/feassemblefwd.hh" // forward declarations
 
-#include "pylith/utils/types.hh" // USES PetscInt
+#include "pylith/utils/types.hh" // USES pylith::integer
 #include "pylith/utils/petscfwd.h" // HASA PetscDM, PetscDS, PetscWeakForm
 
 #include <string> // HASA std::string
@@ -30,7 +30,7 @@ public:
      */
     DSLabelAccess(const PetscDM dm,
                   const char* labelName,
-                  const int labelValue);
+                  const pylith::integer labelValue);
 
     /// Default destructor
     ~DSLabelAccess(void);
@@ -51,7 +51,7 @@ public:
      *
      * @returns Label value.
      */
-    PetscInt value(void) const;
+    pylith::integer value(void) const;
 
     /** Get PetscDS.
      *
@@ -75,7 +75,7 @@ public:
      *
      * @returns Number of cells.
      */
-    PetscInt numCells(void) const;
+    pylith::integer numCells(void) const;
 
     /// Remove overlap from list of cells in label.
     void removeOverlap(void);
@@ -88,16 +88,15 @@ private:
     PetscDS _ds; ///< Cached PetscDS for label and value.
     PetscWeakForm _weakForm; ///< Cached PETSc weak form for PetscDS.
     PetscIS _cellsIS; ///< Cached PETSc IS of cells for label and value.
-    PetscInt _numCells; ///< Number of cells in PETSc IS.
-    PetscInt _value; ///< Label value.
+    pylith::integer _numCells; ///< Number of cells in PETSc IS.
+    pylith::integer _value; ///< Label value.
     std::string _name; ///< Name of label;
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    DSLabelAccess(void); ///< Not implemented.
-    DSLabelAccess(const DSLabelAccess&); ///< Not implemented.
-    const DSLabelAccess& operator=(const DSLabelAccess&); ///< Not implemented
+    DSLabelAccess(void) = delete;DSLabelAccess(const DSLabelAccess&) = delete;
+    const DSLabelAccess& operator=(const DSLabelAccess&) = delete;
 
 };
 

@@ -39,8 +39,8 @@ public:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    AuxiliaryFactoryElastic(const AuxiliaryFactoryElastic &); ///< Not implemented.
-    const AuxiliaryFactoryElastic& operator=(const AuxiliaryFactoryElastic&); ///< Not implemented
+    AuxiliaryFactoryElastic(const AuxiliaryFactoryElastic &) = delete;
+    const AuxiliaryFactoryElastic& operator=(const AuxiliaryFactoryElastic&) = delete;
 
 }; // class AuxiliaryFactoryElastic
 

@@ -81,7 +81,7 @@ pylith::problems::ProgressMonitorStep::update(const size_t current,
     } // if/else
 
     if (percentComplete >= _iUpdate * _updatePercent) {
-        time_t now = time(NULL);
+        time_t now = time(nullptr);
         const std::string& finished = ProgressMonitor::_calcFinishTime(percentComplete, now, _startTime);
         if (_isMaster) {
             _update(current, now, percentComplete, finished.c_str());
@@ -97,7 +97,7 @@ pylith::problems::ProgressMonitorStep::update(const size_t current,
 void
 pylith::problems::ProgressMonitorStep::_update(const size_t step,
                                                const time_t& now,
-                                               const double percentComplete,
+                                               const float percentComplete,
                                                const char* finished) {
     assert(_sout.is_open());
     std::tm* now_tm = localtime(&now);

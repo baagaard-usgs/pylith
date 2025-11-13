@@ -13,12 +13,12 @@
 
 #include "pylith/utils/PyreComponent.hh"
 
-#include "pylith/utils/types.hh" // USE PylithInt, PylithReal
+#include "pylith/utils/types.hh" // USE pylith::integer, pylith::real
 
 class pylith::meshio::OutputTrigger : public pylith::utils::PyreComponent {
     friend class TestOutputTrigger; // unit testing
 
-    // PUBLIC METHODS //////////////////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 
     /// Constructor
@@ -36,23 +36,23 @@ public:
     /** Check whether we want to write output at time t.
      *
      * @param[in] t Time of proposed write.
-     * @param[in] tindex Inxex of current time step.
+     * @param[in] tindex Index of current time step.
      * @returns True if output should be written at time t, false otherwise.
      */
     virtual
     bool shouldWrite(const pylith::real t,
                      const pylith::integer tindex) = 0;
 
-    // PROTECTED METHODS ///////////////////////////////////////////////////////////////////////////////////////////////
+    // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
 protected:
 
     pylith::real _timeScale; ///< Time scale for nondimensionalizing time.
 
-    // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
+    // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    OutputTrigger(const OutputTrigger&); ///< Not implemented.
-    const OutputTrigger& operator=(const OutputTrigger&); ///< Not implemented
+    OutputTrigger(const OutputTrigger&) = delete;
+    const OutputTrigger& operator=(const OutputTrigger&) = delete;
 
 };
 

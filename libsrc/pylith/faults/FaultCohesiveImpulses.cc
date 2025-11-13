@@ -58,7 +58,7 @@ public:
              * @param[in] threshold Threshold for impulses.
              */
             static
-            void findImpulsePoints(int_array* impulsePoints,
+            void findImpulsePoints(pylith::integer_array* impulsePoints,
                                    const pylith::topology::Field& auxiliaryField,
                                    const double threshold);
 
@@ -141,7 +141,7 @@ pylith::faults::FaultCohesiveImpulses::getNumImpulsesLocal(void) {
 void
 pylith::faults::FaultCohesiveImpulses::verifyConfiguration(const pylith::topology::Field& solution) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("verifyConfiguration(solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("verifyConfiguration(solution="<<solution.getName()<<")");
 
     // Verify solution contains required fields.
     std::string reason = "interface 'FaultCohesiveImpulses'.";
@@ -164,16 +164,16 @@ pylith::topology::Field*
 pylith::faults::FaultCohesiveImpulses::createAuxiliaryField(const pylith::topology::Field& solution,
                                                             const pylith::topology::Mesh& domainMesh) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createAuxiliaryField(solution="<<solution.getLabel()<<", domainMesh=)"<<typeid(domainMesh).name()<<")");
+    PYLITH_COMPONENT_DEBUG("createAuxiliaryField(solution="<<solution.getName()<<", domainMesh=)"<<typeid(domainMesh).name()<<")");
 
     assert(_normalizer);
 
     pylith::topology::Field* auxiliaryField = new pylith::topology::Field(domainMesh);assert(auxiliaryField);
-    auxiliaryField->setLabel("auxiliary field");
+    auxiliaryField->setName("auxiliary field");
 
     // Set default discretization of auxiliary subfields to match lagrange_multiplier_fault subfield in solution.
     const pylith::topology::FieldBase::Discretization& discretization = solution.getSubfieldInfo("lagrange_multiplier_fault").fe;
-    const PylithInt dimension = -1;
+    const pylith::integer dimension = -1;
     const bool isFaultOnly = false;
     assert(_auxiliaryFactory);
     _auxiliaryFactory->setSubfieldDiscretization("default", discretization.basisOrder, discretization.quadOrder, dimension,
@@ -269,16 +269,16 @@ pylith::faults::FaultCohesiveImpulses::_updateSlip(pylith::topology::Field* auxi
     const size_t iComponent = impulseStep % numComponents;
     const size_t iImpulse = impulseStep / numComponents;
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     err = VecSet(auxiliaryField->getLocalVector(), 0.0);PYLITH_CHECK_ERROR(err);
 
     if ((impulseStep >= 0) && (_impulsePoints.size() > 0)) {
         pylith::topology::VecVisitorMesh auxiliaryVisitor(*auxiliaryField, "slip");
         PylithScalar* auxiliaryArray = auxiliaryVisitor.localArray();
-        const PetscInt pImpulse = _impulsePoints[iImpulse];
-        const PetscInt dof = _impulseDOF[iComponent];
-        const PetscInt slipDof = auxiliaryVisitor.sectionDof(pImpulse);assert(iComponent < size_t(slipDof));
-        const PetscInt slipOff = auxiliaryVisitor.sectionOffset(pImpulse);
+        const pylith::integer pImpulse = _impulsePoints[iImpulse];
+        const pylith::integer dof = _impulseDOF[iComponent];
+        const pylith::integer slipDof = auxiliaryVisitor.sectionDof(pImpulse);assert(iComponent < size_t(slipDof));
+        const pylith::integer slipOff = auxiliaryVisitor.sectionOffset(pImpulse);
         auxiliaryArray[slipOff+dof] = 1.0 / _normalizer->getLengthScale();
     } // if
 
@@ -302,7 +302,7 @@ pylith::faults::FaultCohesiveImpulses::_setKernelsResidual(pylith::feassemble::I
                                                            const pylith::topology::Field& solution,
                                                            const std::vector<pylith::materials::Material*>& materials) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("_setKernelsResidual(integrator="<<integrator<<", solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("_setKernelsResidual(integrator="<<integrator<<", solution="<<solution.getName()<<")");
     typedef pylith::feassemble::IntegratorInterface integrator_t;
 
     std::vector<ResidualKernels> kernels;
@@ -310,15 +310,15 @@ pylith::faults::FaultCohesiveImpulses::_setKernelsResidual(pylith::feassemble::I
     case pylith::problems::Physics::QUASISTATIC: {
         // Elasticity equation (displacement) for negative side of the fault.
         const PetscBdPointFunc f0u_neg = pylith::fekernels::FaultCohesiveKin::f0u_neg;
-        const PetscBdPointFunc f1u_neg = NULL;
+        const PetscBdPointFunc f1u_neg = nullptr;
 
         // Elasticity equation (displacement) for positive side of the fault.
         const PetscBdPointFunc f0u_pos = pylith::fekernels::FaultCohesiveKin::f0u_pos;
-        const PetscBdPointFunc f1u_pos = NULL;
+        const PetscBdPointFunc f1u_pos = nullptr;
 
         // Fault slip constraint equation.
         const PetscBdPointFunc f0l = pylith::fekernels::FaultCohesiveKin::f0l_slip;
-        const PetscBdPointFunc f1l = NULL;
+        const PetscBdPointFunc f1l = nullptr;
 
         kernels.resize(3);
         kernels[0] = ResidualKernels("displacement", integrator_t::LHS, integrator_t::NEGATIVE_FACE,
@@ -351,26 +351,26 @@ pylith::faults::FaultCohesiveImpulses::_setKernelsJacobian(pylith::feassemble::I
                                                            const pylith::topology::Field& solution,
                                                            const std::vector<pylith::materials::Material*>& materials) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("_setKernelsJacobian(integrator="<<integrator<<", solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("_setKernelsJacobian(integrator="<<integrator<<", solution="<<solution.getName()<<")");
     typedef pylith::feassemble::IntegratorInterface integrator_t;
 
     std::vector<JacobianKernels> kernels;
     switch (_formulation) {
     case QUASISTATIC: {
         const PetscBdPointJac Jf0ul_neg = pylith::fekernels::FaultCohesiveKin::Jf0ul_neg;
-        const PetscBdPointJac Jf1ul_neg = NULL;
-        const PetscBdPointJac Jf2ul_neg = NULL;
-        const PetscBdPointJac Jf3ul_neg = NULL;
+        const PetscBdPointJac Jf1ul_neg = nullptr;
+        const PetscBdPointJac Jf2ul_neg = nullptr;
+        const PetscBdPointJac Jf3ul_neg = nullptr;
 
         const PetscBdPointJac Jf0ul_pos = pylith::fekernels::FaultCohesiveKin::Jf0ul_pos;
-        const PetscBdPointJac Jf1ul_pos = NULL;
-        const PetscBdPointJac Jf2ul_pos = NULL;
-        const PetscBdPointJac Jf3ul_pos = NULL;
+        const PetscBdPointJac Jf1ul_pos = nullptr;
+        const PetscBdPointJac Jf2ul_pos = nullptr;
+        const PetscBdPointJac Jf3ul_pos = nullptr;
 
         const PetscBdPointJac Jf0lu = pylith::fekernels::FaultCohesiveKin::Jf0lu;
-        const PetscBdPointJac Jf1lu = NULL;
-        const PetscBdPointJac Jf2lu = NULL;
-        const PetscBdPointJac Jf3lu = NULL;
+        const PetscBdPointJac Jf1lu = nullptr;
+        const PetscBdPointJac Jf2lu = nullptr;
+        const PetscBdPointJac Jf3lu = nullptr;
 
         kernels.resize(3);
         const char* nameDisplacement = "displacement";
@@ -400,16 +400,16 @@ pylith::faults::FaultCohesiveImpulses::_setKernelsJacobian(pylith::feassemble::I
 // ------------------------------------------------------------------------------------------------
 // Find points with impulses.
 void
-pylith::faults::_FaultCohesiveImpulses::findImpulsePoints(int_array* impulsePoints,
+pylith::faults::_FaultCohesiveImpulses::findImpulsePoints(pylith::integer_array* impulsePoints,
                                                           const pylith::topology::Field& auxiliaryField,
                                                           const double threshold) {
     PYLITH_METHOD_BEGIN;
     // PYLITH_JOURNAL_DEBUG("_updateSlip(auxiliaryField="<<auxiliaryField<<", impulseStep="<<impulseStep<<")");
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     PetscSection auxiliaryFieldSection = auxiliaryField.getGlobalSection();assert(auxiliaryFieldSection);
-    PetscInt pStart = 0, pEnd = 0;
+    pylith::integer pStart = 0, pEnd = 0;
     err = PetscSectionGetChart(auxiliaryFieldSection, &pStart, &pEnd);PYLITH_CHECK_ERROR(err);
     pylith::topology::VecVisitorMesh auxiliaryVisitor(auxiliaryField, "slip");
     if (pStart == pEnd) {
@@ -419,18 +419,18 @@ pylith::faults::_FaultCohesiveImpulses::findImpulsePoints(int_array* impulsePoin
     PylithScalar* auxiliaryArray = auxiliaryVisitor.localArray();assert(auxiliaryArray);
 
     // Use global section to get number of degrees of freedom so that we don't double count.
-    PetscSection slipSectionGlobal = NULL;
+    PetscSection slipSectionGlobal = nullptr;
     const int slipIndex = auxiliaryField.getSubfieldInfo("slip").index;
     err = PetscSectionGetField(auxiliaryFieldSection, slipIndex, &slipSectionGlobal);PYLITH_CHECK_ERROR(err);
 
     size_t count = 0;
-    for (PetscInt point = pStart; point < pEnd; ++point) {
-        PetscInt slipDof = 0;
+    for (pylith::integer point = pStart; point < pEnd; ++point) {
+        pylith::integer slipDof = 0;
         err = PetscSectionGetDof(slipSectionGlobal, point, &slipDof);PYLITH_CHECK_ERROR(err);
 
-        const PetscInt slipOff = auxiliaryVisitor.sectionOffset(point);
+        const pylith::integer slipOff = auxiliaryVisitor.sectionOffset(point);
         assert(auxiliaryVisitor.sectionDof(point) >= slipDof);
-        for (PetscInt iDOF = 0; iDOF < slipDof; ++iDOF) {
+        for (pylith::integer iDOF = 0; iDOF < slipDof; ++iDOF) {
             if (auxiliaryArray[slipOff+iDOF] >= threshold) {
                 ++count;
                 break;
@@ -440,12 +440,12 @@ pylith::faults::_FaultCohesiveImpulses::findImpulsePoints(int_array* impulsePoin
 
     impulsePoints->resize(count);
     size_t index = 0;
-    for (PetscInt point = pStart; point < pEnd; ++point) {
-        PetscInt slipDof = 0;
+    for (pylith::integer point = pStart; point < pEnd; ++point) {
+        pylith::integer slipDof = 0;
         err = PetscSectionGetDof(slipSectionGlobal, point, &slipDof);PYLITH_CHECK_ERROR(err);
 
-        const PetscInt slipOff = auxiliaryVisitor.sectionOffset(point);
-        for (PetscInt iDOF = 0; iDOF < slipDof; ++iDOF) {
+        const pylith::integer slipOff = auxiliaryVisitor.sectionOffset(point);
+        for (pylith::integer iDOF = 0; iDOF < slipDof; ++iDOF) {
             if (auxiliaryArray[slipOff+iDOF] >= threshold) {
                 (*impulsePoints)[index++] = point;
                 break;

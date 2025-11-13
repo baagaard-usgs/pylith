@@ -43,7 +43,7 @@ typedef pylith::feassemble::Integrator::EquationPart EquationPart;
 // Default constructor.
 pylith::materials::IncompressibleElasticity::IncompressibleElasticity(void) :
     _useBodyForce(false),
-    _rheology(NULL),
+    _rheology(nullptr),
     _derivedFactory(new pylith::materials::DerivedFactoryElasticity) {
     pylith::utils::PyreComponent::setName("incompressibleelasticity");
 } // constructor
@@ -62,8 +62,8 @@ void
 pylith::materials::IncompressibleElasticity::deallocate(void) {
     Material::deallocate();
 
-    delete _derivedFactory;_derivedFactory = NULL;
-    _rheology = NULL; // :TODO: Use shared pointer.
+    delete _derivedFactory;_derivedFactory = nullptr;
+    _rheology = nullptr; // :TODO: Use shared pointer.
 } // deallocate
 
 
@@ -108,7 +108,7 @@ pylith::materials::IncompressibleElasticity::getBulkRheology(void) const {
 void
 pylith::materials::IncompressibleElasticity::verifyConfiguration(const pylith::topology::Field& solution) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("verifyConfiguration(solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("verifyConfiguration(solution="<<solution.getName()<<")");
 
     // Verify solution contains required fields.
     std::string reason = "material 'IncompressibleElasticity'.";
@@ -130,7 +130,7 @@ pylith::materials::IncompressibleElasticity::verifyConfiguration(const pylith::t
 pylith::feassemble::Integrator*
 pylith::materials::IncompressibleElasticity::createIntegrator(const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createIntegrator(solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("createIntegrator(solution="<<solution.getName()<<")");
 
     pylith::feassemble::IntegratorDomain* integrator = new pylith::feassemble::IntegratorDomain(this);assert(integrator);
     integrator->setLabelName(getLabelName());
@@ -151,10 +151,10 @@ pylith::topology::Field*
 pylith::materials::IncompressibleElasticity::createAuxiliaryField(const pylith::topology::Field& solution,
                                                                   const pylith::topology::Mesh& domainMesh) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createAuxiliaryField(solution="<<solution.getLabel()<<", domainMesh=)"<<typeid(domainMesh).name()<<")");
+    PYLITH_COMPONENT_DEBUG("createAuxiliaryField(solution="<<solution.getName()<<", domainMesh=)"<<typeid(domainMesh).name()<<")");
 
     pylith::topology::Field* auxiliaryField = new pylith::topology::Field(domainMesh);assert(auxiliaryField);
-    auxiliaryField->setLabel("auxiliary field");
+    auxiliaryField->setName("auxiliary field");
 
     assert(_rheology);
     pylith::materials::AuxiliaryFactoryElasticity* auxiliaryFactory = _rheology->getAuxiliaryFactory();assert(auxiliaryFactory);
@@ -198,15 +198,15 @@ pylith::topology::Field*
 pylith::materials::IncompressibleElasticity::createDerivedField(const pylith::topology::Field& solution,
                                                                 const pylith::topology::Mesh& domainMesh) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createIntegrator(solution="<<solution.getLabel()<<", domainMesh=)"<<typeid(domainMesh).name()<<")");
+    PYLITH_COMPONENT_DEBUG("createIntegrator(solution="<<solution.getName()<<", domainMesh=)"<<typeid(domainMesh).name()<<")");
 
     assert(_derivedFactory);
     if (_derivedFactory->getNumSubfields() == 1) {
-        PYLITH_METHOD_RETURN(NULL);
+        PYLITH_METHOD_RETURN(nullptr);
     } // if
 
     pylith::topology::Field* derivedField = new pylith::topology::Field(domainMesh);assert(derivedField);
-    derivedField->setLabel("derived field");
+    derivedField->setName("derived field");
 
     assert(_normalizer);
     _derivedFactory->initialize(derivedField, *_normalizer, domainMesh.getDimension());
@@ -280,7 +280,7 @@ pylith::materials::IncompressibleElasticity::_getAuxiliaryFactory(void) {
 // ------------------------------------------------------------------------------------------------
 // Update kernel constants.
 void
-pylith::materials::IncompressibleElasticity::_updateKernelConstants(const PylithReal dt) {
+pylith::materials::IncompressibleElasticity::_updateKernelConstants(const pylith::real dt) {
     assert(_rheology);
     _rheology->updateKernelConstants(&_kernelConstants, dt);
 } // _updateKernelConstants
@@ -300,7 +300,7 @@ void
 pylith::materials::IncompressibleElasticity::_setKernelsResidual(pylith::feassemble::IntegratorDomain* integrator,
                                                                  const pylith::topology::Field& solution) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("_setFEKernelsResidual(integrator="<<integrator<<", solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("_setFEKernelsResidual(integrator="<<integrator<<", solution="<<solution.getName()<<")");
 
     const spatialdata::geocoords::CoordSys* coordsys = solution.getMesh().getCoordSys();
 
@@ -308,7 +308,7 @@ pylith::materials::IncompressibleElasticity::_setKernelsResidual(pylith::feassem
     const int bitGravity = _gravityField ? 0x2 : 0x0;
     const int bitUse = bitBodyForce | bitGravity;
 
-    PetscPointFunc r0 = NULL;
+    PetscPointFunc r0 = nullptr;
     switch (bitUse) {
     case 0x1:
         r0 = pylith::fekernels::Elasticity::g0v_bodyforce;
@@ -331,7 +331,7 @@ pylith::materials::IncompressibleElasticity::_setKernelsResidual(pylith::feassem
 
     // Pressure
     const PetscPointFunc f0p = _rheology->getKernelf0p(coordsys);
-    const PetscPointFunc f1p = NULL;
+    const PetscPointFunc f1p = nullptr;
 
     std::vector<ResidualKernels> kernels(2);
     kernels[0] = ResidualKernels("displacement", pylith::feassemble::Integrator::LHS, f0u, f1u);
@@ -353,31 +353,31 @@ void
 pylith::materials::IncompressibleElasticity::_setKernelsJacobian(pylith::feassemble::IntegratorDomain* integrator,
                                                                  const topology::Field& solution) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("_setFEKernelsJacobian(integrator="<<integrator<<", solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("_setFEKernelsJacobian(integrator="<<integrator<<", solution="<<solution.getName()<<")");
 
     const spatialdata::geocoords::CoordSys* coordsys = solution.getMesh().getCoordSys();
 
     std::vector<JacobianKernels> kernels(4);
 
-    const PetscPointJac Jf0uu = NULL;
-    const PetscPointJac Jf1uu = NULL;
-    const PetscPointJac Jf2uu = NULL;
+    const PetscPointJac Jf0uu = nullptr;
+    const PetscPointJac Jf1uu = nullptr;
+    const PetscPointJac Jf2uu = nullptr;
     const PetscPointJac Jf3uu = _rheology->getKernelJf3uu(coordsys);
 
-    const PetscPointJac Jf0up = NULL;
-    const PetscPointJac Jf1up = NULL;
+    const PetscPointJac Jf0up = nullptr;
+    const PetscPointJac Jf1up = nullptr;
     const PetscPointJac Jf2up = pylith::fekernels::IncompressibleElasticity::Jf2up;
-    const PetscPointJac Jf3up = NULL;
+    const PetscPointJac Jf3up = nullptr;
 
-    const PetscPointJac Jf0pu = NULL;
+    const PetscPointJac Jf0pu = nullptr;
     const PetscPointJac Jf1pu = pylith::fekernels::IncompressibleElasticity::Jf1pu;
-    const PetscPointJac Jf2pu = NULL;
-    const PetscPointJac Jf3pu = NULL;
+    const PetscPointJac Jf2pu = nullptr;
+    const PetscPointJac Jf3pu = nullptr;
 
     const PetscPointJac Jf0pp = _rheology->getKernelJf0pp(coordsys);
-    const PetscPointJac Jf1pp = NULL;
-    const PetscPointJac Jf2pp = NULL;
-    const PetscPointJac Jf3pp = NULL;
+    const PetscPointJac Jf1pp = nullptr;
+    const PetscPointJac Jf2pp = nullptr;
+    const PetscPointJac Jf3pp = nullptr;
 
     const EquationPart equationPart = pylith::feassemble::Integrator::LHS;
     kernels[0] = JacobianKernels("displacement", "displacement", equationPart, Jf0uu, Jf1uu, Jf2uu, Jf3uu);
@@ -398,7 +398,7 @@ void
 pylith::materials::IncompressibleElasticity::_setKernelsUpdateStateVars(pylith::feassemble::IntegratorDomain* integrator,
                                                                         const topology::Field& solution) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("_setKernelsUpdateStateVars(integrator="<<integrator<<", solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("_setKernelsUpdateStateVars(integrator="<<integrator<<", solution="<<solution.getName()<<")");
 
     const spatialdata::geocoords::CoordSys* coordsys = solution.getMesh().getCoordSys();
     assert(coordsys);
@@ -418,7 +418,7 @@ void
 pylith::materials::IncompressibleElasticity::_setKernelsDerivedField(pylith::feassemble::IntegratorDomain* integrator,
                                                                      const topology::Field& solution) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("_setKernelsDerivedField(integrator="<<integrator<<", solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("_setKernelsDerivedField(integrator="<<integrator<<", solution="<<solution.getName()<<")");
 
     const spatialdata::geocoords::CoordSys* coordsys = solution.getMesh().getCoordSys();
     assert(coordsys);
@@ -430,7 +430,7 @@ pylith::materials::IncompressibleElasticity::_setKernelsDerivedField(pylith::fea
     const PetscPointFunc strainKernel =
         (3 == spaceDim) ? pylith::fekernels::Elasticity3D::infinitesimalStrain_asVector :
         (2 == spaceDim) ? pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain_asVector :
-        NULL;
+        nullptr;
     kernels[1] = ProjectKernels("cauchy_strain", strainKernel);
 
     assert(integrator);

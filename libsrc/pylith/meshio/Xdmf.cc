@@ -37,7 +37,7 @@ pylith::meshio::Xdmf::write(const char* filenameH5) {
      * xdmf.write(filenameH5)
      */
 
-    // Should check for NULL, decode the exception, and throw a C++ equivalent
+    // Should check for nullptr, decode the exception, and throw a C++ equivalent
     PyObject* mod = PyImport_ImportModule("pylith.meshio.Xdmf");
     if (!mod) {
         throw std::runtime_error("Could not import module 'pylith.meshio.Xdmf'.");
@@ -46,7 +46,7 @@ pylith::meshio::Xdmf::write(const char* filenameH5) {
     if (!cls) {
         throw std::runtime_error("Could not get 'Xdmf' attribute in pylith.meshio.Xdmf module.");
     } // if
-    PyObject* pyXdmf = PyObject_CallFunctionObjArgs(cls, NULL);
+    PyObject* pyXdmf = PyObject_CallFunctionObjArgs(cls, nullptr);
     if (!pyXdmf) {
         throw std::runtime_error("Could not create Python Xdmf object.");
     } // if

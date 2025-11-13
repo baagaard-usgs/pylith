@@ -27,8 +27,8 @@ pylith::topology::TestSubmesh::TestSubmesh(TestSubmesh_Data* data) :
     PYLITH_METHOD_BEGIN;
     assert(data);
 
-    _domainMesh = NULL;
-    _testMesh = NULL;
+    _domainMesh = nullptr;
+    _testMesh = nullptr;
 
     PYLITH_METHOD_END;
 } // constructor
@@ -39,9 +39,9 @@ pylith::topology::TestSubmesh::TestSubmesh(TestSubmesh_Data* data) :
 pylith::topology::TestSubmesh::~TestSubmesh(void) {
     PYLITH_METHOD_BEGIN;
 
-    delete _domainMesh;_domainMesh = NULL;
-    delete _testMesh;_testMesh = NULL;
-    delete _data;_data = NULL;
+    delete _domainMesh;_domainMesh = nullptr;
+    delete _testMesh;_testMesh = nullptr;
+    delete _data;_data = nullptr;
 
     PYLITH_METHOD_END;
 } // destructor
@@ -115,27 +115,27 @@ pylith::topology::TestSubmesh::testCreateLowerDimMesh(void) {
     // Check vertices
     const PetscDM dmMesh = _testMesh->getDM();assert(dmMesh);
     Stratum depthStratum(dmMesh, Stratum::DEPTH, 0);
-    const PetscInt vStart = depthStratum.begin();
-    const PetscInt vEnd = depthStratum.end();
+    const pylith::integer vStart = depthStratum.begin();
+    const pylith::integer vEnd = depthStratum.end();
 
-    const PetscInt nvertices = _data->submeshNumVertices;
+    const pylith::integer nvertices = _data->submeshNumVertices;
     REQUIRE(nvertices == depthStratum.size());
-    for (PetscInt v = vStart, iV = 0; v < vEnd; ++v, ++iV) {
+    for (pylith::integer v = vStart, iV = 0; v < vEnd; ++v, ++iV) {
         CHECK(_data->submeshVertices[iV] == v);
     } // for
 
     // Check cells
     Stratum heightStratum(dmMesh, Stratum::HEIGHT, 0);
-    const PetscInt cStart = heightStratum.begin();
-    const PetscInt cEnd = heightStratum.end();
+    const pylith::integer cStart = heightStratum.begin();
+    const pylith::integer cEnd = heightStratum.end();
 
-    const PetscInt ncells = _data->submeshNumCells;
+    const pylith::integer ncells = _data->submeshNumCells;
     REQUIRE(ncells == heightStratum.size());
-    for (PetscInt c = cStart, iC = 0; c < cEnd; ++c, ++iC) {
+    for (pylith::integer c = cStart, iC = 0; c < cEnd; ++c, ++iC) {
         CHECK(_data->submeshCells[iC] == c);
     } // for
 
-    delete _testMesh;_testMesh = NULL;
+    delete _testMesh;_testMesh = nullptr;
     REQUIRE_THROWS_AS(MeshOps::createLowerDimMesh(*_domainMesh, "zzyyxx", labelValue, "testFail1"), std::runtime_error);
     REQUIRE_THROWS_AS(MeshOps::createLowerDimMesh(*_domainMesh, _data->faceGroupName, labelValue+99, "testFail2"), std::runtime_error);
 } // testCreateLowerDimMesh
@@ -162,27 +162,27 @@ pylith::topology::TestSubmesh::testCreateSubdomainMesh(void) {
     // Check vertices
     const PetscDM dmMesh = _testMesh->getDM();assert(dmMesh);
     Stratum depthStratum(dmMesh, Stratum::DEPTH, 0);
-    const PetscInt vStart = depthStratum.begin();
-    const PetscInt vEnd = depthStratum.end();
+    const pylith::integer vStart = depthStratum.begin();
+    const pylith::integer vEnd = depthStratum.end();
 
-    const PetscInt nvertices = _data->subdomainNumVertices;
+    const pylith::integer nvertices = _data->subdomainNumVertices;
     REQUIRE(nvertices == depthStratum.size());
-    for (PetscInt v = vStart, iV = 0; v < vEnd; ++v, ++iV) {
+    for (pylith::integer v = vStart, iV = 0; v < vEnd; ++v, ++iV) {
         CHECK(_data->subdomainVertices[iV] == v);
     } // for
 
     // Check cells
     Stratum heightStratum(dmMesh, Stratum::HEIGHT, 0);
-    const PetscInt cStart = heightStratum.begin();
-    const PetscInt cEnd = heightStratum.end();
+    const pylith::integer cStart = heightStratum.begin();
+    const pylith::integer cEnd = heightStratum.end();
 
-    const PetscInt ncells = _data->subdomainNumCells;
+    const pylith::integer ncells = _data->subdomainNumCells;
     REQUIRE(ncells == heightStratum.size());
-    for (PetscInt c = cStart, iC = 0; c < cEnd; ++c, ++iC) {
+    for (pylith::integer c = cStart, iC = 0; c < cEnd; ++c, ++iC) {
         CHECK(_data->subdomainCells[iC] == c);
     } // for
 
-    delete _testMesh;_testMesh = NULL;
+    delete _testMesh;_testMesh = nullptr;
     CHECK_THROWS_AS(MeshOps::createSubdomainMesh(*_domainMesh, "material-id", -9, "Test subdomain"), std::runtime_error);
     CHECK_THROWS_AS(MeshOps::createSubdomainMesh(*_domainMesh, "zzyyxx", -9, "Test subdomain"), std::runtime_error);
 } // testCreateLowerDimMesh
@@ -206,7 +206,7 @@ pylith::topology::TestSubmesh::_buildMesh(void) {
     _domainMesh->setCoordSys(&cs);
 
     pylith::meshio::MeshBuilder::shape_t faceShape = pylith::meshio::MeshBuilder::faceShapeFromCellShape(_data->topology->cellShape);
-    pylith::int_array faceValues(_data->faceGroup, _data->faceGroupSize);
+    pylith::integer_array faceValues(_data->faceGroup, _data->faceGroupSize);
     pylith::meshio::MeshBuilder::setFaceGroupFromCellVertices(_domainMesh, _data->faceGroupName, faceValues, faceShape);
 
     // Create "subdomain" by setting label of subdomain cells.
@@ -223,31 +223,31 @@ pylith::topology::TestSubmesh::_buildMesh(void) {
 // ------------------------------------------------------------------------------------------------
 // Constructor
 pylith::topology::TestSubmesh_Data::TestSubmesh_Data(void) :
-    topology(NULL),
-    geometry(NULL),
-    faceGroupName(NULL),
+    topology(nullptr),
+    geometry(nullptr),
+    faceGroupName(nullptr),
     faceGroupSize(0),
-    faceGroup(NULL),
+    faceGroup(nullptr),
     submeshNumCorners(0),
     submeshNumVertices(0),
-    submeshVertices(NULL),
+    submeshVertices(nullptr),
     submeshNumCells(0),
-    submeshCells(NULL),
-    subdomainLabel(NULL),
-    subdomainLabelValues(NULL),
+    submeshCells(nullptr),
+    subdomainLabel(nullptr),
+    subdomainLabelValues(nullptr),
     subdomainLabelValue(0),
     subdomainNumCorners(0),
     subdomainNumVertices(0),
-    subdomainVertices(NULL),
+    subdomainVertices(nullptr),
     subdomainNumCells(0),
-    subdomainCells(NULL) {}
+    subdomainCells(nullptr) {}
 
 
 // ------------------------------------------------------------------------------------------------
 // Destructor
 pylith::topology::TestSubmesh_Data::~TestSubmesh_Data(void) {
-    delete topology;topology = NULL;
-    delete geometry;geometry = NULL;
+    delete topology;topology = nullptr;
+    delete geometry;geometry = nullptr;
 }
 
 

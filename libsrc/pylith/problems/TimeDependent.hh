@@ -138,7 +138,7 @@ public:
      * @param[in] solutionVec PETSc Vec with current global view of solution.
      * @param[in] solutionDotVec PETSc Vec with current global view of time derivative of the solution.
      */
-    void setSolutionLocal(const PylithReal t,
+    void setSolutionLocal(const pylith::real t,
                           PetscVec solutionVec,
                           PetscVec solutionDotVec);
 
@@ -150,8 +150,8 @@ public:
      * @param[in] solutionVec PETSc Vec with current trial solution.
      */
     void computeRHSResidual(PetscVec residualVec,
-                            const PetscReal t,
-                            const PetscReal dt,
+                            const pylith::real t,
+                            const pylith::real dt,
                             PetscVec solutionVec);
 
     /** Compute LHS residual, F(t,s,\dot{s}) and assemble into global vector.
@@ -163,8 +163,8 @@ public:
      * @param[in] solutionDotVec PETSc Vec with time derivative of current trial solution.
      */
     void computeLHSResidual(PetscVec residualVec,
-                            const PetscReal t,
-                            const PetscReal dt,
+                            const pylith::real t,
+                            const pylith::real dt,
                             PetscVec solutionVec,
                             PetscVec solutionDotVec);
 
@@ -180,9 +180,9 @@ public:
      */
     void computeLHSJacobian(PetscMat jacobianMat,
                             PetscMat precondMat,
-                            const PylithReal t,
-                            const PylithReal dt,
-                            const PylithReal s_tshift,
+                            const pylith::real t,
+                            const pylith::real dt,
+                            const pylith::real s_tshift,
                             PetscVec solutionVec,
                             PetscVec solutionDotVec);
 
@@ -193,9 +193,9 @@ public:
      * @param[in] s_tshift Scale for time derivative.
      * @param[in] solutionVec PETSc Vec with current trial solution.
      */
-    void computeLHSJacobianLumpedInv(const PylithReal t,
-                                     const PylithReal dt,
-                                     const PylithReal s_tshift,
+    void computeLHSJacobianLumpedInv(const pylith::real t,
+                                     const pylith::real dt,
+                                     const pylith::real s_tshift,
                                      PetscVec solutionVec);
 
     /** Callback static method for computing residual for RHS, G(t,s).
@@ -208,7 +208,7 @@ public:
      */
     static
     PetscErrorCode computeRHSResidual(PetscTS ts,
-                                      PetscReal t,
+                                      pylith::real t,
                                       PetscVec solutionVec,
                                       PetscVec residualVec,
                                       void* context);
@@ -224,7 +224,7 @@ public:
      */
     static
     PetscErrorCode computeLHSResidual(PetscTS ts,
-                                      PetscReal t,
+                                      pylith::real t,
                                       PetscVec solutionVec,
                                       PetscVec solutionDotVec,
                                       PetscVec residualVec,
@@ -241,10 +241,10 @@ public:
      */
     static
     PetscErrorCode computeLHSJacobian(PetscTS ts,
-                                      PetscReal t,
+                                      pylith::real t,
                                       PetscVec solutionVec,
                                       PetscVec solutionDotVec,
-                                      PetscReal s_tshift,
+                                      pylith::real s_tshift,
                                       PetscMat jacobianMat,
                                       PetscMat precondMat,
                                       void* context);
@@ -262,13 +262,13 @@ private:
      * @param[in] dt Current time step.
      * @returns True if we need to reform the Jacobian, false otherwise.
      */
-    bool _needNewJacobian(const PylithReal dt);
+    bool _needNewJacobian(const pylith::real dt);
 
     /** Set state (auxiliary field values) of system for time t.
      *
      * @param[in] t Current time.
      */
-    void _setState(const PylithReal t);
+    void _setState(const pylith::real t);
 
     /// Notify observers with solution corresponding to initial conditions.
     void _notifyObserversInitialSoln(void);
@@ -291,8 +291,8 @@ private:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    TimeDependent(const TimeDependent&); ///< Not implemented
-    const TimeDependent& operator=(const TimeDependent&); ///< Not implemented
+    TimeDependent(const TimeDependent&) = delete;
+    const TimeDependent& operator=(const TimeDependent&) = delete;
 
 }; // TimeDependent
 

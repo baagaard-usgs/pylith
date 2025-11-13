@@ -15,11 +15,11 @@
 #include <fstream> // USES std::ifstream
 #include <cassert> // USES assert()
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Read fixed length string from file.
 std::string
 pylith::meshio::BinaryIO::readString(std::ifstream& fin,
-                                     const int numChars) { // readString
+                                     const size_t numChars) {
     std::string bstring = "";
     if (numChars > 0) {
         char* buffer = new char[numChars+1];
@@ -39,17 +39,17 @@ pylith::meshio::BinaryIO::readString(std::ifstream& fin,
 } // readString
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Change endian type by swapping byte order.
 void
 pylith::meshio::BinaryIO::swapByteOrder(char* vals,
-                                        const int numVals,
-                                        const int typesize) { // swapByteOrder
+                                        const size_t numVals,
+                                        const size_t typesize) {
     assert(vals);
-    const int numSwaps = sizeof(typesize) / 2;
-    for (int iVal = 0; iVal < numVals; ++iVal) {
+    const size_t numSwaps = sizeof(typesize) / 2;
+    for (size_t iVal = 0; iVal < numVals; ++iVal) {
         char* buf = (char*) (vals + iVal*typesize);
-        for (int iSwap = 0, jSwap = typesize-1; iSwap < numSwaps; ++iSwap, --jSwap) {
+        for (size_t iSwap = 0, jSwap = typesize-1; iSwap < numSwaps; ++iSwap, --jSwap) {
             char tmp = buf[iSwap];
             buf[iSwap] = buf[jSwap];
             buf[jSwap] = tmp;

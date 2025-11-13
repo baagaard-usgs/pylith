@@ -94,13 +94,13 @@ public:
      *
      * @param[in] normalizer Nondimensionalizer.
      */
-    void setNormalizer(std::shared_ptr<spatialdata::units::Nondimensional>& normalizer);
+    void setNormalizer(const std::shared_ptr<spatialdata::units::Nondimensional>& normalizer);
 
     /** Set gravity field.
      *
-     * @param[in] g Gravity field.
+     * @param[in] gravityField Gravity field.
      */
-    void setGravityField(std::shared_ptr<spatialdata::spatialdb::GravityField>& const g);
+    void setGravityField(const std::shared_ptr<spatialdata::spatialdb::GravityField>& const g);
 
     /** Register observer to receive notifications.
      *
@@ -108,19 +108,19 @@ public:
      *
      * @param[in] observer Observer to receive notifications.
      */
-    void registerObserver(std::shared_ptr<pylith::problems::ObserverSoln>& observer);
+    void registerObserver(const std::shared_ptr<pylith::problems::ObserverSoln>& observer);
 
     /** Remove observer from receiving notifications.
      *
      * @param[in] observer Observer to remove.
      */
-    void removeObserver(std::shared_ptr<pylith::problems::ObserverSoln>& observer);
+    void removeObserver(const std::shared_ptr<pylith::problems::ObserverSoln>& observer);
 
     /** Set solution field.
      *
      * @param[in] field Solution field.
      */
-    void setSolution(std::shared_ptr<pylith::topology::Field>& field);
+    void setSolution(const std::shared_ptr<pylith::topology::Field>& field);
 
     /** Get solution field.
      *
@@ -138,19 +138,19 @@ public:
      *
      * @param[in] materials Array of materials.
      */
-    void setMaterials(std::vector<std::shared_ptr<pylith::materials::Material> >& materials);
+    void setMaterials(const std::vector<std::shared_ptr<pylith::materials::Material> >& materials);
 
     /** Set boundary conditions.
      *
      * @param[in] bcs Array of boundary conditions.
      */
-    void setBoundaryConditions(std::vector<std::shared_ptr<pylith::bc::BoundaryCondition> >& bcs);
+    void setBoundaryConditions(const std::vector<std::shared_ptr<pylith::bc::BoundaryCondition> >& bcs);
 
     /** Set interior interface conditions.
      *
      * @param[in] interfaces Array of interior interfaces.
      */
-    void setInterfaces(std::vector<std::shared_ptr<pylith::faults::FaultCohesive> >& interfaces);
+    void setInterfaces(const std::vector<std::shared_ptr<pylith::faults::FaultCohesive> >& interfaces);
 
     /** Do minimal initialization.
      *
@@ -176,7 +176,7 @@ protected:
     std::shared_ptr<spatialdata::spatialdb::GravityField> _gravityField; ///< Gravity field.
 
     std::vector<std::shared_ptr<pylith::materials::Material> > _materials; ///< Array of materials.
-    std::vector<std::shared_ptr<pylith::bc::BoundaryCondition> > _bc; ///< Array of boundary conditions.
+    std::vector<std::shared_ptr<pylith::bc::BoundaryCondition> > _bcs; ///< Array of boundary conditions.
     std::vector<std::shared_ptr<pylith::faults::FaultCohesive> > _interfaces; ///< Array of interior interfaces.
 
     std::vector<std::unique_ptr<pylith::feassemble::Integrator> > _integrators; ///< Array of integrators.
@@ -205,8 +205,8 @@ private:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    Problem(const Problem&); ///< Not implemented
-    const Problem& operator=(const Problem&); ///< Not implemented
+    Problem(const Problem&) = delete;
+    const Problem& operator=(const Problem&) = delete;
 
 }; // Problem
 

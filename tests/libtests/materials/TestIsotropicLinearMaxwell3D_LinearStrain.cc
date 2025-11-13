@@ -594,7 +594,7 @@ protected:
         _mymaterial->useBodyForce(true);
         _mymaterial->useReferenceState(false);
 
-        _mymaterial->setLabel("Isotropic Linear Maxwell 3D");
+        _mymaterial->setName("Isotropic Linear Maxwell 3D");
         _mymaterial->id(24);
 
     } // setUp

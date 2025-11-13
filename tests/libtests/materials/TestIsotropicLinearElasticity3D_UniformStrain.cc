@@ -249,7 +249,7 @@ protected:
         _mymaterial->useBodyForce(false);
         _mymaterial->useReferenceState(false);
 
-        _mymaterial->setLabel("Isotropic Linear Elascitity 3D");
+        _mymaterial->setName("Isotropic Linear Elascitity 3D");
         _mymaterial->id(24);
     } // setUp
 

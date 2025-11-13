@@ -67,9 +67,9 @@ void
 pylith::meshio::TestOutputTriggerStep::testShouldWrite(void) {
     OutputTriggerStep trigger;
 
-    const PylithReal dt = 0.1;
-    PylithReal t = 0.0;
-    PylithInt tindex = 0;
+    const pylith::real dt = 0.1;
+    pylith::real t = 0.0;
+    pylith::integer tindex = 0;
     CHECK(true == trigger.shouldWrite(t, tindex++));t += dt;
     CHECK(true == trigger.shouldWrite(t, tindex++));t += dt;
     CHECK(true == trigger.shouldWrite(t, tindex++));t += dt;

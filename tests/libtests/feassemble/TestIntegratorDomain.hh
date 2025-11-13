@@ -122,15 +122,15 @@ public:
     int dimension; ///< Dimension of domain integrator.
     const char* meshFilename; ///< Name of file with ASCII mesh.
     const char* boundaryLabel; ///< Label for group defining domain boundary.
-    PylithInt materialId; ///< Identifier of cells in integration domain.
+    pylith::integer materialId; ///< Identifier of cells in integration domain.
 
     spatialdata::geocoords::CoordSys* cs; ///< Coordinate system.
     spatialdata::units::Nondimensional* normalizer; ///< Scales for nondimensionalization.
 
-    PylithReal t; ///< Time for solution in simulation.
-    PylithReal dt; ///< Time step in simulation.
-    PylithInt tindex; ///< Time step index in simulation.
-    PylithReal s_tshift; ///< Time shift for LHS Jacobian.
+    pylith::real t; ///< Time for solution in simulation.
+    pylith::real dt; ///< Time step in simulation.
+    pylith::integer tindex; ///< Time step index in simulation.
+    pylith::real s_tshift; ///< Time shift for LHS Jacobian.
 
     int numSolutionSubfields; ///< Number of solution fields.
     pylith::topology::Field::Discretization* solutionDiscretizations; ///< Discretizations for solution fields.

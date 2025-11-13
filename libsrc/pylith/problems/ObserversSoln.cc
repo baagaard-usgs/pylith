@@ -38,14 +38,14 @@ pylith::problems::ObserversSoln::~ObserversSoln(void) {
 // Deallocate PETSc and local data structures.
 void
 pylith::problems::ObserversSoln::deallocate(void) {
-    _observers.clear(); // Memory allocation of Observer* managed elsewhere.
+    _observers.clear();
 } // deallocate
 
 
 // ----------------------------------------------------------------------
 // Register observer to receive notifications.
 void
-pylith::problems::ObserversSoln::registerObserver(pylith::problems::ObserverSoln* observer) {
+pylith::problems::ObserversSoln::registerObserver(const std::shared_ptr<pylith::problems::ObserverSoln>& observer) {
     PYLITH_METHOD_BEGIN;
     PYLITH_JOURNAL_DEBUG("registerObserver(observer="<<typeid(observer).name()<<")");
 
@@ -61,7 +61,7 @@ pylith::problems::ObserversSoln::registerObserver(pylith::problems::ObserverSoln
 // ----------------------------------------------------------------------
 // Remove observer from receiving notifications.
 void
-pylith::problems::ObserversSoln::removeObserver(pylith::problems::ObserverSoln* observer) {
+pylith::problems::ObserversSoln::removeObserver(const std::shared_ptr<pylith::problems::ObserverSoln>& observer) {
     PYLITH_METHOD_BEGIN;
     PYLITH_JOURNAL_DEBUG("removeObserver(observer="<<typeid(observer).name()<<")");
 
@@ -76,13 +76,13 @@ pylith::problems::ObserversSoln::removeObserver(pylith::problems::ObserverSoln* 
 // ----------------------------------------------------------------------
 // Set time scale in observers.
 void
-pylith::problems::ObserversSoln::setTimeScale(const PylithReal value) {
+pylith::problems::ObserversSoln::setTimeScale(const pylith::real value) {
     PYLITH_METHOD_BEGIN;
     PYLITH_JOURNAL_DEBUG("setTimeScale(value="<<value<<")");
 
-    for (iterator iter = _observers.begin(); iter != _observers.end(); ++iter) {
-        assert(*iter);
-        (*iter)->setTimeScale(value);
+    for (auto observer : _observers) {
+        assert(observer);
+        observer->setTimeScale(value);
     } // for
 
     PYLITH_METHOD_END;
@@ -94,11 +94,11 @@ pylith::problems::ObserversSoln::setTimeScale(const PylithReal value) {
 void
 pylith::problems::ObserversSoln::verifyObservers(const pylith::topology::Field& solution) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("verifyObservers(solution="<<solution.getLabel()<<")");
+    PYLITH_JOURNAL_DEBUG("verifyObservers(solution="<<solution.getName()<<")");
 
-    for (iterator iter = _observers.begin(); iter != _observers.end(); ++iter) {
-        assert(*iter);
-        (*iter)->verifyConfiguration(solution);
+    for (auto observer : _observers) {
+        assert(observer);
+        observer->verifyConfiguration(solution);
     } // for
 
     PYLITH_METHOD_END;
@@ -108,16 +108,16 @@ pylith::problems::ObserversSoln::verifyObservers(const pylith::topology::Field& 
 // ------------------------------------------------------------------------------------------------
 // Notify observers.
 void
-pylith::problems::ObserversSoln::notifyObservers(const PylithReal t,
-                                                 const PylithInt tindex,
+pylith::problems::ObserversSoln::notifyObservers(const pylith::real t,
+                                                 const pylith::integer tindex,
                                                  const pylith::topology::Field& solution,
                                                  const pylith::problems::Observer::NotificationType notification) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("notifyObservers(t="<<t<<", tindex="<<tindex<<", solution="<<solution.getLabel()<<")");
+    PYLITH_JOURNAL_DEBUG("notifyObservers(t="<<t<<", tindex="<<tindex<<", solution="<<solution.getName()<<")");
 
-    for (iterator iter = _observers.begin(); iter != _observers.end(); ++iter) {
-        assert(*iter);
-        (*iter)->update(t, tindex, solution, notification);
+    for (auto observer : _observers) {
+        assert(observer);
+        observer->update(t, tindex, solution, notification);
     } // for
 
     PYLITH_METHOD_END;
@@ -127,8 +127,8 @@ pylith::problems::ObserversSoln::notifyObservers(const PylithReal t,
 // ------------------------------------------------------------------------------------------------
 // Comparison function for keeping set of observers in order.
 bool
-pylith::problems::ObserversSoln::_compare::operator()(const ObserverSoln* const a,
-                                                      const ObserverSoln* const b) const {
+pylith::problems::ObserversSoln::_compare::operator()(const std::shared_ptr<ObserverSoln>& a,
+                                                      const std::shared_ptr<ObserverSoln>& b) const {
     assert(a);
     assert(b);
     return a->index < b->index;

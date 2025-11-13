@@ -77,28 +77,28 @@ public:
                 void init(void);
 
                 static pylith::utils::EventLogger logger;
-                static PylithInt setSolution;
-                static PylithInt preinitialize;
-                static PylithInt verifyConfiguration;
-                static PylithInt initialize;
-                static PylithInt checkMaterials;
-                static PylithInt createIntegrators;
-                static PylithInt createConstraints;
-                static PylithInt setupSolution;
+                static pylith::integer setSolution;
+                static pylith::integer preinitialize;
+                static pylith::integer verifyConfiguration;
+                static pylith::integer initialize;
+                static pylith::integer checkMaterials;
+                static pylith::integer createIntegrators;
+                static pylith::integer createConstraints;
+                static pylith::integer setupSolution;
             };
 
         };
     }
 }
 pylith::utils::EventLogger pylith::problems::_Problem::Events::logger;
-PylithInt pylith::problems::_Problem::Events::setSolution;
-PylithInt pylith::problems::_Problem::Events::preinitialize;
-PylithInt pylith::problems::_Problem::Events::verifyConfiguration;
-PylithInt pylith::problems::_Problem::Events::initialize;
-PylithInt pylith::problems::_Problem::Events::checkMaterials;
-PylithInt pylith::problems::_Problem::Events::createIntegrators;
-PylithInt pylith::problems::_Problem::Events::createConstraints;
-PylithInt pylith::problems::_Problem::Events::setupSolution;
+pylith::integer pylith::problems::_Problem::Events::setSolution;
+pylith::integer pylith::problems::_Problem::Events::preinitialize;
+pylith::integer pylith::problems::_Problem::Events::verifyConfiguration;
+pylith::integer pylith::problems::_Problem::Events::initialize;
+pylith::integer pylith::problems::_Problem::Events::checkMaterials;
+pylith::integer pylith::problems::_Problem::Events::createIntegrators;
+pylith::integer pylith::problems::_Problem::Events::createConstraints;
+pylith::integer pylith::problems::_Problem::Events::setupSolution;
 
 // ------------------------------------------------------------------------------------------------
 void
@@ -120,8 +120,8 @@ pylith::problems::_Problem::Events::init(void) {
 // Constructor
 pylith::problems::Problem::Problem() :
     _integrationData(new pylith::feassemble::IntegrationData),
-    _normalizer(NULL),
-    _gravityField(NULL),
+    _normalizer(nullptr),
+    _gravityField(nullptr),
     _observers(new pylith::problems::ObserversSoln),
     _formulation(pylith::problems::Physics::QUASISTATIC),
     _solverType(LINEAR),
@@ -143,20 +143,15 @@ void
 pylith::problems::Problem::deallocate(void) {
     PYLITH_METHOD_BEGIN;
 
-    const size_t numIntegrators = _integrators.size();
-    for (size_t i = 0; i < numIntegrators; ++i) {
-        delete _integrators[i];_integrators[i] = NULL;
-    } // for
-
-    const size_t numConstraints = _constraints.size();
-    for (size_t i = 0; i < numConstraints; ++i) {
-        delete _constraints[i];_constraints[i] = NULL;
-    } // for
-
-    delete _integrationData;_integrationData = NULL;
-    delete _normalizer;_normalizer = NULL;
-    _gravityField = NULL; // Held by Python. :KLUDGE: :TODO: Use shared pointer.
-    delete _observers;_observers = NULL;
+    _integrationData.reset();
+    _normalizer.reset();
+    _gravityField.reset();
+    _materials.resize(0);_materials.shrink_to_fit();
+    _bcs.resize(0);_bcs.shrink_to_fit();
+    _interfaces.resize(0);_interfaces.shrink_to_fit();
+    _integrators.resize(0);_integrators.shrink_to_fit();
+    _constraints.resize(0);_constraints.shrink_to_fit();
+    _observers.reset();
 
     pylith::topology::FieldOps::deallocate();
 
@@ -214,31 +209,27 @@ pylith::problems::Problem::setPetscDefaults(const int flags) {
 // ------------------------------------------------------------------------------------------------
 // Set manager of scales used to nondimensionalize problem.
 void
-pylith::problems::Problem::setNormalizer(const spatialdata::units::Nondimensional& dim) {
-    PYLITH_COMPONENT_DEBUG("Problem::setNormalizer(dim="<<typeid(dim).name()<<")");
+pylith::problems::Problem::setNormalizer(const std::shared_ptr<spatialdata::units::Nondimensional>& normalizer) {
+    PYLITH_COMPONENT_DEBUG("Problem::setNormalizer(dim="<<typeid(normalizer).name()<<")");
 
-    if (!_normalizer) {
-        _normalizer = new spatialdata::units::Nondimensional(dim);
-    } else {
-        *_normalizer = dim;
-    } // if/else
+    _normalizer = normalizer;
 } // setNormalizer
 
 
 // ------------------------------------------------------------------------------------------------
 // Set gravity field.
 void
-pylith::problems::Problem::setGravityField(spatialdata::spatialdb::GravityField* const g) {
-    PYLITH_COMPONENT_DEBUG("Problem::setGravityField(g="<<typeid(g).name()<<")");
+pylith::problems::Problem::setGravityField(const std::shared_ptr<spatialdata::spatialdb::GravityField>& gravityField) {
+    PYLITH_COMPONENT_DEBUG("Problem::setGravityField(g="<<typeid(gravityField).name()<<")");
 
-    _gravityField = g;
+    _gravityField = gravityField;
 } // setGravityField
 
 
 // ----------------------------------------------------------------------
 // Register observer to receive notifications.
 void
-pylith::problems::Problem::registerObserver(pylith::problems::ObserverSoln* observer) {
+pylith::problems::Problem::registerObserver(const std::shared_ptr<pylith::problems::ObserverSoln>& observer) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("registerObserver(observer="<<typeid(observer).name()<<")");
 
@@ -254,7 +245,7 @@ pylith::problems::Problem::registerObserver(pylith::problems::ObserverSoln* obse
 // ----------------------------------------------------------------------
 // Remove observer from receiving notifications.
 void
-pylith::problems::Problem::removeObserver(pylith::problems::ObserverSoln* observer) {
+pylith::problems::Problem::removeObserver(const std::shared_ptr<pylith::problems::ObserverSoln>& observer) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("removeObserver(observer="<<typeid(observer).name()<<")");
 
@@ -268,7 +259,7 @@ pylith::problems::Problem::removeObserver(pylith::problems::ObserverSoln* observ
 // ------------------------------------------------------------------------------------------------
 // Set solution field.
 void
-pylith::problems::Problem::setSolution(pylith::topology::Field* field) {
+pylith::problems::Problem::setSolution(const std::shared_ptr<pylith::topology::Field>& field) {
     PYLITH_COMPONENT_DEBUG("Problem::setSolution(field="<<typeid(*field).name()<<")");
     _Problem::Events::logger.eventBegin(_Problem::Events::setSolution);
 
@@ -286,7 +277,7 @@ pylith::problems::Problem::getSolution(void) const {
     PYLITH_METHOD_BEGIN;
 
     assert(_integrationData);
-    pylith::topology::Field* solution = NULL;
+    pylith::topology::Field* solution = nullptr;
     if (_integrationData->hasField(pylith::feassemble::IntegrationData::solution)) {
         solution = _integrationData->getField(pylith::feassemble::IntegrationData::solution);
     } // if
@@ -300,7 +291,7 @@ pylith::problems::Problem::getSolution(void) const {
 const pylith::topology::Field*
 pylith::problems::Problem::getSolutionDot(void) const {
     assert(_integrationData);
-    pylith::topology::Field* solutionDot = NULL;
+    pylith::topology::Field* solutionDot = nullptr;
     if (_integrationData->hasField(pylith::feassemble::IntegrationData::solution_dot)) {
         solutionDot = _integrationData->getField(pylith::feassemble::IntegrationData::solution_dot);
     } // if
@@ -312,17 +303,11 @@ pylith::problems::Problem::getSolutionDot(void) const {
 // ------------------------------------------------------------------------------------------------
 // Set materials.
 void
-pylith::problems::Problem::setMaterials(pylith::materials::Material* materials[],
-                                        const int numMaterials) {
+pylith::problems::Problem::setMaterials(const std::vector<std::shared_ptr<pylith::materials::Material> >& materials) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("Problem::setMaterials("<<materials<<", numMaterials="<<numMaterials<<")");
+    PYLITH_COMPONENT_DEBUG("Problem::setMaterials("<<materials<<")");
 
-    assert( (!materials && 0 == numMaterials) || (materials && 0 < numMaterials) );
-
-    _materials.resize(numMaterials);
-    for (int i = 0; i < numMaterials; ++i) {
-        _materials[i] = materials[i];
-    } // for
+    _materials = materials;
 
     PYLITH_METHOD_END;
 } // setMaterials
@@ -331,17 +316,11 @@ pylith::problems::Problem::setMaterials(pylith::materials::Material* materials[]
 // ------------------------------------------------------------------------------------------------
 // Set boundary conditions.
 void
-pylith::problems::Problem::setBoundaryConditions(pylith::bc::BoundaryCondition* bc[],
-                                                 const int numBC) {
+pylith::problems::Problem::setBoundaryConditions(const std::vector<std::shared_ptr<pylith::bc::BoundaryCondition> >& bcs) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("Problem::setBoundaryConditions("<<bc<<", numBC="<<numBC<<")");
+    PYLITH_COMPONENT_DEBUG("Problem::setBoundaryConditions("<<bcs<<")");
 
-    assert( (!bc && 0 == numBC) || (bc && 0 < numBC) );
-
-    _bc.resize(numBC);
-    for (int i = 0; i < numBC; ++i) {
-        _bc[i] = bc[i];
-    } // for
+    _bcs = bcs;
 
     PYLITH_METHOD_END;
 } // setBoundaryConditions
@@ -350,17 +329,11 @@ pylith::problems::Problem::setBoundaryConditions(pylith::bc::BoundaryCondition* 
 // ------------------------------------------------------------------------------------------------
 // Set materials.
 void
-pylith::problems::Problem::setInterfaces(pylith::faults::FaultCohesive* interfaces[],
-                                         const int numInterfaces) {
+pylith::problems::Problem::setInterfaces(const std::vector<std::shared_ptr<pylith::faults::FaultCohesive> >& interfaces) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("Problem::setInterfaces("<<interfaces<<", numInterfaces="<<numInterfaces<<")");
+    PYLITH_COMPONENT_DEBUG("Problem::setInterfaces("<<interfaces<<")");
 
-    assert( (!interfaces && 0 == numInterfaces) || (interfaces && 0 < numInterfaces) );
-
-    _interfaces.resize(numInterfaces);
-    for (int i = 0; i < numInterfaces; ++i) {
-        _interfaces[i] = interfaces[i];
-    } // for
+    _interfaces = interfaces;
 
     PYLITH_METHOD_END;
 } // setInterfaces
@@ -376,26 +349,23 @@ pylith::problems::Problem::preinitialize(const pylith::topology::Mesh& mesh) {
 
     assert(_normalizer);
 
-    const size_t numMaterials = _materials.size();
-    for (size_t i = 0; i < numMaterials; ++i) {
-        assert(_materials[i]);
-        _materials[i]->setNormalizer(*_normalizer);
-        _materials[i]->setGravityField(_gravityField);
-        _materials[i]->setFormulation(_formulation);
+    for (auto material : _materials) {
+        assert(material);
+        material->setNormalizer(_normalizer);
+        material->setGravityField(_gravityField);
+        material->setFormulation(_formulation);
     } // for
 
-    const size_t numInterfaces = _interfaces.size();
-    for (size_t i = 0; i < numInterfaces; ++i) {
-        assert(_interfaces[i]);
-        _interfaces[i]->setNormalizer(*_normalizer);
-        _interfaces[i]->setFormulation(_formulation);
+    for (auto interface : _interfaces) {
+        assert(interface);
+        interface->setNormalizer(_normalizer);
+        interface->setFormulation(_formulation);
     } // for
 
-    const size_t numBC = _bc.size();
-    for (size_t i = 0; i < numBC; ++i) {
-        assert(_bc[i]);
-        _bc[i]->setNormalizer(*_normalizer);
-        _bc[i]->setFormulation(_formulation);
+    for (auto bc : _bcs) {
+        assert(bc);
+        bc->setNormalizer(_normalizer);
+        bc->setFormulation(_formulation);
     } // for
 
     _Problem::Events::logger.eventEnd(_Problem::Events::preinitialize);
@@ -416,24 +386,21 @@ pylith::problems::Problem::verifyConfiguration(void) const {
     assert(solution);
 
     // Check to make sure materials are compatible with the solution.
-    const size_t numMaterials = _materials.size();
-    for (size_t i = 0; i < numMaterials; ++i) {
-        assert(_materials[i]);
-        _materials[i]->verifyConfiguration(*solution);
+    for (auto material : _materials) {
+        assert(material);
+        material->verifyConfiguration(*solution);
     } // for
 
     // Check to make sure interfaces are compatible with the solution.
-    const size_t numInterfaces = _interfaces.size();
-    for (size_t i = 0; i < numInterfaces; ++i) {
-        assert(_interfaces[i]);
-        _interfaces[i]->verifyConfiguration(*solution);
+    for (auto interface : _interfaces) {
+        assert(interface);
+        interface->verifyConfiguration(*solution);
     } // for
 
     // Check to make sure boundary conditions are compatible with the solution.
-    const size_t numBC = _bc.size();
-    for (size_t i = 0; i < numBC; ++i) {
-        assert(_bc[i]);
-        _bc[i]->verifyConfiguration(*solution);
+    for (auto bc : _bcs) {
+        assert(bc);
+        bc->verifyConfiguration(*solution);
     } // for
 
     _checkMaterialLabels();
@@ -518,7 +485,7 @@ pylith::problems::Problem::_checkMaterialLabels(void) const {
     const size_t numMaterials = _materials.size();
     const size_t numInterfaces = _interfaces.size();
 
-    pylith::int_array labelValues(numMaterials + numInterfaces);
+    pylith::integer_array labelValues(numMaterials + numInterfaces);
     size_t count = 0;
     for (size_t i = 0; i < numMaterials; ++i) {
         assert(_materials[i]);
@@ -549,8 +516,7 @@ pylith::problems::Problem::_createIntegrators(void) {
 
     const size_t numMaterials = _materials.size();
     const size_t numInterfaces = _interfaces.size();
-    const size_t numBC = _bc.size();
-
+    const size_t numBC = _bcs.size();
     const size_t maxSize = numMaterials + numInterfaces + numBC;
     _integrators.resize(maxSize);
     size_t count = 0;
@@ -559,26 +525,26 @@ pylith::problems::Problem::_createIntegrators(void) {
     const pylith::topology::Field* solution = _integrationData->getField("solution");
     assert(solution);
 
-    for (size_t i = 0; i < numMaterials; ++i) {
-        assert(_materials[i]);
-        pylith::feassemble::Integrator* integrator = _materials[i]->createIntegrator(*solution);
+    for (auto material : _materials) {
+        assert(material);
+        std::unique_ptr<pylith::feassemble::Integrator> integrator = material->createIntegrator(*solution);
         assert(count < maxSize);
-        if (integrator) { _integrators[count++] = integrator;}
+        if (integrator) { _integrators[count++] = std::move(integrator);}
     } // for
 
-    for (size_t i = 0; i < numInterfaces; ++i) {
-        assert(_interfaces[i]);
-        pylith::feassemble::Integrator* integrator = _interfaces[i]->createIntegrator(*solution, _materials);
+    for (auto interface : _interfaces) {
+        assert(interface);
+        std::unique_ptr<pylith::feassemble::Integrator> integrator = interface->createIntegrator(*solution, _materials);
         assert(count < maxSize);
-        if (integrator) { _integrators[count++] = integrator;}
+        if (integrator) { _integrators[count++] = std::move(integrator);}
     } // for
 
     // Check to make sure boundary conditions are compatible with the solution.
-    for (size_t i = 0; i < numBC; ++i) {
-        assert(_bc[i]);
-        pylith::feassemble::Integrator* integrator = _bc[i]->createIntegrator(*solution);
+    for (auto bc : _bcs) {
+        assert(bc);
+        pylith::feassemble::Integrator* integrator = bc->createIntegrator(*solution);
         assert(count < maxSize);
-        if (integrator) { _integrators[count++] = integrator;}
+        if (integrator) { _integrators[count++] = std::move(integrator);}
     } // for
 
     _integrators.resize(count);
@@ -596,35 +562,28 @@ pylith::problems::Problem::_createConstraints(void) {
     PYLITH_COMPONENT_DEBUG("Problem::_createConstraints()");
     _Problem::Events::logger.eventBegin(_Problem::Events::createConstraints);
 
-    const size_t numMaterials = _materials.size();
-    const size_t numInterfaces = _interfaces.size();
-    const size_t numBC = _bc.size();
-
     assert(_integrationData);
     const pylith::topology::Field* solution = _integrationData->getField("solution");
     assert(solution);
 
     _constraints.resize(0); // insure we start with an empty array.
 
-    for (size_t i = 0; i < numMaterials; ++i) {
-        assert(_materials[i]);
-        std::vector<pylith::feassemble::Constraint*> constraints = _materials[i]->createConstraints(*solution);
+    for (auto material : _materials) {
+        assert(material);
+        std::vector<pylith::feassemble::Constraint*> constraints = material->createConstraints(*solution);
         _constraints.insert(_constraints.end(), constraints.begin(), constraints.end());
-
     } // for
 
-    for (size_t i = 0; i < numInterfaces; ++i) {
-        assert(_interfaces[i]);
-        std::vector<pylith::feassemble::Constraint*> constraints = _interfaces[i]->createConstraints(*solution);
+    for (auto interface : _interfaces) {
+        assert(interface);
+        std::vector<pylith::feassemble::Constraint*> constraints = interface->createConstraints(*solution);
         _constraints.insert(_constraints.end(), constraints.begin(), constraints.end());
-
     } // for
 
-    for (size_t i = 0; i < numBC; ++i) {
-        assert(_bc[i]);
-        std::vector<pylith::feassemble::Constraint*> constraints = _bc[i]->createConstraints(*solution);
+    for (auto bc : _bcs) {
+        assert(bc);
+        std::vector<pylith::feassemble::Constraint*> constraints = bc->createConstraints(*solution);
         _constraints.insert(_constraints.end(), constraints.begin(), constraints.end());
-
     } // for
 
     _Problem::Events::logger.eventEnd(_Problem::Events::createConstraints);
@@ -651,12 +610,12 @@ pylith::problems::Problem::_setupSolution(void) {
     for (size_t i = 0; i < subfieldNames.size(); ++i) {
         const pylith::topology::Field::SubfieldInfo& subfieldInfo = solution->getSubfieldInfo(subfieldNames[i].c_str());
         if (subfieldInfo.fe.isFaultOnly) {
-            PetscErrorCode err;
-            PetscDS ds = NULL;
-            PetscInt cStart = 0, cEnd = 0;
+            PetscErrorCode err = PETSC_SUCCESS;
+            PetscDS ds = nullptr;
+            pylith::integer cStart = 0, cEnd = 0;
             PetscDM dmSoln = solution->getDM();assert(dmSoln);
             err = DMPlexGetHeightStratum(dmSoln, 0, &cStart, &cEnd);PYLITH_CHECK_ERROR(err);
-            PetscInt cell = cStart;
+            pylith::integer cell = cStart;
             bool found = false;
             for (; cell < cEnd; ++cell) {
                 if (pylith::topology::MeshOps::isCohesiveCell(dmSoln, cell)) {
@@ -667,7 +626,7 @@ pylith::problems::Problem::_setupSolution(void) {
             if (!found) {
                 continue;
             } // if
-            err = DMGetCellDS(dmSoln, cell, &ds, NULL);PYLITH_CHECK_ERROR(err);
+            err = DMGetCellDS(dmSoln, cell, &ds, nullptr);PYLITH_CHECK_ERROR(err);
             assert(ds);
             err = PetscDSSetImplicit(ds, subfieldInfo.index, PETSC_TRUE);PYLITH_CHECK_ERROR(err);
         } // if
@@ -687,10 +646,10 @@ pylith::problems::_Problem::createNullSpace(const pylith::topology::Field* solut
     assert(solution);
 
     const int spaceDim = solution->getSpaceDim();
-    const PetscInt m = (spaceDim * (spaceDim + 1)) / 2;assert(m > 0 && m <= 6);
+    const pylith::integer m = (spaceDim * (spaceDim + 1)) / 2;assert(m > 0 && m <= 6);
 
-    PetscErrorCode err = 0;
-    PetscInt numDofUnconstrained = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
+    pylith::integer numDofUnconstrained = 0;
     err = PetscSectionGetConstrainedStorageSize(solution->getLocalSection(), &numDofUnconstrained);
     if (m > numDofUnconstrained) {
         PYLITH_METHOD_END;
@@ -698,11 +657,11 @@ pylith::problems::_Problem::createNullSpace(const pylith::topology::Field* solut
 
     const PetscDM dmSoln = solution->getDM();
     const pylith::topology::Field::SubfieldInfo info = solution->getSubfieldInfo(subfieldName);
-    MatNullSpace nullSpace = NULL;
+    MatNullSpace nullSpace = nullptr;
     err = DMPlexCreateRigidBody(dmSoln, info.index, &nullSpace);PYLITH_CHECK_ERROR(err);
 
-    PetscObject field = NULL;
-    err = DMGetField(dmSoln, info.index, NULL, &field);PYLITH_CHECK_ERROR(err);
+    PetscObject field = nullptr;
+    err = DMGetField(dmSoln, info.index, nullptr, &field);PYLITH_CHECK_ERROR(err);
     err = PetscObjectCompose(field, "nearnullspace", (PetscObject) nullSpace);PYLITH_CHECK_ERROR(err);
     err = MatNullSpaceDestroy(&nullSpace);PYLITH_CHECK_ERROR(err);
 

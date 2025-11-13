@@ -48,7 +48,7 @@ void
 pylith::materials::IsotropicLinearGenMaxwell::deallocate(void) {
     RheologyElasticity::deallocate();
 
-    delete _auxiliaryFactory;_auxiliaryFactory = NULL;
+    delete _auxiliaryFactory;_auxiliaryFactory = nullptr;
 } // deallocate
 
 
@@ -118,7 +118,7 @@ pylith::materials::IsotropicLinearGenMaxwell::getKernelf1v(const spatialdata::ge
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearGenMaxwellPlaneStrain::f1v_infinitesimalStrain :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicLinearGenMaxwell3D::f1v_infinitesimalStrain_refState :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearGenMaxwellPlaneStrain::f1v_infinitesimalStrain_refState :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(f1u);
 } // getKernelf1v
@@ -135,7 +135,7 @@ pylith::materials::IsotropicLinearGenMaxwell::getKernelJf3vu(const spatialdata::
     PetscPointJac Jf3uu =
         (3 == spaceDim) ? pylith::fekernels::IsotropicLinearGenMaxwell3D::Jf3vu_infinitesimalStrain :
         (2 == spaceDim) ? pylith::fekernels::IsotropicLinearGenMaxwellPlaneStrain::Jf3vu_infinitesimalStrain :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(Jf3uu);
 } // getKernelJf3vu
@@ -154,7 +154,7 @@ pylith::materials::IsotropicLinearGenMaxwell::getKernelf0Neg(const spatialdata::
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearGenMaxwellPlaneStrain::f0l_neg_infinitesimalStrain :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicLinearGenMaxwell3D::f0l_neg_infinitesimalStrain_refState :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearGenMaxwellPlaneStrain::f0l_neg_infinitesimalStrain_refState :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(kernel);
 }
@@ -173,7 +173,7 @@ pylith::materials::IsotropicLinearGenMaxwell::getKernelf0Pos(const spatialdata::
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearGenMaxwellPlaneStrain::f0l_pos_infinitesimalStrain :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicLinearGenMaxwell3D::f0l_pos_infinitesimalStrain_refState :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearGenMaxwellPlaneStrain::f0l_pos_infinitesimalStrain_refState :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(kernel);
 }
@@ -192,7 +192,7 @@ pylith::materials::IsotropicLinearGenMaxwell::getKernelCauchyStressVector(const 
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearGenMaxwellPlaneStrain::cauchyStress_infinitesimalStrain_asVector :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicLinearGenMaxwell3D::cauchyStress_infinitesimalStrain_refState_asVector :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearGenMaxwellPlaneStrain::cauchyStress_infinitesimalStrain_refState_asVector :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(kernel);
 } // getKernelCauchyStressVector
@@ -202,7 +202,7 @@ pylith::materials::IsotropicLinearGenMaxwell::getKernelCauchyStressVector(const 
 // Update kernel constants.
 void
 pylith::materials::IsotropicLinearGenMaxwell::updateKernelConstants(pylith::real_array* kernelConstants,
-                                                                    const PylithReal dt) const {
+                                                                    const pylith::real dt) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("updateKernelConstants(kernelConstants"<<kernelConstants<<", dt="<<dt<<")");
 
@@ -227,11 +227,11 @@ pylith::materials::IsotropicLinearGenMaxwell::addKernelsUpdateStateVars(std::vec
     const PetscPointFunc funcViscousStrain =
         (3 == spaceDim) ? pylith::fekernels::IsotropicLinearGenMaxwell3D::viscousStrain_infinitesimalStrain_asVector :
         (2 == spaceDim) ? pylith::fekernels::IsotropicLinearGenMaxwellPlaneStrain::viscousStrain_infinitesimalStrain_asVector :
-        NULL;
+        nullptr;
     const PetscPointFunc funcTotalStrain =
         (3 == spaceDim) ? pylith::fekernels::Elasticity3D::infinitesimalStrain_asVector :
         (2 == spaceDim) ? pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain_asVector :
-        NULL;
+        nullptr;
 
     assert(kernels);
     size_t prevNumKernels = kernels->size();

@@ -20,14 +20,14 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Constructor.
 pylith::feassemble::PhysicsImplementationStub::PhysicsImplementationStub(void) :
-    PhysicsImplementation(NULL),
+    PhysicsImplementation(nullptr),
     _mesh(new pylith::topology::Mesh) {}
 
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Destructor
 pylith::feassemble::PhysicsImplementationStub::~PhysicsImplementationStub(void) {
-    delete _mesh;_mesh = NULL;
+    delete _mesh;_mesh = nullptr;
 } // destructor
 
 

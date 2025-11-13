@@ -53,7 +53,7 @@ public:
      * @param[in] solution Solution field.
      * @param[in] domainMesh Finite-element mesh associated with integration domain.
      *
-     * @returns Auxiliary field if applicable, otherwise NULL.
+     * @returns Auxiliary field if applicable, otherwise nullptr.
      */
     pylith::topology::Field* createAuxiliaryField(const pylith::topology::Field& solution,
                                                   const pylith::topology::Mesh& domainMesh) override;
@@ -122,8 +122,8 @@ protected:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    FaultCohesiveKin(const FaultCohesiveKin&); ///< Not implemented
-    const FaultCohesiveKin& operator=(const FaultCohesiveKin&); ///< Not implemented.
+    FaultCohesiveKin(const FaultCohesiveKin&) = delete;
+    const FaultCohesiveKin& operator=(const FaultCohesiveKin&) = delete;
 
 }; // class FaultCohesiveKin
 

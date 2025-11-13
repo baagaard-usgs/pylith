@@ -114,11 +114,11 @@ class pylith::_BodyForce3D {
         return 0.0;
     } // disp_z
 
-    static PetscErrorCode solnkernel_disp(PetscInt spaceDim,
-                                          PetscReal t,
-                                          const PetscReal x[],
-                                          PetscInt numComponents,
-                                          PetscScalar* s,
+    static PetscErrorCode solnkernel_disp(pylith::integer spaceDim,
+                                          pylith::real t,
+                                          const pylith::real x[],
+                                          pylith::integer numComponents,
+                                          pylith::scalar* s,
                                           void* context) {
         assert(3 == spaceDim);
         assert(3 == numComponents);
@@ -184,10 +184,10 @@ public:
         data->material.setName("material-id=24");
         data->material.setLabelValue(24);
 
-        static const PylithInt constrainedDOF[3] = { 0, 1, 2 };
-        static const PylithInt numConstrained = 3;
+        static const pylith::integer constrainedDOF[3] = { 0, 1, 2 };
+        static const pylith::integer numConstrained = 3;
         data->bcs.resize(1);
-        pylith::bc::DirichletUserFn*bc = new pylith::bc::DirichletUserFn();assert(bc);
+        pylith::bc::DirichletCxxFn*bc = new pylith::bc::DirichletCxxFn();assert(bc);
         bc->setSubfieldName("displacement");
         bc->setLabelName("boundary");
         bc->setLabelValue(1);

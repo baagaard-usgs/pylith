@@ -145,8 +145,8 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    KinSrc(const KinSrc&); ///< Not implemented
-    const KinSrc& operator=(const KinSrc&); ///< Not implemented
+    KinSrc(const KinSrc&) = delete;
+    const KinSrc& operator=(const KinSrc&) = delete;
 
 }; // class KinSrc
 

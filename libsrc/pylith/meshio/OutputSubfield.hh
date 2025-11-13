@@ -33,11 +33,11 @@ public:
      * @param[in] refineLevels Number of levels of mesh refinement.
      */
     static
-    OutputSubfield* create(const pylith::topology::Field& field,
-                           const pylith::topology::Mesh& mesh,
-                           const char* name,
-                           const int basisOrder,
-                           const int refineLevels);
+    std::unique_ptr<OutputSubfield> create(const pylith::topology::Field& field,
+                                           const pylith::topology::Mesh& mesh,
+                                           const char* name,
+                                           const int basisOrder,
+                                           const int refineLevels);
 
     /** Create OutputSubfield from Field.
      *
@@ -48,9 +48,9 @@ public:
      * @param[in] name Name of subfield that will be extracted.
      */
     static
-    OutputSubfield* create(const pylith::topology::Field& field,
-                           const pylith::topology::Mesh& mesh,
-                           const char* name);
+    std::unique_ptr<OutputSubfield> create(const pylith::topology::Field& field,
+                                           const pylith::topology::Mesh& mesh,
+                                           const char* name);
 
     /// Destructor
     ~OutputSubfield(void);
@@ -110,7 +110,7 @@ public:
      * @param[in] subfieldIndex Index of subfield to extract.
      */
     void extractSubfield(const pylith::topology::Field& field,
-                         const PetscInt subfieldIndex);
+                         const pylith::integer subfieldIndex);
 
     // PRIVATE METHODS ////////////////////////////////////////////////////////////////////////////
 private:
@@ -138,8 +138,8 @@ protected:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    OutputSubfield(const OutputSubfield&); ///< Not implemented.
-    const OutputSubfield& operator=(const OutputSubfield&); ///< Not implemented
+    OutputSubfield(const OutputSubfield&) = delete;
+    const OutputSubfield& operator=(const OutputSubfield&) = delete;
 
 }; // OutputSubfield
 

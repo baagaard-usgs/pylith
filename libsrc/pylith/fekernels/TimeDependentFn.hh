@@ -62,31 +62,31 @@ public:
      * f_0(x)
      */
     static inline
-    void initial_scalar_boundary(const PylithInt dim,
-                                 const PylithInt numS,
-                                 const PylithInt numA,
-                                 const PylithInt sOff[],
-                                 const PylithInt sOff_x[],
-                                 const PylithScalar s[],
-                                 const PylithScalar s_t[],
-                                 const PylithScalar s_x[],
-                                 const PylithInt aOff[],
-                                 const PylithInt aOff_x[],
-                                 const PylithScalar a[],
-                                 const PylithScalar a_t[],
-                                 const PylithScalar a_x[],
-                                 const PylithReal t,
-                                 const PylithScalar x[],
-                                 const PylithScalar n[],
-                                 const PylithInt numConstants,
-                                 const PylithScalar constants[],
-                                 PylithScalar value[]) {
-        const PylithInt _numA = 1;
+    void initial_scalar_boundary(const pylith::integer dim,
+                                 const pylith::integer numS,
+                                 const pylith::integer numA,
+                                 const pylith::integer sOff[],
+                                 const pylith::integer sOff_x[],
+                                 const pylith::scalar s[],
+                                 const pylith::scalar s_t[],
+                                 const pylith::scalar s_x[],
+                                 const pylith::integer aOff[],
+                                 const pylith::integer aOff_x[],
+                                 const pylith::scalar a[],
+                                 const pylith::scalar a_t[],
+                                 const pylith::scalar a_x[],
+                                 const pylith::real t,
+                                 const pylith::scalar x[],
+                                 const pylith::scalar n[],
+                                 const pylith::integer numConstants,
+                                 const pylith::scalar constants[],
+                                 pylith::scalar value[]) {
+        const pylith::integer _numA = 1;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_initial = aOff[0];
+        const pylith::integer i_initial = aOff[0];
         zero(1, value);
         initial_scalar_term(a[i_initial], value);
     } // initial_scalar
@@ -97,31 +97,31 @@ public:
      * f_0(x)
      */
     static inline
-    void initial_vector_boundary(const PylithInt dim,
-                                 const PylithInt numS,
-                                 const PylithInt numA,
-                                 const PylithInt sOff[],
-                                 const PylithInt sOff_x[],
-                                 const PylithScalar s[],
-                                 const PylithScalar s_t[],
-                                 const PylithScalar s_x[],
-                                 const PylithInt aOff[],
-                                 const PylithInt aOff_x[],
-                                 const PylithScalar a[],
-                                 const PylithScalar a_t[],
-                                 const PylithScalar a_x[],
-                                 const PylithReal t,
-                                 const PylithScalar x[],
-                                 const PylithScalar n[],
-                                 const PylithInt numConstants,
-                                 const PylithScalar constants[],
-                                 PylithScalar value[]) {
-        const PylithInt _numA = 1;
+    void initial_vector_boundary(const pylith::integer dim,
+                                 const pylith::integer numS,
+                                 const pylith::integer numA,
+                                 const pylith::integer sOff[],
+                                 const pylith::integer sOff_x[],
+                                 const pylith::scalar s[],
+                                 const pylith::scalar s_t[],
+                                 const pylith::scalar s_x[],
+                                 const pylith::integer aOff[],
+                                 const pylith::integer aOff_x[],
+                                 const pylith::scalar a[],
+                                 const pylith::scalar a_t[],
+                                 const pylith::scalar a_x[],
+                                 const pylith::real t,
+                                 const pylith::scalar x[],
+                                 const pylith::scalar n[],
+                                 const pylith::integer numConstants,
+                                 const pylith::scalar constants[],
+                                 pylith::scalar value[]) {
+        const pylith::integer _numA = 1;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_initial = aOff[0];
+        const pylith::integer i_initial = aOff[0];
         zero(dim, value);
         initial_vector_term(dim, &a[i_initial], value);
     } // initial_vector
@@ -130,33 +130,33 @@ public:
     /** Scalar rate term for time-dependent boundary condition.
      */
     static inline
-    void rate_scalar_boundary(const PylithInt dim,
-                              const PylithInt numS,
-                              const PylithInt numA,
-                              const PylithInt sOff[],
-                              const PylithInt sOff_x[],
-                              const PylithScalar s[],
-                              const PylithScalar s_t[],
-                              const PylithScalar s_x[],
-                              const PylithInt aOff[],
-                              const PylithInt aOff_x[],
-                              const PylithScalar a[],
-                              const PylithScalar a_t[],
-                              const PylithScalar a_x[],
-                              const PylithReal t,
-                              const PylithScalar x[],
-                              const PylithScalar n[],
-                              const PylithInt numConstants,
-                              const PylithScalar constants[],
-                              PylithScalar value[]) {
-        const PylithInt _numA = 2;
+    void rate_scalar_boundary(const pylith::integer dim,
+                              const pylith::integer numS,
+                              const pylith::integer numA,
+                              const pylith::integer sOff[],
+                              const pylith::integer sOff_x[],
+                              const pylith::scalar s[],
+                              const pylith::scalar s_t[],
+                              const pylith::scalar s_x[],
+                              const pylith::integer aOff[],
+                              const pylith::integer aOff_x[],
+                              const pylith::scalar a[],
+                              const pylith::scalar a_t[],
+                              const pylith::scalar a_x[],
+                              const pylith::real t,
+                              const pylith::scalar x[],
+                              const pylith::scalar n[],
+                              const pylith::integer numConstants,
+                              const pylith::scalar constants[],
+                              pylith::scalar value[]) {
+        const pylith::integer _numA = 2;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
         assert(value);
 
-        const PylithInt i_rate = aOff[0];
-        const PylithInt i_start = aOff[1];
+        const pylith::integer i_rate = aOff[0];
+        const pylith::integer i_start = aOff[1];
         zero(1, value);
         rate_scalar_term(a[i_rate], a[i_start], t, value);
     } // rate_scalar
@@ -165,32 +165,32 @@ public:
     /** Vector rate term for time-dependent boundary condition.
      */
     static inline
-    void rate_vector_boundary(const PylithInt dim,
-                              const PylithInt numS,
-                              const PylithInt numA,
-                              const PylithInt sOff[],
-                              const PylithInt sOff_x[],
-                              const PylithScalar s[],
-                              const PylithScalar s_t[],
-                              const PylithScalar s_x[],
-                              const PylithInt aOff[],
-                              const PylithInt aOff_x[],
-                              const PylithScalar a[],
-                              const PylithScalar a_t[],
-                              const PylithScalar a_x[],
-                              const PylithReal t,
-                              const PylithScalar x[],
-                              const PylithScalar n[],
-                              const PylithInt numConstants,
-                              const PylithScalar constants[],
-                              PylithScalar value[]) {
-        const PylithInt _numA = 2;
+    void rate_vector_boundary(const pylith::integer dim,
+                              const pylith::integer numS,
+                              const pylith::integer numA,
+                              const pylith::integer sOff[],
+                              const pylith::integer sOff_x[],
+                              const pylith::scalar s[],
+                              const pylith::scalar s_t[],
+                              const pylith::scalar s_x[],
+                              const pylith::integer aOff[],
+                              const pylith::integer aOff_x[],
+                              const pylith::scalar a[],
+                              const pylith::scalar a_t[],
+                              const pylith::scalar a_x[],
+                              const pylith::real t,
+                              const pylith::scalar x[],
+                              const pylith::scalar n[],
+                              const pylith::integer numConstants,
+                              const pylith::scalar constants[],
+                              pylith::scalar value[]) {
+        const pylith::integer _numA = 2;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_rate = aOff[0];
-        const PylithInt i_start = aOff[1];
+        const pylith::integer i_rate = aOff[0];
+        const pylith::integer i_start = aOff[1];
         zero(dim, value);
         rate_vector_term(dim, &a[i_rate], a[i_start], t, value);
     } // rate_vector
@@ -199,32 +199,32 @@ public:
     /** Scalar time history term for time-dependent boundary condition.
      */
     static inline
-    void timeHistory_scalar_boundary(const PylithInt dim,
-                                     const PylithInt numS,
-                                     const PylithInt numA,
-                                     const PylithInt sOff[],
-                                     const PylithInt sOff_x[],
-                                     const PylithScalar s[],
-                                     const PylithScalar s_t[],
-                                     const PylithScalar s_x[],
-                                     const PylithInt aOff[],
-                                     const PylithInt aOff_x[],
-                                     const PylithScalar a[],
-                                     const PylithScalar a_t[],
-                                     const PylithScalar a_x[],
-                                     const PylithReal t,
-                                     const PylithScalar x[],
-                                     const PylithScalar n[],
-                                     const PylithInt numConstants,
-                                     const PylithScalar constants[],
-                                     PylithScalar value[]) {
-        const PylithInt _numA = 3;
+    void timeHistory_scalar_boundary(const pylith::integer dim,
+                                     const pylith::integer numS,
+                                     const pylith::integer numA,
+                                     const pylith::integer sOff[],
+                                     const pylith::integer sOff_x[],
+                                     const pylith::scalar s[],
+                                     const pylith::scalar s_t[],
+                                     const pylith::scalar s_x[],
+                                     const pylith::integer aOff[],
+                                     const pylith::integer aOff_x[],
+                                     const pylith::scalar a[],
+                                     const pylith::scalar a_t[],
+                                     const pylith::scalar a_x[],
+                                     const pylith::real t,
+                                     const pylith::scalar x[],
+                                     const pylith::scalar n[],
+                                     const pylith::integer numConstants,
+                                     const pylith::scalar constants[],
+                                     pylith::scalar value[]) {
+        const pylith::integer _numA = 3;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_amplitude = aOff[0];
-        const PylithInt i_value = aOff[2];
+        const pylith::integer i_amplitude = aOff[0];
+        const pylith::integer i_value = aOff[2];
         zero(1, value);
         timeHistory_scalar_term(a[i_amplitude], a[i_value], value);
     } // timeHistory_scalar
@@ -233,32 +233,32 @@ public:
     /** Vector time history term for time-dependent boundary condition.
      */
     static inline
-    void timeHistory_vector_boundary(const PylithInt dim,
-                                     const PylithInt numS,
-                                     const PylithInt numA,
-                                     const PylithInt sOff[],
-                                     const PylithInt sOff_x[],
-                                     const PylithScalar s[],
-                                     const PylithScalar s_t[],
-                                     const PylithScalar s_x[],
-                                     const PylithInt aOff[],
-                                     const PylithInt aOff_x[],
-                                     const PylithScalar a[],
-                                     const PylithScalar a_t[],
-                                     const PylithScalar a_x[],
-                                     const PylithReal t,
-                                     const PylithScalar x[],
-                                     const PylithScalar n[],
-                                     const PylithInt numConstants,
-                                     const PylithScalar constants[],
-                                     PylithScalar value[]) {
-        const PylithInt _numA = 3;
+    void timeHistory_vector_boundary(const pylith::integer dim,
+                                     const pylith::integer numS,
+                                     const pylith::integer numA,
+                                     const pylith::integer sOff[],
+                                     const pylith::integer sOff_x[],
+                                     const pylith::scalar s[],
+                                     const pylith::scalar s_t[],
+                                     const pylith::scalar s_x[],
+                                     const pylith::integer aOff[],
+                                     const pylith::integer aOff_x[],
+                                     const pylith::scalar a[],
+                                     const pylith::scalar a_t[],
+                                     const pylith::scalar a_x[],
+                                     const pylith::real t,
+                                     const pylith::scalar x[],
+                                     const pylith::scalar n[],
+                                     const pylith::integer numConstants,
+                                     const pylith::scalar constants[],
+                                     pylith::scalar value[]) {
+        const pylith::integer _numA = 3;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_amplitude = aOff[0];
-        const PylithInt i_value = aOff[2];
+        const pylith::integer i_amplitude = aOff[0];
+        const pylith::integer i_value = aOff[2];
         zero(dim, value);
         timeHistory_vector_term(dim, &a[i_amplitude], a[i_value], value);
     } // timeHistory_vector
@@ -269,34 +269,34 @@ public:
      * value = initial_term + rate_term
      */
     static inline
-    void initialRate_scalar_boundary(const PylithInt dim,
-                                     const PylithInt numS,
-                                     const PylithInt numA,
-                                     const PylithInt sOff[],
-                                     const PylithInt sOff_x[],
-                                     const PylithScalar s[],
-                                     const PylithScalar s_t[],
-                                     const PylithScalar s_x[],
-                                     const PylithInt aOff[],
-                                     const PylithInt aOff_x[],
-                                     const PylithScalar a[],
-                                     const PylithScalar a_t[],
-                                     const PylithScalar a_x[],
-                                     const PylithReal t,
-                                     const PylithScalar x[],
-                                     const PylithScalar n[],
-                                     const PylithInt numConstants,
-                                     const PylithScalar constants[],
-                                     PylithScalar value[]) {
-        const PylithInt _numA = 3;
+    void initialRate_scalar_boundary(const pylith::integer dim,
+                                     const pylith::integer numS,
+                                     const pylith::integer numA,
+                                     const pylith::integer sOff[],
+                                     const pylith::integer sOff_x[],
+                                     const pylith::scalar s[],
+                                     const pylith::scalar s_t[],
+                                     const pylith::scalar s_x[],
+                                     const pylith::integer aOff[],
+                                     const pylith::integer aOff_x[],
+                                     const pylith::scalar a[],
+                                     const pylith::scalar a_t[],
+                                     const pylith::scalar a_x[],
+                                     const pylith::real t,
+                                     const pylith::scalar x[],
+                                     const pylith::scalar n[],
+                                     const pylith::integer numConstants,
+                                     const pylith::scalar constants[],
+                                     pylith::scalar value[]) {
+        const pylith::integer _numA = 3;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
         assert(value);
 
-        const PylithInt i_initial = aOff[0];
-        const PylithInt i_rate = aOff[1];
-        const PylithInt i_start = aOff[2];
+        const pylith::integer i_initial = aOff[0];
+        const pylith::integer i_rate = aOff[1];
+        const pylith::integer i_start = aOff[2];
         zero(1, value);
         initial_scalar_term(a[i_initial], value);
         rate_scalar_term(a[i_rate], a[i_start], t, value);
@@ -308,33 +308,33 @@ public:
      * value = initial_term + rate_term
      */
     static inline
-    void initialRate_vector_boundary(const PylithInt dim,
-                                     const PylithInt numS,
-                                     const PylithInt numA,
-                                     const PylithInt sOff[],
-                                     const PylithInt sOff_x[],
-                                     const PylithScalar s[],
-                                     const PylithScalar s_t[],
-                                     const PylithScalar s_x[],
-                                     const PylithInt aOff[],
-                                     const PylithInt aOff_x[],
-                                     const PylithScalar a[],
-                                     const PylithScalar a_t[],
-                                     const PylithScalar a_x[],
-                                     const PylithReal t,
-                                     const PylithScalar x[],
-                                     const PylithScalar n[],
-                                     const PylithInt numConstants,
-                                     const PylithScalar constants[],
-                                     PylithScalar value[]) {
-        const PylithInt _numA = 3;
+    void initialRate_vector_boundary(const pylith::integer dim,
+                                     const pylith::integer numS,
+                                     const pylith::integer numA,
+                                     const pylith::integer sOff[],
+                                     const pylith::integer sOff_x[],
+                                     const pylith::scalar s[],
+                                     const pylith::scalar s_t[],
+                                     const pylith::scalar s_x[],
+                                     const pylith::integer aOff[],
+                                     const pylith::integer aOff_x[],
+                                     const pylith::scalar a[],
+                                     const pylith::scalar a_t[],
+                                     const pylith::scalar a_x[],
+                                     const pylith::real t,
+                                     const pylith::scalar x[],
+                                     const pylith::scalar n[],
+                                     const pylith::integer numConstants,
+                                     const pylith::scalar constants[],
+                                     pylith::scalar value[]) {
+        const pylith::integer _numA = 3;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_initial = aOff[0];
-        const PylithInt i_rate = aOff[1];
-        const PylithInt i_start = aOff[2];
+        const pylith::integer i_initial = aOff[0];
+        const pylith::integer i_rate = aOff[1];
+        const pylith::integer i_start = aOff[2];
         zero(dim, value);
         initial_vector_term(dim, &a[i_initial], value);
         rate_vector_term(dim, &a[i_rate], a[i_start], t, value);
@@ -346,33 +346,33 @@ public:
      * value = inital_term + timeHistory+term
      */
     static inline
-    void initialTimeHistory_scalar_boundary(const PylithInt dim,
-                                            const PylithInt numS,
-                                            const PylithInt numA,
-                                            const PylithInt sOff[],
-                                            const PylithInt sOff_x[],
-                                            const PylithScalar s[],
-                                            const PylithScalar s_t[],
-                                            const PylithScalar s_x[],
-                                            const PylithInt aOff[],
-                                            const PylithInt aOff_x[],
-                                            const PylithScalar a[],
-                                            const PylithScalar a_t[],
-                                            const PylithScalar a_x[],
-                                            const PylithReal t,
-                                            const PylithScalar x[],
-                                            const PylithScalar n[],
-                                            const PylithInt numConstants,
-                                            const PylithScalar constants[],
-                                            PylithScalar value[]) {
-        const PylithInt _numA = 4;
+    void initialTimeHistory_scalar_boundary(const pylith::integer dim,
+                                            const pylith::integer numS,
+                                            const pylith::integer numA,
+                                            const pylith::integer sOff[],
+                                            const pylith::integer sOff_x[],
+                                            const pylith::scalar s[],
+                                            const pylith::scalar s_t[],
+                                            const pylith::scalar s_x[],
+                                            const pylith::integer aOff[],
+                                            const pylith::integer aOff_x[],
+                                            const pylith::scalar a[],
+                                            const pylith::scalar a_t[],
+                                            const pylith::scalar a_x[],
+                                            const pylith::real t,
+                                            const pylith::scalar x[],
+                                            const pylith::scalar n[],
+                                            const pylith::integer numConstants,
+                                            const pylith::scalar constants[],
+                                            pylith::scalar value[]) {
+        const pylith::integer _numA = 4;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_initial = aOff[0];
-        const PylithInt i_thAmp = aOff[1];
-        const PylithInt i_thValue = aOff[3];
+        const pylith::integer i_initial = aOff[0];
+        const pylith::integer i_thAmp = aOff[1];
+        const pylith::integer i_thValue = aOff[3];
         zero(1, value);
         initial_scalar_term(a[i_initial], value);
         timeHistory_scalar_term(a[i_thAmp], a[i_thValue], value);
@@ -386,34 +386,34 @@ public:
      * f_2(x) * a(t-t_2(x)) * H(t-t_2(s).
      */
     static inline
-    void initialTimeHistory_vector_boundary(const PylithInt dim,
-                                            const PylithInt numS,
-                                            const PylithInt numA,
-                                            const PylithInt sOff[],
-                                            const PylithInt sOff_x[],
-                                            const PylithScalar s[],
-                                            const PylithScalar s_t[],
-                                            const PylithScalar s_x[],
-                                            const PylithInt aOff[],
-                                            const PylithInt aOff_x[],
-                                            const PylithScalar a[],
-                                            const PylithScalar a_t[],
-                                            const PylithScalar a_x[],
-                                            const PylithReal t,
-                                            const PylithScalar x[],
-                                            const PylithScalar n[],
-                                            const PylithInt numConstants,
-                                            const PylithScalar constants[],
-                                            PylithScalar value[]) {
-        const PylithInt _numA = 4;
+    void initialTimeHistory_vector_boundary(const pylith::integer dim,
+                                            const pylith::integer numS,
+                                            const pylith::integer numA,
+                                            const pylith::integer sOff[],
+                                            const pylith::integer sOff_x[],
+                                            const pylith::scalar s[],
+                                            const pylith::scalar s_t[],
+                                            const pylith::scalar s_x[],
+                                            const pylith::integer aOff[],
+                                            const pylith::integer aOff_x[],
+                                            const pylith::scalar a[],
+                                            const pylith::scalar a_t[],
+                                            const pylith::scalar a_x[],
+                                            const pylith::real t,
+                                            const pylith::scalar x[],
+                                            const pylith::scalar n[],
+                                            const pylith::integer numConstants,
+                                            const pylith::scalar constants[],
+                                            pylith::scalar value[]) {
+        const pylith::integer _numA = 4;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
         assert(value);
 
-        const PylithInt i_initial = aOff[0];
-        const PylithInt i_thAmp = aOff[1];
-        const PylithInt i_thValue = aOff[3];
+        const pylith::integer i_initial = aOff[0];
+        const pylith::integer i_thAmp = aOff[1];
+        const pylith::integer i_thValue = aOff[3];
         zero(dim, value);
         initial_vector_term(dim, &a[i_initial], value);
         timeHistory_vector_term(dim, &a[i_thAmp], a[i_thValue], value);
@@ -425,34 +425,34 @@ public:
      * value = rate_term + timeHistory_term
      */
     static inline
-    void rateTimeHistory_scalar_boundary(const PylithInt dim,
-                                         const PylithInt numS,
-                                         const PylithInt numA,
-                                         const PylithInt sOff[],
-                                         const PylithInt sOff_x[],
-                                         const PylithScalar s[],
-                                         const PylithScalar s_t[],
-                                         const PylithScalar s_x[],
-                                         const PylithInt aOff[],
-                                         const PylithInt aOff_x[],
-                                         const PylithScalar a[],
-                                         const PylithScalar a_t[],
-                                         const PylithScalar a_x[],
-                                         const PylithReal t,
-                                         const PylithScalar x[],
-                                         const PylithScalar n[],
-                                         const PylithInt numConstants,
-                                         const PylithScalar constants[],
-                                         PylithScalar value[]) {
-        const PylithInt _numA = 5;
+    void rateTimeHistory_scalar_boundary(const pylith::integer dim,
+                                         const pylith::integer numS,
+                                         const pylith::integer numA,
+                                         const pylith::integer sOff[],
+                                         const pylith::integer sOff_x[],
+                                         const pylith::scalar s[],
+                                         const pylith::scalar s_t[],
+                                         const pylith::scalar s_x[],
+                                         const pylith::integer aOff[],
+                                         const pylith::integer aOff_x[],
+                                         const pylith::scalar a[],
+                                         const pylith::scalar a_t[],
+                                         const pylith::scalar a_x[],
+                                         const pylith::real t,
+                                         const pylith::scalar x[],
+                                         const pylith::scalar n[],
+                                         const pylith::integer numConstants,
+                                         const pylith::scalar constants[],
+                                         pylith::scalar value[]) {
+        const pylith::integer _numA = 5;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_rateAmp = aOff[0];
-        const PylithInt i_rateStart = aOff[1];
-        const PylithInt i_thAmp = aOff[2];
-        const PylithInt i_thValue = aOff[4];
+        const pylith::integer i_rateAmp = aOff[0];
+        const pylith::integer i_rateStart = aOff[1];
+        const pylith::integer i_thAmp = aOff[2];
+        const pylith::integer i_thValue = aOff[4];
         zero(1, value);
         rate_scalar_term(a[i_rateAmp], a[i_rateStart], t, value);
         timeHistory_scalar_term(a[i_thAmp], a[i_thValue], value);
@@ -464,34 +464,34 @@ public:
      * value = rate_term + timeHistory_term
      */
     static inline
-    void rateTimeHistory_vector_boundary(const PylithInt dim,
-                                         const PylithInt numS,
-                                         const PylithInt numA,
-                                         const PylithInt sOff[],
-                                         const PylithInt sOff_x[],
-                                         const PylithScalar s[],
-                                         const PylithScalar s_t[],
-                                         const PylithScalar s_x[],
-                                         const PylithInt aOff[],
-                                         const PylithInt aOff_x[],
-                                         const PylithScalar a[],
-                                         const PylithScalar a_t[],
-                                         const PylithScalar a_x[],
-                                         const PylithReal t,
-                                         const PylithScalar x[],
-                                         const PylithScalar n[],
-                                         const PylithInt numConstants,
-                                         const PylithScalar constants[],
-                                         PylithScalar value[]) {
-        const PylithInt _numA = 5;
+    void rateTimeHistory_vector_boundary(const pylith::integer dim,
+                                         const pylith::integer numS,
+                                         const pylith::integer numA,
+                                         const pylith::integer sOff[],
+                                         const pylith::integer sOff_x[],
+                                         const pylith::scalar s[],
+                                         const pylith::scalar s_t[],
+                                         const pylith::scalar s_x[],
+                                         const pylith::integer aOff[],
+                                         const pylith::integer aOff_x[],
+                                         const pylith::scalar a[],
+                                         const pylith::scalar a_t[],
+                                         const pylith::scalar a_x[],
+                                         const pylith::real t,
+                                         const pylith::scalar x[],
+                                         const pylith::scalar n[],
+                                         const pylith::integer numConstants,
+                                         const pylith::scalar constants[],
+                                         pylith::scalar value[]) {
+        const pylith::integer _numA = 5;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_rateAmp = aOff[0];
-        const PylithInt i_rateStart = aOff[1];
-        const PylithInt i_thAmp = aOff[2];
-        const PylithInt i_thValue = aOff[4];
+        const pylith::integer i_rateAmp = aOff[0];
+        const pylith::integer i_rateStart = aOff[1];
+        const pylith::integer i_thAmp = aOff[2];
+        const pylith::integer i_thValue = aOff[4];
         zero(dim, value);
         rate_vector_term(dim, &a[i_rateAmp], a[i_rateStart], t, value);
         timeHistory_vector_term(dim, &a[i_thAmp], a[i_thValue], value);
@@ -503,35 +503,35 @@ public:
      * value = initial_term + rate_term + timeHistory_term
      */
     static inline
-    void initialRateTimeHistory_scalar_boundary(const PylithInt dim,
-                                                const PylithInt numS,
-                                                const PylithInt numA,
-                                                const PylithInt sOff[],
-                                                const PylithInt sOff_x[],
-                                                const PylithScalar s[],
-                                                const PylithScalar s_t[],
-                                                const PylithScalar s_x[],
-                                                const PylithInt aOff[],
-                                                const PylithInt aOff_x[],
-                                                const PylithScalar a[],
-                                                const PylithScalar a_t[],
-                                                const PylithScalar a_x[],
-                                                const PylithReal t,
-                                                const PylithScalar x[],
-                                                const PylithScalar n[],
-                                                const PylithInt numConstants,
-                                                const PylithScalar constants[],
-                                                PylithScalar value[]) {
-        const PylithInt _numA = 6;
+    void initialRateTimeHistory_scalar_boundary(const pylith::integer dim,
+                                                const pylith::integer numS,
+                                                const pylith::integer numA,
+                                                const pylith::integer sOff[],
+                                                const pylith::integer sOff_x[],
+                                                const pylith::scalar s[],
+                                                const pylith::scalar s_t[],
+                                                const pylith::scalar s_x[],
+                                                const pylith::integer aOff[],
+                                                const pylith::integer aOff_x[],
+                                                const pylith::scalar a[],
+                                                const pylith::scalar a_t[],
+                                                const pylith::scalar a_x[],
+                                                const pylith::real t,
+                                                const pylith::scalar x[],
+                                                const pylith::scalar n[],
+                                                const pylith::integer numConstants,
+                                                const pylith::scalar constants[],
+                                                pylith::scalar value[]) {
+        const pylith::integer _numA = 6;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_initialAmp = aOff[0];
-        const PylithInt i_rateAmp = aOff[1];
-        const PylithInt i_rateStart = aOff[2];
-        const PylithInt i_thAmp = aOff[3];
-        const PylithInt i_thValue = aOff[5];
+        const pylith::integer i_initialAmp = aOff[0];
+        const pylith::integer i_rateAmp = aOff[1];
+        const pylith::integer i_rateStart = aOff[2];
+        const pylith::integer i_thAmp = aOff[3];
+        const pylith::integer i_thValue = aOff[5];
         zero(1, value);
         initial_scalar_term(a[i_initialAmp], value);
         rate_scalar_term(a[i_rateAmp], a[i_rateStart], t, value);
@@ -544,35 +544,35 @@ public:
      * value = initial_term + rate_term + timeHistory_term
      */
     static inline
-    void initialRateTimeHistory_vector_boundary(const PylithInt dim,
-                                                const PylithInt numS,
-                                                const PylithInt numA,
-                                                const PylithInt sOff[],
-                                                const PylithInt sOff_x[],
-                                                const PylithScalar s[],
-                                                const PylithScalar s_t[],
-                                                const PylithScalar s_x[],
-                                                const PylithInt aOff[],
-                                                const PylithInt aOff_x[],
-                                                const PylithScalar a[],
-                                                const PylithScalar a_t[],
-                                                const PylithScalar a_x[],
-                                                const PylithReal t,
-                                                const PylithScalar x[],
-                                                const PylithScalar n[],
-                                                const PylithInt numConstants,
-                                                const PylithScalar constants[],
-                                                PylithScalar value[]) {
-        const PylithInt _numA = 6;
+    void initialRateTimeHistory_vector_boundary(const pylith::integer dim,
+                                                const pylith::integer numS,
+                                                const pylith::integer numA,
+                                                const pylith::integer sOff[],
+                                                const pylith::integer sOff_x[],
+                                                const pylith::scalar s[],
+                                                const pylith::scalar s_t[],
+                                                const pylith::scalar s_x[],
+                                                const pylith::integer aOff[],
+                                                const pylith::integer aOff_x[],
+                                                const pylith::scalar a[],
+                                                const pylith::scalar a_t[],
+                                                const pylith::scalar a_x[],
+                                                const pylith::real t,
+                                                const pylith::scalar x[],
+                                                const pylith::scalar n[],
+                                                const pylith::integer numConstants,
+                                                const pylith::scalar constants[],
+                                                pylith::scalar value[]) {
+        const pylith::integer _numA = 6;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_initialAmp = aOff[0];
-        const PylithInt i_rateAmp = aOff[1];
-        const PylithInt i_rateStart = aOff[2];
-        const PylithInt i_thAmp = aOff[3];
-        const PylithInt i_thValue = aOff[5];
+        const pylith::integer i_initialAmp = aOff[0];
+        const pylith::integer i_rateAmp = aOff[1];
+        const pylith::integer i_rateStart = aOff[2];
+        const pylith::integer i_thAmp = aOff[3];
+        const pylith::integer i_thValue = aOff[5];
         zero(dim, value);
         initial_vector_term(dim, &a[i_initialAmp], value);
         rate_vector_term(dim, &a[i_rateAmp], a[i_rateStart], t, value);
@@ -611,30 +611,30 @@ public:
      * f_0(x)
      */
     static inline
-    void initial_scalar(const PylithInt dim,
-                        const PylithInt numS,
-                        const PylithInt numA,
-                        const PylithInt sOff[],
-                        const PylithInt sOff_x[],
-                        const PylithScalar s[],
-                        const PylithScalar s_t[],
-                        const PylithScalar s_x[],
-                        const PylithInt aOff[],
-                        const PylithInt aOff_x[],
-                        const PylithScalar a[],
-                        const PylithScalar a_t[],
-                        const PylithScalar a_x[],
-                        const PylithReal t,
-                        const PylithScalar x[],
-                        const PylithInt numConstants,
-                        const PylithScalar constants[],
-                        PylithScalar value[]) {
-        const PylithInt _numA = 1;
+    void initial_scalar(const pylith::integer dim,
+                        const pylith::integer numS,
+                        const pylith::integer numA,
+                        const pylith::integer sOff[],
+                        const pylith::integer sOff_x[],
+                        const pylith::scalar s[],
+                        const pylith::scalar s_t[],
+                        const pylith::scalar s_x[],
+                        const pylith::integer aOff[],
+                        const pylith::integer aOff_x[],
+                        const pylith::scalar a[],
+                        const pylith::scalar a_t[],
+                        const pylith::scalar a_x[],
+                        const pylith::real t,
+                        const pylith::scalar x[],
+                        const pylith::integer numConstants,
+                        const pylith::scalar constants[],
+                        pylith::scalar value[]) {
+        const pylith::integer _numA = 1;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_initial = aOff[0];
+        const pylith::integer i_initial = aOff[0];
         zero(1, value);
         initial_scalar_term(a[i_initial], value);
     } // initial_scalar
@@ -645,30 +645,30 @@ public:
      * f_0(x)
      */
     static inline
-    void initial_vector(const PylithInt dim,
-                        const PylithInt numS,
-                        const PylithInt numA,
-                        const PylithInt sOff[],
-                        const PylithInt sOff_x[],
-                        const PylithScalar s[],
-                        const PylithScalar s_t[],
-                        const PylithScalar s_x[],
-                        const PylithInt aOff[],
-                        const PylithInt aOff_x[],
-                        const PylithScalar a[],
-                        const PylithScalar a_t[],
-                        const PylithScalar a_x[],
-                        const PylithReal t,
-                        const PylithScalar x[],
-                        const PylithInt numConstants,
-                        const PylithScalar constants[],
-                        PylithScalar value[]) {
-        const PylithInt _numA = 1;
+    void initial_vector(const pylith::integer dim,
+                        const pylith::integer numS,
+                        const pylith::integer numA,
+                        const pylith::integer sOff[],
+                        const pylith::integer sOff_x[],
+                        const pylith::scalar s[],
+                        const pylith::scalar s_t[],
+                        const pylith::scalar s_x[],
+                        const pylith::integer aOff[],
+                        const pylith::integer aOff_x[],
+                        const pylith::scalar a[],
+                        const pylith::scalar a_t[],
+                        const pylith::scalar a_x[],
+                        const pylith::real t,
+                        const pylith::scalar x[],
+                        const pylith::integer numConstants,
+                        const pylith::scalar constants[],
+                        pylith::scalar value[]) {
+        const pylith::integer _numA = 1;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_initial = aOff[0];
+        const pylith::integer i_initial = aOff[0];
         zero(dim, value);
         initial_vector_term(dim, &a[i_initial], value);
     } // initial_vector
@@ -677,32 +677,32 @@ public:
     /** Scalar rate term for time-dependent boundary condition.
      */
     static inline
-    void rate_scalar(const PylithInt dim,
-                     const PylithInt numS,
-                     const PylithInt numA,
-                     const PylithInt sOff[],
-                     const PylithInt sOff_x[],
-                     const PylithScalar s[],
-                     const PylithScalar s_t[],
-                     const PylithScalar s_x[],
-                     const PylithInt aOff[],
-                     const PylithInt aOff_x[],
-                     const PylithScalar a[],
-                     const PylithScalar a_t[],
-                     const PylithScalar a_x[],
-                     const PylithReal t,
-                     const PylithScalar x[],
-                     const PylithInt numConstants,
-                     const PylithScalar constants[],
-                     PylithScalar value[]) {
-        const PylithInt _numA = 2;
+    void rate_scalar(const pylith::integer dim,
+                     const pylith::integer numS,
+                     const pylith::integer numA,
+                     const pylith::integer sOff[],
+                     const pylith::integer sOff_x[],
+                     const pylith::scalar s[],
+                     const pylith::scalar s_t[],
+                     const pylith::scalar s_x[],
+                     const pylith::integer aOff[],
+                     const pylith::integer aOff_x[],
+                     const pylith::scalar a[],
+                     const pylith::scalar a_t[],
+                     const pylith::scalar a_x[],
+                     const pylith::real t,
+                     const pylith::scalar x[],
+                     const pylith::integer numConstants,
+                     const pylith::scalar constants[],
+                     pylith::scalar value[]) {
+        const pylith::integer _numA = 2;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
         assert(value);
 
-        const PylithInt i_rate = aOff[0];
-        const PylithInt i_start = aOff[1];
+        const pylith::integer i_rate = aOff[0];
+        const pylith::integer i_start = aOff[1];
         zero(1, value);
         rate_scalar_term(a[i_rate], a[i_start], t, value);
     } // rate_scalar
@@ -711,31 +711,31 @@ public:
     /** Vector rate term for time-dependent boundary condition.
      */
     static inline
-    void rate_vector(const PylithInt dim,
-                     const PylithInt numS,
-                     const PylithInt numA,
-                     const PylithInt sOff[],
-                     const PylithInt sOff_x[],
-                     const PylithScalar s[],
-                     const PylithScalar s_t[],
-                     const PylithScalar s_x[],
-                     const PylithInt aOff[],
-                     const PylithInt aOff_x[],
-                     const PylithScalar a[],
-                     const PylithScalar a_t[],
-                     const PylithScalar a_x[],
-                     const PylithReal t,
-                     const PylithScalar x[],
-                     const PylithInt numConstants,
-                     const PylithScalar constants[],
-                     PylithScalar value[]) {
-        const PylithInt _numA = 2;
+    void rate_vector(const pylith::integer dim,
+                     const pylith::integer numS,
+                     const pylith::integer numA,
+                     const pylith::integer sOff[],
+                     const pylith::integer sOff_x[],
+                     const pylith::scalar s[],
+                     const pylith::scalar s_t[],
+                     const pylith::scalar s_x[],
+                     const pylith::integer aOff[],
+                     const pylith::integer aOff_x[],
+                     const pylith::scalar a[],
+                     const pylith::scalar a_t[],
+                     const pylith::scalar a_x[],
+                     const pylith::real t,
+                     const pylith::scalar x[],
+                     const pylith::integer numConstants,
+                     const pylith::scalar constants[],
+                     pylith::scalar value[]) {
+        const pylith::integer _numA = 2;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_rate = aOff[0];
-        const PylithInt i_start = aOff[1];
+        const pylith::integer i_rate = aOff[0];
+        const pylith::integer i_start = aOff[1];
         zero(dim, value);
         rate_vector_term(dim, &a[i_rate], a[i_start], t, value);
     } // rate_vector
@@ -744,31 +744,31 @@ public:
     /** Scalar time history term for time-dependent boundary condition.
      */
     static inline
-    void timeHistory_scalar(const PylithInt dim,
-                            const PylithInt numS,
-                            const PylithInt numA,
-                            const PylithInt sOff[],
-                            const PylithInt sOff_x[],
-                            const PylithScalar s[],
-                            const PylithScalar s_t[],
-                            const PylithScalar s_x[],
-                            const PylithInt aOff[],
-                            const PylithInt aOff_x[],
-                            const PylithScalar a[],
-                            const PylithScalar a_t[],
-                            const PylithScalar a_x[],
-                            const PylithReal t,
-                            const PylithScalar x[],
-                            const PylithInt numConstants,
-                            const PylithScalar constants[],
-                            PylithScalar value[]) {
-        const PylithInt _numA = 3;
+    void timeHistory_scalar(const pylith::integer dim,
+                            const pylith::integer numS,
+                            const pylith::integer numA,
+                            const pylith::integer sOff[],
+                            const pylith::integer sOff_x[],
+                            const pylith::scalar s[],
+                            const pylith::scalar s_t[],
+                            const pylith::scalar s_x[],
+                            const pylith::integer aOff[],
+                            const pylith::integer aOff_x[],
+                            const pylith::scalar a[],
+                            const pylith::scalar a_t[],
+                            const pylith::scalar a_x[],
+                            const pylith::real t,
+                            const pylith::scalar x[],
+                            const pylith::integer numConstants,
+                            const pylith::scalar constants[],
+                            pylith::scalar value[]) {
+        const pylith::integer _numA = 3;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_amplitude = aOff[0];
-        const PylithInt i_value = aOff[2];
+        const pylith::integer i_amplitude = aOff[0];
+        const pylith::integer i_value = aOff[2];
         zero(1, value);
         timeHistory_scalar_term(a[i_amplitude], a[i_value], value);
     } // timeHistory_scalar
@@ -777,31 +777,31 @@ public:
     /** Vector time history term for time-dependent boundary condition.
      */
     static inline
-    void timeHistory_vector(const PylithInt dim,
-                            const PylithInt numS,
-                            const PylithInt numA,
-                            const PylithInt sOff[],
-                            const PylithInt sOff_x[],
-                            const PylithScalar s[],
-                            const PylithScalar s_t[],
-                            const PylithScalar s_x[],
-                            const PylithInt aOff[],
-                            const PylithInt aOff_x[],
-                            const PylithScalar a[],
-                            const PylithScalar a_t[],
-                            const PylithScalar a_x[],
-                            const PylithReal t,
-                            const PylithScalar x[],
-                            const PylithInt numConstants,
-                            const PylithScalar constants[],
-                            PylithScalar value[]) {
-        const PylithInt _numA = 3;
+    void timeHistory_vector(const pylith::integer dim,
+                            const pylith::integer numS,
+                            const pylith::integer numA,
+                            const pylith::integer sOff[],
+                            const pylith::integer sOff_x[],
+                            const pylith::scalar s[],
+                            const pylith::scalar s_t[],
+                            const pylith::scalar s_x[],
+                            const pylith::integer aOff[],
+                            const pylith::integer aOff_x[],
+                            const pylith::scalar a[],
+                            const pylith::scalar a_t[],
+                            const pylith::scalar a_x[],
+                            const pylith::real t,
+                            const pylith::scalar x[],
+                            const pylith::integer numConstants,
+                            const pylith::scalar constants[],
+                            pylith::scalar value[]) {
+        const pylith::integer _numA = 3;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_amplitude = aOff[0];
-        const PylithInt i_value = aOff[2];
+        const pylith::integer i_amplitude = aOff[0];
+        const pylith::integer i_value = aOff[2];
         zero(dim, value);
         timeHistory_vector_term(dim, &a[i_amplitude], a[i_value], value);
     } // timeHistory_vector
@@ -812,33 +812,33 @@ public:
      * value = initial_term + rate_term
      */
     static inline
-    void initialRate_scalar(const PylithInt dim,
-                            const PylithInt numS,
-                            const PylithInt numA,
-                            const PylithInt sOff[],
-                            const PylithInt sOff_x[],
-                            const PylithScalar s[],
-                            const PylithScalar s_t[],
-                            const PylithScalar s_x[],
-                            const PylithInt aOff[],
-                            const PylithInt aOff_x[],
-                            const PylithScalar a[],
-                            const PylithScalar a_t[],
-                            const PylithScalar a_x[],
-                            const PylithReal t,
-                            const PylithScalar x[],
-                            const PylithInt numConstants,
-                            const PylithScalar constants[],
-                            PylithScalar value[]) {
-        const PylithInt _numA = 3;
+    void initialRate_scalar(const pylith::integer dim,
+                            const pylith::integer numS,
+                            const pylith::integer numA,
+                            const pylith::integer sOff[],
+                            const pylith::integer sOff_x[],
+                            const pylith::scalar s[],
+                            const pylith::scalar s_t[],
+                            const pylith::scalar s_x[],
+                            const pylith::integer aOff[],
+                            const pylith::integer aOff_x[],
+                            const pylith::scalar a[],
+                            const pylith::scalar a_t[],
+                            const pylith::scalar a_x[],
+                            const pylith::real t,
+                            const pylith::scalar x[],
+                            const pylith::integer numConstants,
+                            const pylith::scalar constants[],
+                            pylith::scalar value[]) {
+        const pylith::integer _numA = 3;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
         assert(value);
 
-        const PylithInt i_initial = aOff[0];
-        const PylithInt i_rate = aOff[1];
-        const PylithInt i_start = aOff[2];
+        const pylith::integer i_initial = aOff[0];
+        const pylith::integer i_rate = aOff[1];
+        const pylith::integer i_start = aOff[2];
         zero(1, value);
         initial_scalar_term(a[i_initial], value);
         rate_scalar_term(a[i_rate], a[i_start], t, value);
@@ -850,32 +850,32 @@ public:
      * value = initial_term + rate_term
      */
     static inline
-    void initialRate_vector(const PylithInt dim,
-                            const PylithInt numS,
-                            const PylithInt numA,
-                            const PylithInt sOff[],
-                            const PylithInt sOff_x[],
-                            const PylithScalar s[],
-                            const PylithScalar s_t[],
-                            const PylithScalar s_x[],
-                            const PylithInt aOff[],
-                            const PylithInt aOff_x[],
-                            const PylithScalar a[],
-                            const PylithScalar a_t[],
-                            const PylithScalar a_x[],
-                            const PylithReal t,
-                            const PylithScalar x[],
-                            const PylithInt numConstants,
-                            const PylithScalar constants[],
-                            PylithScalar value[]) {
-        const PylithInt _numA = 3;
+    void initialRate_vector(const pylith::integer dim,
+                            const pylith::integer numS,
+                            const pylith::integer numA,
+                            const pylith::integer sOff[],
+                            const pylith::integer sOff_x[],
+                            const pylith::scalar s[],
+                            const pylith::scalar s_t[],
+                            const pylith::scalar s_x[],
+                            const pylith::integer aOff[],
+                            const pylith::integer aOff_x[],
+                            const pylith::scalar a[],
+                            const pylith::scalar a_t[],
+                            const pylith::scalar a_x[],
+                            const pylith::real t,
+                            const pylith::scalar x[],
+                            const pylith::integer numConstants,
+                            const pylith::scalar constants[],
+                            pylith::scalar value[]) {
+        const pylith::integer _numA = 3;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_initial = aOff[0];
-        const PylithInt i_rate = aOff[1];
-        const PylithInt i_start = aOff[2];
+        const pylith::integer i_initial = aOff[0];
+        const pylith::integer i_rate = aOff[1];
+        const pylith::integer i_start = aOff[2];
         zero(dim, value);
         initial_vector_term(dim, &a[i_initial], value);
         rate_vector_term(dim, &a[i_rate], a[i_start], t, value);
@@ -887,32 +887,32 @@ public:
      * value = inital_term + timeHistory+term
      */
     static inline
-    void initialTimeHistory_scalar(const PylithInt dim,
-                                   const PylithInt numS,
-                                   const PylithInt numA,
-                                   const PylithInt sOff[],
-                                   const PylithInt sOff_x[],
-                                   const PylithScalar s[],
-                                   const PylithScalar s_t[],
-                                   const PylithScalar s_x[],
-                                   const PylithInt aOff[],
-                                   const PylithInt aOff_x[],
-                                   const PylithScalar a[],
-                                   const PylithScalar a_t[],
-                                   const PylithScalar a_x[],
-                                   const PylithReal t,
-                                   const PylithScalar x[],
-                                   const PylithInt numConstants,
-                                   const PylithScalar constants[],
-                                   PylithScalar value[]) {
-        const PylithInt _numA = 4;
+    void initialTimeHistory_scalar(const pylith::integer dim,
+                                   const pylith::integer numS,
+                                   const pylith::integer numA,
+                                   const pylith::integer sOff[],
+                                   const pylith::integer sOff_x[],
+                                   const pylith::scalar s[],
+                                   const pylith::scalar s_t[],
+                                   const pylith::scalar s_x[],
+                                   const pylith::integer aOff[],
+                                   const pylith::integer aOff_x[],
+                                   const pylith::scalar a[],
+                                   const pylith::scalar a_t[],
+                                   const pylith::scalar a_x[],
+                                   const pylith::real t,
+                                   const pylith::scalar x[],
+                                   const pylith::integer numConstants,
+                                   const pylith::scalar constants[],
+                                   pylith::scalar value[]) {
+        const pylith::integer _numA = 4;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_initial = aOff[0];
-        const PylithInt i_thAmp = aOff[1];
-        const PylithInt i_thValue = aOff[3];
+        const pylith::integer i_initial = aOff[0];
+        const pylith::integer i_thAmp = aOff[1];
+        const pylith::integer i_thValue = aOff[3];
         zero(1, value);
         initial_scalar_term(a[i_initial], value);
         timeHistory_scalar_term(a[i_thAmp], a[i_thValue], value);
@@ -926,33 +926,33 @@ public:
      * f_2(x) * a(t-t_2(x)) * H(t-t_2(s).
      */
     static inline
-    void initialTimeHistory_vector(const PylithInt dim,
-                                   const PylithInt numS,
-                                   const PylithInt numA,
-                                   const PylithInt sOff[],
-                                   const PylithInt sOff_x[],
-                                   const PylithScalar s[],
-                                   const PylithScalar s_t[],
-                                   const PylithScalar s_x[],
-                                   const PylithInt aOff[],
-                                   const PylithInt aOff_x[],
-                                   const PylithScalar a[],
-                                   const PylithScalar a_t[],
-                                   const PylithScalar a_x[],
-                                   const PylithReal t,
-                                   const PylithScalar x[],
-                                   const PylithInt numConstants,
-                                   const PylithScalar constants[],
-                                   PylithScalar value[]) {
-        const PylithInt _numA = 4;
+    void initialTimeHistory_vector(const pylith::integer dim,
+                                   const pylith::integer numS,
+                                   const pylith::integer numA,
+                                   const pylith::integer sOff[],
+                                   const pylith::integer sOff_x[],
+                                   const pylith::scalar s[],
+                                   const pylith::scalar s_t[],
+                                   const pylith::scalar s_x[],
+                                   const pylith::integer aOff[],
+                                   const pylith::integer aOff_x[],
+                                   const pylith::scalar a[],
+                                   const pylith::scalar a_t[],
+                                   const pylith::scalar a_x[],
+                                   const pylith::real t,
+                                   const pylith::scalar x[],
+                                   const pylith::integer numConstants,
+                                   const pylith::scalar constants[],
+                                   pylith::scalar value[]) {
+        const pylith::integer _numA = 4;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
         assert(value);
 
-        const PylithInt i_initial = aOff[0];
-        const PylithInt i_thAmp = aOff[1];
-        const PylithInt i_thValue = aOff[3];
+        const pylith::integer i_initial = aOff[0];
+        const pylith::integer i_thAmp = aOff[1];
+        const pylith::integer i_thValue = aOff[3];
         zero(dim, value);
         initial_vector_term(dim, &a[i_initial], value);
         timeHistory_vector_term(dim, &a[i_thAmp], a[i_thValue], value);
@@ -964,33 +964,33 @@ public:
      * value = rate_term + timeHistory_term
      */
     static inline
-    void rateTimeHistory_scalar(const PylithInt dim,
-                                const PylithInt numS,
-                                const PylithInt numA,
-                                const PylithInt sOff[],
-                                const PylithInt sOff_x[],
-                                const PylithScalar s[],
-                                const PylithScalar s_t[],
-                                const PylithScalar s_x[],
-                                const PylithInt aOff[],
-                                const PylithInt aOff_x[],
-                                const PylithScalar a[],
-                                const PylithScalar a_t[],
-                                const PylithScalar a_x[],
-                                const PylithReal t,
-                                const PylithScalar x[],
-                                const PylithInt numConstants,
-                                const PylithScalar constants[],
-                                PylithScalar value[]) {
-        const PylithInt _numA = 5;
+    void rateTimeHistory_scalar(const pylith::integer dim,
+                                const pylith::integer numS,
+                                const pylith::integer numA,
+                                const pylith::integer sOff[],
+                                const pylith::integer sOff_x[],
+                                const pylith::scalar s[],
+                                const pylith::scalar s_t[],
+                                const pylith::scalar s_x[],
+                                const pylith::integer aOff[],
+                                const pylith::integer aOff_x[],
+                                const pylith::scalar a[],
+                                const pylith::scalar a_t[],
+                                const pylith::scalar a_x[],
+                                const pylith::real t,
+                                const pylith::scalar x[],
+                                const pylith::integer numConstants,
+                                const pylith::scalar constants[],
+                                pylith::scalar value[]) {
+        const pylith::integer _numA = 5;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_rateAmp = aOff[0];
-        const PylithInt i_rateStart = aOff[1];
-        const PylithInt i_thAmp = aOff[2];
-        const PylithInt i_thValue = aOff[4];
+        const pylith::integer i_rateAmp = aOff[0];
+        const pylith::integer i_rateStart = aOff[1];
+        const pylith::integer i_thAmp = aOff[2];
+        const pylith::integer i_thValue = aOff[4];
         zero(1, value);
         rate_scalar_term(a[i_rateAmp], a[i_rateStart], t, value);
         timeHistory_scalar_term(a[i_thAmp], a[i_thValue], value);
@@ -1002,33 +1002,33 @@ public:
      * value = rate_term + timeHistory_term
      */
     static inline
-    void rateTimeHistory_vector(const PylithInt dim,
-                                const PylithInt numS,
-                                const PylithInt numA,
-                                const PylithInt sOff[],
-                                const PylithInt sOff_x[],
-                                const PylithScalar s[],
-                                const PylithScalar s_t[],
-                                const PylithScalar s_x[],
-                                const PylithInt aOff[],
-                                const PylithInt aOff_x[],
-                                const PylithScalar a[],
-                                const PylithScalar a_t[],
-                                const PylithScalar a_x[],
-                                const PylithReal t,
-                                const PylithScalar x[],
-                                const PylithInt numConstants,
-                                const PylithScalar constants[],
-                                PylithScalar value[]) {
-        const PylithInt _numA = 5;
+    void rateTimeHistory_vector(const pylith::integer dim,
+                                const pylith::integer numS,
+                                const pylith::integer numA,
+                                const pylith::integer sOff[],
+                                const pylith::integer sOff_x[],
+                                const pylith::scalar s[],
+                                const pylith::scalar s_t[],
+                                const pylith::scalar s_x[],
+                                const pylith::integer aOff[],
+                                const pylith::integer aOff_x[],
+                                const pylith::scalar a[],
+                                const pylith::scalar a_t[],
+                                const pylith::scalar a_x[],
+                                const pylith::real t,
+                                const pylith::scalar x[],
+                                const pylith::integer numConstants,
+                                const pylith::scalar constants[],
+                                pylith::scalar value[]) {
+        const pylith::integer _numA = 5;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_rateAmp = aOff[0];
-        const PylithInt i_rateStart = aOff[1];
-        const PylithInt i_thAmp = aOff[2];
-        const PylithInt i_thValue = aOff[4];
+        const pylith::integer i_rateAmp = aOff[0];
+        const pylith::integer i_rateStart = aOff[1];
+        const pylith::integer i_thAmp = aOff[2];
+        const pylith::integer i_thValue = aOff[4];
         zero(dim, value);
         rate_vector_term(dim, &a[i_rateAmp], a[i_rateStart], t, value);
         timeHistory_vector_term(dim, &a[i_thAmp], a[i_thValue], value);
@@ -1040,34 +1040,34 @@ public:
      * value = initial_term + rate_term + timeHistory_term
      */
     static inline
-    void initialRateTimeHistory_scalar(const PylithInt dim,
-                                       const PylithInt numS,
-                                       const PylithInt numA,
-                                       const PylithInt sOff[],
-                                       const PylithInt sOff_x[],
-                                       const PylithScalar s[],
-                                       const PylithScalar s_t[],
-                                       const PylithScalar s_x[],
-                                       const PylithInt aOff[],
-                                       const PylithInt aOff_x[],
-                                       const PylithScalar a[],
-                                       const PylithScalar a_t[],
-                                       const PylithScalar a_x[],
-                                       const PylithReal t,
-                                       const PylithScalar x[],
-                                       const PylithInt numConstants,
-                                       const PylithScalar constants[],
-                                       PylithScalar value[]) {
-        const PylithInt _numA = 6;
+    void initialRateTimeHistory_scalar(const pylith::integer dim,
+                                       const pylith::integer numS,
+                                       const pylith::integer numA,
+                                       const pylith::integer sOff[],
+                                       const pylith::integer sOff_x[],
+                                       const pylith::scalar s[],
+                                       const pylith::scalar s_t[],
+                                       const pylith::scalar s_x[],
+                                       const pylith::integer aOff[],
+                                       const pylith::integer aOff_x[],
+                                       const pylith::scalar a[],
+                                       const pylith::scalar a_t[],
+                                       const pylith::scalar a_x[],
+                                       const pylith::real t,
+                                       const pylith::scalar x[],
+                                       const pylith::integer numConstants,
+                                       const pylith::scalar constants[],
+                                       pylith::scalar value[]) {
+        const pylith::integer _numA = 6;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_initialAmp = aOff[0];
-        const PylithInt i_rateAmp = aOff[1];
-        const PylithInt i_rateStart = aOff[2];
-        const PylithInt i_thAmp = aOff[3];
-        const PylithInt i_thValue = aOff[5];
+        const pylith::integer i_initialAmp = aOff[0];
+        const pylith::integer i_rateAmp = aOff[1];
+        const pylith::integer i_rateStart = aOff[2];
+        const pylith::integer i_thAmp = aOff[3];
+        const pylith::integer i_thValue = aOff[5];
         zero(1, value);
         initial_scalar_term(a[i_initialAmp], value);
         rate_scalar_term(a[i_rateAmp], a[i_rateStart], t, value);
@@ -1080,34 +1080,34 @@ public:
      * value = initial_term + rate_term + timeHistory_term
      */
     static inline
-    void initialRateTimeHistory_vector(const PylithInt dim,
-                                       const PylithInt numS,
-                                       const PylithInt numA,
-                                       const PylithInt sOff[],
-                                       const PylithInt sOff_x[],
-                                       const PylithScalar s[],
-                                       const PylithScalar s_t[],
-                                       const PylithScalar s_x[],
-                                       const PylithInt aOff[],
-                                       const PylithInt aOff_x[],
-                                       const PylithScalar a[],
-                                       const PylithScalar a_t[],
-                                       const PylithScalar a_x[],
-                                       const PylithReal t,
-                                       const PylithScalar x[],
-                                       const PylithInt numConstants,
-                                       const PylithScalar constants[],
-                                       PylithScalar value[]) {
-        const PylithInt _numA = 6;
+    void initialRateTimeHistory_vector(const pylith::integer dim,
+                                       const pylith::integer numS,
+                                       const pylith::integer numA,
+                                       const pylith::integer sOff[],
+                                       const pylith::integer sOff_x[],
+                                       const pylith::scalar s[],
+                                       const pylith::scalar s_t[],
+                                       const pylith::scalar s_x[],
+                                       const pylith::integer aOff[],
+                                       const pylith::integer aOff_x[],
+                                       const pylith::scalar a[],
+                                       const pylith::scalar a_t[],
+                                       const pylith::scalar a_x[],
+                                       const pylith::real t,
+                                       const pylith::scalar x[],
+                                       const pylith::integer numConstants,
+                                       const pylith::scalar constants[],
+                                       pylith::scalar value[]) {
+        const pylith::integer _numA = 6;
         assert(_numA == numA);
         assert(aOff);
         assert(a);
 
-        const PylithInt i_initialAmp = aOff[0];
-        const PylithInt i_rateAmp = aOff[1];
-        const PylithInt i_rateStart = aOff[2];
-        const PylithInt i_thAmp = aOff[3];
-        const PylithInt i_thValue = aOff[5];
+        const pylith::integer i_initialAmp = aOff[0];
+        const pylith::integer i_rateAmp = aOff[1];
+        const pylith::integer i_rateStart = aOff[2];
+        const pylith::integer i_thAmp = aOff[3];
+        const pylith::integer i_thValue = aOff[5];
         zero(dim, value);
         initial_vector_term(dim, &a[i_initialAmp], value);
         rate_vector_term(dim, &a[i_rateAmp], a[i_rateStart], t, value);
@@ -1124,8 +1124,8 @@ public:
      * value = f_0(x)
      */
     static inline
-    void initial_scalar_term(const PylithReal initialValue,
-                             PylithScalar value[]) {
+    void initial_scalar_term(const pylith::real initialValue,
+                             pylith::scalar value[]) {
         assert(value);
 
         value[0] += initialValue;
@@ -1137,13 +1137,13 @@ public:
      * value = f_0(x)
      */
     static inline
-    void initial_vector_term(const PylithInt dim,
-                             const PylithReal initialValue[],
-                             PylithScalar value[]) {
+    void initial_vector_term(const pylith::integer dim,
+                             const pylith::real initialValue[],
+                             pylith::scalar value[]) {
         assert(initialValue);
         assert(value);
 
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             value[i] += initialValue[i];
         } // for
     } // initial_vector_term
@@ -1154,13 +1154,13 @@ public:
      * value = \dot{f}_1(x) * (t-t_1(x)) for t >= t_1(x).
      */
     static inline
-    void rate_scalar_term(const PylithReal rateValue,
-                          const PylithReal startTime,
-                          const PylithReal t,
-                          PylithScalar value[]) {
+    void rate_scalar_term(const pylith::real rateValue,
+                          const pylith::real startTime,
+                          const pylith::real t,
+                          pylith::scalar value[]) {
         assert(value);
 
-        const PylithScalar tRel = t - startTime;
+        const pylith::scalar tRel = t - startTime;
         if (tRel > 0.0) {
             value[0] += rateValue*tRel;
         } // if
@@ -1172,17 +1172,17 @@ public:
      * value = \dot{f}_1(x) * (t-t_1(x)) for t >= t_1(x).
      */
     static inline
-    void rate_vector_term(const PylithInt dim,
-                          const PylithReal rateValue[],
-                          const PylithReal startTime,
-                          const PylithReal t,
-                          PylithScalar value[]) {
+    void rate_vector_term(const pylith::integer dim,
+                          const pylith::real rateValue[],
+                          const pylith::real startTime,
+                          const pylith::real t,
+                          pylith::scalar value[]) {
         assert(rateValue);
         assert(value);
 
-        const PylithScalar tRel = t - startTime;
+        const pylith::scalar tRel = t - startTime;
         if (tRel > 0.0) {
-            for (PylithInt i = 0; i < dim; ++i) {
+            for (pylith::integer i = 0; i < dim; ++i) {
                 value[i] += rateValue[i] * tRel;
             } // for
         } // if
@@ -1194,9 +1194,9 @@ public:
      * value = f_2(x) * a(t-t_2(x)) for t >= t_2(x).
      */
     static inline
-    void timeHistory_scalar_term(const PylithReal amplitude,
-                                 const PylithReal timeHistoryValue,
-                                 PylithScalar value[]) {
+    void timeHistory_scalar_term(const pylith::real amplitude,
+                                 const pylith::real timeHistoryValue,
+                                 pylith::scalar value[]) {
         assert(value);
 
         value[0] += amplitude * timeHistoryValue;
@@ -1208,14 +1208,14 @@ public:
      * value = f_2(x) * a(t-t_2(x)) for t >= t_2(x).
      */
     static inline
-    void timeHistory_vector_term(const PylithInt dim,
-                                 const PylithReal amplitude[],
-                                 const PylithReal timeHistoryValue,
-                                 PylithScalar value[]) {
+    void timeHistory_vector_term(const pylith::integer dim,
+                                 const pylith::real amplitude[],
+                                 const pylith::real timeHistoryValue,
+                                 pylith::scalar value[]) {
         assert(amplitude);
         assert(value);
 
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             value[i] += amplitude[i] * timeHistoryValue;
         } // for
     } // timeHistory_vector_term
@@ -1223,11 +1223,11 @@ public:
     // --------------------------------------------------------------------------------------------
     // Set scalar value to zero.
     static inline
-    void zero(const PylithInt dim,
-              PylithScalar value[]) {
+    void zero(const pylith::integer dim,
+              pylith::scalar value[]) {
         assert(value);
 
-        for (PylithInt i = 0; i < dim; ++i) {
+        for (pylith::integer i = 0; i < dim; ++i) {
             value[i] = 0.0;
         } // for
     } // zero

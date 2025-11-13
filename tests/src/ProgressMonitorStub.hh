@@ -47,8 +47,8 @@ protected:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    ProgressMonitorStub(const ProgressMonitorStub&); ///< Not implemented.
-    const ProgressMonitorStub& operator=(const ProgressMonitorStub&); ///< Not implemented
+    ProgressMonitorStub(const ProgressMonitorStub&) = delete;
+    const ProgressMonitorStub& operator=(const ProgressMonitorStub&) = delete;
 
 }; // ProgressMonitorStub
 

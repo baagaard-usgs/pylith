@@ -16,12 +16,12 @@
 inline
 pylith::feassemble::DSLabelAccess::DSLabelAccess(const PetscDM dm,
                                                  const char* labelName,
-                                                 const int labelValue) :
+                                                 const pylith::integer labelValue) :
     _dm(dm),
-    _label(NULL),
-    _ds(NULL),
-    _weakForm(NULL),
-    _cellsIS(NULL),
+    _label(nullptr),
+    _ds(nullptr),
+    _weakForm(nullptr),
+    _cellsIS(nullptr),
     _numCells(0),
     _value(labelValue),
     _name(labelName) {
@@ -33,20 +33,20 @@ pylith::feassemble::DSLabelAccess::DSLabelAccess(const PetscDM dm,
     err = DMHasLabel(_dm, labelName, &hasLabel);PYLITH_CHECK_ERROR(err);
     if (!hasLabel) {
         std::ostringstream msg;
-        const char* dmName = NULL;
+        const char* dmName = nullptr;
         err = PetscObjectGetName((PetscObject)_dm, &dmName);PYLITH_CHECK_ERROR(err);
         msg << "PETSc DM '" << dmName << "' missing label '" << labelName << "'.";
         throw std::runtime_error(msg.str());
     } // if
     err = DMGetLabel(_dm, labelName, &_label);PYLITH_CHECK_ERROR(err);assert(_label);
 
-    const PetscInt* cellIndices = NULL;
+    const pylith::integer* cellIndices = nullptr;
     err = DMGetStratumIS(dm, labelName, labelValue, &_cellsIS);PYLITH_CHECK_ERROR(err);
     if (_cellsIS) {
         err = ISGetSize(_cellsIS, &_numCells);PYLITH_CHECK_ERROR(err);
         if (_numCells > 0) {
             err = ISGetIndices(_cellsIS, &cellIndices);PYLITH_CHECK_ERROR(err);
-            err = DMGetCellDS(dm, cellIndices[0], &_ds, NULL);PYLITH_CHECK_ERROR(err);assert(_ds);
+            err = DMGetCellDS(dm, cellIndices[0], &_ds, nullptr);PYLITH_CHECK_ERROR(err);assert(_ds);
             err = PetscDSGetWeakForm(_ds, &_weakForm);PYLITH_CHECK_ERROR(err);assert(_weakForm);
             err = ISRestoreIndices(_cellsIS, &cellIndices);PYLITH_CHECK_ERROR(err);
         } else {
@@ -87,7 +87,7 @@ pylith::feassemble::DSLabelAccess::label(void) const {
 // ------------------------------------------------------------------------------------------------
 // Get PETSc DMLabel value.
 inline
-PetscInt
+pylith::integer
 pylith::feassemble::DSLabelAccess::value(void) const {
     return _value;
 }
@@ -123,7 +123,7 @@ pylith::feassemble::DSLabelAccess::cellsIS(void) const {
 // ------------------------------------------------------------------------------------------------
 // Get number of cells in PETSc IS associated with label and value.
 inline
-PetscInt
+pylith::integer
 pylith::feassemble::DSLabelAccess::numCells(void) const {
     return _numCells;
 }
@@ -136,13 +136,13 @@ void
 pylith::feassemble::DSLabelAccess::removeOverlap(void) {
     PYLITH_METHOD_BEGIN;
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
 
-    PetscSF sf = NULL;
+    PetscSF sf = nullptr;
     err = DMGetPointSF(_dm, &sf);PYLITH_CHECK_ERROR(err);
-    const PetscInt *leaves = NULL;
-    PetscInt numLeaves = 0, loc = -1;
-    err = PetscSFGetGraph(sf, NULL, &numLeaves, &leaves, NULL);PYLITH_CHECK_ERROR(err);
+    const pylith::integer *leaves = nullptr;
+    pylith::integer numLeaves = 0, loc = -1;
+    err = PetscSFGetGraph(sf, nullptr, &numLeaves, &leaves, nullptr);PYLITH_CHECK_ERROR(err);
     if ((_numCells <= 0) || (numLeaves <= 0)) {
         PYLITH_METHOD_END;
     } // if
@@ -150,14 +150,14 @@ pylith::feassemble::DSLabelAccess::removeOverlap(void) {
     assert(_cellsIS);
     assert(_numCells > 0);
 
-    const PetscInt* cellIndicesOrig = NULL;
-    const PetscInt numCellsOrig = _numCells;
+    const pylith::integer* cellIndicesOrig = nullptr;
+    const pylith::integer numCellsOrig = _numCells;
     err = ISGetIndices(_cellsIS, &cellIndicesOrig);PYLITH_CHECK_ERROR(err);
 
     // Count number of cells over which to integrate.
-    PetscInt numCellsNew = 0;
-    for (PetscInt c = 0; c < numCellsOrig; ++c) {
-        const PetscInt cell = cellIndicesOrig[c];
+    pylith::integer numCellsNew = 0;
+    for (pylith::integer c = 0; c < numCellsOrig; ++c) {
+        const pylith::integer cell = cellIndicesOrig[c];
 
         err = PetscFindInt(cell, numLeaves, leaves, &loc);PYLITH_CHECK_ERROR(err);
         if (loc < 0) { // not in PetscSF
@@ -166,10 +166,10 @@ pylith::feassemble::DSLabelAccess::removeOverlap(void) {
     } // for
 
     // Create array with cells over which to integrate.
-    PetscInt* cellIndicesNew = NULL;
-    err = PetscMalloc1(numCellsNew*sizeof(PetscInt), &cellIndicesNew);PYLITH_CHECK_ERROR(err);
-    for (PetscInt c = 0, index = 0; c < numCellsOrig; ++c) {
-        const PetscInt cell = cellIndicesOrig[c];
+    pylith::integer* cellIndicesNew = nullptr;
+    err = PetscMalloc1(numCellsNew*sizeof(pylith::integer), &cellIndicesNew);PYLITH_CHECK_ERROR(err);
+    for (pylith::integer c = 0, index = 0; c < numCellsOrig; ++c) {
+        const pylith::integer cell = cellIndicesOrig[c];
 
         err = PetscFindInt(cell, numLeaves, leaves, &loc);PYLITH_CHECK_ERROR(err);
         if (loc < 0) { // not in PetscSF

@@ -65,8 +65,8 @@ public:
     /// @{
     const char* filename; ///< Filename of mesh file.
     int refineLevel; ///< Refinement level.
-    const char* faultA; ///< Vertex group associated with fault A (NULL if no fault).
-    const char* faultB; ///< Vertex group associated with fault B (NULL if no fault).
+    const char* faultA; ///< Vertex group associated with fault A (nullptr if no fault).
+    const char* faultB; ///< Vertex group associated with fault B (nullptr if no fault).
     bool isSimplexMesh; ///< True if simplex mesh.
     /// @}
 

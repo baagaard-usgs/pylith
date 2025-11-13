@@ -40,7 +40,7 @@ public:
 
 private:
 
-    ThreeBlocksStatic(void); ///< Not implemented
+    ThreeBlocksStatic(void) = delete;
 }; // ThreeBlocksStatic
 
 // End of file

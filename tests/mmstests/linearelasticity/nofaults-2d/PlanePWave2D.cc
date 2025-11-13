@@ -124,11 +124,11 @@ class pylith::_PlanePWave2D {
         return "m/s*2";
     } // vel_units
 
-    static PetscErrorCode solnkernel_disp(PetscInt spaceDim,
-                                          PetscReal t,
-                                          const PetscReal x[],
-                                          PetscInt numComponents,
-                                          PetscScalar* s,
+    static PetscErrorCode solnkernel_disp(pylith::integer spaceDim,
+                                          pylith::real t,
+                                          const pylith::real x[],
+                                          pylith::integer numComponents,
+                                          pylith::scalar* s,
                                           void* context) {
         assert(2 == spaceDim);
         assert(x);
@@ -141,11 +141,11 @@ class pylith::_PlanePWave2D {
         return 0;
     } // solnkernel_disp
 
-    static PetscErrorCode solnkernel_vel(PetscInt spaceDim,
-                                         PetscReal t,
-                                         const PetscReal x[],
-                                         PetscInt numComponents,
-                                         PetscScalar* s,
+    static PetscErrorCode solnkernel_vel(pylith::integer spaceDim,
+                                         pylith::real t,
+                                         const pylith::real x[],
+                                         pylith::integer numComponents,
+                                         pylith::scalar* s,
                                          void* context) {
         assert(2 == spaceDim);
         assert(x);
@@ -158,11 +158,11 @@ class pylith::_PlanePWave2D {
         return 0;
     } // solnkernel_vel
 
-    static PetscErrorCode solnkernel_acc(PetscInt spaceDim,
-                                         PetscReal t,
-                                         const PetscReal x[],
-                                         PetscInt numComponents,
-                                         PetscScalar* s,
+    static PetscErrorCode solnkernel_acc(pylith::integer spaceDim,
+                                         pylith::real t,
+                                         const pylith::real x[],
+                                         pylith::integer numComponents,
+                                         pylith::scalar* s,
                                          void* context) {
         assert(2 == spaceDim);
         assert(x);
@@ -223,11 +223,11 @@ public:
         data->material.setLabelValue(24);
 
         // Boundary conditions
-        static const PylithInt constrainedDOF[2] = {0, 1};
-        static const PylithInt numConstrained = 2;
-        pylith::bc::DirichletUserFn* bc = NULL;
+        static const pylith::integer constrainedDOF[2] = {0, 1};
+        static const pylith::integer numConstrained = 2;
+        pylith::bc::DirichletCxxFn* bc = nullptr;
         data->bcs.resize(2);
-        bc = new pylith::bc::DirichletUserFn();assert(bc);
+        bc = new pylith::bc::DirichletCxxFn();assert(bc);
         bc->setSubfieldName("displacement");
         bc->setLabelName("boundary");
         bc->setLabelValue(1);
@@ -236,7 +236,7 @@ public:
         bc->setUserFnDot(solnkernel_vel);
         data->bcs[0] = bc;
 
-        bc = new pylith::bc::DirichletUserFn();assert(bc);
+        bc = new pylith::bc::DirichletCxxFn();assert(bc);
         bc->setSubfieldName("velocity");
         bc->setLabelName("boundary");
         bc->setLabelValue(1);

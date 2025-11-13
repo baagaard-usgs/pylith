@@ -20,7 +20,7 @@ class pylith::faults::TopologyOps {
     // PUBLIC TYPEDEFS ////////////////////////////////////////////////////
 public:
 
-    typedef std::set < PetscInt > PointSet;
+    typedef std::set < pylith::integer > PointSet;
 
     // PUBLIC METHODS /////////////////////////////////////////////////////
 public:
@@ -70,10 +70,10 @@ public:
      */
     static
     void classifyCellsDM(PetscDM dmMesh,
-                         PetscInt vertex,
+                         pylith::integer vertex,
                          const int depth,
                          const int faceSize,
-                         PetscInt firstCohesiveCell,
+                         pylith::integer firstCohesiveCell,
                          PointSet& replaceCells,
                          PointSet& noReplaceCells,
                          const int debug);

@@ -197,30 +197,30 @@ pylith::meshio::TestOutputSolnPoints::_testSetupInterpolator(const OutputSolnPoi
 
     // Check vertices
     topology::Stratum verticesStratum(dmMesh, topology::Stratum::DEPTH, 0);
-    const PetscInt vStart = verticesStratum.begin();
-    const PetscInt vEnd = verticesStratum.end();
+    const pylith::integer vStart = verticesStratum.begin();
+    const pylith::integer vEnd = verticesStratum.end();
     CPPUNIT_ASSERT_EQUAL(numVerticesE, verticesStratum.size());
-    for (PetscInt v = vStart, index = 0; v < vEnd; ++v, ++index) {
+    for (pylith::integer v = vStart, index = 0; v < vEnd; ++v, ++index) {
         const int vertexE = numCellsE + index;
         CPPUNIT_ASSERT_EQUAL(vertexE, v);
     } // for
 
     // Check cells
     topology::Stratum cellsStratum(dmMesh, topology::Stratum::HEIGHT, 0);
-    const PetscInt cStart = cellsStratum.begin();
-    const PetscInt cEnd = cellsStratum.end();
-    PetscErrorCode err = 0;
+    const pylith::integer cStart = cellsStratum.begin();
+    const pylith::integer cEnd = cellsStratum.end();
+    PetscErrorCode err = PETSC_SUCCESS;
     CPPUNIT_ASSERT_EQUAL(numCellsE, cellsStratum.size());
-    for (PetscInt c = cStart, index = 0; c < cEnd; ++c) {
-        const PetscInt *cone = NULL;
-        PetscInt coneSize = 0;
+    for (pylith::integer c = cStart, index = 0; c < cEnd; ++c) {
+        const pylith::integer *cone = nullptr;
+        pylith::integer coneSize = 0;
 
         err = DMPlexGetConeSize(dmMesh, c, &coneSize);PYLITH_CHECK_ERROR(err);
         err = DMPlexGetCone(dmMesh, c, &cone);PYLITH_CHECK_ERROR(err);
 
         CPPUNIT_ASSERT_EQUAL(numCornersE, coneSize);
 
-        for (PetscInt p = 0; p < coneSize; ++p, ++index) {
+        for (pylith::integer p = 0; p < coneSize; ++p, ++index) {
             const int coneE = numCellsE+index;
             CPPUNIT_ASSERT_EQUAL(coneE, cone[p]);
         } // for
@@ -259,14 +259,14 @@ pylith::meshio::TestOutputSolnPoints::_testInterpolate(const OutputSolnPointsDat
     pylith::topology::Field field(mesh);
     field.newSection(topology::FieldBase::VERTICES_FIELD, fiberDim);
     field.allocate();
-    field.setLabel(fieldName);
+    field.setName(fieldName);
     this->_calcField(&field, data);
 
     // Create field for interpolated data.
     pylith::topology::Field fieldInterp(output.pointsMesh());
     fieldInterp.newSection(topology::FieldBase::VERTICES_FIELD, fiberDim);
     fieldInterp.allocate();
-    fieldInterp.setLabel(field.getLabel());
+    fieldInterp.setName(field.getLabel());
     fieldInterp.vectorFieldType(field.vectorFieldType());
     fieldInterp.scale(field.scale());
 
@@ -277,30 +277,30 @@ pylith::meshio::TestOutputSolnPoints::_testInterpolate(const OutputSolnPointsDat
     this->_calcField(&fieldInterpE, data);
 
     PetscDM pointsMeshDM = output.pointsMesh().dmMesh();CPPUNIT_ASSERT(pointsMeshDM);
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     err = DMInterpolationSetDof(output._interpolator, fiberDim);PYLITH_CHECK_ERROR(err);
     err = DMInterpolationEvaluate(output._interpolator, field.dmMesh(), field.localVector(), fieldInterp.localVector());PYLITH_CHECK_ERROR(err);
 
     // Check interpolated field
     topology::Stratum verticesStratum(pointsMeshDM, topology::Stratum::DEPTH, 0);
-    const PetscInt vStart = verticesStratum.begin();
-    const PetscInt vEnd = verticesStratum.end();
+    const pylith::integer vStart = verticesStratum.begin();
+    const pylith::integer vEnd = verticesStratum.end();
 
     topology::VecVisitorMesh fieldInterpVisitor(fieldInterp);
-    PetscScalar* fieldInterpArray = fieldInterpVisitor.localArray();CPPUNIT_ASSERT(fieldInterpArray);
+    pylith::scalar* fieldInterpArray = fieldInterpVisitor.localArray();CPPUNIT_ASSERT(fieldInterpArray);
 
     topology::VecVisitorMesh fieldInterpEVisitor(fieldInterpE);
-    PetscScalar* fieldInterpEArray = fieldInterpEVisitor.localArray();CPPUNIT_ASSERT(fieldInterpEArray);
+    pylith::scalar* fieldInterpEArray = fieldInterpEVisitor.localArray();CPPUNIT_ASSERT(fieldInterpEArray);
 
     const double tolerance = 1.0e-6;
-    for (PetscInt v = vStart; v < vEnd; ++v) {
-        const PetscInt off = fieldInterpVisitor.sectionOffset(v);
+    for (pylith::integer v = vStart; v < vEnd; ++v) {
+        const pylith::integer off = fieldInterpVisitor.sectionOffset(v);
         CPPUNIT_ASSERT_EQUAL(fiberDim, fieldInterpVisitor.sectionDof(v));
 
-        const PetscInt offE = fieldInterpEVisitor.sectionOffset(v);
+        const pylith::integer offE = fieldInterpEVisitor.sectionOffset(v);
         CPPUNIT_ASSERT_EQUAL(fiberDim, fieldInterpEVisitor.sectionDof(v));
 
-        for (PetscInt d = 0; d < fiberDim; ++d) {
+        for (pylith::integer d = 0; d < fiberDim; ++d) {
             const PylithScalar valueE = fieldInterpEArray[offE+d];
             const PylithScalar value = fieldInterpArray[off+d];
             if (fabs(valueE) > 1.0) {
@@ -325,8 +325,8 @@ pylith::meshio::TestOutputSolnPoints::_calcField(pylith::topology::Field* field,
 
     const pylith::topology::Mesh& mesh = field->mesh();
     pylith::topology::Stratum verticesStratum(mesh.dmMesh(), topology::Stratum::DEPTH, 0);
-    const PetscInt vStart = verticesStratum.begin();
-    const PetscInt vEnd = verticesStratum.end();
+    const pylith::integer vStart = verticesStratum.begin();
+    const pylith::integer vEnd = verticesStratum.end();
 
     pylith::topology::VecVisitorMesh fieldVisitor(*field);
     PylithScalar* fieldArray = fieldVisitor.localArray();CPPUNIT_ASSERT(fieldArray);
@@ -334,20 +334,20 @@ pylith::meshio::TestOutputSolnPoints::_calcField(pylith::topology::Field* field,
     pylith::topology::CoordsVisitor coordsVisitor(mesh.dmMesh());
     PylithScalar* coordsArray = coordsVisitor.localArray();CPPUNIT_ASSERT(coordsArray);
 
-    const PetscInt fiberDim = data.fiberDim;
-    const PetscInt spaceDim = data.spaceDim;
+    const pylith::integer fiberDim = data.fiberDim;
+    const pylith::integer spaceDim = data.spaceDim;
 
-    for (PetscInt v = vStart, index = 0; v < vEnd; ++v) {
-        const PetscInt foff = fieldVisitor.sectionOffset(v);
+    for (pylith::integer v = vStart, index = 0; v < vEnd; ++v) {
+        const pylith::integer foff = fieldVisitor.sectionOffset(v);
         CPPUNIT_ASSERT_EQUAL(fiberDim, fieldVisitor.sectionDof(v));
 
-        const PetscInt coff = coordsVisitor.sectionOffset(v);
+        const pylith::integer coff = coordsVisitor.sectionOffset(v);
         CPPUNIT_ASSERT_EQUAL(spaceDim, coordsVisitor.sectionDof(v));
 
-        for (PetscInt d = 0; d < fiberDim; ++d, ++index) {
+        for (pylith::integer d = 0; d < fiberDim; ++d, ++index) {
             PylithScalar value = 0.0;
-            for (PetscInt iv = 0; iv < spaceDim; ++iv) {
-                const PetscInt ic = d*spaceDim + iv;
+            for (pylith::integer iv = 0; iv < spaceDim; ++iv) {
+                const pylith::integer ic = d*spaceDim + iv;
                 value += data.coefs[ic]*coordsArray[coff+iv];
             } // for
             fieldArray[foff+d] = value;

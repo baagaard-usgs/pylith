@@ -23,8 +23,8 @@
 #include "pylith/problems/TimeDependent.hh" // USES TimeDependent
 #include "pylith/materials/Elasticity.hh" // USES Elasticity
 #include "pylith/materials/IsotropicLinearElasticity.hh" // USES IsotropicLinearElasticity
-#include "pylith/bc/DirichletUserFn.hh" // USES DirichletUserFn
-#include "pylith/bc/NeumannUserFn.hh" // USES NeumannUserFn
+#include "pylith/bc/DirichletCxxFn.hh" // USES DirichletCxxFn
+#include "pylith/bc/NeumannCxxFn.hh" // USES NeumannCxxFn
 
 #include "pylith/topology/Mesh.hh" // USES pylith::topology::Mesh::cells_label_name
 #include "pylith/topology/Field.hh" // USES pylith::topology::Field::Discretization
@@ -138,23 +138,23 @@ class pylith::_TwoFaultsShearNoSlip {
     } // faulttraction_y
 
     static
-    void boundary_tractions(const PylithInt dim,
-                            const PylithInt numS,
-                            const PylithInt numA,
-                            const PylithInt sOff[],
-                            const PylithInt sOff_x[],
+    void boundary_tractions(const pylith::integer dim,
+                            const pylith::integer numS,
+                            const pylith::integer numA,
+                            const pylith::integer sOff[],
+                            const pylith::integer sOff_x[],
                             const PylithScalar s[],
                             const PylithScalar s_t[],
                             const PylithScalar s_x[],
-                            const PylithInt aOff[],
-                            const PylithInt aOff_x[],
+                            const pylith::integer aOff[],
+                            const pylith::integer aOff_x[],
                             const PylithScalar a[],
                             const PylithScalar a_t[],
                             const PylithScalar a_x[],
-                            const PylithReal t,
-                            const PylithReal x[],
-                            const PylithReal n[],
-                            const PylithInt numConstants,
+                            const pylith::real t,
+                            const pylith::real x[],
+                            const pylith::real n[],
+                            const pylith::integer numConstants,
                             const PylithScalar constants[],
                             PylithScalar r0[]) {
         assert(r0);
@@ -167,11 +167,11 @@ class pylith::_TwoFaultsShearNoSlip {
         r0[0] += tractionShear*tanDir[1] + tractionNormal*n[1];
     } // boundary_tractions
 
-    static PetscErrorCode solnkernel_disp(PetscInt spaceDim,
-                                          PetscReal t,
-                                          const PetscReal x[],
-                                          PetscInt numComponents,
-                                          PetscScalar* s,
+    static PetscErrorCode solnkernel_disp(pylith::integer spaceDim,
+                                          pylith::real t,
+                                          const pylith::real x[],
+                                          pylith::integer numComponents,
+                                          pylith::scalar* s,
                                           void* context) {
         assert(2 == spaceDim);
         assert(x);
@@ -184,11 +184,11 @@ class pylith::_TwoFaultsShearNoSlip {
         return PETSC_SUCCESS;
     } // solnkernel_disp
 
-    static PetscErrorCode solnkernel_lagrangemultiplier(PetscInt spaceDim,
-                                                        PetscReal t,
-                                                        const PetscReal x[],
-                                                        PetscInt numComponents,
-                                                        PetscScalar* s,
+    static PetscErrorCode solnkernel_lagrangemultiplier(pylith::integer spaceDim,
+                                                        pylith::real t,
+                                                        const pylith::real x[],
+                                                        pylith::integer numComponents,
+                                                        pylith::scalar* s,
                                                         void* context) {
         assert(2 == spaceDim);
         assert(x);
@@ -285,11 +285,11 @@ public:
         } // xpos
 
         // Boundary conditions
-        static const PylithInt constrainedDOF[2] = {0, 1};
-        static const PylithInt numConstrained = 2;
+        static const pylith::integer constrainedDOF[2] = {0, 1};
+        static const pylith::integer numConstrained = 2;
         data->bcs.resize(4);
         { // boundary_xneg
-            pylith::bc::DirichletUserFn* bc = new pylith::bc::DirichletUserFn();
+            pylith::bc::DirichletCxxFn* bc = new pylith::bc::DirichletCxxFn();
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_xneg");
             bc->setLabelValue(1);
@@ -298,7 +298,7 @@ public:
             data->bcs[0] = bc;
         } // boundary_xneg
         { // boundary_xpos
-            pylith::bc::DirichletUserFn* bc = new pylith::bc::DirichletUserFn();
+            pylith::bc::DirichletCxxFn* bc = new pylith::bc::DirichletCxxFn();
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_xpos");
             bc->setLabelValue(1);
@@ -307,7 +307,7 @@ public:
             data->bcs[1] = bc;
         } // boundary_xpos
         { // boundary_yneg
-            pylith::bc::NeumannUserFn* bc = new pylith::bc::NeumannUserFn();
+            pylith::bc::NeumannCxxFn* bc = new pylith::bc::NeumannCxxFn();
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_yneg");
             bc->setLabelValue(1);
@@ -315,7 +315,7 @@ public:
             data->bcs[2] = bc;
         } // boundary_yneg
         { // boundary_ypos
-            pylith::bc::NeumannUserFn* bc = new pylith::bc::NeumannUserFn();
+            pylith::bc::NeumannCxxFn* bc = new pylith::bc::NeumannCxxFn();
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_ypos");
             bc->setLabelValue(1);

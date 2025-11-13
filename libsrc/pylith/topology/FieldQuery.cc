@@ -103,44 +103,42 @@ pylith::topology::FieldQuery::deallocate(void) {
 
 
 // ----------------------------------------------------------------------
-// Set query function information for subfield.
+// Add subfield to query.
 void
-pylith::topology::FieldQuery::setQuery(const char* subfield) {
+pylith::topology::FieldQuery::addSubfield(const std::string& subfieldName) {
     PYLITH_METHOD_BEGIN;
     assert(_field);
-    assert(subfield);
 
     SubfieldQuery query;
-    const Field::SubfieldInfo& info = _field->getSubfieldInfo(subfield);
+    const Field::SubfieldInfo& info = _field->getSubfieldInfo(subfieldName.c_str());
     query.queryValues = info.description.componentNames;
 
-    _subfieldQueries[subfield] = query;
+    _subfieldQueries[subfieldName] = query;
 
     PYLITH_METHOD_END;
 } // setQuery
 
 
 // ----------------------------------------------------------------------
-// Set query function information for subfield.
+// Add subfield to query.
 void
-pylith::topology::FieldQuery::setQuery(const char* subfield,
-                                       std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db,
-                                       const pylith::string_vector& queryValues,
-                                       convertfn_type converter) {
+pylith::topology::FieldQuery::addSubfield(const std::string& subfieldName,
+                                          std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db,
+                                          const pylith::string_vector& queryValues,
+                                          convertfn_type converter) {
     PYLITH_METHOD_BEGIN;
     assert(_field);
-    assert(subfield);
 
     SubfieldQuery query;
     if (queryValues.size()) {
         query.queryValues = queryValues;
     } else {
-        const Field::SubfieldInfo& info = _field->getSubfieldInfo(subfield);
+        const Field::SubfieldInfo& info = _field->getSubfieldInfo(subfieldName.c_str());
         query.queryValues = info.description.componentNames;
     } // if/else
     query.converter = converter;
 
-    _subfieldQueries[subfield] = query;
+    _subfieldQueries[subfieldName] = query;
 
     PYLITH_METHOD_END;
 } // setQuery
@@ -170,8 +168,8 @@ pylith::topology::FieldQuery::initializeWithDefaultQueries(void) {
 // ----------------------------------------------------------------------
 // Query spatial database to set values in field.
 void
-pylith::topology::FieldQuery::openDB(std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db,
-                                     const pylith::real lengthScale) {
+pylith::topology::FieldQuery::open(const std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db,
+                                   const pylith::real lengthScale) {
     PYLITH_METHOD_BEGIN;
     _FieldQuery::Events::logger.eventBegin(_FieldQuery::Events::openDB);
 
@@ -192,10 +190,10 @@ pylith::topology::FieldQuery::openDB(std::shared_ptr<spatialdata::spatialdb::Spa
         const pylith::integer index = subfield.second.index;
         assert(size_t(index) < subfields.size());
 
-        const subfieldquery_map_type::const_iterator& query = _subfieldQueries.find(name);
+        const subfieldquery_t::const_iterator& query = _subfieldQueries.find(name);
         if (query != _subfieldQueries.end()) {
             std::shared_ptr<spatialdata::spatialdb::SpatialDB> dbSubfield = (query->second.db) ? query->second.db : db;
-            _functions[index] = (dbSubfield) ? queryDBPointFn : nullptr;
+            _functions[index] = (dbSubfield) ? queryPointFn : nullptr;
 
             _contexts[index].converter = query->second.converter;
             _contexts[index].db = dbSubfield;
@@ -226,12 +224,12 @@ pylith::topology::FieldQuery::openDB(std::shared_ptr<spatialdata::spatialdb::Spa
 // ----------------------------------------------------------------------
 // Query spatial database to set values in field.
 void
-pylith::topology::FieldQuery::queryDB(void) {
+pylith::topology::FieldQuery::query(void) {
     PYLITH_METHOD_BEGIN;
     _FieldQuery::Events::logger.eventBegin(_FieldQuery::Events::queryDB);
 
-    PetscErrorCode err = 0;
-    PetscReal dummyTime = 0.0;
+    PetscErrorCode err = PETSC_SUCCESS;
+    pylith::real dummyTime = 0.0;
     err = DMProjectFunctionLocal(_field->getDM(), dummyTime, _functions.data(), (void**)_contexts.data(), INSERT_ALL_VALUES,
                                  _field->getLocalVector());PYLITH_CHECK_ERROR(err);
 
@@ -243,13 +241,13 @@ pylith::topology::FieldQuery::queryDB(void) {
 // ----------------------------------------------------------------------
 // Query spatial database to set values in field.
 void
-pylith::topology::FieldQuery::queryDBLabel(const char* labelName,
-                                           const pylith::integer labelValue) {
+pylith::topology::FieldQuery::queryUsingLabel(const char* labelName,
+                                              const pylith::integer labelValue) {
     PYLITH_METHOD_BEGIN;
     _FieldQuery::Events::logger.eventBegin(_FieldQuery::Events::queryDBLabel);
 
-    PetscErrorCode err = 0;
-    PetscReal dummyTime = 0.0;
+    PetscErrorCode err = PETSC_SUCCESS;
+    pylith::real dummyTime = 0.0;
 
     const Field::subfields_type& subfields = _field->_subfields;
     const size_t numSubfields = subfields.size();
@@ -259,7 +257,7 @@ pylith::topology::FieldQuery::queryDBLabel(const char* labelName,
         subfieldIndices[i] = iter->second.index;
     } // for
 
-    PetscDMLabel dmLabel = NULL;
+    PetscDMLabel dmLabel = nullptr;
     err = DMGetLabel(_field->getDM(), labelName, &dmLabel);PYLITH_CHECK_ERROR(err);assert(dmLabel);
     err = DMProjectFunctionLabelLocal(_field->getDM(), dummyTime, dmLabel, 1, &labelValue,
                                       numSubfields, &subfieldIndices[0], _functions.data(), (void**)_contexts.data(),
@@ -273,7 +271,7 @@ pylith::topology::FieldQuery::queryDBLabel(const char* labelName,
 // ----------------------------------------------------------------------
 // Query spatial database to set values in field.
 void
-pylith::topology::FieldQuery::closeDB() {
+pylith::topology::FieldQuery::close() {
     PYLITH_METHOD_BEGIN;
 
     for (auto& context : _contexts) {
@@ -290,12 +288,12 @@ pylith::topology::FieldQuery::closeDB() {
 // ----------------------------------------------------------------------
 // Generic query of values from spatial database.
 PetscErrorCode
-pylith::topology::FieldQuery::queryDBPointFn(pylith::integer dim,
-                                             pylith::real t,
-                                             const pylith::real x[],
-                                             pylith::integer nvalues,
-                                             pylith::scalar* values,
-                                             void* context) {
+pylith::topology::FieldQuery::queryPointFn(pylith::integer dim,
+                                           pylith::real t,
+                                           const pylith::real x[],
+                                           pylith::integer nvalues,
+                                           pylith::scalar* values,
+                                           void* context) {
     PYLITH_METHOD_BEGIN;
 
     assert(x);
@@ -375,72 +373,6 @@ pylith::topology::FieldQuery::queryDBPointFn(pylith::integer dim,
 
 
 // ----------------------------------------------------------------------
-std::string
-pylith::topology::FieldQuery::validatorPositive(const pylith::real value,
-                                                const pylith::real scale,
-                                                const pylith::real tolerance) {
-    std::string errorMsg;
-    if (value <= 0.0) {
-        errorMsg = std::string("Value must be positive.");
-    } else if ((scale > 0.0) && (tolerance > 0.0)) {
-        const pylith::real minValue = scale / tolerance;
-        const pylith::real maxValue = scale * tolerance;
-        if ((value < minValue) || (value > maxValue)) {
-            std::ostringstream msg;
-            msg << "Value outside range [" << minValue << ", " << maxValue << "] for nondimensionalization. "
-                << "You likely need to adjust the scales for nondimensionalization.";
-            errorMsg = msg.str();
-        } // if
-    } // if
-    return errorMsg;
-} // validatorPositive
-
-
-// ----------------------------------------------------------------------
-std::string
-pylith::topology::FieldQuery::validatorNonnegative(const pylith::real value,
-                                                   const pylith::real scale,
-                                                   const pylith::real tolerance) {
-    std::string errorMsg;
-    if (value < 0.0) {
-        errorMsg = std::string("Value must be non-negative.");
-    } else if ((value > 0) && (scale > 0.0) && (tolerance > 0)) {
-        const pylith::real minValue = scale / tolerance;
-        const pylith::real maxValue = scale * tolerance;
-        if ((value < minValue) || (value > maxValue)) {
-            std::ostringstream msg;
-            msg << "Value outside range [" << minValue << ", " << maxValue << "] for nondimensionalization. "
-                << "You likely need to adjust the scales for nondimensionalization.";
-            errorMsg = msg.str();
-        } // if
-    } // if/else
-
-    return errorMsg;
-} // validatorNonnegative
-
-
-// ----------------------------------------------------------------------
-std::string
-pylith::topology::FieldQuery::validatorScale(const pylith::real value,
-                                             const pylith::real scale,
-                                             const pylith::real tolerance) {
-    std::string errorMsg;
-    if ((scale > 0.0) && (tolerance > 0)) {
-        const pylith::real minValue = scale / tolerance;
-        const pylith::real maxValue = scale * tolerance;
-        if ((fabs(value) < minValue) || (fabs(value) > maxValue)) {
-            std::ostringstream msg;
-            msg << "Absolute value outside range [" << minValue << ", " << maxValue << "] for nondimensionalization. "
-                << "You likely need to adjust the scales for nondimensionalization.";
-            errorMsg = msg.str();
-        } // if
-    } // if/else
-
-    return errorMsg;
-} // validatorNonnegative
-
-
-// ----------------------------------------------------------------------
 // Find indices of spatial database values to use for subfield. Allocate buffer for query values.
 void
 pylith::topology::_FieldQuery::findQueryIndices(FieldQuery::DBQueryContext* context,
@@ -480,6 +412,72 @@ pylith::topology::_FieldQuery::findQueryIndices(FieldQuery::DBQueryContext* cont
 
     context->queryValues.resize(numDBValues);
 } // findQueryIndices
+
+
+// ----------------------------------------------------------------------
+std::string
+pylith::topology::FieldQuery::Validators::positive(const pylith::real value,
+                                                   const pylith::real scale,
+                                                   const pylith::real tolerance) {
+    std::string errorMsg;
+    if (value <= 0.0) {
+        errorMsg = std::string("Value must be positive.");
+    } else if ((scale > 0.0) && (tolerance > 0.0)) {
+        const pylith::real minValue = scale / tolerance;
+        const pylith::real maxValue = scale * tolerance;
+        if ((value < minValue) || (value > maxValue)) {
+            std::ostringstream msg;
+            msg << "Value outside range [" << minValue << ", " << maxValue << "] for nondimensionalization. "
+                << "You likely need to adjust the scales for nondimensionalization.";
+            errorMsg = msg.str();
+        } // if
+    } // if
+    return errorMsg;
+} // positive
+
+
+// ----------------------------------------------------------------------
+std::string
+pylith::topology::FieldQuery::Validators::nonnegative(const pylith::real value,
+                                                      const pylith::real scale,
+                                                      const pylith::real tolerance) {
+    std::string errorMsg;
+    if (value < 0.0) {
+        errorMsg = std::string("Value must be non-negative.");
+    } else if ((value > 0) && (scale > 0.0) && (tolerance > 0)) {
+        const pylith::real minValue = scale / tolerance;
+        const pylith::real maxValue = scale * tolerance;
+        if ((value < minValue) || (value > maxValue)) {
+            std::ostringstream msg;
+            msg << "Value outside range [" << minValue << ", " << maxValue << "] for nondimensionalization. "
+                << "You likely need to adjust the scales for nondimensionalization.";
+            errorMsg = msg.str();
+        } // if
+    } // if/else
+
+    return errorMsg;
+} // nonnegative
+
+
+// ----------------------------------------------------------------------
+std::string
+pylith::topology::FieldQuery::Validators::scale(const pylith::real value,
+                                                const pylith::real scale,
+                                                const pylith::real tolerance) {
+    std::string errorMsg;
+    if ((scale > 0.0) && (tolerance > 0)) {
+        const pylith::real minValue = scale / tolerance;
+        const pylith::real maxValue = scale * tolerance;
+        if ((fabs(value) < minValue) || (fabs(value) > maxValue)) {
+            std::ostringstream msg;
+            msg << "Absolute value outside range [" << minValue << ", " << maxValue << "] for nondimensionalization. "
+                << "You likely need to adjust the scales for nondimensionalization.";
+            errorMsg = msg.str();
+        } // if
+    } // if/else
+
+    return errorMsg;
+} // scale
 
 
 // End of file

@@ -21,7 +21,7 @@
 
 #include <memory> // HASA std::shared_ptr
 
-class pylith::problems::Physics : public pylith::utils::PyreComponent {
+class pylith::problems::Physics : public pylith::utils::PyreComponent, public std::enable_shared_from_this<Physics> {
     friend class TestPhysics; // unit testing
 
     // PUBLIC ENUM ////////////////////////////////////////////////////////////////////////////////
@@ -72,13 +72,13 @@ public:
 
     /** Set manager of scales used to nondimensionalize problem.
      *
-     * @param dim Nondimensionalizer.
+     * @param normalizer Nondimensionalizer.
      */
-    void setNormalizer(std::shared_ptr<spatialdata::units::Nondimensional>& dim);
+    void setNormalizer(const std::shared_ptr<spatialdata::units::Nondimensional>& normalizer);
 
     /** Get manager of scales used to nondimensionalize problem.
      *
-     * @param dim Nondimensionalizer.
+     * @returns Nondimensionalizer.
      */
     const spatialdata::units::Nondimensional& getNormalizer(void) const;
 
@@ -90,45 +90,17 @@ public:
 
     /** Set spatial database for populating auxiliary field.
      *
-     * @param[in] value Spatial database with iniital values for auxiliary field.
+     * @param[in] db Spatial database with initial values for auxiliary field.
      */
-    void setAuxiliaryFieldDB(std::shared_ptr<spatialdata::spatialdb::SpatialDB>& value);
+    void setAuxiliaryFieldDB(const std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db);
 
-    /** Set discretization information for auxiliary subfield.
+    /** Set discretization information for subfield.
      *
-     * @param[in] subfieldName Name of auxiliary subfield.
-     * @param[in] basisOrder Polynomial order for basis.
-     * @param[in] quadOrder Order of quadrature rule.
-     * @param[in] dimension Dimension of points for discretization.
-     * @param[in] cellBasis Type of basis functions to use (e.g., simplex, tensor, or default).
-     * @param[in] feSpace Finite-element space.
-     * @param[in] isBasisContinuous True if basis is continuous.
+     * @param[in] subfieldName Name of subfield.
+     * @param[in] discretization Discretization for subfield.
      */
-    void setAuxiliarySubfieldDiscretization(const char* subfieldName,
-                                            const int basisOrder,
-                                            const int quadOrder,
-                                            const int dimension,
-                                            const pylith::topology::FieldBase::CellBasis cellBasis,
-                                            const pylith::topology::FieldBase::SpaceEnum feSpace,
-                                            const bool isBasisContinuous);
-
-    /** Set discretization information for derived subfield.
-     *
-     * @param[in] subfieldName Name of auxiliary subfield.
-     * @param[in] basisOrder Polynomial order for basis.
-     * @param[in] quadOrder Order of quadrature rule.
-     * @param[in] dimension Dimension of points for discretization.
-     * @param[in] cellBasis Type of basis functions to use (e.g., simplex, tensor, or default).
-     * @param[in] feSpace Finite-element space.
-     * @param[in] isBasisContinuous True if basis is continuous.
-     */
-    void setDerivedSubfieldDiscretization(const char* subfieldName,
-                                          const int basisOrder,
-                                          const int quadOrder,
-                                          const int dimension,
-                                          const pylith::topology::FieldBase::CellBasis cellBasis,
-                                          const pylith::topology::FieldBase::SpaceEnum feSpace,
-                                          const bool isBasisContinuous);
+    void setSubfieldDiscretization(const char* subfieldName,
+                                   const pylith::topology::FieldBase::Discretization& discretization);
 
     /** Register observer to receive notifications.
      *
@@ -136,19 +108,19 @@ public:
      *
      * @param[in] observer Observer to receive notifications.
      */
-    void registerObserver(std::shared_ptr<pylith::problems::ObserverPhysics>& observer);
+    void registerObserver(const std::shared_ptr<pylith::problems::ObserverPhysics>& observer);
 
     /** Remove observer from receiving notifications.
      *
      * @param[in] observer Observer to remove.
      */
-    void removeObserver(std::shared_ptr<pylith::problems::ObserverPhysics>& observer);
+    void removeObserver(const std::shared_ptr<pylith::problems::ObserverPhysics>& observer);
 
     /** Get observers receiving notifications of physics updates.
      *
      * @returns Observers receiving notifications.
      */
-    pylith::problems::ObserversPhysics* getObservers(void);
+    const std::shared_ptr<pylith::problems::ObserversPhysics>& getObservers(void) const;
 
     /** Get constants used in kernels (point-wise functions).
      *
@@ -169,51 +141,51 @@ public:
     /** Create integrator and set kernels.
      *
      * @param[in] solution Solution field.
-     * @returns Integrator if applicable, otherwise NULL.
+     * @returns Integrator if applicable, otherwise nullptr.
      */
     virtual
-    pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution) = 0;
+    std::shared_ptr<pylith::feassemble::Integrator> createIntegrator(const pylith::topology::Field& solution) = 0;
 
     /** Create constraint and set kernels.
      *
      * @param[in] solution Solution field.
-     * @returns Constraints if applicable, otherwise NULL.
+     * @returns Constraints if applicable, otherwise nullptr.
      */
     virtual
-    std::vector<pylith::feassemble::Constraint*> createConstraints(const pylith::topology::Field& solution) = 0;
+    std::vector<std::shared_ptr<pylith::feassemble::Constraint> > createConstraints(const pylith::topology::Field& solution) = 0;
 
     /** Create auxiliary field.
      *
      * @param[in] solution Solution field.
      * @param[in] physicsMesh Finite-element mesh associated with physics.
      *
-     * @returns Auxiliary field if applicable, otherwise NULL.
+     * @returns Auxiliary field if applicable, otherwise nullptr.
      */
     virtual
-    pylith::topology::Field* createAuxiliaryField(const pylith::topology::Field& solution,
-                                                  const pylith::topology::Mesh& physicsMesh) = 0;
+    std::shared_ptr<pylith::topology::Field> createAuxiliaryField(const pylith::topology::Field& solution,
+                                                                  const pylith::topology::Mesh& physicsMesh) = 0;
 
     /** Create diagnostic field.
      *
      * @param[in] solution Solution field.
      * @param[in] physicsMesh Finite-element mesh associated with physics.
      *
-     * @returns Diagnostic field if applicable, otherwise NULL.
+     * @returns Diagnostic field if applicable, otherwise nullptr.
      */
     virtual
-    pylith::topology::Field* createDiagnosticField(const pylith::topology::Field& solution,
-                                                   const pylith::topology::Mesh& physicsMesh);
+    std::shared_ptr<pylith::topology::Field> createDiagnosticField(const pylith::topology::Field& solution,
+                                                                   const pylith::topology::Mesh& physicsMesh);
 
     /** Create derived field.
      *
      * @param[in] solution Solution field.
      * @param[in] physicsMesh Finite-element mesh associated with physics.
      *
-     * @returns Derived field if applicable, otherwise NULL.
+     * @returns Derived field if applicable, otherwise nullptr.
      */
     virtual
-    pylith::topology::Field* createDerivedField(const pylith::topology::Field& solution,
-                                                const pylith::topology::Mesh& physicsMesh);
+    std::shared_ptr<pylith::topology::Field> createDerivedField(const pylith::topology::Field& solution,
+                                                                const pylith::topology::Mesh& physicsMesh);
 
     /** Update time-dependent auxiliary field.
      *
@@ -221,7 +193,7 @@ public:
      * @param[in] t Current time.
      */
     virtual
-    void updateAuxiliaryField(pylith::topology::Field* auxiliaryField,
+    void updateAuxiliaryField(pylith::topology::Field* const auxiliaryField,
                               const double t);
 
     // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
@@ -244,6 +216,8 @@ protected:
     // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
 protected:
 
+    std::unique_ptr<pylith::topology::SubfieldFactory> _subfieldFactory; ///< Factory for creating subfields.
+    std::shared_ptr<spatialdata::spatialdb::SpatialDB> _auxiliaryFieldDB; ///< Database for populating auxiliary field.
     std::shared_ptr<spatialdata::units::Nondimensional> _normalizer; ///< Nondimensionalizer.
     FormulationEnum _formulation; ///< Formulation for equations.
     pylith::real_array _kernelConstants; ///< Constants used in finite-element kernels (point-wise functions).
@@ -252,14 +226,14 @@ protected:
 private:
 
     std::shared_ptr<pylith::problems::ObserversPhysics> _observers; ///< Subscribers of updates.
-    std::string _labelName; ///< Name of label in mesh for material.
-    int _labelValue; ///< Value of label in mesh for material.
+    std::string _labelName; ///< Name of label in mesh associated with physics.
+    pylith::integer _labelValue; ///< Value of label in mesh associated with physics.
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    Physics(const Physics&); ///< Not implemented.
-    const Physics& operator=(const Physics&); ///< Not implemented.
+    Physics(const Physics&) = delete;
+    const Physics& operator=(const Physics&) = delete;
 
 }; // Physics
 

@@ -19,14 +19,18 @@ class pylith::materials::Elasticity : public pylith::materials::Material {
     // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 
-    /// Default constructor.
-    Elasticity(void);
+    /** Factory for std::shared_ptr.
+     *
+     * @param[in] physics Physics implemented by constraint.
+     */
+    static
+    std::shared_ptr<Elasticity> create(void);
 
     /// Destructor.
-    ~Elasticity(void);
+    ~Elasticity(void) override;
 
     /// Deallocate PETSc and local data structures.
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Include body force?
      *
@@ -44,13 +48,7 @@ public:
      *
      * @param[in] rheology Bulk rheology for elasticity.
      */
-    void setBulkRheology(std::shared_ptr<pylith::materials::RheologyElasticity>& rheology);
-
-    /** Get bulk rheology.
-     *
-     * @returns Bulk rheology for elasticity.
-     */
-    pylith::materials::RheologyElasticity* getBulkRheology(void) const;
+    void setBulkRheology(const std::shared_ptr<pylith::materials::RheologyElasticity>& rheology);
 
     /** Verify configuration is acceptable.
      *
@@ -62,29 +60,29 @@ public:
      *
      * @param[in] solution Solution field.
      *
-     *  @returns Integrator if applicable, otherwise NULL.
+     *  @returns Integrator if applicable, otherwise nullptr.
      */
-    pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution) override;
+    std::shared_ptr<pylith::feassemble::Integrator> createIntegrator(const pylith::topology::Field& solution) override;
 
     /** Create auxiliary field.
      *
      * @param[in] solution Solution field.
      * @param[in\ domainMesh Finite-element mesh associated with integration domain.
      *
-     * @returns Auxiliary field if applicable, otherwise NULL.
+     * @returns Auxiliary field if applicable, otherwise nullptr.
      */
-    pylith::topology::Field* createAuxiliaryField(const pylith::topology::Field& solution,
-                                                  const pylith::topology::Mesh& domainMesh) override;
+    std::shared_ptr<pylith::topology::Field> createAuxiliaryField(const pylith::topology::Field& solution,
+                                                                  const pylith::topology::Mesh& domainMesh) override;
 
     /** Create derived field.
      *
      * @param[in] solution Solution field.
      * @param[in\ domainMesh Finite-element mesh associated with integration domain.
      *
-     * @returns Derived field if applicable, otherwise NULL.
+     * @returns Derived field if applicable, otherwise nullptr.
      */
-    pylith::topology::Field* createDerivedField(const pylith::topology::Field& solution,
-                                                const pylith::topology::Mesh& domainMesh) override;
+    std::shared_ptr<pylith::topology::Field> createDerivedField(const pylith::topology::Field& solution,
+                                                                const pylith::topology::Mesh& domainMesh) override;
 
     /** Get default PETSc solver options appropriate for material.
      *
@@ -92,8 +90,8 @@ public:
      * @param[in] hasFault True if problem has fault, False otherwise.
      * @returns PETSc solver options.
      */
-    pylith::utils::PetscOptions* getSolverDefaults(const bool isParallel,
-                                                   const bool hasFault) const override;
+    std::unique_ptr<pylith::utils::PetscOptions> getSolverDefaults(const bool isParallel,
+                                                                   const bool hasFault) const override;
 
     /** Get residual kernels for an interior interface bounding material.
      *
@@ -115,6 +113,9 @@ public:
 
     // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
 protected:
+
+    /// Default constructor.
+    Elasticity(void);
 
     /** Update kernel constants.
      *
@@ -166,8 +167,8 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    Elasticity(const Elasticity&); ///< Not implemented.
-    const Elasticity& operator=(const Elasticity&); /// Not implemented.
+    Elasticity(const Elasticity&) = delete;
+    const Elasticity& operator=(const Elasticity&) = delete;
 
 }; // class Elasticity
 

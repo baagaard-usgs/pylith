@@ -179,8 +179,8 @@ protected:
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    KinSrcRamp(const KinSrcRamp&); ///< Not implemented
-    const KinSrcRamp& operator=(const KinSrcRamp&); ///< Not implemented
+    KinSrcRamp(const KinSrcRamp&) = delete;
+    const KinSrcRamp& operator=(const KinSrcRamp&) = delete;
 
 }; // class KinSrcRamp
 

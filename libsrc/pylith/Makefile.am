@@ -27,14 +27,12 @@ lib_LTLIBRARIES = libpylith.la
 
 libpylith_la_SOURCES = \
 	bc/BoundaryCondition.cc \
-	bc/DiagnosticFieldFactory.cc \
-	bc/TimeDependentAuxiliaryFactory.cc \
+	bc/TimeDependentOps.cc \
 	bc/DirichletTimeDependent.cc \
-	bc/DirichletUserFn.cc \
+	bc/DirichletCxxFn.cc \
 	bc/NeumannTimeDependent.cc \
-	bc/NeumannUserFn.cc \
+	bc/NeumannCxxFn.cc \
 	bc/AbsorbingDampers.cc \
-	bc/AbsorbingDampersAuxiliaryFactory.cc \
 	faults/FaultCohesive.cc \
 	faults/FaultCohesiveKin.cc \
 	faults/FaultCohesiveImpulses.cc \
@@ -62,7 +60,7 @@ libpylith_la_SOURCES = \
 	feassemble/JacobianValues.cc \
 	feassemble/Constraint.cc \
 	feassemble/ConstraintSpatialDB.cc \
-	feassemble/ConstraintUserFn.cc \
+	feassemble/ConstraintCxxFn.cc \
 	feassemble/ConstraintSimple.cc \
 	feassemble/AuxiliaryFactory.cc \
 	fekernels/Tensor.cc \

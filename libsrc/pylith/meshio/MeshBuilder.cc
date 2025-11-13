@@ -15,7 +15,7 @@
 #include "pylith/topology/Mesh.hh" // USES Mesh
 #include "pylith/topology/MeshOps.hh" // USES MeshOps
 #include "pylith/topology/Stratum.hh" // USES Stratum
-#include "pylith/utils/array.hh" // USES scalar_array, int_array
+#include "pylith/utils/array.hh" // USES scalar_array, pylith::integer_array
 #include "pylith/utils/journals.hh" // USES PYLITH_JOURNAL*
 #include "pylith/utils/error.hh" // USES PYLITH_CHECK_ERROR
 #include "pylith/utils/EventLogger.hh" // USES EventLogger
@@ -36,33 +36,33 @@ public:
             static
             void getGroupNames(string_vector* names,
                                const pylith::topology::Mesh& mesh,
-                               const PetscInt pStart,
-                               const PetscInt pEnd,
+                               const pylith::integer pStart,
+                               const pylith::integer pEnd,
                                const bool exclusive);
 
             static
-            void faceFromCellSide(PetscInt* face,
-                                  const PetscInt cell,
-                                  const PetscInt side,
+            void faceFromCellSide(pylith::integer* face,
+                                  const pylith::integer cell,
+                                  const pylith::integer side,
                                   PetscDM dmMesh);
 
             static
-            void cellSideFromFace(PetscInt* cell,
-                                  PetscInt* side,
-                                  const PetscInt face,
+            void cellSideFromFace(pylith::integer* cell,
+                                  pylith::integer* side,
+                                  const pylith::integer face,
                                   PetscDM dmMesh);
 
             static
-            void faceFromCellVertices(PetscInt* face,
-                                      const PetscInt cell,
-                                      const PetscInt* faceVertices,
-                                      const PetscInt numFaceVertices,
+            void faceFromCellVertices(pylith::integer* face,
+                                      const pylith::integer cell,
+                                      const pylith::integer* faceVertices,
+                                      const pylith::integer numFaceVertices,
                                       PetscDM dmMesh);
 
             static
-            void cellVerticesFromFace(PetscInt* cell,
-                                      int_array* faceVertices,
-                                      const PetscInt face,
+            void cellVerticesFromFace(pylith::integer* cell,
+                                      pylith::integer_array* faceVertices,
+                                      const pylith::integer face,
                                       PetscDM dmMesh);
 
             class Events {
@@ -72,9 +72,9 @@ public:
                 void init(void);
 
                 static pylith::utils::EventLogger logger;
-                static PylithInt buildMesh;
-                static PylithInt setGroup;
-                static PylithInt setGroupAddPoints;
+                static pylith::integer buildMesh;
+                static pylith::integer setGroup;
+                static pylith::integer setGroupAddPoints;
 
                 static bool isInitialized;
             };
@@ -82,9 +82,9 @@ public:
     }
 }
 pylith::utils::EventLogger pylith::meshio::_MeshBuilder::Events::logger;
-PylithInt pylith::meshio::_MeshBuilder::Events::buildMesh;
-PylithInt pylith::meshio::_MeshBuilder::Events::setGroup;
-PylithInt pylith::meshio::_MeshBuilder::Events::setGroupAddPoints;
+pylith::integer pylith::meshio::_MeshBuilder::Events::buildMesh;
+pylith::integer pylith::meshio::_MeshBuilder::Events::setGroup;
+pylith::integer pylith::meshio::_MeshBuilder::Events::setGroupAddPoints;
 bool pylith::meshio::_MeshBuilder::Events::isInitialized = false;
 
 void
@@ -115,8 +115,8 @@ pylith::meshio::MeshBuilder::buildMesh(topology::Mesh* mesh,
 
     assert(mesh);
     MPI_Comm comm = mesh->getComm();
-    PetscInt dim = topology.dimension;
-    PetscErrorCode err;
+    pylith::integer dim = topology.dimension;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     { // Check to make sure every vertex is in at least one cell.
       // This is required by PETSc
@@ -139,8 +139,8 @@ pylith::meshio::MeshBuilder::buildMesh(topology::Mesh* mesh,
     } // check
 
     err = MPI_Bcast(&dim, 1, MPIU_INT, 0, comm);PYLITH_CHECK_ERROR(err);
-    const PetscInt bound = topology.numCells * topology.numCorners;
-    int_array cellsCopy(topology.cells); // Use copy because we reuse in testing.
+    const pylith::integer bound = topology.numCells * topology.numCorners;
+    pylith::integer_array cellsCopy(topology.cells); // Use copy because we reuse in testing.
     if (3 == topology.dimension) {
         DMPolytopeType ct;
         switch (topology.cellShape) {
@@ -149,12 +149,12 @@ pylith::meshio::MeshBuilder::buildMesh(topology::Mesh* mesh,
         default:
             PYLITH_JOURNAL_LOGICERROR("Unknown cell shape.");
         }
-        for (PetscInt coff = 0; coff < bound; coff += topology.numCorners) {
+        for (pylith::integer coff = 0; coff < bound; coff += topology.numCorners) {
             err = DMPlexInvertCell(ct, (int *) &cellsCopy[coff]);PYLITH_CHECK_ERROR(err);
         } // for
     } // if
 
-    PetscDM dmMesh = NULL;
+    PetscDM dmMesh = nullptr;
     PetscBool interpolate = PETSC_TRUE;
     err = DMPlexCreateFromCellListPetsc(comm, dim, topology.numCells, geometry.numVertices, topology.numCorners, interpolate, &cellsCopy[0], dim, &geometry.vertices[0], &dmMesh);PYLITH_CHECK_ERROR(err);
     mesh->setDM(dmMesh, "domain");
@@ -168,7 +168,7 @@ pylith::meshio::MeshBuilder::buildMesh(topology::Mesh* mesh,
 // Tag cells in mesh with material identifiers.
 void
 pylith::meshio::MeshBuilder::setMaterials(pylith::topology::Mesh* mesh,
-                                          const int_array& materialIds) {
+                                          const pylith::integer_array& materialIds) {
     PYLITH_METHOD_BEGIN;
     assert(mesh);
 
@@ -177,8 +177,8 @@ pylith::meshio::MeshBuilder::setMaterials(pylith::topology::Mesh* mesh,
     PetscErrorCode err = PETSC_SUCCESS;
     if (!mesh->getCommRank()) {
         pylith::topology::Stratum cellsStratum(dmMesh, topology::Stratum::HEIGHT, 0);
-        const PetscInt cStart = cellsStratum.begin();
-        const PetscInt cEnd = cellsStratum.end();
+        const pylith::integer cStart = cellsStratum.begin();
+        const pylith::integer cEnd = cellsStratum.end();
 
         if (size_t(cellsStratum.size()) != materialIds.size()) {
             std::ostringstream msg;
@@ -186,7 +186,7 @@ pylith::meshio::MeshBuilder::setMaterials(pylith::topology::Mesh* mesh,
                 << materialIds.size() << ") and number of cells in mesh ("<< (cEnd - cStart) << ").";
             throw std::runtime_error(msg.str());
         } // if
-        for (PetscInt c = cStart; c < cEnd; ++c) {
+        for (pylith::integer c = cStart; c < cEnd; ++c) {
             err = DMSetLabelValue(dmMesh, labelName, c, materialIds[c-cStart]);PYLITH_CHECK_ERROR(err);
         } // for
     } else {
@@ -202,7 +202,7 @@ pylith::meshio::MeshBuilder::setMaterials(pylith::topology::Mesh* mesh,
 void
 pylith::meshio::MeshBuilder::setVertexGroup(pylith::topology::Mesh* mesh,
                                             const char* name,
-                                            const int_array& points,
+                                            const pylith::integer_array& points,
                                             const int labelValue) {
     PYLITH_METHOD_BEGIN;
     _MeshBuilder::Events::init();
@@ -210,39 +210,41 @@ pylith::meshio::MeshBuilder::setVertexGroup(pylith::topology::Mesh* mesh,
     assert(mesh);
 
     PetscDM dmMesh = mesh->getDM();assert(dmMesh);
-    const PetscInt numPoints = points.size();
-    DMLabel dmLabel = PETSC_NULLPTR;
+    const pylith::integer numPoints = points.size();
+    DMLabel dmLabel = nullptr;
     PetscErrorCode err = PETSC_SUCCESS;
 
     err = DMCreateLabel(dmMesh, name);PYLITH_CHECK_ERROR(err);
     err = DMGetLabel(dmMesh, name, &dmLabel);PYLITH_CHECK_ERROR(err);
 
     pylith::topology::Stratum cellsStratum(dmMesh, pylith::topology::Stratum::HEIGHT, 0);
-    const PetscInt cStart = cellsStratum.begin();
-    const PetscInt cEnd = cellsStratum.end();
-    const PetscInt offset = cellsStratum.size();
+    const pylith::integer cStart = cellsStratum.begin();
+    const pylith::integer cEnd = cellsStratum.end();
+    const pylith::integer offset = cellsStratum.size();
 
     pylith::topology::Stratum verticesStratum(dmMesh, topology::Stratum::DEPTH, 0);
-    const PetscInt vStart = verticesStratum.begin();
-    const PetscInt vEnd = verticesStratum.end();
+    const pylith::integer vStart = verticesStratum.begin();
+    const pylith::integer vEnd = verticesStratum.end();
 
-    for (PetscInt p = 0; p < numPoints; ++p) {
+    for (pylith::integer p = 0; p < numPoints; ++p) {
         err = DMLabelSetValue(dmLabel, offset+points[p], labelValue);PYLITH_CHECK_ERROR(err);
     } // for
     // Also add any non-cells which have all vertices marked
-    for (PetscInt p = 0; p < numPoints; ++p) {
-        const PetscInt vertex = offset+points[p];
-        PetscInt      *star = NULL, starSize, s;
+    for (pylith::integer p = 0; p < numPoints; ++p) {
+        const pylith::integer vertex = offset+points[p];
+        pylith::integer* star = nullptr;
+        pylith::integer starSize;
 
         err = DMPlexGetTransitiveClosure(dmMesh, vertex, PETSC_FALSE, &starSize, &star);PYLITH_CHECK_ERROR(err);
-        for (s = 0; s < starSize*2; s += 2) {
-            const PetscInt point = star[s];
-            PetscInt      *closure = NULL, closureSize, c, value;
+        for (pylith::integer s = 0; s < starSize*2; s += 2) {
+            const pylith::integer point = star[s];
+            pylith::integer* closure = nullptr;
+            pylith::integer closureSize, value;
             PetscBool marked = PETSC_TRUE;
 
             if ((point >= cStart) && (point < cEnd)) { continue;}
             err = DMPlexGetTransitiveClosure(dmMesh, point, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
-            for (c = 0; c < closureSize*2; c += 2) {
+            for (pylith::integer c = 0; c < closureSize*2; c += 2) {
                 if ((closure[c] >= vStart) && (closure[c] < vEnd)) {
                     err = DMLabelGetValue(dmLabel, closure[c], &value);PYLITH_CHECK_ERROR(err);
                     if (value != 1) {marked = PETSC_FALSE;break;}
@@ -264,7 +266,7 @@ pylith::meshio::MeshBuilder::setVertexGroup(pylith::topology::Mesh* mesh,
 void
 pylith::meshio::MeshBuilder::setFaceGroupFromCellVertices(pylith::topology::Mesh* mesh,
                                                           const char* name,
-                                                          const int_array& faceValues,
+                                                          const pylith::integer_array& faceValues,
                                                           const shape_t faceShape,
                                                           const int labelValue) {
     PYLITH_METHOD_BEGIN;
@@ -276,19 +278,19 @@ pylith::meshio::MeshBuilder::setFaceGroupFromCellVertices(pylith::topology::Mesh
     const size_t numFaces = faceValues.size() / numFaceValues;
 
     PetscDM dmMesh = mesh->getDM();assert(dmMesh);
-    DMLabel dmLabel = PETSC_NULLPTR;
+    DMLabel dmLabel = nullptr;
     PetscErrorCode err = PETSC_SUCCESS;
     err = DMCreateLabel(dmMesh, name);PYLITH_CHECK_ERROR(err);
     err = DMGetLabel(dmMesh, name, &dmLabel);PYLITH_CHECK_ERROR(err);
 
     pylith::topology::Stratum cellsStratum(dmMesh, pylith::topology::Stratum::HEIGHT, 0);
-    const PetscInt offset = cellsStratum.size();
+    const pylith::integer offset = cellsStratum.size();
 
     for (size_t iFace = 0; iFace < numFaces; ++iFace) {
-        const PylithInt cell = faceValues[numFaceValues*iFace+0];
-        int_array faceVertices(&faceValues[numFaceValues*iFace+1], numFaceValues-1);
+        const pylith::integer cell = faceValues[numFaceValues*iFace+0];
+        pylith::integer_array faceVertices(&faceValues[numFaceValues*iFace+1], numFaceValues-1);
         faceVertices += offset;
-        PetscInt face = -1;
+        pylith::integer face = -1;
         _MeshBuilder::faceFromCellVertices(&face, cell, &faceVertices[0], numFaceValues-1, dmMesh);
         err = DMLabelSetValue(dmLabel, face, labelValue);PYLITH_CHECK_ERROR(err);
     } // for
@@ -302,7 +304,7 @@ pylith::meshio::MeshBuilder::setFaceGroupFromCellVertices(pylith::topology::Mesh
 void
 pylith::meshio::MeshBuilder::setFaceGroupFromCellSide(pylith::topology::Mesh* mesh,
                                                       const char* name,
-                                                      const int_array& faceValues,
+                                                      const pylith::integer_array& faceValues,
                                                       const int labelValue) {
     PYLITH_METHOD_BEGIN;
     assert(mesh);
@@ -312,15 +314,15 @@ pylith::meshio::MeshBuilder::setFaceGroupFromCellSide(pylith::topology::Mesh* me
     const size_t numFaces = faceValues.size() / numFaceValues;
 
     PetscDM dmMesh = mesh->getDM();assert(dmMesh);
-    DMLabel dmLabel = PETSC_NULLPTR;
+    DMLabel dmLabel = nullptr;
     PetscErrorCode err = PETSC_SUCCESS;
     err = DMCreateLabel(dmMesh, name);PYLITH_CHECK_ERROR(err);
     err = DMGetLabel(dmMesh, name, &dmLabel);PYLITH_CHECK_ERROR(err);
 
     for (size_t index = 0, iFace = 0; iFace < numFaces; ++iFace) {
-        const PylithInt cell = faceValues[index++];
-        const PylithInt side = faceValues[index++];
-        PetscInt face = -1;
+        const pylith::integer cell = faceValues[index++];
+        const pylith::integer side = faceValues[index++];
+        pylith::integer face = -1;
         _MeshBuilder::faceFromCellSide(&face, cell, side, dmMesh);
         err = DMLabelSetValue(dmLabel, face, labelValue);PYLITH_CHECK_ERROR(err);
     } // for
@@ -340,11 +342,11 @@ pylith::meshio::MeshBuilder::getVertices(Geometry* geometry,
     geometry->spaceDim = mesh.getDimension();
 
     PetscDM dmMesh = mesh.getDM();assert(dmMesh);
-    PetscVec coordVec = NULL;
-    PetscScalar* coordArray = NULL;
-    PetscInt coordSize = 0;
-    PylithScalar lengthScale = 1.0;
-    PetscErrorCode err = 0;
+    PetscVec coordVec = nullptr;
+    pylith::real* coordArray = nullptr;
+    pylith::integer coordSize = 0;
+    pylith::real lengthScale = 1.0;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     // Get length scale for dimensioning
     err = DMPlexGetScale(dmMesh, PETSC_UNIT_LENGTH, &lengthScale);
@@ -357,7 +359,7 @@ pylith::meshio::MeshBuilder::getVertices(Geometry* geometry,
     geometry->numVertices = coordSize / geometry->spaceDim;
 
     geometry->vertices.resize(coordSize);
-    for (PetscInt i = 0; i < coordSize; ++i) {
+    for (pylith::integer i = 0; i < coordSize; ++i) {
         geometry->vertices[i] = coordArray[i]*lengthScale;
     } // for
     err = VecRestoreArray(coordVec, &coordArray);PYLITH_CHECK_ERROR(err);
@@ -376,12 +378,12 @@ pylith::meshio::MeshBuilder::getCells(Topology* topology,
 
     PetscDM dmMesh = mesh.getDM();assert(dmMesh);
     topology::Stratum cellsStratum(dmMesh, topology::Stratum::HEIGHT, 0);
-    const PetscInt cStart = cellsStratum.begin();
-    const PetscInt cEnd = cellsStratum.end();
+    const pylith::integer cStart = cellsStratum.begin();
+    const pylith::integer cEnd = cellsStratum.end();
 
     topology::Stratum verticesStratum(dmMesh, topology::Stratum::DEPTH, 0);
-    const PetscInt vStart = verticesStratum.begin();
-    const PetscInt vEnd = verticesStratum.end();
+    const pylith::integer vStart = verticesStratum.begin();
+    const pylith::integer vEnd = verticesStratum.end();
 
     topology->dimension = mesh.getDimension();
     topology->numCells = pylith::topology::MeshOps::getNumCells(mesh);assert(topology->numCells > 0);
@@ -391,21 +393,21 @@ pylith::meshio::MeshBuilder::getCells(Topology* topology,
 
     topology->cells.resize(topology->numCells * topology->numCorners);
 
-    PetscIS globalVertexNumbers = NULL;
-    const PetscInt* gvertex = NULL;
-    PetscErrorCode err = 0;
+    PetscIS globalVertexNumbers = nullptr;
+    const pylith::integer* gvertex = nullptr;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     err = DMPlexGetVertexNumbering(dmMesh, &globalVertexNumbers);PYLITH_CHECK_ERROR(err);
     err = ISGetIndices(globalVertexNumbers, &gvertex);PYLITH_CHECK_ERROR(err);
-    for (PetscInt c = cStart, index = 0; c < cEnd; ++c) {
+    for (pylith::integer c = cStart, index = 0; c < cEnd; ++c) {
         DMPolytopeType ct;
-        PetscInt numCorners = 0, closureSize, *closure = NULL;
+        pylith::integer numCorners = 0, closureSize, *closure = nullptr;
 
         err = DMPlexGetCellType(dmMesh, c, &ct);PYLITH_CHECK_ERROR(err);
         err = DMPlexGetTransitiveClosure(dmMesh, c, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
-        for (PetscInt cl = 0; cl < closureSize*2; cl += 2) {
+        for (pylith::integer cl = 0; cl < closureSize*2; cl += 2) {
             if ((closure[cl] >= vStart) && (closure[cl] < vEnd)) {
-                const PetscInt gv = gvertex[closure[cl]-vStart];
+                const pylith::integer gv = gvertex[closure[cl]-vStart];
                 topology->cells[index++] = gv < 0 ? -(gv+1) : gv;
                 ++numCorners;
             }
@@ -423,21 +425,21 @@ pylith::meshio::MeshBuilder::getCells(Topology* topology,
 // ----------------------------------------------------------------------
 // Get material identifiers for cells.
 void
-pylith::meshio::MeshBuilder::getMaterials(int_array* materialIds,
+pylith::meshio::MeshBuilder::getMaterials(pylith::integer_array* materialIds,
                                           const pylith::topology::Mesh& mesh) {
     PYLITH_METHOD_BEGIN;
     assert(materialIds);
 
     PetscDM dmMesh = mesh.getDM();assert(dmMesh);
     pylith::topology::Stratum cellsStratum(dmMesh, topology::Stratum::HEIGHT, 0);
-    const PetscInt cStart = cellsStratum.begin();
-    const PetscInt cEnd = cellsStratum.end();
+    const pylith::integer cStart = cellsStratum.begin();
+    const pylith::integer cEnd = cellsStratum.end();
 
     materialIds->resize(cellsStratum.size());
     PetscErrorCode err = PETSC_SUCCESS;
-    PetscInt matId = 0;
+    pylith::integer matId = 0;
     const char* const labelName = pylith::topology::Mesh::cells_label_name;
-    for (PetscInt c = cStart, index = 0; c < cEnd; ++c) {
+    for (pylith::integer c = cStart, index = 0; c < cEnd; ++c) {
         err = DMGetLabelValue(dmMesh, labelName, c, &matId);PYLITH_CHECK_ERROR(err);
         (*materialIds)[index++] = matId;
     } // for
@@ -456,8 +458,8 @@ pylith::meshio::MeshBuilder::getVertexGroupNames(string_vector* names,
 
     PetscDM dmMesh = mesh.getDM();assert(dmMesh);
     pylith::topology::Stratum verticesStratum(dmMesh, topology::Stratum::DEPTH, 0);
-    const PetscInt vStart = verticesStratum.begin();
-    const PetscInt vEnd = verticesStratum.end();
+    const pylith::integer vStart = verticesStratum.begin();
+    const pylith::integer vEnd = verticesStratum.end();
     const bool exclusive = false;
     _MeshBuilder::getGroupNames(names, mesh, vStart, vEnd, exclusive);
 
@@ -475,8 +477,8 @@ pylith::meshio::MeshBuilder::getFaceGroupNames(string_vector* names,
 
     PetscDM dmMesh = mesh.getDM();assert(dmMesh);
     pylith::topology::Stratum facesStratum(dmMesh, topology::Stratum::HEIGHT, 1);
-    const PetscInt fStart = facesStratum.begin();
-    const PetscInt fEnd = facesStratum.end();
+    const pylith::integer fStart = facesStratum.begin();
+    const pylith::integer fEnd = facesStratum.end();
     const bool exclusive = true; // Ignore groups with points that are not faces
     _MeshBuilder::getGroupNames(names, mesh, fStart, fEnd, exclusive);
 
@@ -487,7 +489,7 @@ pylith::meshio::MeshBuilder::getFaceGroupNames(string_vector* names,
 // ------------------------------------------------------------------------------------------------
 // Get a face group as an array of points.
 void
-pylith::meshio::MeshBuilder::getVertexGroup(int_array* points,
+pylith::meshio::MeshBuilder::getVertexGroup(pylith::integer_array* points,
                                             const pylith::topology::Mesh& mesh,
                                             const char* name,
                                             const int labelValue) {
@@ -497,25 +499,25 @@ pylith::meshio::MeshBuilder::getVertexGroup(int_array* points,
 
     PetscDM dmMesh = mesh.getDM();assert(dmMesh);
     pylith::topology::Stratum cellsStratum(dmMesh, topology::Stratum::HEIGHT, 0);
-    const PetscInt numCells = cellsStratum.size();
+    const pylith::integer numCells = cellsStratum.size();
 
     pylith::topology::Stratum verticesStratum(dmMesh, topology::Stratum::DEPTH, 0);
-    const PetscInt vStart = verticesStratum.begin();
-    const PetscInt vEnd = verticesStratum.end();
+    const pylith::integer vStart = verticesStratum.begin();
+    const pylith::integer vEnd = verticesStratum.end();
 
     pylith::topology::StratumIS groupIS(dmMesh, name, labelValue);
-    const PetscInt* groupPoints = groupIS.points();
-    const PetscInt totalSize = groupIS.size();
-    const PetscInt offset = numCells;
+    const pylith::integer* groupPoints = groupIS.points();
+    const pylith::integer totalSize = groupIS.size();
+    const pylith::integer offset = numCells;
 
-    PetscInt numPoints = 0;
-    int_array buffer(totalSize);
-    for (PetscInt p = 0; p < totalSize; ++p) {
+    pylith::integer numPoints = 0;
+    pylith::integer_array buffer(totalSize);
+    for (pylith::integer p = 0; p < totalSize; ++p) {
         if (( groupPoints[p] >= vStart) && ( groupPoints[p] < vEnd) ) {
             buffer[numPoints++] = groupPoints[p]-offset;
         } // if
     } // for
-    *points = int_array(&buffer[0], numPoints);
+    *points = pylith::integer_array(&buffer[0], numPoints);
 
     PYLITH_METHOD_END;
 } // getVertexGroup
@@ -524,7 +526,7 @@ pylith::meshio::MeshBuilder::getVertexGroup(int_array* points,
 // ------------------------------------------------------------------------------------------------
 // Get a face group as an array of points.
 void
-pylith::meshio::MeshBuilder::getFaceGroup(int_array* points,
+pylith::meshio::MeshBuilder::getFaceGroup(pylith::integer_array* points,
                                           const pylith::topology::Mesh& mesh,
                                           const char* name,
                                           const int labelValue) {
@@ -534,40 +536,40 @@ pylith::meshio::MeshBuilder::getFaceGroup(int_array* points,
 
     PetscDM dmMesh = mesh.getDM();assert(dmMesh);
     pylith::topology::Stratum cellsStratum(dmMesh, pylith::topology::Stratum::HEIGHT, 0);
-    const PetscInt offset = cellsStratum.size();
+    const pylith::integer offset = cellsStratum.size();
 
     pylith::topology::Stratum facesStratum(dmMesh, pylith::topology::Stratum::HEIGHT, 1);
-    const PetscInt fStart = facesStratum.begin();
-    const PetscInt fEnd = facesStratum.end();
+    const pylith::integer fStart = facesStratum.begin();
+    const pylith::integer fEnd = facesStratum.end();
 
     pylith::topology::StratumIS groupIS(dmMesh, name, labelValue);
-    const PetscInt* groupPoints = groupIS.points();
-    const PetscInt totalSize = groupIS.size();
+    const pylith::integer* groupPoints = groupIS.points();
+    const pylith::integer totalSize = groupIS.size();
 
-    PetscInt numFaces = 0;
-    int_array buffer(totalSize);
-    for (PetscInt p = 0; p < totalSize; ++p) {
+    pylith::integer numFaces = 0;
+    pylith::integer_array buffer(totalSize);
+    for (pylith::integer p = 0; p < totalSize; ++p) {
         if (( groupPoints[p] >= fStart) && ( groupPoints[p] < fEnd) ) {
             buffer[numFaces++] = groupPoints[p];
         } // if
     } // for
-    int_array faces(&buffer[0], numFaces);
+    pylith::integer_array faces(&buffer[0], numFaces);
     groupIS.deallocate();
 
     // Convert face point to cell+vertices.
-    const PetscInt maxNumFaceVertices = 4;
+    const pylith::integer maxNumFaceVertices = 4;
     size_t index = 0;
     buffer.resize(numFaces*(1+maxNumFaceVertices));
-    for (PetscInt iFace = 0; iFace < numFaces; ++iFace) {
-        PetscInt cell;
-        int_array faceVertices;
+    for (pylith::integer iFace = 0; iFace < numFaces; ++iFace) {
+        pylith::integer cell;
+        pylith::integer_array faceVertices;
         _MeshBuilder::cellVerticesFromFace(&cell, &faceVertices, faces[iFace], dmMesh);
         buffer[index++] = cell;
-        for (PetscInt i = 0; i < faceVertices.size(); ++i) {
+        for (pylith::integer i = 0; i < faceVertices.size(); ++i) {
             buffer[index++] = faceVertices[i] - offset;
         } // for
     } // for
-    *points = int_array(&buffer[0], index);
+    *points = pylith::integer_array(&buffer[0], index);
 
     PYLITH_METHOD_END;
 } // getFaceGroup
@@ -637,14 +639,14 @@ pylith::meshio::MeshBuilder::getNumVerticesFace(const shape_t faceShape) {
 void
 pylith::meshio::_MeshBuilder::getGroupNames(string_vector* names,
                                             const pylith::topology::Mesh& mesh,
-                                            const PetscInt pStart,
-                                            const PetscInt pEnd,
+                                            const pylith::integer pStart,
+                                            const pylith::integer pEnd,
                                             const bool exclusive) {
     PYLITH_METHOD_BEGIN;
     assert(names);
 
     PetscDM dmMesh = mesh.getDM();assert(dmMesh);
-    PetscInt numLabels = 0;
+    pylith::integer numLabels = 0;
     PetscErrorCode err = PETSC_SUCCESS;
     err = DMGetNumLabels(dmMesh, &numLabels);PYLITH_CHECK_ERROR(err);
 
@@ -653,32 +655,32 @@ pylith::meshio::_MeshBuilder::getGroupNames(string_vector* names,
     size_t numNames = 0;
     names->resize(numLabels);
     for (int iLabel = 0; iLabel < numLabels; ++iLabel) {
-        const char* labelStr = NULL;
+        const char* labelStr = nullptr;
         err = DMGetLabelName(dmMesh, iLabel, &labelStr);PYLITH_CHECK_ERROR(err);
         const std::string labelName = std::string(labelStr);
 
         if ((labelName != std::string("depth"))
             && (labelName != std::string("celltype"))
             && (labelName != materialLabelName)) {
-            PetscDMLabel dmLabel = PETSC_NULLPTR;
+            PetscDMLabel dmLabel = nullptr;
             err = DMGetLabel(dmMesh, labelStr, &dmLabel);PYLITH_CHECK_ERROR(err);
-            PetscInt numLabelValues;
-            PetscIS labelValuesIS = PETSC_NULLPTR;
-            const PetscInt* labelValues = PETSC_NULLPTR;
+            pylith::integer numLabelValues;
+            PetscIS labelValuesIS = nullptr;
+            const pylith::integer* labelValues = nullptr;
             err = DMLabelGetNumValues(dmLabel, &numLabelValues);PYLITH_CHECK_ERROR(err); // assert(1 == numLabelValues);
             err = DMLabelGetValueIS(dmLabel, &labelValuesIS);PYLITH_CHECK_ERROR(err);assert(labelValuesIS);
             err = ISGetIndices(labelValuesIS, &labelValues);PYLITH_CHECK_ERROR(err);assert(labelValues);
-            const PetscInt labelValue = labelValues[0];
+            const pylith::integer labelValue = labelValues[0];
 
             err = ISRestoreIndices(labelValuesIS, &labelValues);PYLITH_CHECK_ERROR(err);
             err = ISDestroy(&labelValuesIS);PYLITH_CHECK_ERROR(err);
 
             pylith::topology::StratumIS pointIS(dmMesh, labelStr, labelValue);
-            const PetscInt* points = pointIS.points();
-            const PetscInt numPoints = pointIS.size();
+            const pylith::integer* points = pointIS.points();
+            const pylith::integer numPoints = pointIS.size();
             bool hasOtherPoints = false;
             bool foundPoint = false;
-            for (PetscInt iPoint = 0; iPoint < numPoints; ++iPoint) {
+            for (pylith::integer iPoint = 0; iPoint < numPoints; ++iPoint) {
                 if ((points[iPoint] >= pStart) && (points[iPoint] < pEnd) ) {
                     foundPoint = true;
                     if (!exclusive) {
@@ -704,9 +706,9 @@ pylith::meshio::_MeshBuilder::getGroupNames(string_vector* names,
 
 // ------------------------------------------------------------------------------------------------
 void
-pylith::meshio::_MeshBuilder::faceFromCellSide(PetscInt* face,
-                                               const PetscInt cell,
-                                               const PetscInt side,
+pylith::meshio::_MeshBuilder::faceFromCellSide(pylith::integer* face,
+                                               const pylith::integer cell,
+                                               const pylith::integer side,
                                                PetscDM dmMesh) {
     PYLITH_METHOD_BEGIN;
     assert(face);
@@ -716,8 +718,8 @@ pylith::meshio::_MeshBuilder::faceFromCellSide(PetscInt* face,
     DMPolytopeType cellType;
     err = DMPlexGetCellType(dmMesh, cell, &cellType);PYLITH_CHECK_ERROR(err);
 
-    const PetscInt* cone = NULL;
-    PetscInt coneSize = 0;
+    const pylith::integer* cone = nullptr;
+    pylith::integer coneSize = 0;
     err = DMPlexGetCone(dmMesh, cell, &cone);PYLITH_CHECK_ERROR(err);
     err = DMPlexGetConeSize(dmMesh, cell, &coneSize);PYLITH_CHECK_ERROR(err);
     if ((side < 0) || (side >= coneSize)) {
@@ -725,7 +727,7 @@ pylith::meshio::_MeshBuilder::faceFromCellSide(PetscInt* face,
         msg << "Cell side '" << side << "' must be in [0, " << coneSize << ").";
         throw std::runtime_error(msg.str());
     } // if
-    PetscInt coneIndex = -1;
+    pylith::integer coneIndex = -1;
     switch (cellType) {
     case DM_POLYTOPE_TRIANGLE: {
         // side: 0=bottom, 1=right, 2=left
@@ -776,22 +778,22 @@ pylith::meshio::_MeshBuilder::faceFromCellSide(PetscInt* face,
 
 // ------------------------------------------------------------------------------------------------
 void
-pylith::meshio::_MeshBuilder::faceFromCellVertices(PetscInt* face,
-                                                   const PetscInt cell,
-                                                   const PetscInt* faceVertices,
-                                                   const PetscInt numFaceVertices,
+pylith::meshio::_MeshBuilder::faceFromCellVertices(pylith::integer* face,
+                                                   const pylith::integer cell,
+                                                   const pylith::integer* faceVertices,
+                                                   const pylith::integer numFaceVertices,
                                                    PetscDM dmMesh) {
     PYLITH_METHOD_BEGIN;
     assert(face);
 
     PetscErrorCode err = PETSC_SUCCESS;
-    PetscInt numFaces = 0;
-    const PetscInt* faces = PETSC_NULLPTR;
+    pylith::integer numFaces = 0;
+    const pylith::integer* faces = nullptr;
     err = DMPlexGetFullJoin(dmMesh, numFaceVertices, faceVertices, &numFaces, &faces);PYLITH_CHECK_ERROR(err);
     if (numFaces > 1) {
         std::ostringstream msg;
         msg << "Found multiple faces corresponding to vertices";
-        for (PetscInt i = 0; i < numFaceVertices; ++i) {
+        for (pylith::integer i = 0; i < numFaceVertices; ++i) {
             msg << " " << faceVertices[i];
         } // for
         msg << " in cell " << cell << ".";
@@ -800,7 +802,7 @@ pylith::meshio::_MeshBuilder::faceFromCellVertices(PetscInt* face,
     } else if (0 == numFaces) {
         std::ostringstream msg;
         msg << "Could not find face corresponding to vertices";
-        for (PetscInt i = 0; i < numFaceVertices; ++i) {
+        for (pylith::integer i = 0; i < numFaceVertices; ++i) {
             msg << " " << faceVertices[i];
         } // for
         msg << " in cell " << cell << ".";
@@ -816,15 +818,15 @@ pylith::meshio::_MeshBuilder::faceFromCellVertices(PetscInt* face,
 
 // ------------------------------------------------------------------------------------------------
 void
-pylith::meshio::_MeshBuilder::cellVerticesFromFace(PetscInt* cell,
-                                                   pylith::int_array* faceVertices,
-                                                   const PetscInt face,
+pylith::meshio::_MeshBuilder::cellVerticesFromFace(pylith::integer* cell,
+                                                   pylith::integer_array* faceVertices,
+                                                   const pylith::integer face,
                                                    PetscDM dmMesh) {
     PYLITH_METHOD_BEGIN;
 
     PetscErrorCode err = PETSC_SUCCESS;
-    const PetscInt* support = NULL;
-    PetscInt supportSize = 0;
+    const pylith::integer* support = nullptr;
+    pylith::integer supportSize = 0;
     err = DMPlexGetSupport(dmMesh, face, &support);PYLITH_CHECK_ERROR(err);
     err = DMPlexGetSupportSize(dmMesh, face, &supportSize);PYLITH_CHECK_ERROR(err);
     if (!supportSize || !support) {
@@ -833,21 +835,21 @@ pylith::meshio::_MeshBuilder::cellVerticesFromFace(PetscInt* cell,
     *cell = support[0];
 
     pylith::topology::Stratum verticesStratum(dmMesh, pylith::topology::Stratum::DEPTH, 0);
-    const PetscInt vBegin = verticesStratum.begin();
-    const PetscInt vEnd = verticesStratum.end();
+    const pylith::integer vBegin = verticesStratum.begin();
+    const pylith::integer vEnd = verticesStratum.end();
 
-    PetscInt closureSize = 0;
-    PetscInt* closure = PETSC_NULLPTR;
+    pylith::integer closureSize = 0;
+    pylith::integer* closure = nullptr;
     err = DMPlexGetTransitiveClosure(dmMesh, face, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
-    int_array buffer(closureSize);
+    pylith::integer_array buffer(closureSize);
     size_t numFaceVertices = 0;
-    for (PetscInt iClosure = 0; iClosure < closureSize*2; iClosure += 2) {
+    for (pylith::integer iClosure = 0; iClosure < closureSize*2; iClosure += 2) {
         if ((closure[iClosure] >= vBegin) && (closure[iClosure] < vEnd)) {
             buffer[numFaceVertices++] = closure[iClosure];
         } // if
     } // for
     err = DMPlexRestoreTransitiveClosure(dmMesh, face, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
-    *faceVertices = int_array(&buffer[0], numFaceVertices);
+    *faceVertices = pylith::integer_array(&buffer[0], numFaceVertices);
 
     PYLITH_METHOD_END;
 } // cellVerticesFromFace

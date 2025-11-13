@@ -69,8 +69,8 @@ public:
 // ------------------------------------------------------------------------------------------------
 // Default constructor.
 pylith::faults::FaultCohesiveKin::FaultCohesiveKin(void) :
-    _slipVecRupture(NULL),
-    _slipVecTotal(NULL) {
+    _slipVecRupture(nullptr),
+    _slipVecTotal(nullptr) {
     pylith::utils::PyreComponent::setName(_FaultCohesiveKin::pyreComponent);
 } // constructor
 
@@ -126,7 +126,7 @@ pylith::faults::FaultCohesiveKin::setEqRuptures(const char* const * names,
 void
 pylith::faults::FaultCohesiveKin::verifyConfiguration(const pylith::topology::Field& solution) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("verifyConfiguration(solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("verifyConfiguration(solution="<<solution.getName()<<")");
 
     // Verify solution contains required fields.
     std::string reason = "interface 'FaultCohesiveKin'.";
@@ -164,17 +164,17 @@ pylith::topology::Field*
 pylith::faults::FaultCohesiveKin::createAuxiliaryField(const pylith::topology::Field& solution,
                                                        const pylith::topology::Mesh& domainMesh) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createAuxiliaryField(solution="<<solution.getLabel()<<", domainMesh=)"<<typeid(domainMesh).name()<<")");
+    PYLITH_COMPONENT_DEBUG("createAuxiliaryField(solution="<<solution.getName()<<", domainMesh=)"<<typeid(domainMesh).name()<<")");
 
     assert(_normalizer);
 
     pylith::topology::Field* auxiliaryField = new pylith::topology::Field(domainMesh);assert(auxiliaryField);
-    auxiliaryField->setLabel("auxiliary field");
+    auxiliaryField->setName("auxiliary field");
 
     // Set default discretization of auxiliary subfields to match lagrange_multiplier_fault subfield in solution.
     assert(_auxiliaryFactory);
     const pylith::topology::FieldBase::Discretization& discretization = solution.getSubfieldInfo("lagrange_multiplier_fault").fe;
-    const PylithInt dimension = -1;
+    const pylith::integer dimension = -1;
     const bool isFaultOnly = false;
     _auxiliaryFactory->setSubfieldDiscretization("default", discretization.basisOrder, discretization.quadOrder, dimension,
                                                  isFaultOnly, discretization.cellBasis, discretization.feSpace,
@@ -220,7 +220,7 @@ pylith::faults::FaultCohesiveKin::createAuxiliaryField(const pylith::topology::F
     } // for
 
     // Create local PETSc vector to hold current slip.
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     err = DMCreateLocalVector(auxiliaryField->getDM(), &_slipVecRupture);PYLITH_CHECK_ERROR(err);
     err = DMCreateLocalVector(auxiliaryField->getDM(), &_slipVecTotal);PYLITH_CHECK_ERROR(err);
 
@@ -284,10 +284,10 @@ pylith::faults::FaultCohesiveKin::_updateSlip(pylith::topology::Field* auxiliary
     } // for
 
     // Transfer slip values from local PETSc slip vector to fault auxiliary field.
-    PetscInt pStart = 0, pEnd = 0;
+    pylith::integer pStart = 0, pEnd = 0;
     err = PetscSectionGetChart(auxiliaryField->getLocalSection(), &pStart, &pEnd);PYLITH_CHECK_ERROR(err);
-    PetscInt subfieldIndices[3];
-    PetscInt numSubfields = 0;
+    pylith::integer subfieldIndices[3];
+    pylith::integer numSubfields = 0;
     if (bitSlipSubfields & KinSrc::GET_SLIP) {
         subfieldIndices[numSubfields++] = auxiliaryField->getSubfieldInfo("slip").index;
     } // if
@@ -301,15 +301,15 @@ pylith::faults::FaultCohesiveKin::_updateSlip(pylith::topology::Field* auxiliary
     pylith::topology::VecVisitorMesh auxiliaryVisitor(*auxiliaryField);
     PylithScalar* auxiliaryArray = auxiliaryVisitor.localArray();
 
-    const PylithScalar* slipArray = NULL;
+    const PylithScalar* slipArray = nullptr;
     err = VecGetArrayRead(_slipVecTotal, &slipArray);PYLITH_CHECK_ERROR(err);
 
-    for (PetscInt point = pStart, iSlip = 0; point < pEnd; ++point) {
-        for (PetscInt iSubfield = 0; iSubfield < numSubfields; ++iSubfield) {
-            const PetscInt subfieldIndex = subfieldIndices[iSubfield];
-            const PetscInt subfieldDof = auxiliaryVisitor.sectionSubfieldDof(subfieldIndex, point);
-            const PetscInt subfieldOff = auxiliaryVisitor.sectionSubfieldOffset(subfieldIndex, point);
-            for (PetscInt iDof = 0; iDof < subfieldDof; ++iDof, ++iSlip) {
+    for (pylith::integer point = pStart, iSlip = 0; point < pEnd; ++point) {
+        for (pylith::integer iSubfield = 0; iSubfield < numSubfields; ++iSubfield) {
+            const pylith::integer subfieldIndex = subfieldIndices[iSubfield];
+            const pylith::integer subfieldDof = auxiliaryVisitor.sectionSubfieldDof(subfieldIndex, point);
+            const pylith::integer subfieldOff = auxiliaryVisitor.sectionSubfieldOffset(subfieldIndex, point);
+            for (pylith::integer iDof = 0; iDof < subfieldDof; ++iDof, ++iSlip) {
                 auxiliaryArray[subfieldOff+iDof] = slipArray[iSlip];
             } // for
         } // for
@@ -332,7 +332,7 @@ pylith::faults::FaultCohesiveKin::_setKernelsResidual(pylith::feassemble::Integr
                                                       const pylith::topology::Field& solution,
                                                       const std::vector<pylith::materials::Material*>& materials) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("_setKernelsResidual(integrator="<<integrator<<", solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("_setKernelsResidual(integrator="<<integrator<<", solution="<<solution.getName()<<")");
     typedef pylith::feassemble::IntegratorInterface integrator_t;
 
     std::vector<ResidualKernels> kernels;
@@ -340,15 +340,15 @@ pylith::faults::FaultCohesiveKin::_setKernelsResidual(pylith::feassemble::Integr
     case pylith::problems::Physics::QUASISTATIC: {
         // Elasticity equation (displacement) for negative side of the fault.
         const PetscBdPointFunc f0u_neg = pylith::fekernels::FaultCohesiveKin::f0u_neg;
-        const PetscBdPointFunc f1u_neg = NULL;
+        const PetscBdPointFunc f1u_neg = nullptr;
 
         // Elasticity equation (displacement) for positive side of the fault.
         const PetscBdPointFunc f0u_pos = pylith::fekernels::FaultCohesiveKin::f0u_pos;
-        const PetscBdPointFunc f1u_pos = NULL;
+        const PetscBdPointFunc f1u_pos = nullptr;
 
         // Fault slip constraint equation.
         const PetscBdPointFunc f0l = pylith::fekernels::FaultCohesiveKin::f0l_slip;
-        const PetscBdPointFunc f1l = NULL;
+        const PetscBdPointFunc f1l = nullptr;
 
         kernels.resize(3);
         kernels[0] = ResidualKernels("displacement", integrator_t::LHS, integrator_t::NEGATIVE_FACE,
@@ -363,19 +363,19 @@ pylith::faults::FaultCohesiveKin::_setKernelsResidual(pylith::feassemble::Integr
     case pylith::problems::Physics::DYNAMIC_IMEX: {
         // Elasticity equation (displacement) for negative side of the fault.
         const PetscBdPointFunc g0v_neg = pylith::fekernels::FaultCohesiveKin::f0u_neg;
-        const PetscBdPointFunc g1v_neg = NULL;
+        const PetscBdPointFunc g1v_neg = nullptr;
 
         // Elasticity equation (displacement) for positive side of the fault.
         const PetscBdPointFunc g0v_pos = pylith::fekernels::FaultCohesiveKin::f0u_pos;
-        const PetscBdPointFunc g1v_pos = NULL;
+        const PetscBdPointFunc g1v_pos = nullptr;
 
         // Fault slip constraint equation.
         const PetscBdPointFunc f0l_slip = pylith::fekernels::FaultCohesiveKin::f0l_slip;
-        const PetscBdPointFunc f1l_slip = NULL;
+        const PetscBdPointFunc f1l_slip = nullptr;
 
         // Fault DAE equation.
         const PetscBdPointFunc f0l_dae = pylith::fekernels::FaultCohesiveKin::f0l_slipAcc;
-        const PetscBdPointFunc f1l_dae = NULL;
+        const PetscBdPointFunc f1l_dae = nullptr;
 
         kernels.resize(4);
         kernels[0] = ResidualKernels("velocity", integrator_t::LHS, integrator_t::NEGATIVE_FACE, g0v_neg, g1v_neg);
@@ -404,26 +404,26 @@ pylith::faults::FaultCohesiveKin::_setKernelsJacobian(pylith::feassemble::Integr
                                                       const pylith::topology::Field& solution,
                                                       const std::vector<pylith::materials::Material*>& materials) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("_setKernelsJacobian(integrator="<<integrator<<", solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("_setKernelsJacobian(integrator="<<integrator<<", solution="<<solution.getName()<<")");
     typedef pylith::feassemble::IntegratorInterface integrator_t;
 
     std::vector<JacobianKernels> kernels;
     switch (_formulation) {
     case QUASISTATIC: {
         const PetscBdPointJac Jf0ul_neg = pylith::fekernels::FaultCohesiveKin::Jf0ul_neg;
-        const PetscBdPointJac Jf1ul_neg = NULL;
-        const PetscBdPointJac Jf2ul_neg = NULL;
-        const PetscBdPointJac Jf3ul_neg = NULL;
+        const PetscBdPointJac Jf1ul_neg = nullptr;
+        const PetscBdPointJac Jf2ul_neg = nullptr;
+        const PetscBdPointJac Jf3ul_neg = nullptr;
 
         const PetscBdPointJac Jf0ul_pos = pylith::fekernels::FaultCohesiveKin::Jf0ul_pos;
-        const PetscBdPointJac Jf1ul_pos = NULL;
-        const PetscBdPointJac Jf2ul_pos = NULL;
-        const PetscBdPointJac Jf3ul_pos = NULL;
+        const PetscBdPointJac Jf1ul_pos = nullptr;
+        const PetscBdPointJac Jf2ul_pos = nullptr;
+        const PetscBdPointJac Jf3ul_pos = nullptr;
 
         const PetscBdPointJac Jf0lu = pylith::fekernels::FaultCohesiveKin::Jf0lu;
-        const PetscBdPointJac Jf1lu = NULL;
-        const PetscBdPointJac Jf2lu = NULL;
-        const PetscBdPointJac Jf3lu = NULL;
+        const PetscBdPointJac Jf1lu = nullptr;
+        const PetscBdPointJac Jf2lu = nullptr;
+        const PetscBdPointJac Jf3lu = nullptr;
 
         kernels.resize(3);
         const char* nameDisplacement = "displacement";
@@ -438,9 +438,9 @@ pylith::faults::FaultCohesiveKin::_setKernelsJacobian(pylith::feassemble::Integr
     } // QUASISTATIC
     case pylith::problems::Physics::DYNAMIC_IMEX: {
         const PetscBdPointJac Jf0lu = pylith::fekernels::FaultCohesiveKin::Jf0lu;
-        const PetscBdPointJac Jf1lu = NULL;
-        const PetscBdPointJac Jf2lu = NULL;
-        const PetscBdPointJac Jf3lu = NULL;
+        const PetscBdPointJac Jf1lu = nullptr;
+        const PetscBdPointJac Jf2lu = nullptr;
+        const PetscBdPointJac Jf3lu = nullptr;
 
         kernels.resize(1);
         const char* nameDisplacement = "displacement";
@@ -468,7 +468,7 @@ void
 pylith::faults::FaultCohesiveKin::_setKernelsDerivedField(pylith::feassemble::IntegratorInterface* integrator,
                                                           const topology::Field& solution) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("_setKernelsDerivedField(integrator="<<integrator<<", solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("_setKernelsDerivedField(integrator="<<integrator<<", solution="<<solution.getName()<<")");
 
     const spatialdata::geocoords::CoordSys* coordsys = solution.getMesh().getCoordSys();
     assert(coordsys);

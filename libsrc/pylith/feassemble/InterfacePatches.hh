@@ -79,8 +79,8 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    InterfacePatches(const InterfacePatches&); ///< Not implemented
-    const InterfacePatches& operator=(const InterfacePatches&); ///< Not implemented
+    InterfacePatches(const InterfacePatches&) = delete;
+    const InterfacePatches& operator=(const InterfacePatches&) = delete;
 
 }; // class InterfacePatches
 

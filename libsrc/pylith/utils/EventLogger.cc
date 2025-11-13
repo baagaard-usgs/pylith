@@ -34,7 +34,7 @@ pylith::utils::EventLogger::~EventLogger(void) {}
 // Setup logging class.
 void
 pylith::utils::EventLogger::initialize(void) {
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     PYLITH_METHOD_BEGIN;
 

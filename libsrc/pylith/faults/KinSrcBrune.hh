@@ -176,8 +176,8 @@ protected:
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    KinSrcBrune(const KinSrcBrune&); ///< Not implemented
-    const KinSrcBrune& operator=(const KinSrcBrune&); ///< Not implemented
+    KinSrcBrune(const KinSrcBrune&) = delete;
+    const KinSrcBrune& operator=(const KinSrcBrune&) = delete;
 
 }; // class KinSrcBrune
 

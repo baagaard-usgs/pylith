@@ -92,10 +92,10 @@ public:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    Query(void); ///< Not implemented
-    ~Query(void); ///< Not implemented
-    Query(const Query&); ///< Not implemented
-    const Query& operator=(const Query&); ///< Not implemented
+    Query(void) = delete;
+    ~Query(void) = delete;
+    Query(const Query&) = delete;
+    const Query& operator=(const Query&) = delete;
 
 }; // Query
 

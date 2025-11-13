@@ -74,7 +74,7 @@ pylith::problems::TestProgressMonitor::TestProgressMonitor(void) {
 // ------------------------------------------------------------------------------------------------
 // Destructor.
 pylith::problems::TestProgressMonitor::~TestProgressMonitor(void) {
-    delete _monitor;_monitor = NULL;
+    delete _monitor;_monitor = nullptr;
 } // tearDown
 
 

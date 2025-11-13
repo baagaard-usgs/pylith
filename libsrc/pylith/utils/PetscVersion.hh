@@ -78,8 +78,8 @@ public:
     // PRIVATE METHODS //////////////////////////////////////////////////////
 private:
 
-    PetscVersion(const PetscVersion&); ///< Not implemented
-    const PetscVersion& operator=(const PetscVersion&); ///< Not implemented
+    PetscVersion(const PetscVersion&) = delete;
+    const PetscVersion& operator=(const PetscVersion&) = delete;
 
     // PRIVATE MEMBERS //////////////////////////////////////////////////////
 private:

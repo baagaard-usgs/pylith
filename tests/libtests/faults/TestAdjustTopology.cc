@@ -20,7 +20,7 @@
 #include "pylith/topology/CoordsVisitor.hh" // USES CoordsVisitor
 #include "pylith/faults/TopologyOps.hh" // USES TopologyOps
 
-#include "pylith/utils/array.hh" // USES int_array, scalar_array
+#include "pylith/utils/array.hh" // USES pylith::integer_array, scalar_array
 #include "pylith/utils/journals.hh" // USES journals
 #include "pylith/meshio/MeshIOAscii.hh" // USES MeshIOAscii
 
@@ -94,46 +94,46 @@ pylith::faults::TestAdjustTopology::run(void) {
 
     // Check vertices
     topology::Stratum verticesStratum(dmMesh, topology::Stratum::DEPTH, 0);
-    const PetscInt vStart = verticesStratum.begin();
-    const PetscInt vEnd = verticesStratum.end();
+    const pylith::integer vStart = verticesStratum.begin();
+    const pylith::integer vEnd = verticesStratum.end();
     REQUIRE(_data->numVertices == size_t(verticesStratum.size()));
 
     topology::CoordsVisitor coordsVisitor(dmMesh);
-    const PetscInt spaceDim = _data->spaceDim;
+    const pylith::integer spaceDim = _data->spaceDim;
 
-    for (PetscInt v = vStart; v < vEnd; ++v) {
+    for (pylith::integer v = vStart; v < vEnd; ++v) {
         REQUIRE(spaceDim == coordsVisitor.sectionDof(v));
     } // for
 
     // check cells
     assert(_data->numCorners);
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     pylith::topology::Stratum cellsStratum(dmMesh, pylith::topology::Stratum::HEIGHT, 0);
-    const PetscInt cStart = cellsStratum.begin();
-    const PetscInt cEnd = cellsStratum.end();
+    const pylith::integer cStart = cellsStratum.begin();
+    const pylith::integer cEnd = cellsStratum.end();
     REQUIRE(_data->numCells == size_t(cellsStratum.size()));
-    for (PetscInt c = cStart, cell = 0; c < cEnd; ++c, ++cell) {
-        PetscInt coneSize = 0;
+    for (pylith::integer c = cStart, cell = 0; c < cEnd; ++c, ++cell) {
+        pylith::integer coneSize = 0;
         err = DMPlexGetConeSize(dmMesh, c, &coneSize);PYLITH_CHECK_ERROR(err);
         REQUIRE(_data->numCorners[cell] == coneSize);
     } // for
 
     // check materials
-    PetscDMLabel labelMaterials = NULL;
+    PetscDMLabel labelMaterials = nullptr;
     const char* const cellsLabelName = pylith::topology::Mesh::cells_label_name;
     err = DMGetLabel(dmMesh, cellsLabelName, &labelMaterials);PYLITH_CHECK_ERROR(err);
     assert(labelMaterials);
-    const PetscInt idDefault = -999;
-    for (PetscInt c = cStart, cell = 0; c < cEnd; ++c, ++cell) {
-        PetscInt labelValue;
+    const pylith::integer idDefault = -999;
+    for (pylith::integer c = cStart, cell = 0; c < cEnd; ++c, ++cell) {
+        pylith::integer labelValue;
 
         err = DMLabelGetValue(labelMaterials, c, &labelValue);PYLITH_CHECK_ERROR(err);
         if (labelValue == -1) {
             labelValue = idDefault;
         } // if
         double centroid[3] = {0.0, 0.0, 0.0};
-        err = DMPlexComputeCellGeometryFVM(dmMesh, c, NULL, centroid, NULL);PYLITH_CHECK_ERROR(err);
-        const PetscInt labelValueE = _data->getMatId(c, _data->numNoncohesiveCells, centroid);
+        err = DMPlexComputeCellGeometryFVM(dmMesh, c, nullptr, centroid, nullptr);PYLITH_CHECK_ERROR(err);
+        const pylith::integer labelValueE = _data->getMatId(c, _data->numNoncohesiveCells, centroid);
         INFO("cell="<<c<<" with centroid ("<<centroid[0]<<","<<centroid[1]<<","<<centroid[2]<<")");
         CHECK(labelValueE == labelValue);
     } // for
@@ -142,14 +142,14 @@ pylith::faults::TestAdjustTopology::run(void) {
     assert(_data->groupSizes);
     assert(_data->groupNames);
     assert(_data->groupTypes);
-    PetscInt numLabels;
+    pylith::integer numLabels;
     err = DMGetNumLabels(dmMesh, &numLabels);PYLITH_CHECK_ERROR(err);
-    for (PetscInt iLabel = 0; iLabel < numLabels; ++iLabel) {
-        PetscDMLabel label = NULL;
-        PetscIS pointIS = NULL;
-        const PetscInt *points = NULL;
-        PetscInt numPoints = 0, depth = 0;
-        const char *labelName = NULL;
+    for (pylith::integer iLabel = 0; iLabel < numLabels; ++iLabel) {
+        PetscDMLabel label = nullptr;
+        PetscIS pointIS = nullptr;
+        const pylith::integer *points = nullptr;
+        pylith::integer numPoints = 0, depth = 0;
+        const char *labelName = nullptr;
         std::set<std::string> ignoreLabels;
         ignoreLabels.insert("depth");
         ignoreLabels.insert(pylith::topology::Mesh::cells_label_name);
@@ -230,26 +230,26 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
 
     // Check vertices
     topology::Stratum verticesStratum(dmMesh, topology::Stratum::DEPTH, 0);
-    const PetscInt vStart = verticesStratum.begin();
-    const PetscInt vEnd = verticesStratum.end();
+    const pylith::integer vStart = verticesStratum.begin();
+    const pylith::integer vEnd = verticesStratum.end();
     REQUIRE(_data->numVertices == size_t(verticesStratum.size()));
 
     topology::CoordsVisitor coordsVisitor(dmMesh);
-    const PetscInt spaceDim = _data->spaceDim;
+    const pylith::integer spaceDim = _data->spaceDim;
 
-    for (PetscInt v = vStart; v < vEnd; ++v) {
+    for (pylith::integer v = vStart; v < vEnd; ++v) {
         CHECK(spaceDim == coordsVisitor.sectionDof(v));
     } // for
 
     // check cells
     assert(_data->numCorners);
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     pylith::topology::Stratum cellsStratum(dmMesh, pylith::topology::Stratum::HEIGHT, 0);
-    const PetscInt cStart = cellsStratum.begin();
-    const PetscInt cEnd = cellsStratum.end();
+    const pylith::integer cStart = cellsStratum.begin();
+    const pylith::integer cEnd = cellsStratum.end();
     REQUIRE(_data->numCells == size_t(cellsStratum.size()));
-    for (PetscInt c = cStart, cell = 0; c < cEnd; ++c, ++cell) {
-        PetscInt coneSize = 0;
+    for (pylith::integer c = cStart, cell = 0; c < cEnd; ++c, ++cell) {
+        pylith::integer coneSize = 0;
         err = DMPlexGetConeSize(dmMesh, c, &coneSize);PYLITH_CHECK_ERROR(err);
         INFO("cell="<<cell);
         CHECK(_data->numCorners[cell] == coneSize);
@@ -257,21 +257,21 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
 
     // check materials
     assert(_data->getMatId);
-    PetscDMLabel labelMaterials = NULL;
+    PetscDMLabel labelMaterials = nullptr;
     const char* const cellsLabelName = pylith::topology::Mesh::cells_label_name;
     err = DMGetLabel(dmMesh, cellsLabelName, &labelMaterials);PYLITH_CHECK_ERROR(err);
     assert(labelMaterials);
-    const PetscInt idDefault = -999;
-    for (PetscInt c = cStart, cell = 0; c < cEnd; ++c, ++cell) {
-        PetscInt labelValue;
+    const pylith::integer idDefault = -999;
+    for (pylith::integer c = cStart, cell = 0; c < cEnd; ++c, ++cell) {
+        pylith::integer labelValue;
 
         err = DMLabelGetValue(labelMaterials, c, &labelValue);PYLITH_CHECK_ERROR(err);
         if (labelValue == -1) {
             labelValue = idDefault;
         } // if
         double centroid[3];
-        err = DMPlexComputeCellGeometryFVM(dmMesh, c, NULL, centroid, NULL);PYLITH_CHECK_ERROR(err);
-        const PetscInt labelValueE = _data->getMatId(c, _data->numNoncohesiveCells, centroid);
+        err = DMPlexComputeCellGeometryFVM(dmMesh, c, nullptr, centroid, nullptr);PYLITH_CHECK_ERROR(err);
+        const pylith::integer labelValueE = _data->getMatId(c, _data->numNoncohesiveCells, centroid);
         INFO("cell="<<c<<" with centroid ("<<centroid[0]<<","<<centroid[1]<<","<<centroid[2]<<")");
         CHECK(labelValueE == labelValue);
     } // for
@@ -280,14 +280,14 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
     assert(_data->groupSizes);
     assert(_data->groupNames);
     assert(_data->groupTypes);
-    PetscInt numLabels;
+    pylith::integer numLabels;
     err = DMGetNumLabels(dmMesh, &numLabels);PYLITH_CHECK_ERROR(err);
-    for (PetscInt iLabel = 0; iLabel < numLabels; ++iLabel) {
-        PetscDMLabel label = NULL;
-        PetscIS pointIS = NULL;
-        const PetscInt *points = NULL;
-        PetscInt numPoints = 0, depth = 0;
-        const char *labelName = NULL;
+    for (pylith::integer iLabel = 0; iLabel < numLabels; ++iLabel) {
+        PetscDMLabel label = nullptr;
+        PetscIS pointIS = nullptr;
+        const pylith::integer *points = nullptr;
+        pylith::integer numPoints = 0, depth = 0;
+        const char *labelName = nullptr;
         std::set<std::string> ignoreLabels;
         ignoreLabels.insert("depth");
         ignoreLabels.insert(pylith::topology::Mesh::cells_label_name);
@@ -348,22 +348,22 @@ pylith::faults::TestAdjustTopology::_initialize(void) {
 // ------------------------------------------------------------------------------------------------
 // Constructor
 pylith::faults::TestAdjustTopology_Data::TestAdjustTopology_Data(void) :
-    filename(NULL),
+    filename(nullptr),
     numFaults(0),
-    faultSurfaceLabels(NULL),
-    faultEdgeLabels(NULL),
-    interfaceIds(NULL),
+    faultSurfaceLabels(nullptr),
+    faultEdgeLabels(nullptr),
+    interfaceIds(nullptr),
     cellDim(0),
     spaceDim(0),
     numVertices(0),
     numCells(0),
     numNoncohesiveCells(0),
-    numCorners(NULL),
-    getMatId(NULL),
+    numCorners(nullptr),
+    getMatId(nullptr),
     numGroups(0),
-    groupSizes(NULL),
-    groupNames(NULL),
-    groupTypes(NULL),
+    groupSizes(nullptr),
+    groupNames(nullptr),
+    groupTypes(nullptr),
     failureExpected(false) {}
 
 

@@ -74,24 +74,24 @@ pylith::faults::TestFaultCohesive::testAccessors(void) {
     CHECK(edgeValue == fault.getBuriedEdgesLabelValue());
 
     const int dim = 3;
-    const PylithReal default1[3] = { 0.0, 0.0, 1.0 };
+    const pylith::real default1[3] = { 0.0, 0.0, 1.0 };
     for (int i = 0; i < dim; ++i) {
         CHECK(default1[i] == fault._refDir1[i]);
     } // for
 
     const double tolerance = 1.0e-6;
 
-    const PylithReal dir1[3] = { 0.0, 2.0, -1.0 };
+    const pylith::real dir1[3] = { 0.0, 2.0, -1.0 };
     fault.setRefDir1(dir1);
     for (int i = 0; i < dim; ++i) {
         CHECK_THAT(fault._refDir1[i], Catch::Matchers::WithinAbs(dir1[i]/sqrt(2*2+1*1), tolerance));
     } // for
 
-    const PylithReal default2[3] = { 0.0, 1.0, 0.0 };
+    const pylith::real default2[3] = { 0.0, 1.0, 0.0 };
     for (int i = 0; i < dim; ++i) {
         CHECK_THAT(fault._refDir2[i], Catch::Matchers::WithinAbs(default2[i], tolerance));
     } // for
-    const PylithReal dir2[3] = { 2.0, 1.0, 2.0 };
+    const pylith::real dir2[3] = { 2.0, 1.0, 2.0 };
     fault.setRefDir2(dir2);
     for (int i = 0; i < dim; ++i) {
         CHECK_THAT(fault._refDir2[i], Catch::Matchers::WithinAbs(dir2[i]/sqrt(2*2+1*1+2*2), tolerance));

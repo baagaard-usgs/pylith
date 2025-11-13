@@ -112,8 +112,8 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    IsotropicPowerLaw(const IsotropicPowerLaw&); ///< Not implemented.
-    const IsotropicPowerLaw& operator=(const IsotropicPowerLaw&); ///< Not implemented
+    IsotropicPowerLaw(const IsotropicPowerLaw&) = delete;
+    const IsotropicPowerLaw& operator=(const IsotropicPowerLaw&) = delete;
 
 }; // class IsotropicPowerLaw
 

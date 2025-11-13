@@ -38,7 +38,7 @@ public:
 
 private:
 
-    TwoFaultsShearNoSlip(void); ///< Not implemented
+    TwoFaultsShearNoSlip(void) = delete;
 }; // TwoFaultsShearNoSlip
 
 // End of file

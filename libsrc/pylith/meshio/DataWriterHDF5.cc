@@ -36,7 +36,7 @@
 #define PYLITH_HDF5_USE_API_18
 #endif
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Constructor
 pylith::meshio::DataWriterHDF5::DataWriterHDF5(void) :
     _filename("output.h5"),
@@ -47,14 +47,14 @@ pylith::meshio::DataWriterHDF5::DataWriterHDF5(void) :
 } // constructor
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Destructor
 pylith::meshio::DataWriterHDF5::~DataWriterHDF5(void) {
     deallocate();
 } // destructor
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Deallocate PETSc and local data structures.
 void
 pylith::meshio::DataWriterHDF5::deallocate(void) {
@@ -62,7 +62,7 @@ pylith::meshio::DataWriterHDF5::deallocate(void) {
 
     DataWriter::deallocate();
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     err = PetscViewerDestroy(&_viewer);PYLITH_CHECK_ERROR(err);assert(!_viewer);
     err = VecDestroy(&_tstamp);PYLITH_CHECK_ERROR(err);assert(!_tstamp);
 
@@ -70,17 +70,15 @@ pylith::meshio::DataWriterHDF5::deallocate(void) {
 } // deallocate
 
 
-// ---------------------------------------------------------------------------------------------------------------------
-// Copy constructor.
-pylith::meshio::DataWriterHDF5::DataWriterHDF5(const DataWriterHDF5& w) :
-    DataWriter(w),
-    _filename(w._filename),
-    _viewer(0),
-    _tstamp(0),
-    _tstampIndex(0) {}
+// ------------------------------------------------------------------------------------------------
+// Set filename for HDF5 file.
+void
+pylith::meshio::DataWriterHDF5::setFilename(const char* filename) {
+    _filename = filename;
+}
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Prepare file for data at a new time step.
 void
 pylith::meshio::DataWriterHDF5::open(const pylith::topology::Mesh& mesh,
@@ -90,17 +88,16 @@ pylith::meshio::DataWriterHDF5::open(const pylith::topology::Mesh& mesh,
     DataWriter::open(mesh, isInfo);
 
     try {
-        PetscErrorCode err = 0;
-
         deallocate();
 
-        const std::string& filename = hdf5Filename();
+        PetscErrorCode err = PETSC_SUCCESS;
+        const std::string& filename = getHDF5Filename();
 
         _timesteps.clear();
         _tstampIndex = 0;
-        PetscMPIInt commRank;
+        PetscMPIInt commRank = 0;
         err = MPI_Comm_rank(mesh.getComm(), &commRank);PYLITH_CHECK_ERROR(err);
-        const int localSize = (!commRank) ? 1 : 0;
+        const pylith::integer localSize = (!commRank) ? 1 : 0;
         err = VecCreateMPI(mesh.getComm(), localSize, 1, &_tstamp);PYLITH_CHECK_ERROR(err);assert(_tstamp);
         err = VecSetBlockSize(_tstamp, 1);PYLITH_CHECK_ERROR(err);
         err = PetscObjectSetName((PetscObject) _tstamp, "time");PYLITH_CHECK_ERROR(err);
@@ -113,11 +110,11 @@ pylith::meshio::DataWriterHDF5::open(const pylith::topology::Mesh& mesh,
 
     } catch (const std::exception& err) {
         std::ostringstream msg;
-        msg << "Error while opening HDF5 file " << hdf5Filename() << ".\n" << err.what();
+        msg << "Error while opening HDF5 file " << getHDF5Filename() << ".\n" << err.what();
         throw std::runtime_error(msg.str());
     } catch (...) {
         std::ostringstream msg;
-        msg << "Unknown error while opening HDF5 file " << hdf5Filename() << ".";
+        msg << "Unknown error while opening HDF5 file " << getHDF5Filename() << ".";
         throw std::runtime_error(msg.str());
     } // try/catch
 
@@ -125,13 +122,13 @@ pylith::meshio::DataWriterHDF5::open(const pylith::topology::Mesh& mesh,
 } // open
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Close output files.
 void
 pylith::meshio::DataWriterHDF5::close(void) {
     PYLITH_METHOD_BEGIN;
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     err = PetscViewerDestroy(&_viewer);PYLITH_CHECK_ERROR(err);assert(!_viewer);
     err = VecDestroy(&_tstamp);PYLITH_CHECK_ERROR(err);assert(!_tstamp);
 
@@ -144,7 +141,7 @@ pylith::meshio::DataWriterHDF5::close(void) {
         err = MPI_Comm_rank(PETSC_COMM_WORLD, &commRank);PYLITH_CHECK_ERROR(err);
         if (!commRank) {
             try {
-                Xdmf::write(hdf5Filename().c_str());
+                Xdmf::write(getHDF5Filename().c_str());
             } catch (const std::exception& err) {
                 pythia::journal::error_t error("datawriter");
                 error << err.what() << pythia::journal::endl;
@@ -158,17 +155,17 @@ pylith::meshio::DataWriterHDF5::close(void) {
 } // close
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Write field over vertices to file.
 void
-pylith::meshio::DataWriterHDF5::writeVertexField(const PylithScalar t,
+pylith::meshio::DataWriterHDF5::writeVertexField(const pylith::real t,
                                                  const pylith::meshio::OutputSubfield& subfield) {
     PYLITH_METHOD_BEGIN;
     assert(_viewer);
 
     const char* name = subfield.getDescription().label.c_str();
     try {
-        PetscErrorCode err;
+        PetscErrorCode err = PETSC_SUCCESS;
 
         if (_timesteps.find(name) == _timesteps.end()) {
             _timesteps[name] = 0;
@@ -206,13 +203,13 @@ pylith::meshio::DataWriterHDF5::writeVertexField(const PylithScalar t,
     } catch (const std::exception& err) {
         std::ostringstream msg;
         msg << "Error while writing field '" << name << "' at time "
-            << t << " to HDF5 file '" << hdf5Filename() << "'.\n" << err.what();
+            << t << " to HDF5 file '" << getHDF5Filename() << "'.\n" << err.what();
         throw std::runtime_error(msg.str());
 
     } catch (...) {
         std::ostringstream msg;
         msg << "Error while writing field '" << name << "' at time "
-            << t << " to HDF5 file '" << hdf5Filename() << "'.";
+            << t << " to HDF5 file '" << getHDF5Filename() << "'.";
         throw std::runtime_error(msg.str());
     } // try/catch
 
@@ -220,10 +217,10 @@ pylith::meshio::DataWriterHDF5::writeVertexField(const PylithScalar t,
 } // writeVertexField
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Write field over cells to file.
 void
-pylith::meshio::DataWriterHDF5::writeCellField(const PylithScalar t,
+pylith::meshio::DataWriterHDF5::writeCellField(const pylith::real t,
                                                const pylith::meshio::OutputSubfield& subfield) {
     PYLITH_METHOD_BEGIN;
 
@@ -231,7 +228,7 @@ pylith::meshio::DataWriterHDF5::writeCellField(const PylithScalar t,
 
     const char* name = subfield.getDescription().label.c_str();
     try {
-        PetscErrorCode err;
+        PetscErrorCode err = PETSC_SUCCESS;
 
         if (_timesteps.find(name) == _timesteps.end()) {
             _timesteps[name] = 0;
@@ -267,12 +264,12 @@ pylith::meshio::DataWriterHDF5::writeCellField(const PylithScalar t,
     } catch (const std::exception& err) {
         std::ostringstream msg;
         msg << "Error while writing field '" << name << "' at time "
-            << t << " to HDF5 file '" << hdf5Filename() << "'.\n" << err.what();
+            << t << " to HDF5 file '" << getHDF5Filename() << "'.\n" << err.what();
         throw std::runtime_error(msg.str());
     } catch (...) {
         std::ostringstream msg;
         msg << "Error while writing field '" << name << "' at time "
-            << t << " to HDF5 file '" << hdf5Filename() << "'.";
+            << t << " to HDF5 file '" << getHDF5Filename() << "'.";
         throw std::runtime_error(msg.str());
     } // try/catch
 
@@ -280,7 +277,7 @@ pylith::meshio::DataWriterHDF5::writeCellField(const PylithScalar t,
 } // writeCellField
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Write dataset with names of points to file.
 void
 pylith::meshio::DataWriterHDF5::writePointNames(const pylith::string_vector& names,
@@ -289,40 +286,40 @@ pylith::meshio::DataWriterHDF5::writePointNames(const pylith::string_vector& nam
 
     assert(_viewer);
 
-    char* namesFixedLength = NULL;
+    char* namesFixedLength = nullptr;
     try {
         // Put station names into array of fixed length strings
         // (numNames*maxStringLegnth) on each process, and then write
         // collectively.
-        int mpierr;
+        int mpiError;
         MPI_Comm comm = mesh.getComm();
         const int commRank = mesh.getCommRank();
         int nprocs = 0;
-        mpierr = MPI_Comm_size(comm, &nprocs);assert(MPI_SUCCESS == mpierr);
+        mpiError = MPI_Comm_size(comm, &nprocs);assert(MPI_SUCCESS == mpiError);
 
         // Number of names on each process.
-        const int numNamesLocal = names.size();
-        int_array numNamesArray(nprocs);
+        const size_t numNamesLocal = names.size();
+        pylith::integer_array numNamesArray(nprocs);
         // Use void* for compatibility with OpenMPI 1.3 on Travis-CI
-        mpierr = MPI_Allgather((void*)&numNamesLocal, 1, MPI_INT, &numNamesArray[0], 1, MPI_INT, comm);assert(MPI_SUCCESS == mpierr);
-        const int numNames = numNamesArray.sum();
+        mpiError = MPI_Allgather((void*)&numNamesLocal, 1, MPI_INT, &numNamesArray[0], 1, MPI_INT, comm);assert(MPI_SUCCESS == mpiError);
+        const size_t numNames = numNamesArray.sum();
 
         // Get maximum string length.
-        int maxStringLengthLocal = 0;
-        int maxStringLength = 0;
-        for (int i = 0; i < numNamesLocal; ++i) {
-            maxStringLengthLocal = std::max(maxStringLengthLocal, int(names[i].length()));
+        size_t maxStringLengthLocal = 0;
+        size_t maxStringLength = 0;
+        for (size_t i = 0; i < numNamesLocal; ++i) {
+            maxStringLengthLocal = std::max(maxStringLengthLocal, size_t(names[i].length()));
         } // for
         maxStringLengthLocal += 1; // add space for null terminator.
-        mpierr = MPI_Allreduce(&maxStringLengthLocal, &maxStringLength, 1, MPI_INT, MPI_MAX, comm);assert(MPI_SUCCESS == mpierr);
+        mpiError = MPI_Allreduce(&maxStringLengthLocal, &maxStringLength, 1, MPI_INT, MPI_MAX, comm);assert(MPI_SUCCESS == mpiError);
 
-        namesFixedLength = (numNamesLocal*maxStringLength > 0) ? new char[numNamesLocal*maxStringLength] : NULL;
-        for (int i = 0; i < numNamesLocal; ++i) {
-            const int index = i*maxStringLength;
+        namesFixedLength = (numNamesLocal*maxStringLength > 0) ? new char[numNamesLocal*maxStringLength] : nullptr;
+        for (size_t i = 0; i < numNamesLocal; ++i) {
+            const size_t index = i*maxStringLength;
             strncpy(&namesFixedLength[index], names[i].c_str(), maxStringLength-1);
             namesFixedLength[index+maxStringLength-1] = '\0';
             // Fill remaining portion of string with null characters.
-            for (int j = names[i].length(); j < maxStringLength; ++j) {
+            for (size_t j = names[i].length(); j < maxStringLength; ++j) {
                 namesFixedLength[index+j] = '\0';
             } // for
         } // for
@@ -350,7 +347,7 @@ pylith::meshio::DataWriterHDF5::writePointNames(const pylith::string_vector& nam
         const int ndims = 1;
         hsize_t dims[ndims];
         dims[0] = numNames;
-        hid_t filespace = H5Screate_simple(ndims, dims, NULL);
+        hid_t filespace = H5Screate_simple(ndims, dims, nullptr);
         if (filespace < 0) { throw std::runtime_error("Could not create filespace.");}
 
 #if defined(PYLITH_HDF5_USE_API_18)
@@ -364,7 +361,7 @@ pylith::meshio::DataWriterHDF5::writePointNames(const pylith::string_vector& nam
 
         // Create the memspace
         dims[0] = numNamesLocal;
-        hid_t memspace = H5Screate_simple(ndims, dims, NULL);
+        hid_t memspace = H5Screate_simple(ndims, dims, nullptr);
         if (memspace < 0) {throw std::runtime_error("Could not create memspace.");}
 
         hid_t dataspace = H5Dget_space(dataset);
@@ -375,7 +372,7 @@ pylith::meshio::DataWriterHDF5::writePointNames(const pylith::string_vector& nam
         } // for
         hsize_t count[1];
         count[0] = numNamesLocal;
-        err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
+        err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
         if (err < 0) {throw std::runtime_error("Could not select hyperslab.");}
 
         hid_t property = H5Pcreate(H5P_DATASET_XFER);
@@ -401,18 +398,18 @@ pylith::meshio::DataWriterHDF5::writePointNames(const pylith::string_vector& nam
         err = H5Gclose(group);
         if (err < 0) {throw std::runtime_error("Could not close group.");}
 
-        delete[] namesFixedLength;namesFixedLength = NULL;
+        delete[] namesFixedLength;namesFixedLength = nullptr;
     } catch (const std::exception& err) {
-        delete[] namesFixedLength;namesFixedLength = NULL;
+        delete[] namesFixedLength;namesFixedLength = nullptr;
 
         std::ostringstream msg;
-        msg << "Error while writing stations to HDF5 file '" << hdf5Filename() << "'.\n" << err.what();
+        msg << "Error while writing stations to HDF5 file '" << getHDF5Filename() << "'.\n" << err.what();
         throw std::runtime_error(msg.str());
     } catch (...) {
-        delete[] namesFixedLength;namesFixedLength = NULL;
+        delete[] namesFixedLength;namesFixedLength = nullptr;
 
         std::ostringstream msg;
-        msg << "Error while writing stations to HDF5 file '" << hdf5Filename() << "'.";
+        msg << "Error while writing stations to HDF5 file '" << getHDF5Filename() << "'.";
         throw std::runtime_error(msg.str());
     } // try/catch
 
@@ -420,10 +417,10 @@ pylith::meshio::DataWriterHDF5::writePointNames(const pylith::string_vector& nam
 } // writePointNames
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Generate filename for HDF5 file.
 std::string
-pylith::meshio::DataWriterHDF5::hdf5Filename(void) const {
+pylith::meshio::DataWriterHDF5::getHDF5Filename(void) const {
     PYLITH_METHOD_BEGIN;
 
     std::ostringstream filename;
@@ -438,16 +435,16 @@ pylith::meshio::DataWriterHDF5::hdf5Filename(void) const {
 } // hdf5Filename
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Write time stamp to file.
 void
-pylith::meshio::DataWriterHDF5::_writeTimeStamp(const PylithScalar t,
+pylith::meshio::DataWriterHDF5::_writeTimeStamp(const pylith::real t,
                                                 const int commRank) {
     assert(_tstamp);
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     if (!commRank) {
-        const PylithScalar tDim = t * DataWriter::_timeScale;
+        const pylith::real tDim = t * DataWriter::_timeScale;
         err = VecSetValue(_tstamp, 0, tDim, INSERT_VALUES);PYLITH_CHECK_ERROR(err);
     } // if
     err = VecAssemblyBegin(_tstamp);PYLITH_CHECK_ERROR(err);

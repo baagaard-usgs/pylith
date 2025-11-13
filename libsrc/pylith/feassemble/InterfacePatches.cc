@@ -31,11 +31,11 @@ namespace pylith {
             inline
             PetscWeakForm
             getCellWeakForm(PetscDM dm,
-                            const PetscInt cell) {
-                PetscErrorCode err = 0;
-                PetscDS ds = NULL;
-                err = DMGetCellDS(dm, cell, &ds, NULL);PYLITH_CHECK_ERROR(err);
-                PetscWeakForm weakForm = NULL;
+                            const pylith::integer cell) {
+                PetscErrorCode err = PETSC_SUCCESS;
+                PetscDS ds = nullptr;
+                err = DMGetCellDS(dm, cell, &ds, nullptr);PYLITH_CHECK_ERROR(err);
+                PetscWeakForm weakForm = nullptr;
                 err = PetscDSGetWeakForm(ds, &weakForm);PYLITH_CHECK_ERROR(err);
                 return weakForm;
             } // getCellWeakForm
@@ -88,22 +88,22 @@ pylith::feassemble::InterfacePatches::createMaterialPairs(const pylith::faults::
     PetscErrorCode err = DMCreateLabel(dmSoln, patchLabelName.c_str());PYLITH_CHECK_ERROR(err);
 
     std::map<std::pair<int,int>, int> integrationPatches;
-    PylithInt patchLabelValue = 0;
+    pylith::integer patchLabelValue = 0;
 
-    PetscIS cohesiveCellsIS = NULL;
-    PylithInt numCohesiveCells = 0;
-    const PylithInt* cohesiveCells = NULL;
+    PetscIS cohesiveCellsIS = nullptr;
+    pylith::integer numCohesiveCells = 0;
+    const pylith::integer* cohesiveCells = nullptr;
     err = DMGetStratumIS(dmSoln, cellsLabelName, fault->getCohesiveLabelValue(), &cohesiveCellsIS);PYLITH_CHECK_ERROR(err);
     if (!cohesiveCellsIS) {PYLITH_METHOD_RETURN(patches);}
     err = ISGetSize(cohesiveCellsIS, &numCohesiveCells);PYLITH_CHECK_ERROR(err);assert(numCohesiveCells > 0);
     err = ISGetIndices(cohesiveCellsIS, &cohesiveCells);PYLITH_CHECK_ERROR(err);assert(cohesiveCells);
 
-    for (PylithInt iCohesive = 0; iCohesive < numCohesiveCells; ++iCohesive) {
-        const PetscInt cohesiveCell = cohesiveCells[iCohesive];
+    for (pylith::integer iCohesive = 0; iCohesive < numCohesiveCells; ++iCohesive) {
+        const pylith::integer cohesiveCell = cohesiveCells[iCohesive];
         assert(pylith::topology::MeshOps::isCohesiveCell(dmSoln, cohesiveCell));
 
-        PetscInt adjacentCellNegative = -1;
-        PetscInt adjacentCellPositive = -1;
+        pylith::integer adjacentCellNegative = -1;
+        pylith::integer adjacentCellPositive = -1;
         pylith::faults::TopologyOps::getAdjacentCells(&adjacentCellNegative, &adjacentCellPositive, dmSoln, cohesiveCell);
         assert(adjacentCellNegative >= 0);
         assert(adjacentCellPositive >= 0);
@@ -127,13 +127,13 @@ pylith::feassemble::InterfacePatches::createMaterialPairs(const pylith::faults::
 
             // Create keys
             WeakFormKeys weakFormKeys;
-            pylith::feassemble::FEKernelKey* key = NULL;
+            pylith::feassemble::FEKernelKey* key = nullptr;
             key = pylith::feassemble::FEKernelKey::create(weakFormCohesive, patchLabelName.c_str(), patchLabelValue);
-            weakFormKeys.cohesive = *key;delete key;key = NULL;
+            weakFormKeys.cohesive = *key;delete key;key = nullptr;
             key = pylith::feassemble::FEKernelKey::create(weakFormNegative, cellsLabelName, matPair.first);
-            weakFormKeys.negative = *key;delete key;key = NULL;
+            weakFormKeys.negative = *key;delete key;key = nullptr;
             key = pylith::feassemble::FEKernelKey::create(weakFormPositive, cellsLabelName, matPair.second);
-            weakFormKeys.positive = *key;delete key;key = NULL;
+            weakFormKeys.positive = *key;delete key;key = nullptr;
             patches->_keys[patchLabelValue] = weakFormKeys;
         } // if
         err = DMSetLabelValue(dmSoln, patchLabelName.c_str(), cohesiveCell, integrationPatches[matPair]);

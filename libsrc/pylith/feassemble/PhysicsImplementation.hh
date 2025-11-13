@@ -18,20 +18,28 @@
 
 #include "pylith/problems/Observer.hh" // USES Observer
 
-#include "pylith/utils/array.hh" // HASA int_array
+#include <memory> // ISA std::enable_shared_from_this
+#include "pylith/utils/array.hh" // HASA pylith::integer_array
 #include "pylith/utils/utilsfwd.hh" // HOLDSA Logger
 
-class pylith::feassemble::PhysicsImplementation : public pylith::utils::GenericComponent {
+class pylith::feassemble::PhysicsImplementation : public pylith::utils::GenericComponent, public std::enable_shared_from_this<pylith::feassemble::PhysicsImplementation> {
     friend class TestPhysicsImplementation; // unit testing
 
-    // PUBLIC METHODS //////////////////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 
-    /** Constructor
+    /** Constructor.
      *
      * @param[in] physics Physics implemented by constraint.
      */
-    PhysicsImplementation(pylith::problems::Physics* const physics);
+    PhysicsImplementation(const std::shared_ptr<pylith::problems::Physics>& physics);
+
+    /** Constructor for std::shared_ptr.
+     *
+     * @param[in] physics Physics implemented by constraint.
+     */
+    static
+    std::shared_ptr<PhysicsImplementation> create(const std::shared_ptr<pylith::problems::Physics>& physics);
 
     /// Destructor.
     virtual ~PhysicsImplementation(void);
@@ -88,24 +96,24 @@ public:
                          const pylith::topology::Field& solution,
                          const pylith::problems::Observer::NotificationType notification);
 
-    // PROTECTED MEMBERS ///////////////////////////////////////////////////////////////////////////////////////////////
+    // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
 protected:
 
     std::shared_ptr<pylith::problems::Physics> _physics;
     std::shared_ptr<pylith::problems::ObserversPhysics> _observers;
 
-    std::unique_ptr<pylith::topology::Field> _auxiliaryField;
-    std::unique_ptr<pylith::topology::Field> _diagnosticField;
-    std::unique_ptr<pylith::topology::Field> _derivedField;
+    std::shared_ptr<pylith::topology::Field> _auxiliaryField;
+    std::shared_ptr<pylith::topology::Field> _diagnosticField;
+    std::shared_ptr<pylith::topology::Field> _derivedField;
 
     std::unique_ptr<pylith::utils::EventLogger> _logger;
 
-    // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
+    // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    PhysicsImplementation(void); /// Not implemented.
-    PhysicsImplementation(const PhysicsImplementation &); ///< Not implemented
-    const PhysicsImplementation& operator=(const PhysicsImplementation&); ///< Not implemented
+    PhysicsImplementation(void) = delete;
+    PhysicsImplementation(const PhysicsImplementation &) = delete;
+    const PhysicsImplementation& operator=(const PhysicsImplementation&) = delete;
 
 }; // class PhysicsImplementation
 

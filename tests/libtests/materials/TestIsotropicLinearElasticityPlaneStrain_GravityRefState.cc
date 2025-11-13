@@ -246,7 +246,7 @@ protected:
         _mymaterial->useBodyForce(false);
         _mymaterial->useReferenceState(true);
 
-        _mymaterial->setLabel("Isotropic Linear Elascitity Plane Strain");
+        _mymaterial->setName("Isotropic Linear Elascitity Plane Strain");
         _mymaterial->id(24);
     } // setUp
 
@@ -493,6 +493,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(pylith::materials::TestIsotropicLinearElasticity
 
 // ----------------------------------------------------------------------
 class pylith::materials::TestIsotropicLinearElasticityPlaneStrain_GravityRefState_QuadQ4 : public pylith::materials::TestIsotropicLinearElasticityPlaneStrain_GravityRefState { //
+                                                                                                                                                                                //
                                                                                                                                                                                 //
                                                                                                                                                                                 //
                                                                                                                                                                                 // TestIsotropicLinearElasticityPlaneStrain_GravityRefState_QuadQ4

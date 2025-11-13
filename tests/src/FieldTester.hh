@@ -28,9 +28,9 @@ public:
      * @returns L2 norm of difference between field and spatial database.
      */
     static
-    PylithReal checkFieldWithDB(const pylith::topology::Field& field,
-                                spatialdata::spatialdb::SpatialDB* fieldDB,
-                                const PylithReal lengthScale);
+    pylith::real checkFieldWithDB(const pylith::topology::Field& field,
+                                  spatialdata::spatialdb::SpatialDB* fieldDB,
+                                  const pylith::real lengthScale);
 
     /** Check that subfield information in field test subject matches expected subfield.
      *
@@ -44,9 +44,8 @@ public:
     // NOT IMPLEMENTED //////////////////////////////////////////////////////
 private:
 
-    FieldTester(void); ///< Not implemented.
-    FieldTester(const FieldTester&); ///< Not implemented.
-    const FieldTester& operator=(const FieldTester&); ///< Not implemented.
+    FieldTester(void) = delete;FieldTester(const FieldTester&) = delete;
+    const FieldTester& operator=(const FieldTester&) = delete;
 
 }; // FieldTester
 

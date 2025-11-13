@@ -35,7 +35,7 @@ void
 pylith::problems::PhysicsStub::deallocate(void) {
     PYLITH_METHOD_BEGIN;
 
-    delete _auxiliaryFactory;_auxiliaryFactory = NULL;
+    delete _auxiliaryFactory;_auxiliaryFactory = nullptr;
     Physics::deallocate();
 
     PYLITH_METHOD_END;
@@ -56,7 +56,7 @@ pylith::feassemble::Integrator*
 pylith::problems::PhysicsStub::createIntegrator(const pylith::topology::Field& solution) {
     pylith::testing::StubMethodTracker tracker("pylith::problems::PhysicsStub::createIntegrator");
 
-    return NULL;
+    return nullptr;
 } // createIntegrator
 
 
@@ -78,7 +78,7 @@ pylith::problems::PhysicsStub::createAuxiliaryField(const pylith::topology::Fiel
                                                     const pylith::topology::Mesh& physicsMesh) {
     pylith::testing::StubMethodTracker tracker("pylith::problems::PhysicsStub::createAuxiliaryField");
 
-    return NULL;
+    return nullptr;
 } // createAuxiliaryField
 
 

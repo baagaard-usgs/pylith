@@ -107,7 +107,7 @@ private:
      *
      * @param[in] test Test hierarchy.
      * @param[in] name Name of test to find.
-     * @returns Test matching name or NULL if not found.
+     * @returns Test matching name or nullptr if not found.
      */
     const CppUnit::Test* _findTest(const CppUnit::Test* const test,
                                    const std::string& name);
@@ -216,21 +216,21 @@ void
 pylith::testing::TestDriver::_parseArgs(int argc,
                                         char* argv[]) {
     static struct option options[9] = {
-        {"help", no_argument, NULL, 'h'},
-        {"list", no_argument, NULL, 'l'},
-        {"quiet", no_argument, NULL, 'q'},
-        {"tests", required_argument, NULL, 't'},
-        {"petsc", required_argument, NULL, 'p'},
-        {"journal.info", required_argument, NULL, 'i'},
-        {"journal.debug", required_argument, NULL, 'd'},
-        {"journal.warning", required_argument, NULL, 'w'},
+        {"help", no_argument, nullptr, 'h'},
+        {"list", no_argument, nullptr, 'l'},
+        {"quiet", no_argument, nullptr, 'q'},
+        {"tests", required_argument, nullptr, 't'},
+        {"petsc", required_argument, nullptr, 'p'},
+        {"journal.info", required_argument, nullptr, 'i'},
+        {"journal.debug", required_argument, nullptr, 'd'},
+        {"journal.warning", required_argument, nullptr, 'w'},
         {0, 0, 0, 0}
     };
 
     _petscOptions.reserve(4);
     while (true) {
         // extern char* optarg;
-        const int c = getopt_long(argc, argv, "hlqt:p:i:d:w:", options, NULL);
+        const int c = getopt_long(argc, argv, "hlqt:p:i:d:w:", options, nullptr);
         if (-1 == c) { break; }
         switch (c) {
         case 'h':
@@ -305,22 +305,22 @@ pylith::testing::TestDriver::_initializePetsc(int argc,
     int argcP = 1;
     char** argvP = new char*[argcP+1];
     argvP[0] = argv[0];
-    argvP[argcP] = NULL; // C standard is argv[argc] == NULL.
-    PetscErrorCode err = PetscInitialize(&argcP, &argvP, NULL, NULL);CHKERRQ(err);
-    delete[] argvP;argvP = NULL;
+    argvP[argcP] = nullptr; // C standard is argv[argc] == nullptr.
+    PetscErrorCode err = PetscInitialize(&argcP, &argvP, nullptr, nullptr);CHKERRQ(err);
+    delete[] argvP;argvP = nullptr;
 
     if (mallocDump) {
-        err = PetscOptionsSetValue(NULL, "-malloc_dump", "");CHKERRQ(err);
+        err = PetscOptionsSetValue(nullptr, "-malloc_dump", "");CHKERRQ(err);
     } // if
     for (size_t i = 0; i < petscOptions.size(); ++i) {
         const size_t pos = petscOptions[i].find_first_of('=');
         if (pos < petscOptions[i].length()) {
             const std::string& arg = std::string("-") + petscOptions[i].substr(0, pos);
             const std::string& value = petscOptions[i].substr(pos+1);
-            err = PetscOptionsSetValue(NULL, arg.c_str(), value.c_str());CHKERRQ(err);
+            err = PetscOptionsSetValue(nullptr, arg.c_str(), value.c_str());CHKERRQ(err);
         } else {
             const std::string& arg = std::string("-") + petscOptions[i];
-            err = PetscOptionsSetValue(NULL, arg.c_str(), "");CHKERRQ(err);
+            err = PetscOptionsSetValue(nullptr, arg.c_str(), "");CHKERRQ(err);
         } // if/else
     } // for
 
@@ -391,16 +391,16 @@ pylith::testing::TestDriver::_printTests(const CppUnit::Test* const test) {
 const CppUnit::Test*
 pylith::testing::TestDriver::_findTest(const CppUnit::Test* test,
                                        const std::string& name) {
-    if (!test) { return NULL;}
+    if (!test) { return nullptr;}
     if (test->getName() == name) { return test; }
-    if (!test->getChildTestCount()) { return NULL; }
+    if (!test->getChildTestCount()) { return nullptr; }
 
     for (int i = 0; i < test->getChildTestCount(); ++i) {
         const CppUnit::Test* testCase = _findTest(test->getChildTestAt(i), name);
         if (testCase) { return testCase; }
     } // for
 
-    return NULL;
+    return nullptr;
 } // _findTest
 
 

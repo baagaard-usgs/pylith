@@ -26,21 +26,21 @@ public:
     virtual ~InitialConditionDomain(void);
 
     /// Deallocate PETSc and local data structures.
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set spatial database holding initial conditions.
      *
      * @param[in] db Spatial database holding initial conditions.
      */
-    void setDB(std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db);
+    void setDB(const std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db);
 
     /** Set solution to values for initial condition.
      *
      * @param[out] solution Solution field.
      * @param[in] normalizer Nondimensionalization.
      */
-    void setValues(pylith::topology::Field* solution,
-                   const spatialdata::units::Nondimensional& normalizer);
+    void setValues(const std::shared_ptr<pylith::topology::Field>& solution,
+                   const spatialdata::units::Nondimensional& normalizer) override;
 
     // PRIVATE MEMEBRS /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
@@ -50,8 +50,8 @@ private:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    InitialConditionDomain(const InitialConditionDomain&); ///< Not implemented
-    const InitialConditionDomain& operator=(const InitialConditionDomain&); ///< Not implemented
+    InitialConditionDomain(const InitialConditionDomain&) = delete;
+    const InitialConditionDomain& operator=(const InitialConditionDomain&) = delete;
 
 }; // InitialConditionDomain
 

@@ -27,23 +27,44 @@
 #include <cassert> // USES assert()
 #include <stdexcept> // USES std::runtime_error
 
-// ---------------------------------------------------------------------------------------------------------------------
+namespace pylith {
+    namespace feassemble {
+        // Trampoline class for ConstraintSimple::create() factory method
+        class ConstraintSimpleWrap : public ConstraintSimple {
+public:
+
+            ConstraintSimpleWrap(const std::shared_ptr<pylith::problems::Physics>& physics) : ConstraintSimple(physics) {}
+
+
+        };
+    } // feassemble
+} // pylith
+
+// ------------------------------------------------------------------------------------------------
 // Default constructor.
-pylith::feassemble::ConstraintSimple::ConstraintSimple(pylith::problems::Physics* const physics) :
+pylith::feassemble::ConstraintSimple::ConstraintSimple(const std::shared_ptr<pylith::problems::Physics>& physics) :
     Constraint(physics),
-    _fn(NULL) {
-    GenericComponent::setName("constraintSimple");
+    _fn(nullptr) {
+    GenericComponent::setName("constraintsimple");
 } // constructor
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
+// Factory for std::shared_ptr.
+std::shared_ptr<pylith::feassemble::ConstraintSimple>
+pylith::feassemble::ConstraintSimple::create(const std::shared_ptr<pylith::problems::Physics>& physics) {
+    return std::make_shared<ConstraintSimpleWrap>(physics);
+} // create
+
+
+// ------------------------------------------------------------------------------------------------
 // Destructor.
 pylith::feassemble::ConstraintSimple::~ConstraintSimple(void) {
     deallocate();
 } // destructor
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Set constraint kernel.
 void
 pylith::feassemble::ConstraintSimple::setUserFn(const PetscUserFieldFunc fn) {
@@ -51,26 +72,26 @@ pylith::feassemble::ConstraintSimple::setUserFn(const PetscUserFieldFunc fn) {
 } // setSimple
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Initialize constraint domain. Update observers.
 void
 pylith::feassemble::ConstraintSimple::initialize(const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("initialize(solution="<<solution.getLabel()<<")");
+    PYLITH_JOURNAL_DEBUG("initialize(solution="<<solution.getName()<<")");
 
     assert(_physics);
-    _observers = NULL;
+    _observers = nullptr;
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     PetscDM dm = solution.getDM();
-    PetscDMLabel label;
-    PetscDS ds = NULL;
-    void* context = NULL;
-    PetscInt i_field = -1;
-    PetscInt *closure = NULL;
+    PetscDMLabel label = nullptr;
+    PetscDS ds = nullptr;
+    void* context = nullptr;
+    pylith::integer i_field = -1;
+    pylith::integer *closure = nullptr;
     PetscIS pointIS;
-    const PetscInt *points;
-    PetscInt point, cStart, cEnd, clSize;
+    const pylith::integer* points = nullptr;
+    pylith::integer point, cStart, cEnd, clSize;
     err = DMGetLabel(dm, _labelName.c_str(), &label);PYLITH_CHECK_ERROR(err);
     err = DMLabelGetStratumIS(label, _labelValue, &pointIS);PYLITH_CHECK_ERROR(err);
     if (!pointIS) {
@@ -82,13 +103,13 @@ pylith::feassemble::ConstraintSimple::initialize(const pylith::topology::Field& 
     err = ISDestroy(&pointIS);PYLITH_CHECK_ERROR(err);
     err = DMPlexGetHeightStratum(dm, 0, &cStart, &cEnd);PYLITH_CHECK_ERROR(err);
     err = DMPlexGetTransitiveClosure(dm, point, PETSC_FALSE, &clSize, &closure);PYLITH_CHECK_ERROR(err);
-    for (int cl = 0; cl < clSize*2; cl += 2) {
+    for (pylith::integer cl = 0; cl < clSize*2; cl += 2) {
         PetscDS cds;
-        const PetscInt q = closure[cl];
-        PetscInt Nf;
+        const pylith::integer q = closure[cl];
+        pylith::integer Nf;
 
         if ((q < cStart) || (q >= cEnd)) { continue;}
-        err = DMGetCellDS(dm, q, &cds, NULL);PYLITH_CHECK_ERROR(err);
+        err = DMGetCellDS(dm, q, &cds, nullptr);PYLITH_CHECK_ERROR(err);
         err = PetscDSGetNumFields(cds, &Nf);PYLITH_CHECK_ERROR(err);
         for (int f = 0; f < Nf; ++f) {
             PetscObject disc;
@@ -99,21 +120,21 @@ pylith::feassemble::ConstraintSimple::initialize(const pylith::topology::Field& 
             if (_subfieldName == std::string(name)) {ds = cds;i_field = f;break;}
         } // for
     } // for
-    PetscInt numConstrainedDOF = _constrainedDOF.size();
-    PetscInt* constrainedDOF = &_constrainedDOF[0];
+    pylith::integer numConstrainedDOF = _constrainedDOF.size();
+    pylith::integer* constrainedDOF = &_constrainedDOF[0];
     if (!ds) {
         // :KLUDGE: It is possible for a process to have a DOF that we need to constrain, but the process
         // may not have any cells with that DOF. The underlying code doesn't actually care if the point is
         // in the DS, so just get any DS and use it for the constraint.
         err = DMGetDS(dm, &ds);PYLITH_CHECK_ERROR(err);
-        PetscInt numDS = 0, numFields = 0;
+        pylith::integer numDS = 0, numFields = 0;
         i_field = solution.getSubfieldInfo(_subfieldName.c_str()).index;
         numConstrainedDOF = 0;
-        constrainedDOF = NULL;
+        constrainedDOF = nullptr;
 
         err = DMGetNumDS(dm, &numDS);PYLITH_CHECK_ERROR(err);
-        for (PetscInt s = 0; s < numDS; ++s) {
-            err = DMGetRegionNumDS(dm, s, NULL, NULL, &ds, NULL);PYLITH_CHECK_ERROR(err);
+        for (pylith::integer s = 0; s < numDS; ++s) {
+            err = DMGetRegionNumDS(dm, s, nullptr, nullptr, &ds, nullptr);PYLITH_CHECK_ERROR(err);
             err = PetscDSGetNumFields(ds, &numFields);PYLITH_CHECK_ERROR(err);
             if (i_field < numFields) { break;}
         } // for
@@ -122,15 +143,15 @@ pylith::feassemble::ConstraintSimple::initialize(const pylith::topology::Field& 
     err = DMPlexRestoreTransitiveClosure(solution.getDM(), point, PETSC_FALSE, &clSize, &closure);PYLITH_CHECK_ERROR(err);
     err = DMGetLabel(solution.getDM(), _labelName.c_str(), &label);PYLITH_CHECK_ERROR(err);
     err = PetscDSAddBoundary(ds, DM_BC_ESSENTIAL, _labelName.c_str(), label, 1, &_labelValue, i_field,
-                             numConstrainedDOF, constrainedDOF, (void (*)(void)) _fn, NULL, context, NULL);
+                             numConstrainedDOF, constrainedDOF, (void (*)(void)) _fn, nullptr, context, nullptr);
     PYLITH_CHECK_ERROR(err);
-    err = DMViewFromOptions(dm, NULL, "-constraint_simple_dm_view");PYLITH_CHECK_ERROR(err);
+    err = DMViewFromOptions(dm, nullptr, "-constraint_simple_dm_view");PYLITH_CHECK_ERROR(err);
     {
-        PetscInt numDS;
+        pylith::integer numDS;
         err = DMGetNumDS(dm, &numDS);PYLITH_CHECK_ERROR(err);
         for (int s = 0; s < numDS; ++s) {
-            err = DMGetRegionNumDS(dm, s, NULL, NULL, &ds, NULL);PYLITH_CHECK_ERROR(err);
-            err = PetscObjectViewFromOptions((PetscObject) ds, NULL, "-constraint_simple_ds_view");PYLITH_CHECK_ERROR(err);
+            err = DMGetRegionNumDS(dm, s, nullptr, nullptr, &ds, nullptr);PYLITH_CHECK_ERROR(err);
+            err = PetscObjectViewFromOptions((PetscObject) ds, nullptr, "-constraint_simple_ds_view");PYLITH_CHECK_ERROR(err);
         }
     }
 
@@ -138,29 +159,28 @@ pylith::feassemble::ConstraintSimple::initialize(const pylith::topology::Field& 
 } // initialize
 
 
-// ---------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Set constrained values in solution field.
 void
-pylith::feassemble::ConstraintSimple::setSolution(pylith::feassemble::IntegrationData* integrationData) {
-    assert(integrationData);
+pylith::feassemble::ConstraintSimple::setSolution(pylith::feassemble::IntegrationData& integrationData) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("setSolution(integrationData="<<integrationData->str()<<")");
+    PYLITH_JOURNAL_DEBUG("setSolution(integrationData="<<integrationData.str()<<")");
 
-    const pylith::topology::Field* solution = integrationData->getField(pylith::feassemble::IntegrationData::solution);
+    const pylith::topology::Field* solution = integrationData.getField(pylith::feassemble::IntegrationData::solution);
     assert(solution);
-    const PylithReal t = integrationData->getScalar(pylith::feassemble::IntegrationData::time);
+    const pylith::real t = integrationData.getScalar(pylith::feassemble::IntegrationData::time);
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     PetscDM dmSoln = solution->getDM();
 
     // Get label for constraint.
-    PetscDMLabel dmLabel = NULL;
+    PetscDMLabel dmLabel = nullptr;
     err = DMGetLabel(dmSoln, _labelName.c_str(), &dmLabel);PYLITH_CHECK_ERROR(err);
 
-    void* context = NULL;
-    const int _labelValue = 1;
-    const int fieldIndex = solution->getSubfieldInfo(_subfieldName.c_str()).index;
-    const PylithInt numConstrained = _constrainedDOF.size();
+    void* context = nullptr;
+    const pylith::integer _labelValue = 1;
+    const pylith::integer fieldIndex = solution->getSubfieldInfo(_subfieldName.c_str()).index;
+    const pylith::integer numConstrained = _constrainedDOF.size();
     assert(solution->getLocalVector());
     err = DMPlexLabelAddCells(dmSoln, dmLabel);PYLITH_CHECK_ERROR(err);
     err = DMPlexInsertBoundaryValuesEssential(dmSoln, t, fieldIndex, numConstrained, &_constrainedDOF[0], dmLabel, 1,

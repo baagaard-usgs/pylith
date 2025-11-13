@@ -35,17 +35,21 @@
 class pylith::bc::DirichletTimeDependent : public pylith::bc::BoundaryCondition {
     friend class TestDirichletTimeDependent; // unit testing
 
-    // PUBLIC METHODS //////////////////////////////////////////////////////////////////////////////////////////////////
+    // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 
-    /// Default constructor.
-    DirichletTimeDependent(void);
+    /** Factory for std::shared_ptr.
+     *
+     * @param[in] physics Physics implemented by constraint.
+     */
+    static
+    std::shared_ptr<DirichletTimeDependent> create(void);
 
     /// Destructor.
-    ~DirichletTimeDependent(void);
+    ~DirichletTimeDependent(void) override;
 
     /// Deallocate PETSc and local data structures.
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set indices of constrained degrees of freedom at each location.
      *
@@ -66,13 +70,13 @@ public:
      *
      * @param[in] db Time history database.
      */
-    void setTimeHistoryDB(spatialdata::spatialdb::TimeHistory* th);
+    void setTimeHistoryDB(const std::shared_ptr<spatialdata::spatialdb::TimeHistory>& th);
 
     /** Get time history database.
      *
      * @preturns Time history database.
      */
-    const spatialdata::spatialdb::TimeHistory* getTimeHistoryDB(void);
+    const spatialdata::spatialdb::TimeHistory& getTimeHistoryDB(void);
 
     /** Use initial value term in time history expression.
      *
@@ -119,26 +123,26 @@ public:
     /** Create integrator and set kernels.
      *
      * @param[in] solution Solution field.
-     * @returns Integrator if applicable, otherwise NULL.
+     * @returns Integrator if applicable, otherwise nullptr.
      */
-    pylith::feassemble::Integrator* createIntegrator(const pylith::topology::Field& solution) override;
+    std::shared_ptr<pylith::feassemble::Integrator> createIntegrator(const pylith::topology::Field& solution) override;
 
     /** Create constraint and set kernels.
      *
      * @param[in] solution Solution field.
-     * @returns Constraint if applicable, otherwise NULL.
+     * @returns Constraint if applicable, otherwise nullptr.
      */
-    std::vector<pylith::feassemble::Constraint*> createConstraints(const pylith::topology::Field& solution) override;
+    std::vector<std::shared_ptr<pylith::feassemble::Constraint> > createConstraints(const pylith::topology::Field& solution) override;
 
     /** Create auxiliary field.
      *
      * @param[in] solution Solution field.
      * @param[in\ domainMesh Finite-element mesh associated with integration domain.
      *
-     * @returns Auxiliary field if applicable, otherwise NULL.
+     * @returns Auxiliary field if applicable, otherwise nullptr.
      */
-    pylith::topology::Field* createAuxiliaryField(const pylith::topology::Field& solution,
-                                                  const pylith::topology::Mesh& domainMesh) override;
+    std::shared_ptr<pylith::topology::Field> createAuxiliaryField(const pylith::topology::Field& solution,
+                                                                  const pylith::topology::Mesh& domainMesh) override;
 
     /** Update time-dependent auxiliary field.
      *
@@ -148,21 +152,27 @@ public:
     void updateAuxiliaryField(pylith::topology::Field* auxiliaryField,
                               const double t) override;
 
-    // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
+    // PROTECTED MEMBERS //////////////////////////////////////////////////////////////////////////
+protected:
+
+    /// Default constructor.
+    DirichletTimeDependent(void);
+
+    // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:
 
     pylith::integer_array _constrainedDOF; ///< List of constrained degrees of freedom at each location.
-    std::unique_ptr<spatialdata::spatialdb::TimeHistory> _dbTimeHistory; ///< Time history database.
+    std::shared_ptr<spatialdata::spatialdb::TimeHistory> _dbTimeHistory; ///< Time history database.
 
     bool _useInitial; ///< Use initial value term.
     bool _useRate; ///< Use rate term.
     bool _useTimeHistory; ///< Use time history term.
 
-    // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
+    // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    DirichletTimeDependent(const DirichletTimeDependent&); ///< Not implemented.
-    const DirichletTimeDependent& operator=(const DirichletTimeDependent&); ///< Not implemented.
+    DirichletTimeDependent(const DirichletTimeDependent&) = delete;
+    const DirichletTimeDependent& operator=(const DirichletTimeDependent&) = delete;
 
 }; // class DirichletTimeDependent
 

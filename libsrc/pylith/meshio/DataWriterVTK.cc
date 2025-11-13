@@ -34,8 +34,8 @@ pylith::meshio::DataWriterVTK::DataWriterVTK(void) :
     _precision(6),
     _filename("output.vtk"),
     _timeFormat("%f"),
-    _viewer(NULL),
-    _dm(NULL),
+    _viewer(nullptr),
+    _dm(nullptr),
     _isOpenTimeStep(false),
     _wroteVertexHeader(false),
     _wroteCellHeader(false) {}
@@ -63,25 +63,25 @@ pylith::meshio::DataWriterVTK::deallocate(void) { // deallocate
 
 
 // ------------------------------------------------------------------------------------------------
-// Copy constructor.
-pylith::meshio::DataWriterVTK::DataWriterVTK(const DataWriterVTK& w) :
-    DataWriter(w),
-    _timeConstant(w._timeConstant),
-    _precision(w._precision),
-    _filename(w._filename),
-    _timeFormat(w._timeFormat),
-    _viewer(NULL),
-    _dm(NULL),
-    _isOpenTimeStep(w._isOpenTimeStep),
-    _wroteVertexHeader(w._wroteVertexHeader),
-    _wroteCellHeader(w._wroteCellHeader) { // copy constructor
-} // copy constructor
+// Set filename for VTK file.
+void
+pylith::meshio::DataWriterVTK::setFilename(const char* filename) {
+    _filename = filename;
+}
+
+
+// ------------------------------------------------------------------------------------------------
+// Set time format for time stamp in name of VTK file.
+void
+pylith::meshio::DataWriterVTK::setTimeFormat(const char* format) {
+    _timeFormat = format;
+}
 
 
 // ------------------------------------------------------------------------------------------------
 // Set value used to normalize time stamp in name of VTK file.
 void
-pylith::meshio::DataWriterVTK::timeConstant(const PylithScalar value) {
+pylith::meshio::DataWriterVTK::setTimeConstant(const pylith::real value) {
     PYLITH_METHOD_BEGIN;
 
     if (value <= 0.0) {
@@ -99,7 +99,7 @@ pylith::meshio::DataWriterVTK::timeConstant(const PylithScalar value) {
 // ------------------------------------------------------------------------------------------------
 // Set precision of floating point values in output.
 void
-pylith::meshio::DataWriterVTK::precision(const int value) {
+pylith::meshio::DataWriterVTK::setPrecision(const int value) {
     PYLITH_METHOD_BEGIN;
 
     if (value <= 0) {
@@ -124,7 +124,7 @@ pylith::meshio::DataWriterVTK::open(const pylith::topology::Mesh& mesh,
     DataWriter::open(mesh, isInfo);
 
     // Save handle for actions required in closeTimeStep() and close();
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     err = DMDestroy(&_dm);PYLITH_CHECK_ERROR(err);
     _dm = mesh.getDM();assert(_dm);
     err = PetscObjectReference((PetscObject) _dm);PYLITH_CHECK_ERROR(err);
@@ -153,14 +153,14 @@ pylith::meshio::DataWriterVTK::close(void) {
 // ------------------------------------------------------------------------------------------------
 // Prepare file for data at a new time step.
 void
-pylith::meshio::DataWriterVTK::openTimeStep(const PylithScalar t,
+pylith::meshio::DataWriterVTK::openTimeStep(const pylith::real t,
                                             const pylith::topology::Mesh& mesh) {
     PYLITH_METHOD_BEGIN;
 
     assert(_dm && _dm == mesh.getDM());
     assert(_isOpen && !_isOpenTimeStep);
 
-    const std::string& filename = _vtkFilename(t);
+    const std::string& filename = _getVTKFilename(t);
     PetscErrorCode err = PetscViewerVTKOpen(mesh.getComm(), filename.c_str(), FILE_MODE_WRITE,
                                             &_viewer);PYLITH_CHECK_ERROR(err);
 
@@ -176,7 +176,7 @@ void
 pylith::meshio::DataWriterVTK::closeTimeStep(void) {
     PYLITH_METHOD_BEGIN;
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     // Destroy the viewer (which also writes the file).
     err = PetscViewerDestroy(&_viewer);PYLITH_CHECK_ERROR(err);
@@ -203,12 +203,12 @@ pylith::meshio::DataWriterVTK::closeTimeStep(void) {
 // ------------------------------------------------------------------------------------------------
 // Write field over vertices to file.
 void
-pylith::meshio::DataWriterVTK::writeVertexField(const PylithScalar t,
+pylith::meshio::DataWriterVTK::writeVertexField(const pylith::real t,
                                                 const pylith::meshio::OutputSubfield& subfield) {
     PYLITH_METHOD_BEGIN;
     assert(_isOpen && _isOpenTimeStep);
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     PetscViewerVTKFieldType ft = subfield.getDescription().vectorFieldType == pylith::topology::FieldBase::VECTOR ?
                                  PETSC_VTK_POINT_VECTOR_FIELD : PETSC_VTK_POINT_FIELD;
     err = PetscViewerVTKAddField(_viewer, (PetscObject)_dm, DMPlexVTKWriteAll, PETSC_DEFAULT, ft,
@@ -224,13 +224,13 @@ pylith::meshio::DataWriterVTK::writeVertexField(const PylithScalar t,
 // ------------------------------------------------------------------------------------------------
 // Write field over cells to file.
 void
-pylith::meshio::DataWriterVTK::writeCellField(const PylithScalar t,
+pylith::meshio::DataWriterVTK::writeCellField(const pylith::real t,
                                               const pylith::meshio::OutputSubfield& subfield) {
     PYLITH_METHOD_BEGIN;
 
     assert(_isOpen && _isOpenTimeStep);
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     PetscViewerVTKFieldType ft = subfield.getDescription().vectorFieldType == pylith::topology::FieldBase::VECTOR ?
                                  PETSC_VTK_CELL_VECTOR_FIELD : PETSC_VTK_CELL_FIELD;
     err = PetscViewerVTKAddField(_viewer, (PetscObject)_dm, DMPlexVTKWriteAll, PETSC_DEFAULT, ft,
@@ -246,7 +246,7 @@ pylith::meshio::DataWriterVTK::writeCellField(const PylithScalar t,
 // ------------------------------------------------------------------------------------------------
 // Generate filename for VTK file.
 std::string
-pylith::meshio::DataWriterVTK::_vtkFilename(const PylithScalar t) const {
+pylith::meshio::DataWriterVTK::_getVTKFilename(const pylith::real t) const {
     PYLITH_METHOD_BEGIN;
 
     std::ostringstream filename;
@@ -266,7 +266,7 @@ pylith::meshio::DataWriterVTK::_vtkFilename(const PylithScalar t) const {
     } // if/else
 
     PYLITH_METHOD_RETURN(std::string(filename.str()));
-} // _vtkFilename
+} // _getVTKFilename
 
 
 // End of file

@@ -41,12 +41,12 @@ public:
                 void init(void);
 
                 static pylith::utils::EventLogger logger;
-                static PylithInt verifyConfiguration;
-                static PylithInt update;
-                static PylithInt writeInfo;
-                static PylithInt open;
-                static PylithInt openDataStep;
-                static PylithInt writeDataStep;
+                static pylith::integer verifyConfiguration;
+                static pylith::integer update;
+                static pylith::integer writeInfo;
+                static pylith::integer open;
+                static pylith::integer openDataStep;
+                static pylith::integer writeDataStep;
             };
 
         }; // _OutputPhysics
@@ -54,12 +54,12 @@ public:
 } // pylith
 
 pylith::utils::EventLogger pylith::meshio::_OutputPhysics::Events::logger;
-PylithInt pylith::meshio::_OutputPhysics::Events::verifyConfiguration;
-PylithInt pylith::meshio::_OutputPhysics::Events::update;
-PylithInt pylith::meshio::_OutputPhysics::Events::writeInfo;
-PylithInt pylith::meshio::_OutputPhysics::Events::open;
-PylithInt pylith::meshio::_OutputPhysics::Events::openDataStep;
-PylithInt pylith::meshio::_OutputPhysics::Events::writeDataStep;
+pylith::integer pylith::meshio::_OutputPhysics::Events::verifyConfiguration;
+pylith::integer pylith::meshio::_OutputPhysics::Events::update;
+pylith::integer pylith::meshio::_OutputPhysics::Events::writeInfo;
+pylith::integer pylith::meshio::_OutputPhysics::Events::open;
+pylith::integer pylith::meshio::_OutputPhysics::Events::openDataStep;
+pylith::integer pylith::meshio::_OutputPhysics::Events::writeDataStep;
 
 // ------------------------------------------------------------------------------------------------
 void
@@ -101,18 +101,11 @@ pylith::meshio::OutputPhysics::deallocate(void) {
 // ------------------------------------------------------------------------------------------------
 // Set names of vertex information fields to output.
 void
-pylith::meshio::OutputPhysics::setInfoFields(const char* names[],
-                                             const int numNames) {
+pylith::meshio::OutputPhysics::setInfoFields(const pylith::string_vector& names) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("OutputPhysics::setInfoFields(names="<<names<<", numNames="<<numNames<<")");
+    PYLITH_COMPONENT_DEBUG("OutputPhysics::setInfoFields(#names="<<names.size()<<")");
 
-    assert((names && numNames) || (!names && !numNames));
-
-    _infoFieldNames.resize(numNames);
-    for (int i = 0; i < numNames; ++i) {
-        assert(names[i]);
-        _infoFieldNames[i] = names[i];
-    } // for
+    _infoFieldNames = names;
 
     PYLITH_METHOD_END;
 } // setInfoFields
@@ -132,18 +125,11 @@ pylith::meshio::OutputPhysics::getInfoFields(void) const {
 // ------------------------------------------------------------------------------------------------
 // Set names of vertex data fields to output.
 void
-pylith::meshio::OutputPhysics::setDataFields(const char* names[],
-                                             const int numNames) {
+pylith::meshio::OutputPhysics::setDataFields(const pylith::string_vector& names) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("OutputPhysics::setDataFields(names="<<names<<", numNames="<<numNames<<")");
+    PYLITH_COMPONENT_DEBUG("OutputPhysics::setDataFields(#names="<<names.size()<<")");
 
-    assert((names && numNames) || (!names && !numNames));
-
-    _dataFieldNames.resize(numNames);
-    for (int i = 0; i < numNames; ++i) {
-        assert(names[i]);
-        _dataFieldNames[i] = names[i];
-    } // for
+    _dataFieldNames = names;
 
     PYLITH_METHOD_END;
 } // setDataFields
@@ -163,7 +149,7 @@ pylith::meshio::OutputPhysics::getDataFields(void) const {
 // ------------------------------------------------------------------------------------------------
 // Set time scale.
 void
-pylith::meshio::OutputPhysics::setTimeScale(const PylithReal value) {
+pylith::meshio::OutputPhysics::setTimeScale(const pylith::real value) {
     OutputObserver::setTimeScale(value);
 } // setTimeScale
 
@@ -173,7 +159,7 @@ pylith::meshio::OutputPhysics::setTimeScale(const PylithReal value) {
 void
 pylith::meshio::OutputPhysics::verifyConfiguration(const pylith::topology::Field& solution) const {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("OutputPhysics::verifyConfiguration(solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("OutputPhysics::verifyConfiguration(solution="<<solution.getName()<<")");
     _OutputPhysics::Events::logger.eventBegin(_OutputPhysics::Events::verifyConfiguration);
 
     assert(_physics);
@@ -196,7 +182,7 @@ pylith::meshio::OutputPhysics::verifyConfiguration(const pylith::topology::Field
             if (!auxiliaryField->hasSubfield(_infoFieldNames[i].c_str())) {
                 std::ostringstream msg;
                 msg << "Could not find subfield '" << _infoFieldNames[i] << "' in auxiliary field '"
-                    << auxiliaryField->getLabel() << "' for physics output '" << PyreComponent::getIdentifier() << "''.";
+                    << auxiliaryField->getName() << "' for physics output '" << PyreComponent::getIdentifier() << "''.";
                 throw std::runtime_error(msg.str());
             } // if
         } // for
@@ -211,9 +197,9 @@ pylith::meshio::OutputPhysics::verifyConfiguration(const pylith::topology::Field
             if (derivedField && derivedField->hasSubfield(_dataFieldNames[i].c_str())) { continue;}
 
             std::ostringstream msg;
-            msg << "Could not find subfield '" << _dataFieldNames[i] << "' in solution field '" << solution.getLabel()
-                << ", auxiliary field '" << (auxiliaryField ? auxiliaryField->getLabel() : "NULL") << "', or derived field "
-                << (derivedField ? derivedField->getLabel() : "NULL") << "' for physics output '"
+            msg << "Could not find subfield '" << _dataFieldNames[i] << "' in solution field '" << solution.getName()
+                << ", auxiliary field '" << (auxiliaryField ? auxiliaryField->getName() : "nullptr") << "', or derived field "
+                << (derivedField ? derivedField->getName() : "nullptr") << "' for physics output '"
                 << PyreComponent::getIdentifier() << "'.";
             throw std::runtime_error(msg.str());
         } // for
@@ -227,8 +213,8 @@ pylith::meshio::OutputPhysics::verifyConfiguration(const pylith::topology::Field
 // ------------------------------------------------------------------------------------------------
 // Get update from integrator (subject of observer).
 void
-pylith::meshio::OutputPhysics::update(const PylithReal t,
-                                      const PylithInt tindex,
+pylith::meshio::OutputPhysics::update(const pylith::real t,
+                                      const pylith::integer tindex,
                                       const pylith::topology::Field& solution,
                                       const NotificationType notification) {
     PYLITH_METHOD_BEGIN;
@@ -275,14 +261,14 @@ pylith::meshio::OutputPhysics::_writeInfo(void) {
     const bool isInfo = true;
 
     if (auxiliaryField) { auxiliaryField->scatterLocalToOutput(); }
-    PetscVec auxiliaryVector = (auxiliaryField) ? auxiliaryField->getOutputVector() : NULL;
+    PetscVec auxiliaryVector = (auxiliaryField) ? auxiliaryField->getOutputVector() : nullptr;
 
     if (diagnosticField) { diagnosticField->scatterLocalToOutput(); }
-    PetscVec diagnosticVector = (diagnosticField) ? diagnosticField->getOutputVector() : NULL;
+    PetscVec diagnosticVector = (diagnosticField) ? diagnosticField->getOutputVector() : nullptr;
 
     const size_t numInfoFields = infoNames.size();
     for (size_t i = 0; i < numInfoFields; i++) {
-        OutputSubfield* subfield = NULL;
+        OutputSubfield* subfield = nullptr;
         if (auxiliaryField->hasSubfield(infoNames[i].c_str())) {
             subfield = _getSubfield(*auxiliaryField, domainMesh, infoNames[i].c_str());
             subfield->project(auxiliaryVector);
@@ -356,7 +342,7 @@ pylith::meshio::OutputPhysics::_close(void) {
 // ------------------------------------------------------------------------------------------------
 // Prepare for output at this solution step.
 void
-pylith::meshio::OutputPhysics::_openDataStep(const PylithReal t,
+pylith::meshio::OutputPhysics::_openDataStep(const pylith::real t,
                                              const pylith::topology::Mesh& mesh) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("OutputPhysics::_openDataStep(t="<<t<<", mesh="<<typeid(mesh).name()<<")");
@@ -387,11 +373,11 @@ pylith::meshio::OutputPhysics::_closeDataStep(void) {
 // ------------------------------------------------------------------------------------------------
 // Write output for step in solution.
 void
-pylith::meshio::OutputPhysics::_writeDataStep(const PylithReal t,
-                                              const PylithInt tindex,
+pylith::meshio::OutputPhysics::_writeDataStep(const pylith::real t,
+                                              const pylith::integer tindex,
                                               const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("OutputPhysics::_writeDataStep(t="<<t<<", tindex="<<tindex<<", solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("OutputPhysics::_writeDataStep(t="<<t<<", tindex="<<tindex<<", solution="<<solution.getName()<<")");
     _OutputPhysics::Events::logger.eventBegin(_OutputPhysics::Events::writeDataStep);
 
     assert(_physics);
@@ -402,10 +388,10 @@ pylith::meshio::OutputPhysics::_writeDataStep(const PylithReal t,
     const pylith::string_vector& dataNames = _expandDataFieldNames(solution, auxiliaryField, derivedField);
 
     if (auxiliaryField) { auxiliaryField->scatterLocalToOutput(); }
-    PetscVec auxiliaryVector = (auxiliaryField) ? auxiliaryField->getOutputVector() : NULL;
+    PetscVec auxiliaryVector = (auxiliaryField) ? auxiliaryField->getOutputVector() : nullptr;
 
     if (derivedField) { derivedField->scatterLocalToOutput(); }
-    PetscVec derivedVector = (derivedField) ? derivedField->getOutputVector() : NULL;
+    PetscVec derivedVector = (derivedField) ? derivedField->getOutputVector() : nullptr;
 
     PetscVec solutionVector = solution.getOutputVector();assert(solutionVector);
 
@@ -414,17 +400,17 @@ pylith::meshio::OutputPhysics::_writeDataStep(const PylithReal t,
 
     const size_t numDataFields = dataNames.size();
     for (size_t i = 0; i < numDataFields; i++) {
-        OutputSubfield* subfield = NULL;
+        OutputSubfield* subfield = nullptr;
         if (solution.hasSubfield(dataNames[i].c_str())) {
             subfield = OutputObserver::_getSubfield(solution, domainMesh, dataNames[i].c_str());assert(subfield);
-            subfield->setLabel(labelName, labelValue);
+            subfield->setName(labelName, labelValue);
             subfield->projectWithLabel(solutionVector);
         } else if (auxiliaryField && auxiliaryField->hasSubfield(dataNames[i].c_str())) {
             subfield = OutputObserver::_getSubfield(*auxiliaryField, domainMesh, dataNames[i].c_str());assert(subfield);
             subfield->project(auxiliaryVector);
         } else if (derivedField && derivedField->hasSubfield(dataNames[i].c_str())) {
             subfield = OutputObserver::_getSubfield(*derivedField, domainMesh, dataNames[i].c_str());assert(subfield);
-            subfield->setLabel(labelName, labelValue);
+            subfield->setName(labelName, labelValue);
             subfield->project(derivedVector);
         } else {
             std::ostringstream msg;

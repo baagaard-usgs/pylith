@@ -27,10 +27,10 @@ public:
     OutputSolnPoints(void);
 
     /// Destructor
-    ~OutputSolnPoints(void);
+    ~OutputSolnPoints(void) override;
 
     /// Deallocate PETSc and local data structures.
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set coordinates and names of points.
      *
@@ -38,13 +38,11 @@ public:
      * @param[in] numPoints Number of points.
      * @param[in] spaceDim Spatial dimension for coordinates.
      * @param[in] pointNames Array with point names.
-     * @param[in] numPointNames Number of point banes.
      */
     void setPoints(const pylith::real* pointCoords,
-                   const int numPoints,
-                   const int spaceDim,
-                   const char* const* pointNames,
-                   const int numPointNames);
+                   const size_t numPoints,
+                   const size_t spaceDim,
+                   const pylith::string_vector& pointNames);
 
     // PROTECTED MEMBERS ///////////////////////////////////////////////////////////////////////////////////////////////
 protected:
@@ -57,7 +55,7 @@ protected:
      */
     void _writeSolnStep(const pylith::real t,
                         const pylith::integer tindex,
-                        const pylith::topology::Field& solution);
+                        const pylith::topology::Field& solution) override;
 
     /** Get output subfield, creating if necessary.
      *
@@ -65,9 +63,9 @@ protected:
      * @param[in] submesh Submesh associated with output.
      * @param[in] name Name of subfield.
      */
-    OutputSubfield* _getSubfield(const pylith::topology::Field& field,
-                                 const pylith::topology::Mesh& submesh,
-                                 const char* name);
+    OutputSubfield* const _getSubfield(const pylith::topology::Field& field,
+                                       const pylith::topology::Mesh& submesh,
+                                       const char* name) override;
 
     // PRIVATE MEMBERS /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
@@ -99,8 +97,8 @@ private:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    OutputSolnPoints(const OutputSolnPoints&); ///< Not implemented.
-    const OutputSolnPoints& operator=(const OutputSolnPoints&); ///< Not implemented
+    OutputSolnPoints(const OutputSolnPoints&) = delete;
+    const OutputSolnPoints& operator=(const OutputSolnPoints&) = delete;
 
 }; // OutputSolnPoints
 

@@ -10,99 +10,56 @@
 #pragma once
 
 #include "pylith/problems/problemsfwd.hh" // forward declarations
-#include "pylith/utils/GenericComponent.hh" // ISA GenericComponent
+#include "pylith/topology/SubfieldFactory.hh" // ISA SubfieldFactory
 
-#include "pylith/topology/FieldBase.hh" // USES FieldBase::Descretization
+#include "spatialdata/spatialdb/spatialdbfwd.hh" // USES TimeHistory
 
-#include "spatialdata/units/unitsfwd.hh" // HASA Nondimensional
-#include "spatialdata/spatialdb/spatialdbfwd.hh" // HASA Nondimensional
-
-// SolutionFactory-----------------------------------------------
-/// @brief C++ helper class for setting up solution subfields for unit tests.
-class pylith::problems::SolutionFactory : public pylith::utils::GenericComponent {
+class pylith::problems::SolutionFactory : public pylith::topology::SubfieldFactory {
     friend class TestSolutionFactory; // unit testing
+
+    // PUBLIC MEMBERS /////////////////////////////////////////////////////////////////////////////
+public:
+
+    static const std::string displacement;
+    static const std::string velocity;
+    static const std::string pressure;
+    static const std::string fluid_pressure;
+    static const std::string fluid_pressure_dot;
+    static const std::string trace_strain;
+    static const std::string trace_strain_dot;
+    static const std::string lagrange_multiplier_fault;
+    static const std::string temperature;
 
     // PUBLIC METHODS /////////////////////////////////////////////////////
 public:
 
-    /** Default constructor.
-     *
-     * @param[inout] solution Solution field.
-     * @param[in] normalizer Nondimensionalizer for problem.
-     * @param[in] spaceDim Spatial dimension of problem.
-     */
-    SolutionFactory(std::shared_ptr<pylith::topology::Field>& solution,
-                    const std::shared_ptr<spatialdata::units::Nondimensional>& normalizer);
+    /// Default constructor.
+    SolutionFactory(void);
 
     /// Destructor.
     ~SolutionFactory(void);
 
-    /** Add displacement subfield to solution field.
+    /** Set values from spatial database.
      *
-     * @param[in] discretization Discretization for displacement subfield.
+     * @param[in] db Spatial database for solution values.
      */
-    void addDisplacement(const pylith::topology::FieldBase::Discretization& discretization);
+    void setValues(const std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db);
 
-    /** Add velocity subfield to solution field.
+    // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
+protected:
+
+    /** Get subfield description.
      *
-     * @param[in] discretization Discretization for velocity subfield.
+     * @param[in] subfieldName Name of subfield.
+     * @returns Description of subfield.
      */
-    void addVelocity(const pylith::topology::FieldBase::Discretization& discretization);
-
-    /** Add pressure subfield to solution field.
-     *
-     * @param[in] discretization Discretization for pressure subfield.
-     */
-    void addPressure(const pylith::topology::FieldBase::Discretization& discretization);
-
-    /** Add time derivative of pressure subfield to solution field.
-     *
-     * @param[in] discretization Discretization for pressure subfield.
-     */
-    void addPressureDot(const pylith::topology::FieldBase::Discretization& discretization);
-
-    /** Add trace strain subfield to solution field.
-     *
-     * @param[in] discretization Discretization for trace strain subfield.
-     */
-    void addTraceStrain(const pylith::topology::FieldBase::Discretization& discretization);
-
-    /** Add time derivative of trace strain subfield to solution field.
-     *
-     * @param[in] discretization Discretization for trace strain subfield.
-     */
-    void addTraceStrainDot(const pylith::topology::FieldBase::Discretization& discretization);
-
-    /** Add fault Lagrange multiplier subfield to solution field.
-     *
-     * @param[in] discretization Discretization for fault Lagrange multiplier subfield.
-     */
-    void addLagrangeMultiplierFault(const pylith::topology::FieldBase::Discretization& discretization);
-
-    /** Add temperature subfield to solution field.
-     *
-     * @param[in] discretization Discretization for temperature subfield.
-     */
-    void addTemperature(const pylith::topology::FieldBase::Discretization& discretization);
-
-    /** Allocate and populate subfield with values using spatial database.
-     *
-     * @param[in] db Spatial database.
-     */
-    void setValues(spatialdata::spatialdb::SpatialDB* db);
-
-    // PRIVATE MEMBERS ////////////////////////////////////////////////////
-private:
-
-    std::shared_ptr<pylith::topology::Field> _solution; ///< Solution field.
-    const std::shared_ptr<spatialdata::units::Nondimensional> _normalizer; ///< Nondimensionalizer.
-    const int _spaceDim; ///< Spatal dimension of problem.
+    pylith::topology::FieldBase::Description _getDescription(const std::string& subfieldName) const override;
 
     // NOT IMPLEMENTED ////////////////////////////////////////////////////
 private:
 
-    SolutionFactory(const SolutionFactory &); ///< Not implemented.
-    const SolutionFactory& operator=(const SolutionFactory&); ///< Not implemented
+    SolutionFactory(const SolutionFactory &) = delete;
+    const SolutionFactory& operator=(const SolutionFactory&) = delete;
 
 }; // class SolutionFactory
 

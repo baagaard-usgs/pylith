@@ -34,7 +34,7 @@ pylith::topology::TestReverseCuthillMcKee::TestReverseCuthillMcKee(TestReverseCu
     PYLITH_METHOD_BEGIN;
     assert(_data);
 
-    _mesh = NULL;
+    _mesh = nullptr;
 
     PYLITH_METHOD_END;
 } // setUp
@@ -45,8 +45,8 @@ pylith::topology::TestReverseCuthillMcKee::TestReverseCuthillMcKee(TestReverseCu
 pylith::topology::TestReverseCuthillMcKee::~TestReverseCuthillMcKee(void) {
     PYLITH_METHOD_BEGIN;
 
-    delete _data;_data = NULL;
-    delete _mesh;_mesh = NULL;
+    delete _data;_data = nullptr;
+    delete _mesh;_mesh = nullptr;
 
     PYLITH_METHOD_END;
 } // tearDown
@@ -82,17 +82,17 @@ pylith::topology::TestReverseCuthillMcKee::testReorder(void) {
     CHECK(cellsStratumE.size() == cellsStratum.size());
 
     // Check groups
-    PetscInt numGroupsE, numGroups;
-    PetscErrorCode err;
+    pylith::integer numGroupsE, numGroups;
+    PetscErrorCode err = PETSC_SUCCESS;
     err = DMGetNumLabels(dmOrig, &numGroupsE);REQUIRE(!err);
     err = DMGetNumLabels(dmMesh, &numGroups);REQUIRE(!err);
     REQUIRE(numGroupsE == numGroups);
 
-    for (PetscInt iGroup = 0; iGroup < numGroups; ++iGroup) {
-        const char *name = NULL;
+    for (pylith::integer iGroup = 0; iGroup < numGroups; ++iGroup) {
+        const char *name = nullptr;
         err = DMGetLabelName(dmMesh, iGroup, &name);REQUIRE(!err);
 
-        PetscInt numPointsE, numPoints;
+        pylith::integer numPointsE, numPoints;
         err = DMGetStratumSize(dmOrig, name, 1, &numPointsE);REQUIRE(!err);
         err = DMGetStratumSize(dmMesh, name, 1, &numPoints);REQUIRE(!err);
         CHECK(numPointsE == numPoints);
@@ -100,17 +100,17 @@ pylith::topology::TestReverseCuthillMcKee::testReorder(void) {
 
     // Check element centroids
     PylithScalar coordsCheckOrig = 0.0;
-    PylithInt numCellsOrig = 0;
-    PylithInt totalClosureSizeOrig = 0;
+    pylith::integer numCellsOrig = 0;
+    pylith::integer totalClosureSizeOrig = 0;
     { // original
         Stratum cellsStratum(dmOrig, Stratum::HEIGHT, 0);
-        const PetscInt cStart = cellsStratum.begin();
-        const PetscInt cEnd = cellsStratum.end();
+        const pylith::integer cStart = cellsStratum.begin();
+        const pylith::integer cEnd = cellsStratum.end();
         numCellsOrig = cEnd - cStart;
         pylith::topology::CoordsVisitor coordsVisitor(dmOrig);
-        for (PetscInt cell = cStart; cell < cEnd; ++cell) {
-            PetscScalar* coordsCell = NULL;
-            PetscInt coordsSize = 0;
+        for (pylith::integer cell = cStart; cell < cEnd; ++cell) {
+            pylith::scalar* coordsCell = nullptr;
+            pylith::integer coordsSize = 0;
             PylithScalar value = 0.0;
             coordsVisitor.getClosure(&coordsCell, &coordsSize, cell);
             totalClosureSizeOrig += coordsSize;
@@ -122,17 +122,17 @@ pylith::topology::TestReverseCuthillMcKee::testReorder(void) {
         } // for
     } // original
     PylithScalar coordsCheckReorder = 0.0;
-    PylithInt numCellsReorder = 0;
-    PylithInt totalClosureSizeReorder = 0;
+    pylith::integer numCellsReorder = 0;
+    pylith::integer totalClosureSizeReorder = 0;
     { // reordered
         Stratum cellsStratum(dmMesh, Stratum::HEIGHT, 0);
-        const PetscInt cStart = cellsStratum.begin();
-        const PetscInt cEnd = cellsStratum.end();
+        const pylith::integer cStart = cellsStratum.begin();
+        const pylith::integer cEnd = cellsStratum.end();
         numCellsReorder = cEnd - cStart;
         pylith::topology::CoordsVisitor coordsVisitor(dmMesh);
-        for (PetscInt cell = cStart; cell < cEnd; ++cell) {
-            PetscScalar* coordsCell = NULL;
-            PetscInt coordsSize = 0;
+        for (pylith::integer cell = cStart; cell < cEnd; ++cell) {
+            pylith::scalar* coordsCell = nullptr;
+            pylith::integer coordsSize = 0;
             PylithScalar value = 0.0;
             coordsVisitor.getClosure(&coordsCell, &coordsSize, cell);
             totalClosureSizeReorder += coordsSize;
@@ -157,7 +157,7 @@ pylith::topology::TestReverseCuthillMcKee::testReorder(void) {
     description.componentNames.resize(1);
     description.componentNames[0] = "field";
     description.scale = 1.0;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     Field::Discretization discretization;
     discretization.basisOrder = 1;
@@ -166,8 +166,8 @@ pylith::topology::TestReverseCuthillMcKee::testReorder(void) {
     fieldOrig.subfieldsSetup();
     fieldOrig.createDiscretization();
     fieldOrig.allocate();
-    PetscMat matrix = NULL;
-    PetscInt bandwidthOrig = 0;
+    PetscMat matrix = nullptr;
+    pylith::integer bandwidthOrig = 0;
     err = DMCreateMatrix(fieldOrig.getDM(), &matrix);REQUIRE(!err);
     err = MatComputeBandwidth(matrix, 0.0, &bandwidthOrig);REQUIRE(!err);
     err = MatDestroy(&matrix);REQUIRE(!err);
@@ -177,7 +177,7 @@ pylith::topology::TestReverseCuthillMcKee::testReorder(void) {
     field.subfieldsSetup();
     field.createDiscretization();
     field.allocate();
-    PetscInt bandwidth = 0;
+    pylith::integer bandwidth = 0;
     err = DMCreateMatrix(field.getDM(), &matrix);REQUIRE(!err);
     err = MatComputeBandwidth(matrix, 0.0, &bandwidth);REQUIRE(!err);
     err = MatDestroy(&matrix);REQUIRE(!err);
@@ -219,8 +219,8 @@ pylith::topology::TestReverseCuthillMcKee::_initialize() {
 // ------------------------------------------------------------------------------------------------
 // Constructor
 pylith::topology::TestReverseCuthillMcKee_Data::TestReverseCuthillMcKee_Data(void) :
-    filename(NULL),
-    faultLabel(NULL) {}
+    filename(nullptr),
+    faultLabel(nullptr) {}
 
 
 // ------------------------------------------------------------------------------------------------

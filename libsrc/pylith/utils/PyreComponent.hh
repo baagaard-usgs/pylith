@@ -71,8 +71,8 @@ private:
     // PRIVATE METHODS //////////////////////////////////////////////////////
 private:
 
-    PyreComponent(const PyreComponent&); ///< Not implemented
-    const PyreComponent& operator=(const PyreComponent&); ///< Not implemented
+    PyreComponent(const PyreComponent&) = delete;
+    const PyreComponent& operator=(const PyreComponent&) = delete;
 
 }; // PyreComponent
 

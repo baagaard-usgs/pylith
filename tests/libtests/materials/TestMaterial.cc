@@ -36,7 +36,7 @@
 void
 pylith::materials::TestMaterial::setUp(void) {
     _mesh = new pylith::topology::Mesh();CPPUNIT_ASSERT(_mesh);
-    _solutionFields = NULL;
+    _solutionFields = nullptr;
 } // setUp
 
 
@@ -44,8 +44,8 @@ pylith::materials::TestMaterial::setUp(void) {
 // Deallocate testing data.
 void
 pylith::materials::TestMaterial::tearDown(void) {
-    delete _solutionFields;_solutionFields = NULL;
-    delete _mesh;_mesh = NULL;
+    delete _solutionFields;_solutionFields = nullptr;
+    delete _mesh;_mesh = nullptr;
 } // tearDown
 
 
@@ -194,7 +194,7 @@ pylith::materials::TestMaterial::testAccessors(void) {
     CPPUNIT_ASSERT_EQUAL_MESSAGE("Test of Material::id() failed.", matId, material->id());
 
     const std::string& matLabel = "xyz";
-    material->setLabel(matLabel.c_str());
+    material->setName(matLabel.c_str());
     CPPUNIT_ASSERT_EQUAL_MESSAGE("Test of Material::getLabel() failed.", matLabel, std::string(material->getLabel()));
 
     PYLITH_METHOD_END;
@@ -220,8 +220,8 @@ pylith::materials::TestMaterial::testInitialize(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("auxiliary subfields"), std::string(auxField->getLabel()));
     CPPUNIT_ASSERT_EQUAL(data->dimension, auxField->getSpaceDim());
 
-    PylithReal norm = 0.0;
-    PylithReal t = 0.0;
+    pylith::real norm = 0.0;
+    pylith::real t = 0.0;
     const PetscDM dm = auxField->dmMesh();CPPUNIT_ASSERT(dm);
     pylith::topology::FieldQuery query(*auxField);
     query.initializeWithDefaultQueryFns();
@@ -229,7 +229,7 @@ pylith::materials::TestMaterial::testInitialize(void) {
     query.openDB(data->auxDB, data->normalizer->getLengthScale());
     PetscErrorCode err = DMPlexComputeL2DiffLocal(dm, t, query.functions(), (void**)query.contextPtrs(), auxField->localVector(), &norm);CPPUNIT_ASSERT(!err);
     query.closeDB(data->auxDB);
-    const PylithReal tolerance = 1.0e-6;
+    const pylith::real tolerance = 1.0e-6;
     CPPUNIT_ASSERT_DOUBLES_EQUAL_MESSAGE("Test of auxiliary field values failed.", 0.0, norm, tolerance);
 
 #if 1
@@ -280,13 +280,13 @@ pylith::materials::TestMaterial::testComputeResidual(void) {
 
     pylith::topology::Field residualRHS(*_mesh);
     residualRHS.cloneSection(solution);
-    residualRHS.setLabel("residual RHS");
+    residualRHS.setName("residual RHS");
     residualRHS.createDiscretization();
     residualRHS.allocate();
 
     pylith::topology::Field residualLHS(*_mesh);
     residualLHS.cloneSection(solution);
-    residualLHS.setLabel("residual LHS");
+    residualLHS.setName("residual LHS");
     residualLHS.createDiscretization();
     residualLHS.allocate();
 
@@ -294,12 +294,12 @@ pylith::materials::TestMaterial::testComputeResidual(void) {
     TestMaterial_Data* data = _data();CPPUNIT_ASSERT(data);
 
 #if 0 // :DEBUG:
-    PetscOptionsSetValue(NULL, "-dm_plex_print_fem", "2"); // :DEBUG:
+    PetscOptionsSetValue(nullptr, "-dm_plex_print_fem", "2"); // :DEBUG:
     DMSetFromOptions(residualRHS.dmMesh()); // :DEBUG:
 #endif // :DEBUG:
 
-    const PylithReal t = data->t;
-    const PylithReal dt = data->dt;
+    const pylith::real t = data->t;
+    const pylith::real dt = data->dt;
     material->computeRHSResidual(&residualRHS, t, dt, solution);
     material->computeLHSResidual(&residualLHS, t, dt, solution, solutionDot);
 
@@ -314,19 +314,19 @@ pylith::materials::TestMaterial::testComputeResidual(void) {
     residualLHS.view("RESIDUAL LHS"); // :DEBUG:
 #endif // :DEBUG:
 
-    PetscErrorCode err;
-    PetscVec residualVec = NULL;
+    PetscErrorCode err = PETSC_SUCCESS;
+    PetscVec residualVec = nullptr;
     err = VecDuplicate(residualRHS.localVector(), &residualVec);CPPUNIT_ASSERT(!err);
     err = VecWAXPY(residualVec, -1.0, residualRHS.localVector(), residualLHS.localVector());CPPUNIT_ASSERT(!err);
 
-    PylithReal norm = 0.0;
-    PylithReal normRHS = 0.0;
-    PylithReal normLHS = 0.0;
+    pylith::real norm = 0.0;
+    pylith::real normRHS = 0.0;
+    pylith::real normLHS = 0.0;
     err = VecNorm(residualRHS.localVector(), NORM_2, &normRHS);CPPUNIT_ASSERT(!err);
     err = VecNorm(residualLHS.localVector(), NORM_2, &normLHS);CPPUNIT_ASSERT(!err);
     err = VecNorm(residualVec, NORM_2, &norm);CPPUNIT_ASSERT(!err);
     err = VecDestroy(&residualVec);CPPUNIT_ASSERT(!err);
-    const PylithReal tolerance = 1.0e-6;
+    const pylith::real tolerance = 1.0e-6;
     CPPUNIT_ASSERT_DOUBLES_EQUAL_MESSAGE("Test of F(s) - G(s) == 0 failed.", 0.0, norm, tolerance);
     // Avoid trivial satisfaction of norm with zero values.
     CPPUNIT_ASSERT_MESSAGE("RHS and LHS residuals are both exactly zero, which is suspicious.", normRHS > 0.0 || normLHS > 0.0);
@@ -358,23 +358,23 @@ pylith::materials::TestMaterial::testComputeJacobian(void) {
 
     pylith::topology::Field residual1(*_mesh);
     residual1.cloneSection(solution);
-    residual1.setLabel("residual1");
+    residual1.setName("residual1");
     residual1.createDiscretization();
     residual1.allocate();
 
     pylith::topology::Field residual2(*_mesh);
     residual2.cloneSection(perturbation);
-    residual2.setLabel("residual2");
+    residual2.setName("residual2");
     residual2.createDiscretization();
     residual2.allocate();
 
 #if 0 // :DEBUG:
-    PetscOptionsSetValue(NULL, "-dm_plex_print_fem", "3"); // :DEBUG:
+    PetscOptionsSetValue(nullptr, "-dm_plex_print_fem", "3"); // :DEBUG:
     DMSetFromOptions(_solution1->dmMesh()); // :DEBUG:
 #endif // :DEBUG:
 
-    const PylithReal t = data->t;
-    const PylithReal dt = data->dt;
+    const pylith::real t = data->t;
+    const pylith::real dt = data->dt;
     material->computeLHSResidual(&residual1, t, dt, solution);
     material->computeLHSResidual(&residual2, t, dt, perturbation);
 
@@ -382,8 +382,8 @@ pylith::materials::TestMaterial::testComputeJacobian(void) {
     // residual2.view("RESIDUAL 2 RHS"); // :DEBUG:
 
     // Compute Jacobian
-    PetscErrorCode err;
-    PetscMat jacobianMat = NULL;
+    PetscErrorCode err = PETSC_SUCCESS;
+    PetscMat jacobianMat = nullptr;
     err = DMCreateMatrix(solution.dmMesh(), &jacobianMat);CPPUNIT_ASSERT(!err);
     err = MatZeroEntries(jacobianMat);CPPUNIT_ASSERT(!err);
     PetscMat precondMat = jacobianMat; // Use Jacobian == preconditioner
@@ -397,16 +397,16 @@ pylith::materials::TestMaterial::testComputeJacobian(void) {
 
     // Check that J(s)*(p - s) = G(p) - G(s).
 
-    PetscVec residualVec = NULL;
+    PetscVec residualVec = nullptr;
     err = VecDuplicate(residual1.localVector(), &residualVec);CPPUNIT_ASSERT(!err);
     err = VecWAXPY(residualVec, -1.0, residual1.localVector(), residual2.localVector());CPPUNIT_ASSERT(!err);
 
-    PetscVec solnIncrVec = NULL;
+    PetscVec solnIncrVec = nullptr;
     err = VecDuplicate(solution.localVector(), &solnIncrVec);CPPUNIT_ASSERT(!err);
     err = VecWAXPY(solnIncrVec, -1.0, solution.localVector(), perturbation.localVector());CPPUNIT_ASSERT(!err);
 
     // result = Jg*(-solnIncr) + residual
-    PetscVec resultVec = NULL;
+    PetscVec resultVec = nullptr;
     err = VecDuplicate(residualVec, &resultVec);CPPUNIT_ASSERT(!err);
     err = VecZeroEntries(resultVec);CPPUNIT_ASSERT(!err);
     err = VecScale(solnIncrVec, -1.0);CPPUNIT_ASSERT(!err);
@@ -421,14 +421,14 @@ pylith::materials::TestMaterial::testComputeJacobian(void) {
     VecView(resultVec, PETSC_VIEWER_STDOUT_SELF);
 #endif // :DEBUG:
 
-    PylithReal norm = 0.0;
+    pylith::real norm = 0.0;
     err = VecNorm(resultVec, NORM_2, &norm);CPPUNIT_ASSERT(!err);
     err = VecDestroy(&resultVec);CPPUNIT_ASSERT(!err);
     err = VecDestroy(&solnIncrVec);CPPUNIT_ASSERT(!err);
     err = VecDestroy(&residualVec);CPPUNIT_ASSERT(!err);
     err = MatDestroy(&jacobianMat);CPPUNIT_ASSERT(!err);
 
-    const PylithReal tolerance = 1.0e-6;
+    const pylith::real tolerance = 1.0e-6;
     CPPUNIT_ASSERT_DOUBLES_EQUAL_MESSAGE("Check of Jg(s)*(p-s) - (G(p) - G(s)) == 0 failed.", 0.0, norm, tolerance);
     CPPUNIT_ASSERT_MESSAGE("Norm of resulting vector is exactly zero, which is suspicious.", norm > 0.0);
 
@@ -464,42 +464,42 @@ pylith::materials::TestMaterial::testComputeLHSJacobianImplicit(void) {
 
     pylith::topology::Field residual1(*_mesh);
     residual1.cloneSection(solution);
-    residual1.setLabel("residual1");
+    residual1.setName("residual1");
     residual1.createDiscretization();
     residual1.allocate();
 
     pylith::topology::Field residual2(*_mesh);
     residual2.cloneSection(perturbation);
-    residual2.setLabel("residual2");
+    residual2.setName("residual2");
     residual2.createDiscretization();
     residual2.allocate();
 
 #if 0 // :DEBUG:
-    PetscOptionsSetValue(NULL, "-dm_plex_print_fem", "2"); // :DEBUG:
+    PetscOptionsSetValue(nullptr, "-dm_plex_print_fem", "2"); // :DEBUG:
     DMSetFromOptions(_solution1->dmMesh()); // :DEBUG:
 #endif // :DEBUG:
 
-    const PylithReal t = data->t;
-    const PylithReal dt = data->dt;
-    const PylithReal s_tshift = data->s_tshift;
+    const pylith::real t = data->t;
+    const pylith::real dt = data->dt;
+    const pylith::real s_tshift = data->s_tshift;
     material->computeLHSResidual(&residual1, t, dt, solution, solutionDot);
     material->computeLHSResidual(&residual2, t, dt, perturbation, perturbationDot);
 
     // residual1.view("RESIDUAL 1 LHS"); // :DEBUG:
     // residual2.view("RESIDUAL 2 LHS"); // :DEBUG:
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
 
-    PetscVec residualVec = NULL;
+    PetscVec residualVec = nullptr;
     err = VecDuplicate(residual1.localVector(), &residualVec);CPPUNIT_ASSERT(!err);
     err = VecWAXPY(residualVec, -1.0, residual1.localVector(), residual2.localVector());CPPUNIT_ASSERT(!err);
 
-    PetscVec solnIncrVec = NULL;
+    PetscVec solnIncrVec = nullptr;
     err = VecDuplicate(solution.localVector(), &solnIncrVec);CPPUNIT_ASSERT(!err);
     err = VecWAXPY(solnIncrVec, -1.0, solution.localVector(), perturbation.localVector());CPPUNIT_ASSERT(!err);
 
     // Compute Jacobian
-    PetscMat jacobianMat = NULL;
+    PetscMat jacobianMat = nullptr;
     err = DMCreateMatrix(solution.dmMesh(), &jacobianMat);CPPUNIT_ASSERT(!err);
     err = MatZeroEntries(jacobianMat);CPPUNIT_ASSERT(!err);
     PetscMat precondMat = jacobianMat; // Use Jacobian == preconditioner
@@ -510,7 +510,7 @@ pylith::materials::TestMaterial::testComputeLHSJacobianImplicit(void) {
     err = MatAssemblyEnd(jacobianMat, MAT_FINAL_ASSEMBLY);PYLITH_CHECK_ERROR(err);
 
     // result = J*(-solnIncr) + residual
-    PetscVec resultVec = NULL;
+    PetscVec resultVec = nullptr;
     err = VecDuplicate(residualVec, &resultVec);CPPUNIT_ASSERT(!err);
     err = VecZeroEntries(resultVec);CPPUNIT_ASSERT(!err);
     err = VecScale(solnIncrVec, -1.0);CPPUNIT_ASSERT(!err);
@@ -525,7 +525,7 @@ pylith::materials::TestMaterial::testComputeLHSJacobianImplicit(void) {
     VecView(resultVec, PETSC_VIEWER_STDOUT_SELF);
 #endif // :DEBUG:
 
-    PylithReal norm = 0.0, normSolnIncr = 0.0, normResidual = 0.0;
+    pylith::real norm = 0.0, normSolnIncr = 0.0, normResidual = 0.0;
     err = VecNorm(resultVec, NORM_2, &norm);CPPUNIT_ASSERT(!err);
     err = VecNorm(solnIncrVec, NORM_2, &normSolnIncr);CPPUNIT_ASSERT(!err);
     err = VecNorm(residualVec, NORM_2, &normResidual);CPPUNIT_ASSERT(!err);
@@ -534,7 +534,7 @@ pylith::materials::TestMaterial::testComputeLHSJacobianImplicit(void) {
     err = VecDestroy(&residualVec);CPPUNIT_ASSERT(!err);
     err = MatDestroy(&jacobianMat);CPPUNIT_ASSERT(!err);
 
-    const PylithReal tolerance = 1.0e-6;
+    const pylith::real tolerance = 1.0e-6;
     CPPUNIT_ASSERT_DOUBLES_EQUAL_MESSAGE("Check of Jf(s)*(p-s) - (F(p) - F(s)) == 0 failed.", 0.0, norm, tolerance);
     CPPUNIT_ASSERT_MESSAGE("Norm of resulting vector is exactly zero, which is suspicious.", (0 < normResidual && 0 < norm) || (0 == normResidual && 0 == norm));
 
@@ -591,20 +591,20 @@ pylith::materials::TestMaterial::testUpdateStateVars(void) {
     material->_auxiliaryField->view("UPDATED_AUX FIELDS"); // :DEBUGGING:
 
     // Check updated auxiliary field.
-    PylithReal norm = 0.0;
-    PylithReal t = 0.0;
+    pylith::real norm = 0.0;
+    pylith::real t = 0.0;
     const PetscDM dm = auxField->dmMesh();CPPUNIT_ASSERT(dm);
     pylith::topology::FieldQuery query(*auxField);
     query.initializeWithDefaultQueryFns();
     CPPUNIT_ASSERT(data->normalizer);
     query.openDB(data->auxUpdateDB, data->normalizer->getLengthScale());
 #if 0 // :DEBUG:
-    PetscOptionsSetValue(NULL, "-dm_plex_print_l2", "1"); // :DEBUG:
+    PetscOptionsSetValue(nullptr, "-dm_plex_print_l2", "1"); // :DEBUG:
     DMSetFromOptions(dm); // :DEBUG:
 #endif
     PetscErrorCode err = DMPlexComputeL2DiffLocal(dm, t, query.functions(), (void**)query.contextPtrs(), auxField->localVector(), &norm);CPPUNIT_ASSERT(!err);
     query.closeDB(data->auxUpdateDB);
-    const PylithReal tolerance = 1.0e-6;
+    const pylith::real tolerance = 1.0e-6;
     CPPUNIT_ASSERT_DOUBLES_EQUAL_MESSAGE("Check of updated auxiliary field values failed.", 0.0, norm, tolerance);
 
     PYLITH_METHOD_END;
@@ -685,12 +685,12 @@ pylith::materials::TestMaterial::_zeroBoundary(pylith::topology::Field* field) {
     CPPUNIT_ASSERT(data->boundaryLabel);
 
     PetscDM dmMesh = field->mesh().dmMesh();CPPUNIT_ASSERT(dmMesh);
-    PetscDMLabel label = NULL;
-    PetscIS pointIS = NULL;
-    const PetscInt *points;
-    PetscInt numPoints = 0;
+    PetscDMLabel label = nullptr;
+    PetscIS pointIS = nullptr;
+    const pylith::integer *points;
+    pylith::integer numPoints = 0;
     PetscBool hasLabel = PETSC_FALSE;
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     err = DMHasLabel(dmMesh, data->boundaryLabel, &hasLabel);CPPUNIT_ASSERT(!err);CPPUNIT_ASSERT(hasLabel);
     err = DMGetLabel(dmMesh, data->boundaryLabel, &label);CPPUNIT_ASSERT(!err);
     err = DMLabelGetStratumIS(label, 1, &pointIS);CPPUNIT_ASSERT(!err);CPPUNIT_ASSERT(pointIS);
@@ -700,12 +700,12 @@ pylith::materials::TestMaterial::_zeroBoundary(pylith::topology::Field* field) {
     pylith::topology::VecVisitorMesh fieldVisitor(*field);
     PylithScalar* fieldArray = fieldVisitor.localArray();CPPUNIT_ASSERT(fieldArray);
 
-    for (PylithInt p = 0; p < numPoints; ++p) {
-        const PylithInt p_bc = points[p];
+    for (pylith::integer p = 0; p < numPoints; ++p) {
+        const pylith::integer p_bc = points[p];
 
-        const PylithInt off = fieldVisitor.sectionOffset(p_bc);
-        const PylithInt dof = fieldVisitor.sectionDof(p_bc);
-        for (PylithInt i = 0; i < dof; ++i) {
+        const pylith::integer off = fieldVisitor.sectionOffset(p_bc);
+        const pylith::integer dof = fieldVisitor.sectionDof(p_bc);
+        for (pylith::integer i = 0; i < dof; ++i) {
             fieldArray[off+i] = 0.0;
         } // for
     } // for
@@ -722,9 +722,9 @@ pylith::materials::TestMaterial::_zeroBoundary(pylith::topology::Field* field) {
 pylith::materials::TestMaterial_Data::TestMaterial_Data(void) :
     dimension(0),
     meshFilename(0),
-    boundaryLabel(NULL),
-    cs(NULL),
-    gravityField(NULL),
+    boundaryLabel(nullptr),
+    cs(nullptr),
+    gravityField(nullptr),
 
     normalizer(new spatialdata::units::Nondimensional),
 
@@ -734,15 +734,15 @@ pylith::materials::TestMaterial_Data::TestMaterial_Data(void) :
     perturbation(1.0e-4),
 
     numSolnSubfields(0),
-    solnDiscretizations(NULL),
+    solnDiscretizations(nullptr),
     solnDB(new spatialdata::spatialdb::UserFunctionDB),
     perturbDB(new spatialdata::spatialdb::UserFunctionDB),
 
     numAuxSubfields(0),
-    auxSubfields(NULL),
-    auxDiscretizations(NULL),
+    auxSubfields(nullptr),
+    auxDiscretizations(nullptr),
     auxDB(new spatialdata::spatialdb::UserFunctionDB),
-    auxUpdateDB(NULL),
+    auxUpdateDB(nullptr),
 
     isExplicit(false) { // constructor
     CPPUNIT_ASSERT(normalizer);
@@ -761,12 +761,12 @@ pylith::materials::TestMaterial_Data::TestMaterial_Data(void) :
 // ----------------------------------------------------------------------
 // Destructor
 pylith::materials::TestMaterial_Data::~TestMaterial_Data(void) {
-    delete cs;cs = NULL;
-    delete gravityField;gravityField = NULL;
-    delete normalizer;normalizer = NULL;
-    delete solnDB;solnDB = NULL;
-    delete auxDB;auxDB = NULL;
-    delete auxUpdateDB;auxUpdateDB = NULL;
+    delete cs;cs = nullptr;
+    delete gravityField;gravityField = nullptr;
+    delete normalizer;normalizer = nullptr;
+    delete solnDB;solnDB = nullptr;
+    delete auxDB;auxDB = nullptr;
+    delete auxUpdateDB;auxUpdateDB = nullptr;
 } // destructor
 
 

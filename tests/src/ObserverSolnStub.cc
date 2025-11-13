@@ -30,14 +30,14 @@ pylith::problems::ObserverSolnStub::~ObserverSolnStub(void) {
 // ---------------------------------------------------------------------------------------------------------------------
 // Set time scale.
 void
-pylith::problems::ObserverSolnStub::setTimeScale(const PylithReal value) {
+pylith::problems::ObserverSolnStub::setTimeScale(const pylith::real value) {
     _timeScale = value;
 } // setTimeScale
 
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Get time scale.
-PylithReal
+pylith::real
 pylith::problems::ObserverSolnStub::getTimeScale(void) const {
     return _timeScale;
 } // getTimeScale
@@ -54,8 +54,8 @@ pylith::problems::ObserverSolnStub::verifyConfiguration(const pylith::topology::
 // ---------------------------------------------------------------------------------------------------------------------
 // Receive update (subject of observer).
 void
-pylith::problems::ObserverSolnStub::update(const PylithReal t,
-                                           const PylithInt tindex,
+pylith::problems::ObserverSolnStub::update(const pylith::real t,
+                                           const pylith::integer tindex,
                                            const pylith::topology::Field& solution,
                                            const NotificationType notification) {
     pylith::testing::StubMethodTracker tracker("pylith::problems::ObserverPhysicsStub::update");

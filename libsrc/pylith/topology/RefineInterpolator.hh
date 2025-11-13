@@ -78,8 +78,8 @@ private:
     // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    RefineInterpolator(const RefineInterpolator&); ///< Not implemented
-    const RefineInterpolator& operator=(const RefineInterpolator&); ///< Not implemented
+    RefineInterpolator(const RefineInterpolator&) = delete;
+    const RefineInterpolator& operator=(const RefineInterpolator&) = delete;
 
 }; // RefineInterpolator
 

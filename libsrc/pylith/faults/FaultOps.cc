@@ -61,7 +61,7 @@ pylith::faults::FaultOps::createDAEMassWeighting(pylith::feassemble::Integration
 void
 pylith::faults::FaultOps::updateDAEMassWeighting(pylith::feassemble::IntegrationData* integrationData) {
     PYLITH_METHOD_BEGIN;
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     const pylith::topology::Field* jacobianLumpedInv =
         integrationData->getField(pylith::feassemble::IntegrationData::lumped_jacobian_inverse);assert(jacobianLumpedInv);
@@ -71,20 +71,20 @@ pylith::faults::FaultOps::updateDAEMassWeighting(pylith::feassemble::Integration
     const char* velocity = "velocity";
     pylith::topology::VecVisitorMesh domainVisitor(*jacobianLumpedInv, velocity);
     pylith::topology::VecVisitorMesh faultsVisitor(*weighting, velocity);
-    PetscScalar* domainArray = domainVisitor.localArray();
-    PetscScalar* faultsArray = faultsVisitor.localArray();
+    pylith::scalar* domainArray = domainVisitor.localArray();
+    pylith::scalar* faultsArray = faultsVisitor.localArray();
 
     err = VecSet(weighting->getLocalVector(), 1.0);PYLITH_CHECK_ERROR(err);
-    PetscInt pStart = 0;
-    PetscInt pEnd = 0;
+    pylith::integer pStart = 0;
+    pylith::integer pEnd = 0;
     err = PetscSectionGetChart(faultsVisitor.selectedSection(), &pStart, &pEnd);PYLITH_CHECK_ERROR(err);
-    for (PetscInt point = pStart; point < pEnd; ++point) {
-        PetscInt numDof = faultsVisitor.sectionDof(point);
+    for (pylith::integer point = pStart; point < pEnd; ++point) {
+        pylith::integer numDof = faultsVisitor.sectionDof(point);
         if (numDof > 0) {
             assert(domainVisitor.sectionDof(point) == numDof);
-            const PetscInt domainOff = domainVisitor.sectionOffset(point);
-            const PetscInt faultsOff = faultsVisitor.sectionOffset(point);
-            for (PetscInt iDof = 0; iDof < numDof; ++iDof) {
+            const pylith::integer domainOff = domainVisitor.sectionOffset(point);
+            const pylith::integer faultsOff = faultsVisitor.sectionOffset(point);
+            for (pylith::integer iDof = 0; iDof < numDof; ++iDof) {
                 faultsArray[faultsOff+iDof] = domainArray[domainOff+iDof];
             } // for
 

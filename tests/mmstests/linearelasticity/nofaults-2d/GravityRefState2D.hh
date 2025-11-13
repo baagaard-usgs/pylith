@@ -35,7 +35,7 @@ public:
 
 private:
 
-    GravityRefState2D(void); ///< Not implemented
+    GravityRefState2D(void) = delete;
 }; // GravityRefState2D
 
 // End of file

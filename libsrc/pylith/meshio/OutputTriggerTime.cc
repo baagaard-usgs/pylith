@@ -51,8 +51,8 @@ pylith::meshio::OutputTriggerTime::getTimeSkip(void) const {
 // ---------------------------------------------------------------------------------------------------------------------
 // Check whether we want to write output at time t.
 bool
-pylith::meshio::OutputTriggerTime::shouldWrite(const PylithReal t,
-                                               const PylithInt timeStep) {
+pylith::meshio::OutputTriggerTime::shouldWrite(const pylith::real t,
+                                               const pylith::integer timeStep) {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("OutputTriggerTime::shouldWrite(t="<<t<<", timeStep="<<timeStep<<")");
 

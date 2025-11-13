@@ -14,7 +14,7 @@
 #include "pylith/problems/problemsfwd.hh" // HASA Physics
 #include "pylith/topology/topologyfwd.hh" // USES Field
 
-#include "pylith/utils/array.hh" // HASA int_array
+#include "pylith/utils/array.hh" // HASA pylith::integer_array
 #include "pylith/utils/types.hh" // HASA PetscUserFieldFunc
 #include "pylith/utils/utilsfwd.hh" // HOLDSA Logger
 
@@ -31,7 +31,7 @@ public:
 
         ProjectKernels(void) :
             subfield(""),
-            f(NULL) {}
+            f(nullptr) {}
 
 
         ProjectKernels(const char* subfieldValue,
@@ -49,14 +49,14 @@ public:
      *
      * @param[in] physics Physics implemented by constraint.
      */
-    Constraint(std::shared_ptr<pylith::problems::Physics>& physics);
+    Constraint(const std::shared_ptr<pylith::problems::Physics>& physics);
 
     /// Destructor.
-    virtual ~Constraint(void);
+    virtual ~Constraint(void) override;
 
     /// Deallocate PETSc and local data structures.
     virtual
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set name of constrained solution subfield.
      *
@@ -113,7 +113,7 @@ public:
      *
      * @returns Mesh associated with constrained boundary.
      */
-    const pylith::topology::Mesh& getPhysicsDomainMesh(void) const;
+    const pylith::topology::Mesh& getPhysicsDomainMesh(void) const override;
 
     /** Set kernels for computing diagnostic field.
      *
@@ -155,7 +155,7 @@ public:
      * @param[inout] integrationData Data needed to integrate governing equation.
      */
     virtual
-    void setSolution(pylith::feassemble::IntegrationData* integrationData) = 0;
+    void setSolution(pylith::feassemble::IntegrationData& integrationData) = 0;
 
     // PROTECTED METHODS //////////////////////////////////////////////////////////////////////////
 protected:
@@ -188,9 +188,9 @@ protected:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    Constraint(void); /// Not implemented.
-    Constraint(const Constraint &); ///< Not implemented
-    const Constraint& operator=(const Constraint&); ///< Not implemented
+    Constraint(void) = delete;
+    Constraint(const Constraint &) = delete;
+    const Constraint& operator=(const Constraint&) = delete;
 
 }; // class Constraint
 

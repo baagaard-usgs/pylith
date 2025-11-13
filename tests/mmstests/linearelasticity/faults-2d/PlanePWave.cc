@@ -23,7 +23,7 @@
 #include "pylith/problems/TimeDependent.hh" // USES TimeDependent
 #include "pylith/materials/Elasticity.hh" // USES Elasticity
 #include "pylith/materials/IsotropicLinearElasticity.hh" // USES IsotropicLinearElasticity
-#include "pylith/bc/DirichletUserFn.hh" // USES DirichletUserFn
+#include "pylith/bc/DirichletCxxFn.hh" // USES DirichletCxxFn
 
 #include "pylith/topology/Mesh.hh" // USES pylith::topology::Mesh::cells_label_name
 #include "pylith/topology/Field.hh" // USES pylith::topology::Field::Discretization
@@ -128,7 +128,7 @@ class pylith::_PlanePWave {
 
     static double vel_y(const double x,
                         const double y,
-                        PetscInt flag) {
+                        pylith::integer flag) {
         double amplitude = 0.0;
         if (!flag) {
             amplitude = x < +2.0 ? -0.5*SLIPRATE : +0.5*SLIPRATE;
@@ -150,7 +150,7 @@ class pylith::_PlanePWave {
 
     static double disp_y(const double x,
                          const double y,
-                         PetscInt flag) {
+                         pylith::integer flag) {
         const double disp = vel_y(x, y, flag) * TIME_SNAPSHOT;
         return disp;
     } // disp_y
@@ -165,11 +165,11 @@ class pylith::_PlanePWave {
         return 0.0;
     } // faulttraction_y
 
-    static PetscErrorCode solnkernel_disp(PetscInt spaceDim,
-                                          PetscReal t,
-                                          const PetscReal x[],
-                                          PetscInt numComponents,
-                                          PetscScalar* s,
+    static PetscErrorCode solnkernel_disp(pylith::integer spaceDim,
+                                          pylith::real t,
+                                          const pylith::real x[],
+                                          pylith::integer numComponents,
+                                          pylith::scalar* s,
                                           void* context) {
         assert(2 == spaceDim);
         assert(x);
@@ -177,13 +177,13 @@ class pylith::_PlanePWave {
         assert(s);
 
         s[0] = disp_x(x[0], x[1]);
-        PetscInt flag = 0;
+        pylith::integer flag = 0;
         if (context) {
-            PetscInt cell = 0;
+            pylith::integer cell = 0;
             DMPolytopeType cellType = DM_POLYTOPE_UNKNOWN;
             DMPlexGetActivePoint((PetscDM) context, &cell);
             DMPlexGetCellType((PetscDM) context, cell, &cellType);
-            PetscInt numCellsLeftFault = 0;
+            pylith::integer numCellsLeftFault = 0;
             switch (cellType) {
             case DM_POLYTOPE_TRIANGLE:
                 numCellsLeftFault = 12;
@@ -201,11 +201,11 @@ class pylith::_PlanePWave {
         return PETSC_SUCCESS;
     } // solnkernel_disp
 
-    static PetscErrorCode solnkernel_vel(PetscInt spaceDim,
-                                         PetscReal t,
-                                         const PetscReal x[],
-                                         PetscInt numComponents,
-                                         PetscScalar* s,
+    static PetscErrorCode solnkernel_vel(pylith::integer spaceDim,
+                                         pylith::real t,
+                                         const pylith::real x[],
+                                         pylith::integer numComponents,
+                                         pylith::scalar* s,
                                          void* context) {
         assert(2 == spaceDim);
         assert(x);
@@ -213,13 +213,13 @@ class pylith::_PlanePWave {
         assert(s);
 
         s[0] = vel_x(x[0], x[1]);
-        PetscInt flag = 0;
+        pylith::integer flag = 0;
         if (context) {
-            PetscInt cell = 0;
+            pylith::integer cell = 0;
             DMPolytopeType cellType = DM_POLYTOPE_UNKNOWN;
             DMPlexGetActivePoint((PetscDM) context, &cell);
             DMPlexGetCellType((PetscDM) context, cell, &cellType);
-            PetscInt numCellsLeftFault = 0;
+            pylith::integer numCellsLeftFault = 0;
             switch (cellType) {
             case DM_POLYTOPE_TRIANGLE:
                 numCellsLeftFault = 12;
@@ -237,11 +237,11 @@ class pylith::_PlanePWave {
         return PETSC_SUCCESS;
     } // solnkernel_disp
 
-    static PetscErrorCode solnkernel_acc(PetscInt spaceDim,
-                                         PetscReal t,
-                                         const PetscReal x[],
-                                         PetscInt numComponents,
-                                         PetscScalar* s,
+    static PetscErrorCode solnkernel_acc(pylith::integer spaceDim,
+                                         pylith::real t,
+                                         const pylith::real x[],
+                                         pylith::integer numComponents,
+                                         pylith::scalar* s,
                                          void* context) {
         assert(2 == spaceDim);
         assert(x);
@@ -254,11 +254,11 @@ class pylith::_PlanePWave {
         return PETSC_SUCCESS;
     } // solnkernel_disp
 
-    static PetscErrorCode solnkernel_lagrangemultiplier(PetscInt spaceDim,
-                                                        PetscReal t,
-                                                        const PetscReal x[],
-                                                        PetscInt numComponents,
-                                                        PetscScalar* s,
+    static PetscErrorCode solnkernel_lagrangemultiplier(pylith::integer spaceDim,
+                                                        pylith::real t,
+                                                        const pylith::real x[],
+                                                        pylith::integer numComponents,
+                                                        pylith::scalar* s,
                                                         void* context) {
         assert(2 == spaceDim);
         assert(x);
@@ -359,11 +359,11 @@ public:
         } // xpos
 
         // Boundary conditions
-        static const PylithInt constrainedDOF[2] = {0, 1};
-        static const PylithInt numConstrained = 2;
+        static const pylith::integer constrainedDOF[2] = {0, 1};
+        static const pylith::integer numConstrained = 2;
         data->bcs.resize(4);
         { // boundary_xneg displacement
-            pylith::bc::DirichletUserFn* bc = new pylith::bc::DirichletUserFn();
+            pylith::bc::DirichletCxxFn* bc = new pylith::bc::DirichletCxxFn();
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_xneg");
             bc->setLabelValue(1);
@@ -373,7 +373,7 @@ public:
             data->bcs[0] = bc;
         } // boundary_xneg displacement
         { // boundary_xneg velocity
-            pylith::bc::DirichletUserFn* bc = new pylith::bc::DirichletUserFn();
+            pylith::bc::DirichletCxxFn* bc = new pylith::bc::DirichletCxxFn();
             bc->setSubfieldName("velocity");
             bc->setLabelName("boundary_xneg");
             bc->setLabelValue(1);
@@ -383,7 +383,7 @@ public:
             data->bcs[1] = bc;
         } // boundary_xneg velocity
         { // boundary_xpos displacement
-            pylith::bc::DirichletUserFn* bc = new pylith::bc::DirichletUserFn();
+            pylith::bc::DirichletCxxFn* bc = new pylith::bc::DirichletCxxFn();
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_xpos");
             bc->setLabelValue(1);
@@ -393,7 +393,7 @@ public:
             data->bcs[2] = bc;
         } // boundary_xpos displacement
         { // boundary_xpos velocity
-            pylith::bc::DirichletUserFn* bc = new pylith::bc::DirichletUserFn();
+            pylith::bc::DirichletCxxFn* bc = new pylith::bc::DirichletCxxFn();
             bc->setSubfieldName("velocity");
             bc->setLabelName("boundary_xpos");
             bc->setLabelValue(1);

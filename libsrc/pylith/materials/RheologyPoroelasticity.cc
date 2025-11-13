@@ -42,7 +42,7 @@ pylith::materials::RheologyPoroelasticity::deallocate(void) {
 // Update kernel constants.
 void
 pylith::materials::RheologyPoroelasticity::updateKernelConstants(pylith::real_array* kernelConstants,
-                                                                 const PylithReal dt) const {
+                                                                 const pylith::real dt) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("updateKernelConstants(kernelConstants"<<kernelConstants<<", dt="<<dt<<") empty method");
 

@@ -48,7 +48,7 @@ void
 pylith::materials::IsotropicPowerLaw::deallocate(void) {
     RheologyElasticity::deallocate();
 
-    delete _auxiliaryFactory;_auxiliaryFactory = NULL;
+    delete _auxiliaryFactory;_auxiliaryFactory = nullptr;
 } // deallocate
 
 
@@ -119,7 +119,7 @@ pylith::materials::IsotropicPowerLaw::getKernelf1v(const spatialdata::geocoords:
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicPowerLawPlaneStrain::f1v_infinitesimalStrain :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicPowerLaw3D::f1v_infinitesimalStrain_refState :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicPowerLawPlaneStrain::f1v_infinitesimalStrain_refState :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(f1u);
 } // getKernelf1v
@@ -138,7 +138,7 @@ pylith::materials::IsotropicPowerLaw::getKernelJf3vu(const spatialdata::geocoord
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicPowerLawPlaneStrain::Jf3vu_infinitesimalStrain :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicPowerLaw3D::Jf3vu_infinitesimalStrain_refState :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicPowerLawPlaneStrain::Jf3vu_infinitesimalStrain_refState :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(Jf3uu);
 } // getKernelJf3vu
@@ -157,7 +157,7 @@ pylith::materials::IsotropicPowerLaw::getKernelf0Neg(const spatialdata::geocoord
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicPowerLawPlaneStrain::f0l_neg_infinitesimalStrain :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicPowerLaw3D::f0l_neg_infinitesimalStrain_refState :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicPowerLawPlaneStrain::f0l_neg_infinitesimalStrain_refState :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(kernel);
 }
@@ -176,7 +176,7 @@ pylith::materials::IsotropicPowerLaw::getKernelf0Pos(const spatialdata::geocoord
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicPowerLawPlaneStrain::f0l_pos_infinitesimalStrain :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicPowerLaw3D::f0l_pos_infinitesimalStrain_refState :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicPowerLawPlaneStrain::f0l_pos_infinitesimalStrain_refState :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(kernel);
 }
@@ -195,7 +195,7 @@ pylith::materials::IsotropicPowerLaw::getKernelCauchyStressVector(const spatiald
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicPowerLawPlaneStrain::cauchyStress_infinitesimalStrain_asVector :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicPowerLaw3D::cauchyStress_infinitesimalStrain_refState_asVector :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicPowerLawPlaneStrain::cauchyStress_infinitesimalStrain_refState_asVector :
-        NULL;
+        nullptr;
 
     PYLITH_METHOD_RETURN(kernel);
 } // getKernelCauchyStressVector
@@ -205,7 +205,7 @@ pylith::materials::IsotropicPowerLaw::getKernelCauchyStressVector(const spatiald
 // Update kernel constants.
 void
 pylith::materials::IsotropicPowerLaw::updateKernelConstants(pylith::real_array* kernelConstants,
-                                                            const PylithReal dt) const {
+                                                            const pylith::real dt) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("updateKernelConstants(kernelConstants"<<kernelConstants<<", dt="<<dt<<")");
 
@@ -232,13 +232,13 @@ pylith::materials::IsotropicPowerLaw::addKernelsUpdateStateVars(std::vector<Proj
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicPowerLawPlaneStrain::viscousStrain_infinitesimalStrain_asVector :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicPowerLaw3D::viscousStrain_infinitesimalStrain_refState_asVector :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicPowerLawPlaneStrain::viscousStrain_infinitesimalStrain_refState_asVector :
-        NULL;
+        nullptr;
     const PetscPointFunc funcDeviatoricStress =
         (!_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicPowerLaw3D::deviatoricStress_infinitesimalStrain_asVector :
         (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicPowerLawPlaneStrain::deviatoricStress_infinitesimalStrain_asVector :
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicPowerLaw3D::deviatoricStress_infinitesimalStrain_refState_asVector :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicPowerLawPlaneStrain::deviatoricStress_infinitesimalStrain_refState_asVector :
-        NULL;
+        nullptr;
 
     assert(kernels);
     size_t prevNumKernels = kernels->size();

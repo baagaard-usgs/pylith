@@ -90,7 +90,7 @@ pylith::problems::ProgressMonitor::getFilename(void) const {
 void
 pylith::problems::ProgressMonitor::open(void) {
     _iUpdate = -1;
-    _startTime = time(NULL);
+    _startTime = time(nullptr);
 
     int rank = 0;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);

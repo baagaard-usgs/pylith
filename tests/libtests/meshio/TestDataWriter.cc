@@ -15,18 +15,18 @@
 // ----------------------------------------------------------------------
 // Constructor
 pylith::meshio::TestDataWriter_Data::TestDataWriter_Data(void) :
-    meshFilename(NULL),
-    faultLabel(NULL),
+    meshFilename(nullptr),
+    faultLabel(nullptr),
     faultId(-1),
     spaceDim(0),
     lengthScale(1.0),
     time(0.0),
-    timeFormat(NULL),
+    timeFormat(nullptr),
     vertexNumPoints(0),
-    vertexValues(NULL),
+    vertexValues(nullptr),
     vertexNumDOF(0),
     cellNumPoints(0),
-    cellValues(NULL),
+    cellValues(nullptr),
     cellNumDOF(0) {}
 
 

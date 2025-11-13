@@ -22,11 +22,11 @@ class pylith::testing::MMSTest : public pylith::utils::GenericComponent {
     // PUBLIC TYPEDEFS ////////////////////////////////////////////////////////////////////////////
 public:
 
-    typedef PetscErrorCode (*solution_fn)(PetscInt /* dim */,
-                                          PetscReal /* t */,
-                                          const PetscReal /* x */[],
-                                          PetscInt /* Nc */,
-                                          PetscScalar /* u */[],
+    typedef PetscErrorCode (*solution_fn)(pylith::integer /* dim */,
+                                          pylith::real /* t */,
+                                          const pylith::real /* x */[],
+                                          pylith::integer /* Nc */,
+                                          pylith::scalar /* u */[],
                                           void* /* ctx */);
 
     // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
@@ -73,8 +73,8 @@ protected:
     pylith::topology::Field* _solution; ///< Solution field.
     PetscVec _solutionExactVec; ///< Global vector to use for exact solution.
     PetscVec _solutionDotExactVec; ///< Global vector to use for time derivative of exact solution.
-    PylithReal _jacobianConvergenceRate; ///< Expected convergence rate for Jacobiab (when not linear).
-    PylithReal _tolerance; ///< Tolerance for discretization and residual test.
+    pylith::real _jacobianConvergenceRate; ///< Expected convergence rate for Jacobiab (when not linear).
+    pylith::real _tolerance; ///< Tolerance for discretization and residual test.
     bool _isJacobianLinear; ///< Jacobian is should be linear.
     bool _allowZeroResidual; ///< Allow residual to be exactly zero.
 

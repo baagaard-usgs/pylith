@@ -27,17 +27,16 @@
 #define PYLITH_HDF5_USE_API_18
 #endif
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Default constructor.
 pylith::meshio::HDF5::HDF5(void) :
-    _file(-1) { // constructor
-} // constructor
+    _file(-1) {}
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Constructor with filename and mode.
 pylith::meshio::HDF5::HDF5(const char* filename,
-                           hid_t mode) { // constructor
+                           hid_t mode) {
     PYLITH_METHOD_BEGIN;
 
     if (hid_t(H5F_ACC_TRUNC) == mode) {
@@ -61,18 +60,18 @@ pylith::meshio::HDF5::HDF5(const char* filename,
 } // constructor
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Destructor
-pylith::meshio::HDF5::~HDF5(void) { // destructor
+pylith::meshio::HDF5::~HDF5(void) {
     close();
 } // destructor
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Open HDF5 file.
 void
 pylith::meshio::HDF5::open(const char* filename,
-                           hid_t mode) { // open
+                           hid_t mode) {
     PYLITH_METHOD_BEGIN;
 
     assert(filename);
@@ -102,10 +101,10 @@ pylith::meshio::HDF5::open(const char* filename,
 } // constructor
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Close HDF5 file.
 void
-pylith::meshio::HDF5::close(void) { // close
+pylith::meshio::HDF5::close(void) {
     PYLITH_METHOD_BEGIN;
 
     if (_file >= 0) {
@@ -120,18 +119,18 @@ pylith::meshio::HDF5::close(void) { // close
 } // close
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Check if HDF5 file is open.
 bool
-pylith::meshio::HDF5::isOpen(void) const { // isOpen
+pylith::meshio::HDF5::isOpen(void) const {
     return (_file == -1) ? false : true;
 } // isOpen
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Check if HDF5 file has group.
 bool
-pylith::meshio::HDF5::hasGroup(const char* name) { // hasGroup
+pylith::meshio::HDF5::hasGroup(const char* name) {
     PYLITH_METHOD_BEGIN;
 
     assert(isOpen());
@@ -159,10 +158,10 @@ pylith::meshio::HDF5::hasGroup(const char* name) { // hasGroup
 } // hasGroup
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Check if HDF5 file has dataset.
 bool
-pylith::meshio::HDF5::hasDataset(const char* name) { // hasDataset
+pylith::meshio::HDF5::hasDataset(const char* name) {
     PYLITH_METHOD_BEGIN;
 
     assert(isOpen());
@@ -190,13 +189,13 @@ pylith::meshio::HDF5::hasDataset(const char* name) { // hasDataset
 } // hasDataset
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Get topology metadata.
 void
 pylith::meshio::HDF5::getDatasetDims(hsize_t** dims,
                                      int* ndims,
                                      const char* parent,
-                                     const char* name) { // getDatasetDims
+                                     const char* name) {
     PYLITH_METHOD_BEGIN;
 
     assert(dims);
@@ -265,11 +264,11 @@ pylith::meshio::HDF5::getDatasetDims(hsize_t** dims,
 } // getDatasetDims
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Get names of datasets in group.
 void
 pylith::meshio::HDF5::getGroupDatasets(string_vector* names,
-                                       const char* parent) { // getGroupDatasets
+                                       const char* parent) {
     PYLITH_METHOD_BEGIN;
 
     assert(names);
@@ -322,10 +321,10 @@ pylith::meshio::HDF5::getGroupDatasets(string_vector* names,
 } // getGroupDatasets
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Create group.
 void
-pylith::meshio::HDF5::createGroup(const char* name) { // createGroup
+pylith::meshio::HDF5::createGroup(const char* name) {
     PYLITH_METHOD_BEGIN;
 
     assert(name);
@@ -352,13 +351,13 @@ pylith::meshio::HDF5::createGroup(const char* name) { // createGroup
 } // createGroup
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Write scalar attribute.
 void
 pylith::meshio::HDF5::writeAttribute(const char* parent,
                                      const char* name,
                                      const void* value,
-                                     hid_t datatype) { // writeAttribute
+                                     hid_t datatype) {
     PYLITH_METHOD_BEGIN;
 
     HDF5::writeAttribute(_file, parent, name, value, datatype);
@@ -367,14 +366,14 @@ pylith::meshio::HDF5::writeAttribute(const char* parent,
 } // writeAttribute
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Write scalar attribute (external HDF5 handle).
 void
 pylith::meshio::HDF5::writeAttribute(hid_t h5,
                                      const char* parent,
                                      const char* name,
                                      const void* value,
-                                     hid_t datatype) { // writeAttribute
+                                     hid_t datatype) {
     PYLITH_METHOD_BEGIN;
 
     assert(parent);
@@ -437,12 +436,12 @@ pylith::meshio::HDF5::writeAttribute(hid_t h5,
 } // writeAttribute
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Write string attribute.
 void
 pylith::meshio::HDF5::writeAttribute(const char* parent,
                                      const char* name,
-                                     const char* value) { // writeAttribute
+                                     const char* value) {
     PYLITH_METHOD_BEGIN;
 
     HDF5::writeAttribute(_file, parent, name, value);
@@ -451,13 +450,13 @@ pylith::meshio::HDF5::writeAttribute(const char* parent,
 } // writeAttribute
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Write string attribute (external handle to HDF5 file).
 void
 pylith::meshio::HDF5::writeAttribute(hid_t h5,
                                      const char* parent,
                                      const char* name,
-                                     const char* value) { // writeAttribute
+                                     const char* value) {
     PYLITH_METHOD_BEGIN;
 
     assert(h5);
@@ -536,13 +535,13 @@ pylith::meshio::HDF5::writeAttribute(hid_t h5,
 } // writeAttribute
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Read scalar attribute.
 void
 pylith::meshio::HDF5::readAttribute(const char* parent,
                                     const char* name,
                                     void* value,
-                                    hid_t datatype) { // readAttribute
+                                    hid_t datatype) {
     PYLITH_METHOD_BEGIN;
 
     assert(parent);
@@ -599,11 +598,11 @@ pylith::meshio::HDF5::readAttribute(const char* parent,
 } // readAttribute
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Read string attribute.
 std::string
 pylith::meshio::HDF5::readAttribute(const char* parent,
-                                    const char* name) { // readAttribute
+                                    const char* name) {
     PYLITH_METHOD_BEGIN;
 
     assert(parent);
@@ -673,7 +672,7 @@ pylith::meshio::HDF5::readAttribute(const char* parent,
 } // readAttribute
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Create dataset.
 void
 pylith::meshio::HDF5::createDataset(const char* parent,
@@ -681,7 +680,7 @@ pylith::meshio::HDF5::createDataset(const char* parent,
                                     const hsize_t* maxDims,
                                     const hsize_t* dimsChunk,
                                     const int ndims,
-                                    hid_t datatype) { // createDataset
+                                    hid_t datatype) {
     PYLITH_METHOD_BEGIN;
 
     assert(parent);
@@ -776,7 +775,7 @@ pylith::meshio::HDF5::createDataset(const char* parent,
 } // createDataset
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Append slice to dataset.
 void
 pylith::meshio::HDF5::writeDatasetChunk(const char* parent,
@@ -786,7 +785,7 @@ pylith::meshio::HDF5::writeDatasetChunk(const char* parent,
                                         const hsize_t* dimsChunk,
                                         const int ndims,
                                         const int chunk,
-                                        hid_t datatype) { // writeDatasetChunk
+                                        hid_t datatype) {
     PYLITH_METHOD_BEGIN;
 
     assert(parent);
@@ -898,7 +897,7 @@ pylith::meshio::HDF5::writeDatasetChunk(const char* parent,
 } // writeDatasetChunk
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Read dataset slice.
 void
 pylith::meshio::HDF5::readDatasetChunk(const char* parent,
@@ -907,7 +906,7 @@ pylith::meshio::HDF5::readDatasetChunk(const char* parent,
                                        hsize_t** const dimsChunk,
                                        int* const ndims,
                                        const int chunk,
-                                       hid_t datatype) { // readDatasetChunk
+                                       hid_t datatype) {
     PYLITH_METHOD_BEGIN;
 
     assert(parent);
@@ -1026,7 +1025,7 @@ pylith::meshio::HDF5::readDatasetChunk(const char* parent,
 } // readDatasetChunk
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Create dataset associated with data stored in a raw external binary
 // file.
 void
@@ -1035,7 +1034,7 @@ pylith::meshio::HDF5::createDatasetRawExternal(const char* parent,
                                                const char* filename,
                                                const hsize_t* maxDims,
                                                const int ndims,
-                                               hid_t datatype) { // createDatasetRawExternal
+                                               hid_t datatype) {
     PYLITH_METHOD_BEGIN;
 
     assert(parent);
@@ -1129,14 +1128,14 @@ pylith::meshio::HDF5::createDatasetRawExternal(const char* parent,
 } // createDatasetRawExternal
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Create dataset associated with data stored in a raw external binary
 // file.
 void
 pylith::meshio::HDF5::extendDatasetRawExternal(const char* parent,
                                                const char* name,
                                                const hsize_t* dims,
-                                               const int ndims) { // extendDatasetRawExternal
+                                               const int ndims) {
     PYLITH_METHOD_BEGIN;
 
     assert(parent);
@@ -1199,13 +1198,13 @@ pylith::meshio::HDF5::extendDatasetRawExternal(const char* parent,
 } // extendDatasetRawExternal
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Write dataset comprised of an array of strings (external HDF5 handle).
 void
 pylith::meshio::HDF5::writeDataset(const char* parent,
                                    const char* name,
                                    const char* const* sarray,
-                                   const int nstrings) { // writeDataset
+                                   const int nstrings) {
     PYLITH_METHOD_BEGIN;
 
     int slen = 0;
@@ -1214,7 +1213,7 @@ pylith::meshio::HDF5::writeDataset(const char* parent,
     } // for
     slen += 1; // add space for null terminator.
 
-    char* strfixedlen = NULL;
+    char* strfixedlen = nullptr;
     try {
         strfixedlen = (nstrings*slen > 0) ? new char[nstrings*slen] : 0;
         for (int i = 0; i < nstrings; ++i) {
@@ -1229,15 +1228,15 @@ pylith::meshio::HDF5::writeDataset(const char* parent,
 
         HDF5::writeDataset(_file, parent, name, strfixedlen, nstrings, slen);
 
-        delete[] strfixedlen;strfixedlen = NULL;
+        delete[] strfixedlen;strfixedlen = nullptr;
     } catch (const std::exception& err) {
-        delete[] strfixedlen;strfixedlen = NULL;
+        delete[] strfixedlen;strfixedlen = nullptr;
 
         std::ostringstream msg;
         msg << "Error occurred while writing dataset '" << parent << "/" << name << "':\n" << err.what();
         throw std::runtime_error(msg.str());
     } catch (...) {
-        delete[] strfixedlen;strfixedlen = NULL;
+        delete[] strfixedlen;strfixedlen = nullptr;
 
         std::ostringstream msg;
         msg << "Unknown error occurred while writing dataset '" << name << "'.";
@@ -1248,14 +1247,14 @@ pylith::meshio::HDF5::writeDataset(const char* parent,
 } // writeDataset
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Write dataset comprised of an array of strings.
 void
 pylith::meshio::HDF5::writeDataset(const char* parent,
                                    const char* name,
                                    const char* sarray,
                                    const int nstrings,
-                                   const int slen) { // writeDataset
+                                   const int slen) {
     PYLITH_METHOD_BEGIN;
 
     HDF5::writeDataset(_file, parent, name, sarray, nstrings, slen);
@@ -1264,7 +1263,7 @@ pylith::meshio::HDF5::writeDataset(const char* parent,
 } // writeDataset
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Write dataset comprised of an array of strings (external HDF5 handle).
 void
 pylith::meshio::HDF5::writeDataset(hid_t h5,
@@ -1272,7 +1271,7 @@ pylith::meshio::HDF5::writeDataset(hid_t h5,
                                    const char* name,
                                    const char* sarray,
                                    const int nstrings,
-                                   const int slen) { // writeDataset
+                                   const int slen) {
     PYLITH_METHOD_BEGIN;
 
     assert(h5);
@@ -1294,7 +1293,7 @@ pylith::meshio::HDF5::writeDataset(hid_t h5,
         // Create the dataspace
         const int ndims = 1;
         hsize_t dims[ndims];dims[0] = nstrings;
-        hid_t dataspace = H5Screate_simple(ndims, dims, NULL);
+        hid_t dataspace = H5Screate_simple(ndims, dims, nullptr);
         if (dataspace < 0) { throw std::runtime_error("Could not create dataspace.");}
 
         hid_t datatype = H5Tcopy(H5T_C_S1);
@@ -1340,11 +1339,11 @@ pylith::meshio::HDF5::writeDataset(hid_t h5,
 } // writeDataset
 
 
-// ----------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Read dataset comprised of an array of strings.
 pylith::string_vector
 pylith::meshio::HDF5::readDataset(const char* parent,
-                                  const char* name) { // readDataset
+                                  const char* name) {
     PYLITH_METHOD_BEGIN;
 
     assert(_file);
@@ -1394,7 +1393,7 @@ pylith::meshio::HDF5::readDataset(const char* parent,
             throw std::runtime_error("Expected 1 dimension for string dataset.");
         }
         hsize_t dims[1];
-        H5Sget_simple_extent_dims(dataspace, dims, NULL);
+        H5Sget_simple_extent_dims(dataspace, dims, nullptr);
         const int nstrings = dims[0];
         if (nstrings <= 0) {
             throw std::runtime_error("Zero size for dataset.");

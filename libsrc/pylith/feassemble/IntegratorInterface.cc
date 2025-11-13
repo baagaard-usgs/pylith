@@ -36,18 +36,18 @@
 extern "C" PetscErrorCode DMPlexComputeResidual_Hybrid_Internal(PetscDM dm,
                                                                 PetscFormKey key[],
                                                                 PetscIS cellIS,
-                                                                PetscReal time,
+                                                                pylith::real time,
                                                                 PetscVec locX,
                                                                 PetscVec locX_t,
-                                                                PetscReal t,
+                                                                pylith::real t,
                                                                 PetscVec locF,
                                                                 void *user);
 
 extern "C" PetscErrorCode DMPlexComputeJacobian_Hybrid_Internal(PetscDM dm,
                                                                 PetscFormKey key[],
                                                                 PetscIS cellIS,
-                                                                PetscReal t,
-                                                                PetscReal X_tShift,
+                                                                pylith::real t,
+                                                                pylith::real X_tShift,
                                                                 PetscVec locX,
                                                                 PetscVec locX_t,
                                                                 PetscMat Jac,
@@ -134,32 +134,30 @@ public:
                                                      const char* labelName,
                                                      const int labelValue);
 
-            static const PetscInt max_face_enums; ///< Maximum number of fault faces (negative, positive, fault).
-            static const PetscInt num_face_enums; ///< Number of fault faces (negative, positive, fault).
-            static const PetscInt max_parts; ///< Maximum number of equation parts.
-            static const PetscInt max_patches; ///< Maximum number of patches per fault.
+            static const pylith::integer max_face_enums; ///< Maximum number of fault faces (negative, positive, fault).
+            static const pylith::integer num_face_enums; ///< Number of fault faces (negative, positive, fault).
+            static const pylith::integer max_parts; ///< Maximum number of equation parts.
+            static const pylith::integer max_patches; ///< Maximum number of patches per fault.
 
             static const char* genericComponent;
 
         }; // _IntegratorInterface
         const char* _IntegratorInterface::genericComponent = "integratorinterface";
-        const PetscInt _IntegratorInterface::max_face_enums = 10;
-        const PetscInt _IntegratorInterface::num_face_enums = 3;
-        const PetscInt _IntegratorInterface::max_parts = 10;
-        const PetscInt _IntegratorInterface::max_patches = 10;
+        const pylith::integer _IntegratorInterface::max_face_enums = 10;
+        const pylith::integer _IntegratorInterface::num_face_enums = 3;
+        const pylith::integer _IntegratorInterface::max_parts = 10;
+        const pylith::integer _IntegratorInterface::max_patches = 10;
 
     } // feassemble
 } // pylith
 
 // ------------------------------------------------------------------------------------------------
 // Default constructor.
-pylith::feassemble::IntegratorInterface::IntegratorInterface(pylith::problems::Physics* const physics) :
+pylith::feassemble::IntegratorInterface::IntegratorInterface(std::shared_ptr<pylith::problems::Physics>& physics) :
     Integrator(physics),
-    _interfaceMesh(NULL),
     _surfaceLabelName(""),
-    _integrationPatches(NULL),
-    _weightingDM(NULL),
-    _weightingVec(NULL),
+    _weightingDM(nullptr),
+    _weightingVec(nullptr),
     _hasLHSResidualWeighted(false),
     _hasLHSJacobianWeighted(false) {
     GenericComponent::setName(_IntegratorInterface::genericComponent);
@@ -183,8 +181,11 @@ pylith::feassemble::IntegratorInterface::deallocate(void) {
 
     pylith::feassemble::Integrator::deallocate();
 
-    delete _interfaceMesh;_interfaceMesh = NULL;
-    delete _integrationPatches;_integrationPatches = NULL;
+    _interfaceMesh.reset();
+    _integrationPatches.reset();
+    _kernelsUpdateStateVars.resize(0);_kernelsUpdateStateVars.shrink_to_fit();
+    _kernelsDiagnosticField.resize(0);_kernelsDiagnosticField.shrink_to_fit();
+    _kernelsDerivedField.resize(0);_kernelsDerivedField.shrink_to_fit();
     DMDestroy(&_weightingDM);
     VecDestroy(&_weightingVec);
 
@@ -226,9 +227,9 @@ pylith::feassemble::IntegratorInterface::getPhysicsDomainMesh(void) const {
 // ------------------------------------------------------------------------------------------------
 // Set weak form keys for integration patch.
 void
-pylith::feassemble::IntegratorInterface::setIntegrationPatches(pylith::feassemble::InterfacePatches* patches) {
+pylith::feassemble::IntegratorInterface::setIntegrationPatches(std::unique_ptr<pylith::feassemble::InterfacePatches>& patches) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("setIntegrationPatches(patches="<<patches<<")");
+    PYLITH_JOURNAL_DEBUG("setIntegrationPatches(patches="<<typeid(patches).name()<<")");
 
     if (patches) {
         const size_t numPatches = patches->getKeys().size();
@@ -244,7 +245,7 @@ pylith::feassemble::IntegratorInterface::setIntegrationPatches(pylith::feassembl
         } // if
     } // if
 
-    delete _integrationPatches;_integrationPatches = patches;
+    _integrationPatches = std::move(patches);
 
     PYLITH_METHOD_END;
 } // setIntegrationPatches
@@ -252,9 +253,9 @@ pylith::feassemble::IntegratorInterface::setIntegrationPatches(pylith::feassembl
 
 // ------------------------------------------------------------------------------------------------
 // Get integration patches.
-const pylith::feassemble::InterfacePatches*
+const pylith::feassemble::InterfacePatches&
 pylith::feassemble::IntegratorInterface::getIntegrationPatches(void) const {
-    return _integrationPatches;
+    return *_integrationPatches;
 } // getIntegrationPatches
 
 
@@ -268,32 +269,32 @@ pylith::feassemble::IntegratorInterface::setKernels(const std::vector<ResidualKe
     PYLITH_JOURNAL_DEBUG(_labelName<<"="<<_labelValue<<" setKernels(# kernels="<<kernels.size()<<")");
     typedef InterfacePatches::keysmap_t keysmap_t;
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     const keysmap_t& keysmap = _integrationPatches->getKeys();
-    for (keysmap_t::const_iterator iter = keysmap.begin(); iter != keysmap.end(); ++iter) {
-        const PetscWeakForm weakForm = iter->second.cohesive.getWeakForm();
-        const PetscInt patchValue = iter->second.cohesive.getValue();
+    for (auto keypair : keysmap) {
+        const PetscWeakForm weakForm = keypair.second.cohesive.getWeakForm();
+        const pylith::integer patchValue = keypair.second.cohesive.getValue();
         std::vector<ResidualKernels> patchKernels(kernels);
 
         _IntegratorInterface::addMaterialKernels(&patchKernels, pylith::feassemble::IntegratorInterface::NEGATIVE_FACE,
-                                                 iter->second.negative, solution, materials);
+                                                 keypair.second.negative, solution, materials);
         _IntegratorInterface::addMaterialKernels(&patchKernels, pylith::feassemble::IntegratorInterface::POSITIVE_FACE,
-                                                 iter->second.positive, solution, materials);
+                                                 keypair.second.positive, solution, materials);
 
         for (size_t i = 0; i < patchKernels.size(); ++i) {
             PetscFormKey key;
 
-            const PetscInt interfacePart = getWeakFormPart(patchKernels[i].part, patchKernels[i].face, patchValue);
+            const pylith::integer interfacePart = getWeakFormPart(patchKernels[i].part, patchKernels[i].face, patchValue);
 
             switch (kernels[i].face) {
             case IntegratorInterface::NEGATIVE_FACE:
-                key = iter->second.negative.getPetscKey(solution, interfacePart, patchKernels[i].subfield.c_str());
+                key = keypair.second.negative.getPetscKey(solution, interfacePart, patchKernels[i].subfield.c_str());
                 break;
             case IntegratorInterface::POSITIVE_FACE:
-                key = iter->second.positive.getPetscKey(solution, interfacePart, patchKernels[i].subfield.c_str());
+                key = keypair.second.positive.getPetscKey(solution, interfacePart, patchKernels[i].subfield.c_str());
                 break;
             case IntegratorInterface::FAULT_FACE:
-                key = iter->second.cohesive.getPetscKey(solution, interfacePart, patchKernels[i].subfield.c_str());
+                key = keypair.second.cohesive.getPetscKey(solution, interfacePart, patchKernels[i].subfield.c_str());
                 break;
             default:
                 PYLITH_JOURNAL_LOGICERROR("Unknown integration face ("<<patchKernels[i].face<<").");
@@ -339,43 +340,43 @@ pylith::feassemble::IntegratorInterface::setKernels(const std::vector<JacobianKe
     PYLITH_JOURNAL_DEBUG(_labelName<<"="<<_labelValue<<" setKernels(# kernels="<<kernels.size()<<")");
     typedef InterfacePatches::keysmap_t keysmap_t;
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     const keysmap_t& keysmap = _integrationPatches->getKeys();
-    for (keysmap_t::const_iterator iter = keysmap.begin(); iter != keysmap.end(); ++iter) {
-        const PetscWeakForm weakForm = iter->second.cohesive.getWeakForm();
-        const PetscInt patchValue = iter->second.cohesive.getValue();
+    for (auto keypair : keysmap) {
+        const PetscWeakForm weakForm = keypair.second.cohesive.getWeakForm();
+        const pylith::integer patchValue = keypair.second.cohesive.getValue();
         std::vector<JacobianKernels> patchKernels(kernels);
 
         _IntegratorInterface::addMaterialKernels(&patchKernels, pylith::feassemble::IntegratorInterface::NEGATIVE_FACE,
-                                                 iter->second.negative, solution, materials);
+                                                 keypair.second.negative, solution, materials);
         _IntegratorInterface::addMaterialKernels(&patchKernels, pylith::feassemble::IntegratorInterface::POSITIVE_FACE,
-                                                 iter->second.positive, solution, materials);
+                                                 keypair.second.positive, solution, materials);
 
-        PetscInt numFields = 0;
+        pylith::integer numFields = 0;
         err = PetscWeakFormGetNumFields(weakForm, &numFields);PYLITH_CHECK_ERROR(err);
 
         for (size_t i = 0; i < patchKernels.size(); ++i) {
             PetscFormKey key;
-            const PetscInt interfacePart = getWeakFormPart(patchKernels[i].part, patchKernels[i].face, patchValue);
+            const pylith::integer interfacePart = getWeakFormPart(patchKernels[i].part, patchKernels[i].face, patchValue);
 
             switch (patchKernels[i].face) {
             case IntegratorInterface::NEGATIVE_FACE:
-                key = iter->second.negative.getPetscKey(solution, interfacePart, patchKernels[i].subfieldTrial.c_str(),
-                                                        patchKernels[i].subfieldBasis.c_str());
+                key = keypair.second.negative.getPetscKey(solution, interfacePart, patchKernels[i].subfieldTrial.c_str(),
+                                                          patchKernels[i].subfieldBasis.c_str());
                 break;
             case IntegratorInterface::POSITIVE_FACE:
-                key = iter->second.positive.getPetscKey(solution, interfacePart, patchKernels[i].subfieldTrial.c_str(),
-                                                        patchKernels[i].subfieldBasis.c_str());
+                key = keypair.second.positive.getPetscKey(solution, interfacePart, patchKernels[i].subfieldTrial.c_str(),
+                                                          patchKernels[i].subfieldBasis.c_str());
                 break;
             case IntegratorInterface::FAULT_FACE:
-                key = iter->second.cohesive.getPetscKey(solution, interfacePart, patchKernels[i].subfieldTrial.c_str(),
-                                                        patchKernels[i].subfieldBasis.c_str());
+                key = keypair.second.cohesive.getPetscKey(solution, interfacePart, patchKernels[i].subfieldTrial.c_str(),
+                                                          patchKernels[i].subfieldBasis.c_str());
                 break;
             default:
                 PYLITH_JOURNAL_LOGICERROR("Unknown integration face.");
             } // switch
-            const PetscInt i_trial = key.field / numFields;
-            const PetscInt i_basis = key.field % numFields;
+            const pylith::integer i_trial = key.field / numFields;
+            const pylith::integer i_basis = key.field % numFields;
             if (weakForm) {
                 err = PetscWeakFormAddBdJacobian(weakForm, key.label, key.value, i_trial, i_basis, key.part,
                                                  patchKernels[i].j0, patchKernels[i].j1, patchKernels[i].j2, patchKernels[i].j3);PYLITH_CHECK_ERROR(err);
@@ -445,14 +446,14 @@ pylith::feassemble::IntegratorInterface::setKernelsDiagnosticField(const std::ve
 
 // ------------------------------------------------------------------------------------------------
 // Compute weak form key part for face.
-PetscInt
-pylith::feassemble::IntegratorInterface::getWeakFormPart(const PetscInt part,
-                                                         const PetscInt face,
-                                                         const PetscInt patch) const {
-    const PetscInt max_face_enums = _IntegratorInterface::max_face_enums;
-    const PetscInt num_face_enums = _IntegratorInterface::num_face_enums;
-    const PetscInt max_parts = _IntegratorInterface::max_parts;
-    const PetscInt max_patches = _IntegratorInterface::max_patches;
+pylith::integer
+pylith::feassemble::IntegratorInterface::getWeakFormPart(const pylith::integer part,
+                                                         const pylith::integer face,
+                                                         const pylith::integer patch) const {
+    const pylith::integer max_face_enums = _IntegratorInterface::max_face_enums;
+    const pylith::integer num_face_enums = _IntegratorInterface::num_face_enums;
+    const pylith::integer max_parts = _IntegratorInterface::max_parts;
+    const pylith::integer max_patches = _IntegratorInterface::max_patches;
     return _labelValue*(max_parts*max_face_enums*max_patches) + part*num_face_enums*max_patches + face*max_patches + patch;
 } // getWeakFormPart
 
@@ -462,27 +463,27 @@ pylith::feassemble::IntegratorInterface::getWeakFormPart(const PetscInt part,
 void
 pylith::feassemble::IntegratorInterface::initialize(const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG(_labelName<<"="<<_labelValue<<" initialize(solution="<<solution.getLabel()<<")");
+    PYLITH_JOURNAL_DEBUG(_labelName<<"="<<_labelValue<<" initialize(solution="<<solution.getName()<<")");
 
-    delete _interfaceMesh;_interfaceMesh = new pylith::topology::Mesh();assert(_interfaceMesh);
+    _interfaceMesh = std::unique_ptr<pylith::topology::Mesh>();assert(_interfaceMesh);
 #if 0
     pylith::faults::TopologyOps::createFaultParallel(_interfaceMesh, solution.getMesh(), _labelValue, _labelName.c_str(),
                                                      _surfaceLabelName.c_str());
     pylith::topology::MeshOps::checkTopology(*_interfaceMesh);
 #else
-    pylith::faults::TopologyOps::createFaultFromCohesiveCells(_interfaceMesh, solution.getMesh(), _labelName.c_str(), _labelValue, _surfaceLabelName.c_str());
+    pylith::faults::TopologyOps::createFaultFromCohesiveCells(_interfaceMesh.get(), solution.getMesh(), _labelName.c_str(), _labelValue, _surfaceLabelName.c_str());
 #endif
     pylith::topology::CoordsVisitor::optimizeClosure(_interfaceMesh->getDM());
 
     Integrator::initialize(solution);
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     PetscDM dmSoln = solution.getDM();
     typedef InterfacePatches::keysmap_t keysmap_t;
     const keysmap_t& keysmap = _integrationPatches->getKeys();
     const pylith::topology::Field* auxiliaryField = getAuxiliaryField();assert(auxiliaryField);
-    for (keysmap_t::const_iterator iter = keysmap.begin(); iter != keysmap.end(); ++iter) {
-        const PetscInt patchValue = iter->second.cohesive.getValue();
+    for (auto keypair : keysmap) {
+        const pylith::integer patchValue = keypair.second.cohesive.getValue();
         const size_t numParts = 3;
         const EquationPart equationParts[numParts] = {
             pylith::feassemble::Integrator::RHS,
@@ -490,8 +491,8 @@ pylith::feassemble::IntegratorInterface::initialize(const pylith::topology::Fiel
             pylith::feassemble::Integrator::LHS_WEIGHTED,
         };
         for (size_t i = 0; i < numParts; ++i) {
-            PetscFormKey key = iter->second.cohesive.getPetscKey(solution, equationParts[i]);
-            PetscInt part = getWeakFormPart(key.part, IntegratorInterface::FAULT_FACE, patchValue);
+            PetscFormKey key = keypair.second.cohesive.getPetscKey(solution, equationParts[i]);
+            pylith::integer part = getWeakFormPart(key.part, IntegratorInterface::FAULT_FACE, patchValue);
             err = DMSetAuxiliaryVec(dmSoln, key.label, key.value, part,
                                     auxiliaryField->getLocalVector());PYLITH_CHECK_ERROR(err);
         } // for
@@ -511,7 +512,7 @@ pylith::feassemble::IntegratorInterface::setState(const double t) {
     Integrator::setState(t);
 
     assert(_physics);
-    _physics->updateAuxiliaryField(_auxiliaryField, t);
+    _physics->updateAuxiliaryField(_auxiliaryField.get(), t);
 
     pythia::journal::debug_t debug(GenericComponent::getName());
     if (debug.state()) {
@@ -557,7 +558,7 @@ pylith::feassemble::IntegratorInterface::computeLHSResidual(pylith::topology::Fi
 
     if (_hasLHSResidualWeighted) {
         { // KLUDGE
-            PetscErrorCode err = 0;
+            PetscErrorCode err = PETSC_SUCCESS;
             const pylith::topology::Field* daeWeighting =
                 integrationData.getField(pylith::feassemble::IntegrationData::dae_mass_weighting);
             const pylith::topology::Field* solution =
@@ -566,10 +567,10 @@ pylith::feassemble::IntegratorInterface::computeLHSResidual(pylith::topology::Fi
             typedef InterfacePatches::keysmap_t keysmap_t;
             const keysmap_t& keysmap = _integrationPatches->getKeys();
 
-            for (keysmap_t::const_iterator iter = keysmap.begin(); iter != keysmap.end(); ++iter) {
-                const PetscInt patchValue = iter->second.cohesive.getValue();
-                const PetscFormKey key = iter->second.cohesive.getPetscKey(*solution, LHS_WEIGHTED);
-                PetscInt part = getWeakFormPart(key.part, IntegratorInterface::FAULT_FACE, patchValue);
+            for (auto keypair : keysmap) {
+                const pylith::integer patchValue = keypair.second.cohesive.getValue();
+                const PetscFormKey key = keypair.second.cohesive.getPetscKey(*solution, LHS_WEIGHTED);
+                pylith::integer part = getWeakFormPart(key.part, IntegratorInterface::FAULT_FACE, patchValue);
                 err = DMSetAuxiliaryVec(dmSoln, key.label, -key.value, part, daeWeighting->getLocalVector());PYLITH_CHECK_ERROR(err);
 
                 part = getWeakFormPart(key.part, IntegratorInterface::NEGATIVE_FACE, patchValue);
@@ -649,9 +650,9 @@ pylith::feassemble::_IntegratorInterface::computeResidual(pylith::topology::Fiel
 
     const pylith::topology::Field* solution = integrationData.getField(pylith::feassemble::IntegrationData::solution);
     assert(solution);
-    const PylithReal t = integrationData.getScalar(pylith::feassemble::IntegrationData::time);
-    const PylithReal dt = integrationData.getScalar(pylith::feassemble::IntegrationData::time_step);
-    PetscVec solutionDotVec = NULL;
+    const pylith::real t = integrationData.getScalar(pylith::feassemble::IntegrationData::time);
+    const pylith::real dt = integrationData.getScalar(pylith::feassemble::IntegrationData::time_step);
+    PetscVec solutionDotVec = nullptr;
     if ((equationPart == pylith::feassemble::Integrator::LHS) ||
         (equationPart == pylith::feassemble::Integrator::LHS_WEIGHTED) ) {
         const pylith::topology::Field* solutionDot = integrationData.getField(pylith::feassemble::IntegrationData::solution_dot);
@@ -662,26 +663,26 @@ pylith::feassemble::_IntegratorInterface::computeResidual(pylith::topology::Fiel
     integrator->_setKernelConstants(*solution, dt);
 
     // Loop over integration patches.
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     PetscDM dmSoln = solution->getDM();
-    const InterfacePatches* patches = integrator->_integrationPatches;assert(patches);
+    const InterfacePatches* patches = integrator->_integrationPatches.get();assert(patches);
     const keysmap_t& keysmap = patches->getKeys();
-    for (keysmap_t::const_iterator iter = keysmap.begin(); iter != keysmap.end(); ++iter) {
-        const PetscInt patchValue = iter->second.cohesive.getValue();
+    for (auto keypair : keysmap) {
+        const pylith::integer patchValue = keypair.second.cohesive.getValue();
 
         PetscFormKey weakFormKeys[3];
-        weakFormKeys[0] = iter->second.negative.getPetscKey(*solution, equationPart);
+        weakFormKeys[0] = keypair.second.negative.getPetscKey(*solution, equationPart);
         weakFormKeys[0].part = integrator->getWeakFormPart(equationPart, IntegratorInterface::NEGATIVE_FACE, patchValue);
 
-        weakFormKeys[1] = iter->second.positive.getPetscKey(*solution, equationPart);
+        weakFormKeys[1] = keypair.second.positive.getPetscKey(*solution, equationPart);
         weakFormKeys[1].part = integrator->getWeakFormPart(equationPart, IntegratorInterface::POSITIVE_FACE, patchValue);
 
-        weakFormKeys[2] = iter->second.cohesive.getPetscKey(*solution, equationPart);
+        weakFormKeys[2] = keypair.second.cohesive.getPetscKey(*solution, equationPart);
         weakFormKeys[2].part = integrator->getWeakFormPart(equationPart, IntegratorInterface::FAULT_FACE, patchValue);
 
-        PetscIS patchCellsIS = NULL;
-        PetscInt numPatchCells = 0;
-        const PetscInt* patchCells = NULL;
+        PetscIS patchCellsIS = nullptr;
+        pylith::integer numPatchCells = 0;
+        const pylith::integer* patchCells = nullptr;
         err = DMGetStratumIS(dmSoln, patches->getLabelName(), weakFormKeys[2].value, &patchCellsIS);PYLITH_CHECK_ERROR(err);
         err = ISGetSize(patchCellsIS, &numPatchCells);PYLITH_CHECK_ERROR(err);assert(numPatchCells > 0);
         err = ISGetIndices(patchCellsIS, &patchCells);PYLITH_CHECK_ERROR(err);assert(patchCells);
@@ -690,7 +691,7 @@ pylith::feassemble::_IntegratorInterface::computeResidual(pylith::topology::Fiel
         assert(solution->getLocalVector());
         assert(residual->getLocalVector());
         err = DMPlexComputeResidual_Hybrid_Internal(dmSoln, weakFormKeys, patchCellsIS, t, solution->getLocalVector(),
-                                                    solutionDotVec, t, residual->getLocalVector(), NULL);PYLITH_CHECK_ERROR(err);
+                                                    solutionDotVec, t, residual->getLocalVector(), nullptr);PYLITH_CHECK_ERROR(err);
         err = ISRestoreIndices(patchCellsIS, &patchCells);PYLITH_CHECK_ERROR(err);
         err = ISDestroy(&patchCellsIS);PYLITH_CHECK_ERROR(err);
     } // for
@@ -724,32 +725,32 @@ pylith::feassemble::_IntegratorInterface::computeJacobian(PetscMat jacobianMat,
     assert(solution);
     const pylith::topology::Field* solutionDot = integrationData.getField(pylith::feassemble::IntegrationData::solution_dot);
     assert(solutionDot);
-    const PylithReal t = integrationData.getScalar(pylith::feassemble::IntegrationData::time);
-    const PylithReal dt = integrationData.getScalar(pylith::feassemble::IntegrationData::time_step);
-    const PylithReal s_tshift = integrationData.getScalar(pylith::feassemble::IntegrationData::s_tshift);
+    const pylith::real t = integrationData.getScalar(pylith::feassemble::IntegrationData::time);
+    const pylith::real dt = integrationData.getScalar(pylith::feassemble::IntegrationData::time_step);
+    const pylith::real s_tshift = integrationData.getScalar(pylith::feassemble::IntegrationData::s_tshift);
 
     integrator->_setKernelConstants(*solution, dt);
 
-    PetscErrorCode err;
+    PetscErrorCode err = PETSC_SUCCESS;
     PetscDM dmSoln = solution->getDM();
-    const InterfacePatches* patches = integrator->_integrationPatches;assert(patches);
+    const InterfacePatches* patches = integrator->_integrationPatches.get();assert(patches);
     const keysmap_t& keysmap = patches->getKeys();
-    for (keysmap_t::const_iterator iter = keysmap.begin(); iter != keysmap.end(); ++iter) {
-        const PetscInt patchValue = iter->second.cohesive.getValue();
+    for (auto keypair : keysmap) {
+        const pylith::integer patchValue = keypair.second.cohesive.getValue();
 
         PetscFormKey weakFormKeys[3];
-        weakFormKeys[0] = iter->second.negative.getPetscKey(*solution, equationPart);
+        weakFormKeys[0] = keypair.second.negative.getPetscKey(*solution, equationPart);
         weakFormKeys[0].part = integrator->getWeakFormPart(equationPart, IntegratorInterface::NEGATIVE_FACE, patchValue);
 
-        weakFormKeys[1] = iter->second.positive.getPetscKey(*solution, equationPart);
+        weakFormKeys[1] = keypair.second.positive.getPetscKey(*solution, equationPart);
         weakFormKeys[1].part = integrator->getWeakFormPart(equationPart, IntegratorInterface::POSITIVE_FACE, patchValue);
 
-        weakFormKeys[2] = iter->second.cohesive.getPetscKey(*solution, equationPart);
+        weakFormKeys[2] = keypair.second.cohesive.getPetscKey(*solution, equationPart);
         weakFormKeys[2].part = integrator->getWeakFormPart(equationPart, IntegratorInterface::FAULT_FACE, patchValue);
 
-        PetscIS patchCellsIS = NULL;
-        PetscInt numPatchCells = 0;
-        const PetscInt* patchCells = NULL;
+        PetscIS patchCellsIS = nullptr;
+        pylith::integer numPatchCells = 0;
+        const pylith::integer* patchCells = nullptr;
         err = DMGetStratumIS(dmSoln, patches->getLabelName(), weakFormKeys[2].value, &patchCellsIS);PYLITH_CHECK_ERROR(err);
         err = ISGetSize(patchCellsIS, &numPatchCells);PYLITH_CHECK_ERROR(err);assert(numPatchCells > 0);
         err = ISGetIndices(patchCellsIS, &patchCells);PYLITH_CHECK_ERROR(err);assert(patchCells);
@@ -758,7 +759,7 @@ pylith::feassemble::_IntegratorInterface::computeJacobian(PetscMat jacobianMat,
         assert(solution->getLocalVector());
         err = DMPlexComputeJacobian_Hybrid_Internal(dmSoln, weakFormKeys, patchCellsIS, t, s_tshift, solution->getLocalVector(),
                                                     solutionDot->getLocalVector(), jacobianMat, precondMat,
-                                                    NULL);PYLITH_CHECK_ERROR(err);
+                                                    nullptr);PYLITH_CHECK_ERROR(err);
         err = ISRestoreIndices(patchCellsIS, &patchCells);PYLITH_CHECK_ERROR(err);
         err = ISDestroy(&patchCellsIS);PYLITH_CHECK_ERROR(err);
     }
@@ -769,11 +770,11 @@ pylith::feassemble::_IntegratorInterface::computeJacobian(PetscMat jacobianMat,
 // ------------------------------------------------------------------------------------------------
 // Update state variables as needed.
 void
-pylith::feassemble::IntegratorInterface::_updateStateVars(const PylithReal t,
-                                                          const PylithReal dt,
+pylith::feassemble::IntegratorInterface::_updateStateVars(const pylith::real t,
+                                                          const pylith::real dt,
                                                           const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("_updateStateVars(t="<<t<<", dt="<<dt<<", solution="<<solution.getLabel()<<")");
+    PYLITH_JOURNAL_DEBUG("_updateStateVars(t="<<t<<", dt="<<dt<<", solution="<<solution.getName()<<")");
 
     if (0 == _kernelsUpdateStateVars.size()) {
         PYLITH_METHOD_END;
@@ -798,25 +799,25 @@ pylith::feassemble::IntegratorInterface::_computeDiagnosticField(void) {
 
     assert(_auxiliaryField);
     assert(_diagnosticField);
-    const PylithScalar t = 0.0;
-    const PylithScalar dt = 0.0;
+    const pylith::real t = 0.0;
+    const pylith::real dt = 0.0;
     _setKernelConstants(*_auxiliaryField, dt);
 
     const size_t numKernels = _kernelsDiagnosticField.size();
     assert(numKernels > 0);
-    PetscBdPointFunc* kernelsArray = (numKernels > 0) ? new PetscBdPointFunc[numKernels] : NULL;
+    PetscBdPointFunc* kernelsArray = (numKernels > 0) ? new PetscBdPointFunc[numKernels] : nullptr;
     for (size_t iKernel = 0; iKernel < numKernels; ++iKernel) {
         const pylith::topology::Field::SubfieldInfo& sinfo = _diagnosticField->getSubfieldInfo(_kernelsDiagnosticField[iKernel].subfield.c_str());
         kernelsArray[sinfo.index] = _kernelsDiagnosticField[iKernel].f;
     } // for
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
     PetscDM diagnosticDM = _diagnosticField->getDM();
-    PetscDMLabel diagnosticFieldLabel = NULL;
-    const PetscInt labelValue = 1;
+    PetscDMLabel diagnosticFieldLabel = nullptr;
+    const pylith::integer labelValue = 1;
     err = DMGetLabel(diagnosticDM, "output", &diagnosticFieldLabel);PYLITH_CHECK_ERROR(err);
-    err = DMProjectBdFieldLabelLocal(diagnosticDM, t, diagnosticFieldLabel, 1, &labelValue, PETSC_DETERMINE, NULL, _auxiliaryField->getLocalVector(), kernelsArray, INSERT_VALUES, _diagnosticField->getLocalVector());PYLITH_CHECK_ERROR(err);
-    delete[] kernelsArray;kernelsArray = NULL;
+    err = DMProjectBdFieldLabelLocal(diagnosticDM, t, diagnosticFieldLabel, 1, &labelValue, PETSC_DETERMINE, nullptr, _auxiliaryField->getLocalVector(), kernelsArray, INSERT_VALUES, _diagnosticField->getLocalVector());PYLITH_CHECK_ERROR(err);
+    delete[] kernelsArray;kernelsArray = nullptr;
 
     pythia::journal::debug_t debug(GenericComponent::getName());
     if (debug.state()) {
@@ -831,11 +832,11 @@ pylith::feassemble::IntegratorInterface::_computeDiagnosticField(void) {
 // ------------------------------------------------------------------------------------------------
 // Compute field derived from solution and auxiliary field.
 void
-pylith::feassemble::IntegratorInterface::_computeDerivedField(const PylithReal t,
-                                                              const PylithReal dt,
+pylith::feassemble::IntegratorInterface::_computeDerivedField(const pylith::real t,
+                                                              const pylith::real dt,
                                                               const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_JOURNAL_DEBUG("_computeDerivedField(t="<<t<<", dt="<<dt<<", solution="<<solution.getLabel()<<")");
+    PYLITH_JOURNAL_DEBUG("_computeDerivedField(t="<<t<<", dt="<<dt<<", solution="<<solution.getName()<<")");
 
     if (!_derivedField) {
         PYLITH_METHOD_END;
@@ -845,26 +846,26 @@ pylith::feassemble::IntegratorInterface::_computeDerivedField(const PylithReal t
     _setKernelConstants(solution, dt);
 
     const size_t numKernels = _kernelsDerivedField.size();
-    PetscBdPointFunc* kernelsArray = (numKernels > 0) ? new PetscBdPointFunc[numKernels] : NULL;
+    PetscBdPointFunc* kernelsArray = (numKernels > 0) ? new PetscBdPointFunc[numKernels] : nullptr;
     for (size_t iKernel = 0; iKernel < numKernels; ++iKernel) {
         const pylith::topology::Field::SubfieldInfo& sinfo = _derivedField->getSubfieldInfo(_kernelsDerivedField[iKernel].subfield.c_str());
         kernelsArray[sinfo.index] = _kernelsDerivedField[iKernel].f;
     } // for
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     PetscDM derivedDM = _derivedField->getDM();
     assert(_auxiliaryField);
-    PetscDMLabel dmLabel = NULL;
-    PetscInt labelValue = 0;
-    const PetscInt part = 0;
+    PetscDMLabel dmLabel = nullptr;
+    pylith::integer labelValue = 0;
+    const pylith::integer part = 0;
     err = DMSetAuxiliaryVec(derivedDM, dmLabel, labelValue, part, _auxiliaryField->getLocalVector());PYLITH_CHECK_ERROR(err);
 
-    PetscDMLabel derivedFieldLabel = NULL;
+    PetscDMLabel derivedFieldLabel = nullptr;
     err = DMGetLabel(derivedDM, "output", &derivedFieldLabel);PYLITH_CHECK_ERROR(err);
     labelValue = 1;
-    err = DMProjectBdFieldLabelLocal(derivedDM, t, derivedFieldLabel, 1, &labelValue, PETSC_DETERMINE, NULL, solution.getLocalVector(), kernelsArray, INSERT_VALUES, _derivedField->getLocalVector());PYLITH_CHECK_ERROR(err);
-    delete[] kernelsArray;kernelsArray = NULL;
+    err = DMProjectBdFieldLabelLocal(derivedDM, t, derivedFieldLabel, 1, &labelValue, PETSC_DETERMINE, nullptr, solution.getLocalVector(), kernelsArray, INSERT_VALUES, _derivedField->getLocalVector());PYLITH_CHECK_ERROR(err);
+    delete[] kernelsArray;kernelsArray = nullptr;
 
     pythia::journal::debug_t debug(GenericComponent::getName());
     if (debug.state()) {
@@ -919,7 +920,7 @@ pylith::feassemble::_IntegratorInterface::getMaterial(const std::vector<pylith::
                                                       const int labelValue) {
     PYLITH_METHOD_BEGIN;
 
-    pylith::materials::Material* material = NULL;
+    pylith::materials::Material* material = nullptr;
     for (size_t i = 0; i < materials.size(); ++i) {
         assert(materials[i]);
         if ((std::string(labelName) == std::string(materials[i]->getLabelName())) && (labelValue == materials[i]->getLabelValue())) {

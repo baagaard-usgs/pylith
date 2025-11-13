@@ -10,7 +10,7 @@
 
 #include <portinfo>
 
-#include "pylith/bc/NeumannUserFn.hh" // implementation of object methods
+#include "pylith/bc/NeumannCxxFn.hh" // implementation of object methods
 
 #include "pylith/fekernels/NeumannTimeDependent.hh" // USES NeumannTimeDepndent kernels
 
@@ -35,8 +35,15 @@ typedef pylith::feassemble::IntegratorBoundary::ResidualKernels ResidualKernels;
 // ------------------------------------------------------------------------------------------------
 namespace pylith {
     namespace bc {
-        class _NeumannUserFn {
-            // PUBLIC MEMBERS /////////////////////////////////////////////////////////////////////
+        class NeumannCxxFnWrap : public NeumannCxxFn {
+public:
+
+            NeumannCxxFnWrap(void) : NeumannCxxFn() {}
+
+
+        };
+
+        class _NeumannCxxFn {
 public:
 
             /** Set kernels for RHS residual.
@@ -48,29 +55,37 @@ public:
              */
             static
             void setKernelsResidual(pylith::feassemble::IntegratorBoundary* integrator,
-                                    const pylith::bc::NeumannUserFn& bc,
+                                    const pylith::bc::NeumannCxxFn& bc,
                                     const pylith::topology::Field& solution,
                                     const pylith::problems::Physics::FormulationEnum formulation);
 
             static const char* pyreComponent;
 
-        }; // _NeumannUserFn
-        const char* _NeumannUserFn::pyreComponent = "neumannuserfn";
+        }; // _NeumannCxxFn
+        const char* _NeumannCxxFn::pyreComponent = "NeumannCxxFn";
 
     } // bc
 } // pylith
 
 // ------------------------------------------------------------------------------------------------
 // Default constructor.
-pylith::bc::NeumannUserFn::NeumannUserFn(void) :
-    _fn(NULL) {
-    PyreComponent::setName("neumannuserfn");
+pylith::bc::NeumannCxxFn::NeumannCxxFn(void) :
+    _fn(nullptr) {
+    PyreComponent::setName("NeumannCxxFn");
 } // constructor
 
 
 // ------------------------------------------------------------------------------------------------
+// Factory for std::shared_ptr.
+std::shared_ptr<pylith::bc::NeumannCxxFn>
+pylith::bc::NeumannCxxFn::create(void) {
+    return std::make_shared<NeumannCxxFnWrap>();
+}
+
+
+// ------------------------------------------------------------------------------------------------
 // Destructor.
-pylith::bc::NeumannUserFn::~NeumannUserFn(void) {
+pylith::bc::NeumannCxxFn::~NeumannCxxFn(void) {
     deallocate();
 } // destructor
 
@@ -78,7 +93,7 @@ pylith::bc::NeumannUserFn::~NeumannUserFn(void) {
 // ------------------------------------------------------------------------------------------------
 // Deallocate PETSc and local data structures.
 void
-pylith::bc::NeumannUserFn::deallocate(void) {
+pylith::bc::NeumannCxxFn::deallocate(void) {
     PYLITH_METHOD_BEGIN;
 
     BoundaryCondition::deallocate();
@@ -90,34 +105,34 @@ pylith::bc::NeumannUserFn::deallocate(void) {
 // ------------------------------------------------------------------------------------------------
 // Set user function specifying field on boundary.
 void
-pylith::bc::NeumannUserFn::setUserFn(PetscBdPointFunc fn) {
-    PYLITH_COMPONENT_DEBUG("setUserFn(fn="<<fn<<")");
+pylith::bc::NeumannCxxFn::setCxxFn(PetscBdPointFunc fn) {
+    PYLITH_COMPONENT_DEBUG("setCxxFn(fn="<<fn<<")");
 
     _fn = fn;
-} // setUserFn
+} // setCxxFn
 
 
 // ------------------------------------------------------------------------------------------------
 // Get user function specifying field on boundary.
 PetscBdPointFunc
-pylith::bc::NeumannUserFn::getUserFn(void) const {
+pylith::bc::NeumannCxxFn::getCxxFn(void) const {
     return _fn;
-} // getUserFn
+} // getCxxFn
 
 
 // ------------------------------------------------------------------------------------------------
 // Create integrator and set kernels.
-pylith::feassemble::Integrator*
-pylith::bc::NeumannUserFn::createIntegrator(const pylith::topology::Field& solution) {
+std::shared_ptr<pylith::feassemble::Integrator>
+pylith::bc::NeumannCxxFn::createIntegrator(const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createIntegrator(solution="<<solution.getLabel()<<")");
+    PYLITH_COMPONENT_DEBUG("createIntegrator(solution="<<solution.getName()<<")");
 
-    pylith::feassemble::IntegratorBoundary* integrator = new pylith::feassemble::IntegratorBoundary(this);assert(integrator);
+    std::shared_ptr<pylith::feassemble::IntegratorBoundary> integrator = pylith::feassemble::IntegratorBoundary::create(shared_from_this());assert(integrator);
     integrator->setSubfieldName(getSubfieldName());
     integrator->setLabelName(getLabelName());
     integrator->setLabelValue(getLabelValue());
 
-    _NeumannUserFn::setKernelsResidual(integrator, *this, solution, _formulation);
+    _NeumannCxxFn::setKernelsResidual(integrator.get(), *this, solution, _formulation);
 
     PYLITH_METHOD_RETURN(integrator);
 } // createIntegrator
@@ -125,11 +140,11 @@ pylith::bc::NeumannUserFn::createIntegrator(const pylith::topology::Field& solut
 
 // ------------------------------------------------------------------------------------------------
 // Create constraint and set kernels.
-std::vector<pylith::feassemble::Constraint*>
-pylith::bc::NeumannUserFn::createConstraints(const pylith::topology::Field& solution) {
+std::vector<std::shared_ptr<pylith::feassemble::Constraint> >
+pylith::bc::NeumannCxxFn::createConstraints(const pylith::topology::Field& solution) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createConstraints(solution="<<solution.getLabel()<<") empty method");
-    std::vector<pylith::feassemble::Constraint*> constraintArray;
+    PYLITH_COMPONENT_DEBUG("createConstraints(solution="<<solution.getName()<<") empty method");
+    std::vector<std::shared_ptr<pylith::feassemble::Constraint> > constraintArray;
 
     PYLITH_METHOD_RETURN(constraintArray);
 } // createConstraints
@@ -137,14 +152,14 @@ pylith::bc::NeumannUserFn::createConstraints(const pylith::topology::Field& solu
 
 // ------------------------------------------------------------------------------------------------
 // Create auxiliary field.
-pylith::topology::Field*
-pylith::bc::NeumannUserFn::createAuxiliaryField(const pylith::topology::Field& solution,
-                                                const pylith::topology::Mesh& domainMesh) {
+std::shared_ptr<pylith::topology::Field>
+pylith::bc::NeumannCxxFn::createAuxiliaryField(const pylith::topology::Field& solution,
+                                               const pylith::topology::Mesh& domainMesh) {
     PYLITH_METHOD_BEGIN;
-    PYLITH_COMPONENT_DEBUG("createAuxiliaryField(solution="<<solution.getLabel()<<", domainMesh=)"<<typeid(domainMesh).name()<<")");
+    PYLITH_COMPONENT_DEBUG("createAuxiliaryField(solution="<<solution.getName()<<", domainMesh=)"<<typeid(domainMesh).name()<<")");
 
-    pylith::topology::Field* auxiliaryField = new pylith::topology::Field(domainMesh);assert(auxiliaryField);
-    auxiliaryField->setLabel("auxiliary field (not used)");
+    std::shared_ptr<pylith::topology::Field> auxiliaryField = std::make_shared<pylith::topology::Field>(domainMesh);assert(auxiliaryField);
+    auxiliaryField->setName("auxiliary field (not used)");
 
     pythia::journal::debug_t debug(PyreComponent::getName());
     if (debug.state()) {
@@ -157,29 +172,21 @@ pylith::bc::NeumannUserFn::createAuxiliaryField(const pylith::topology::Field& s
 
 
 // ------------------------------------------------------------------------------------------------
-// Get auxiliary factory associated with physics.
-pylith::feassemble::AuxiliaryFactory*
-pylith::bc::NeumannUserFn::_getAuxiliaryFactory(void) {
-    return NULL;
-} // _getAuxiliaryFactory
-
-
-// ------------------------------------------------------------------------------------------------
 // Set kernels for residual.
 void
-pylith::bc::_NeumannUserFn::setKernelsResidual(pylith::feassemble::IntegratorBoundary* integrator,
-                                               const pylith::bc::NeumannUserFn& bc,
-                                               const topology::Field& solution,
-                                               const pylith::problems::Physics::FormulationEnum formulation) {
+pylith::bc::_NeumannCxxFn::setKernelsResidual(pylith::feassemble::IntegratorBoundary* integrator,
+                                              const pylith::bc::NeumannCxxFn& bc,
+                                              const topology::Field& solution,
+                                              const pylith::problems::Physics::FormulationEnum formulation) {
     PYLITH_METHOD_BEGIN;
-    pythia::journal::debug_t debug(_NeumannUserFn::pyreComponent);
+    pythia::journal::debug_t debug(_NeumannCxxFn::pyreComponent);
     debug << pythia::journal::at(__HERE__)
           << "setKernelsResidual(integrator="<<integrator<<", bc="<<typeid(bc).name()<<", solution="
-          << solution.getLabel()<<")"
+          << solution.getName()<<")"
           << pythia::journal::endl;
 
-    PetscBdPointFunc r0 = bc.getUserFn();
-    PetscBdPointFunc r1 = NULL;
+    PetscBdPointFunc r0 = bc.getCxxFn();
+    PetscBdPointFunc r1 = nullptr;
 
     std::vector<ResidualKernels> kernels(1);
     switch (formulation) {

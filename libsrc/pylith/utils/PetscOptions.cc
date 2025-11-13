@@ -110,7 +110,7 @@ pylith::utils::PetscDefaults::set(const pylith::topology::Field& solution,
         PYLITH_METHOD_END;
     } // if
 
-    PetscOptions* options = NULL;
+    PetscOptions* options = nullptr;
     if (flags & SOLVER) {
         const bool isParallel = flags & PARALLEL || _PetscOptions::isParallel(solution);
         const bool hasFault = _PetscOptions::hasFault(solution);
@@ -136,7 +136,7 @@ pylith::utils::PetscDefaults::set(const pylith::topology::Field& solution,
     } // if
 
     options->set();
-    delete options;options = NULL;
+    delete options;options = nullptr;
 
     PYLITH_METHOD_END;
 } // setDefaults
@@ -187,7 +187,7 @@ pylith::utils::PetscOptions::clear(void) {
 void
 pylith::utils::PetscOptions::set(void) {
     PYLITH_METHOD_BEGIN;
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     PetscOptions optionsUsed;
     PetscOptions optionsIgnored;
@@ -196,9 +196,9 @@ pylith::utils::PetscOptions::set(void) {
         const char* value = iter->second.c_str();
 
         PetscBool exists = PETSC_FALSE;
-        err = PetscOptionsHasName(NULL, NULL, name, &exists);PYLITH_CHECK_ERROR(err);
+        err = PetscOptionsHasName(nullptr, nullptr, name, &exists);PYLITH_CHECK_ERROR(err);
         if (!exists) {
-            err = PetscOptionsSetValue(NULL, name, value);PYLITH_CHECK_ERROR(err);
+            err = PetscOptionsSetValue(nullptr, name, value);PYLITH_CHECK_ERROR(err);
             optionsUsed.add(name, value);
         } else {
             optionsIgnored.add(name, value);
@@ -222,13 +222,13 @@ pylith::utils::PetscOptions::set(void) {
 void
 pylith::utils::PetscOptions::override (void) {
     PYLITH_METHOD_BEGIN;
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     for (options_t::iterator iter = _options.begin(); iter != _options.end(); ++iter) {
         const char* name = iter->first.c_str();
         const char* value = iter->second.c_str();
 
-        err = PetscOptionsSetValue(NULL, name, value);PYLITH_CHECK_ERROR(err);
+        err = PetscOptionsSetValue(nullptr, name, value);PYLITH_CHECK_ERROR(err);
     } // for
 
     pythia::journal::info_t info(GenericComponent::getName());

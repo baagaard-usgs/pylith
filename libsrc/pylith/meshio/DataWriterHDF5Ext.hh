@@ -32,8 +32,6 @@
 #include <string> // USES std::string
 #include <map> // HASA std::map
 
-// DataWriterHDF5Ext ----------------------------------------------------
-/// Object for writing finite-element data to HDF5 file.
 class pylith::meshio::DataWriterHDF5Ext : public DataWriter { // DataWriterHDF5Ext
     friend class TestDataWriterHDF5ExtMesh; // unit testing
     friend class TestDataWriterHDF5ExtSubmesh; // unit testing
@@ -41,17 +39,17 @@ class pylith::meshio::DataWriterHDF5Ext : public DataWriter { // DataWriterHDF5E
     friend class TestDataWriterHDF5ExtBCMesh; // unit testing
     friend class TestDataWriterHDF5ExtFaultMesh; // unit testing
 
-    // PUBLIC METHODS ///////////////////////////////////////////////////////
+    // PUBLIC METHODS /////////////////////////////////////////////////////////////////////////////
 public:
 
     /// Constructor
     DataWriterHDF5Ext(void);
 
     /// Destructor
-    ~DataWriterHDF5Ext(void);
+    ~DataWriterHDF5Ext(void) override;
 
     /// Deallocate PETSc and local data structures.
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set filename for HDF5 file.
      *
@@ -75,10 +73,10 @@ public:
      * @param[in] mesh Finite-element mesh.
      * @param[in] isInfo True if only writing info values. */
     void open(const topology::Mesh& mesh,
-              const bool isInfo);
+              const bool isInfo) override;
 
     /// Close output files.
-    void close(void);
+    void close(void) override;
 
     /** Write field over vertices to file.
      *
@@ -86,7 +84,7 @@ public:
      * @param[in] subfield Subfield with basis order 1.
      */
     void writeVertexField(const pylith::real t,
-                          const pylith::meshio::OutputSubfield& field);
+                          const pylith::meshio::OutputSubfield& field) override;
 
     /** Write field over cells to file.
      *
@@ -94,7 +92,7 @@ public:
      * @param[in] subfield Subfield with basis order 0.
      */
     void writeCellField(const pylith::real t,
-                        const pylith::meshio::OutputSubfield& subfield);
+                        const pylith::meshio::OutputSubfield& subfield) override;
 
     /** Write dataset with names of points to file.
      *
@@ -104,13 +102,13 @@ public:
      * Primarily used with OutputSolnPoints.
      */
     void writePointNames(const pylith::string_vector& names,
-                         const topology::Mesh& mesh);
+                         const topology::Mesh& mesh) override;
 
-    // PRIVATE METHODS //////////////////////////////////////////////////////
+    // PRIVATE METHODS ////////////////////////////////////////////////////////////////////////////
 private:
 
     /// Generate filename for external dataset file.
-    std::string _datasetFilename(const char* field) const;
+    std::string _getDatasetFilename(const char* field) const;
 
     /** Write time stamp to file.
      *
@@ -118,33 +116,31 @@ private:
      */
     void _writeTimeStamp(const pylith::real t);
 
-    // NOT IMPLEMENTED //////////////////////////////////////////////////////
+    // NOT IMPLEMENTED ////////////////////////////////////////////////////////////////////////////
 private:
 
-    DataWriterHDF5Ext(const DataWriterHDF5Ext&); ///< Not implemented
-    const DataWriterHDF5Ext& operator=(const DataWriterHDF5Ext&); ///< Not implemented
+    DataWriterHDF5Ext(const DataWriterHDF5Ext&) = delete;
+    const DataWriterHDF5Ext& operator=(const DataWriterHDF5Ext&) = delete;
 
-    // PRIVATE STRUCTS //////////////////////////////////////////////////////
+    // PRIVATE STRUCTS ////////////////////////////////////////////////////////////////////////////
 private:
 
     struct ExternalDataset {
         PetscViewer viewer;
-        PetscInt numTimeSteps;
-        PetscInt numPoints;
-        PetscInt fiberDim;
+        pylith::integer numTimeSteps;
+        pylith::integer numPoints;
+        pylith::integer fiberDim;
     };
-    typedef std::map<std::string, ExternalDataset> dataset_type;
+    typedef std::map<std::string, ExternalDataset> dataset_t;
 
-    // PRIVATE MEMBERS //////////////////////////////////////////////////////
+    // PRIVATE MEMBERS ////////////////////////////////////////////////////////////////////////////
 private:
 
     std::string _filename; ///< Name of HDF5 file.
-    HDF5* _h5; ///< HDF5 file
-    dataset_type _datasets; ///< Datasets
-    int _tstampIndex; ///< Index of last time stamp written.
+    std::unique_ptr<HDF5> _h5; ///< HDF5 file
+    dataset_t _datasets; ///< Datasets
+    size_t _tstampIndex; ///< Index of last time stamp written.
 
 }; // DataWriterHDF5Ext
-
-#include "DataWriterHDF5Ext.icc" // inline methods
 
 // End of file

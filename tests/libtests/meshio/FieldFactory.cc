@@ -42,7 +42,7 @@ pylith::meshio::FieldFactory::addScalar(const pylith::topology::FieldBase::Discr
     description.componentNames.resize(1);
     description.componentNames[0] = "scalar";
     description.scale = 1.0;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field.subfieldAdd(description, discretization);
 
@@ -70,7 +70,7 @@ pylith::meshio::FieldFactory::addVector(const pylith::topology::FieldBase::Discr
         description.componentNames[i] = components[i];
     } // for
     description.scale = 1.0;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field.subfieldAdd(description, discretization);
 
@@ -111,7 +111,7 @@ pylith::meshio::FieldFactory::addTensor(const pylith::topology::FieldBase::Discr
         throw std::logic_error("Unknown spatial dimension.");
     } // if/else
     description.scale = 1.0;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field.subfieldAdd(description, discretization);
 
@@ -137,7 +137,7 @@ pylith::meshio::FieldFactory::addOther(const pylith::topology::FieldBase::Discre
         description.componentNames[i] = componentNames[i];
     } // for
     description.scale = 1.0;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field.subfieldAdd(description, discretization);
 
@@ -148,15 +148,15 @@ pylith::meshio::FieldFactory::addOther(const pylith::topology::FieldBase::Discre
 // ------------------------------------------------------------------------------------------------
 void
 pylith::meshio::FieldFactory::setValues(const PylithScalar* values,
-                                        const PylithInt numPoints,
-                                        const PylithInt numDOF) {
+                                        const pylith::integer numPoints,
+                                        const pylith::integer numDOF) {
     PYLITH_METHOD_BEGIN;
 
     pylith::topology::VecVisitorMesh fieldVisitor(_field);
     PylithScalar* fieldArray = fieldVisitor.localArray();assert(fieldArray);
-    const PylithInt fieldSize = numPoints * numDOF;
+    const pylith::integer fieldSize = numPoints * numDOF;
     assert(fieldSize == _field.getStorageSize());
-    for (PylithInt i = 0; i < fieldSize; ++i) {
+    for (pylith::integer i = 0; i < fieldSize; ++i) {
         fieldArray[i] = values[i];
     } // for
 

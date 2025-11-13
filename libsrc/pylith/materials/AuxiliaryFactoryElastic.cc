@@ -44,7 +44,7 @@ pylith::materials::AuxiliaryFactoryElastic::addShearModulus(void) {
     PYLITH_JOURNAL_DEBUG("addShearModulus(void)");
 
     const char* subfieldName = "shear_modulus";
-    const PylithReal pressureScale = _normalizer->getPressureScale();
+    const pylith::real pressureScale = _normalizer->getPressureScale();
 
     pylith::topology::Field::Description description;
     description.label = subfieldName;
@@ -72,7 +72,7 @@ pylith::materials::AuxiliaryFactoryElastic::addBulkModulus(void) {
     PYLITH_JOURNAL_DEBUG("addBulkModulus(void)");
 
     const char* subfieldName = "bulk_modulus";
-    const PylithReal pressureScale = _normalizer->getPressureScale();
+    const pylith::real pressureScale = _normalizer->getPressureScale();
 
     pylith::topology::Field::Description description;
     description.label = subfieldName;
@@ -107,7 +107,7 @@ pylith::materials::AuxiliaryFactoryElastic::addReferenceStress(void) {
         "reference_stress_yz",
         "reference_stress_xz" };
     const int stressSize = (3 == _spaceDim) ? 6 : (2 == _spaceDim) ? 4 : 1;
-    const PylithReal pressureScale = _normalizer->getPressureScale();
+    const pylith::real pressureScale = _normalizer->getPressureScale();
 
     pylith::topology::Field::Description description;
     description.label = subfieldName;
@@ -119,7 +119,7 @@ pylith::materials::AuxiliaryFactoryElastic::addReferenceStress(void) {
         description.componentNames[i] = componentNames[i];
     } // for
     description.scale = pressureScale;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(subfieldName));
     this->setSubfieldQuery(subfieldName);
@@ -156,7 +156,7 @@ pylith::materials::AuxiliaryFactoryElastic::addReferenceStrain(void) {
         description.componentNames[i] = componentNames[i];
     } // for
     description.scale = 1.0;
-    description.validator = NULL;
+    description.validator = nullptr;
 
     _field->subfieldAdd(description, getSubfieldDiscretization(subfieldName));
     this->setSubfieldQuery(subfieldName);

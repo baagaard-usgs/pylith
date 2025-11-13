@@ -26,7 +26,7 @@ public:
     virtual ~InitialConditionPatch(void);
 
     /// Deallocate PETSc and local data structures.
-    void deallocate(void);
+    void deallocate(void) override;
 
     /** Set name of label marking material.
      *
@@ -56,21 +56,21 @@ public:
      *
      * @param[in] solution Solution field.
      */
-    void verifyConfiguration(const pylith::topology::Field& solution) const;
+    void verifyConfiguration(const pylith::topology::Field& solution) const override;
 
     /** Set spatial database holding initial conditions.
      *
      * @param[in] db Spatial database holding initial conditions.
      */
-    void setDB(std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db);
+    void setDB(const std::shared_ptr<spatialdata::spatialdb::SpatialDB>& db);
 
     /** Set solver type.
      *
      * @param[out] solution Solution field.
      * @param[in] normalizer Nondimensionalization.
      */
-    void setValues(pylith::topology::Field* solution,
-                   const spatialdata::units::Nondimensional& normalizer);
+    void setValues(const std::shared_ptr<pylith::topology::Field>& solution,
+                   const spatialdata::units::Nondimensional& normalizer) override;
 
     // PRIVATE MEMEBRS
     // //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -83,8 +83,8 @@ private:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    InitialConditionPatch(const InitialConditionPatch&); ///< Not implemented
-    const InitialConditionPatch& operator=(const InitialConditionPatch&); ///< Not implemented
+    InitialConditionPatch(const InitialConditionPatch&) = delete;
+    const InitialConditionPatch& operator=(const InitialConditionPatch&) = delete;
 
 }; // InitialConditionPatch
 

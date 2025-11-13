@@ -65,7 +65,7 @@ pylith::TestFaultKin::_initialize(void) {
     assert(_mesh);
     assert(_data);
 
-    PetscErrorCode err = 0;
+    PetscErrorCode err = PETSC_SUCCESS;
 
     if (_data->useAsciiMesh) {
         pylith::meshio::MeshIOAscii iohandler;
@@ -132,7 +132,7 @@ pylith::TestFaultKin::_initialize(void) {
     // Set up solution field.
     assert(!_solution);
     _solution = new pylith::topology::Field(*_mesh);assert(_solution);
-    _solution->setLabel("solution");
+    _solution->setName("solution");
     pylith::problems::SolutionFactory factory(*_solution, _data->normalizer);
     int iField = 0;
     factory.addDisplacement(_data->solnDiscretizations[iField++]);
@@ -173,7 +173,7 @@ pylith::TestFaultKin::_setExactSolution(void) {
 
     PetscDMLabel label = nullptr;
     PetscIS is = nullptr;
-    PetscInt cohesiveCell = -1;
+    pylith::integer cohesiveCell = -1;
     err = DMGetLabel(dm, pylith::topology::Mesh::cells_label_name, &label);PYLITH_CHECK_ERROR(err);
     err = DMLabelGetStratumIS(label, _data->faults[0]->getCohesiveLabelValue(), &is);PYLITH_CHECK_ERROR(err);
     err = ISGetMinMax(is, &cohesiveCell, nullptr);PYLITH_CHECK_ERROR(err);

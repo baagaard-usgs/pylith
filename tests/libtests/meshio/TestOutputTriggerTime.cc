@@ -55,7 +55,7 @@ pylith::meshio::TestOutputTriggerTime::testTimeSkip(void) {
 
     OutputTriggerTime trigger;
 
-    PylithReal tskip = 0.0; // default
+    pylith::real tskip = 0.0; // default
     CHECK_THAT(trigger.getTimeSkip(), Catch::Matchers::WithinAbs(tskip, tolerance));
 
     tskip = 1.5;
@@ -70,9 +70,9 @@ void
 pylith::meshio::TestOutputTriggerTime::testShouldWrite(void) {
     OutputTriggerTime trigger;
 
-    const PylithReal dt = 0.1;
-    PylithReal t = 0.0;
-    PylithInt tindex = 0;
+    const pylith::real dt = 0.1;
+    pylith::real t = 0.0;
+    pylith::integer tindex = 0;
     CHECK(true == trigger.shouldWrite(t, tindex++));t += dt;
     CHECK(true == trigger.shouldWrite(t, tindex++));t += dt;
     CHECK(true == trigger.shouldWrite(t, tindex++));t += dt;

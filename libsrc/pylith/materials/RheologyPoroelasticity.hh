@@ -191,8 +191,8 @@ protected:
     // NOT IMPLEMENTED /////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
-    RheologyPoroelasticity(const RheologyPoroelasticity&); ///< Not implemented.
-    const RheologyPoroelasticity& operator=(const RheologyPoroelasticity&); /// Not implemented.
+    RheologyPoroelasticity(const RheologyPoroelasticity&) = delete;
+    const RheologyPoroelasticity& operator=(const RheologyPoroelasticity&) = delete;
 
 }; // class RheologyPoroelasticity
 

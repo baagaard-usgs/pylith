@@ -16,13 +16,14 @@ namespace pylith {
 
         class Dirichlet;
         class DirichletTimeDependent;
-        class DirichletUserFn;
+        class DirichletCxxFn;
 
         class NeumannTimeDependent;
-        class NeumannUserFn;
+        class NeumannCxxFn;
 
         class AbsorbingDampers;
 
+        class TimeDependentOps;
     } // bc
 } // pylith
 
