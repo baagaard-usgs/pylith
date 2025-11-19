@@ -1,13 +1,13 @@
 #!/usr/bin/env nemesis
 
 import gmsh
-from pylith.meshio.gmsh_utils import (BoundaryGroup, MaterialGroup, GenerateMesh)
+from pylith.meshio.gmsh_utils import (VertexGroup, MaterialGroup, GenerateMesh)
 
 class App(GenerateMesh):
     """
     Block is DOMAIN_X by DOMAIN_Y by DOMAIN_Z with discretization size DX.
     """
-    DOMAIN_X = DOMAIN_Y = DOMAIN_Z = 8.0e+3
+    DOMAIN_X = DOMAIN_Y = DOMAIN_Z = 4.0e+3
     DX = 2.0e+3
 
     def __init__(self):
@@ -15,12 +15,12 @@ class App(GenerateMesh):
             "required": True,
             "choices": ["tet", "hex"],
             }
-        self.filename = "tet.msh"
+        self.filename = "tet_all_boundaries.msh"
 
     def create_geometry(self):
         """Create geometry.
         """
-        self.v_domain = gmsh.model.occ.add_box(-0.5*self.DOMAIN_X, -0.5*self.DOMAIN_Y, -self.DOMAIN_Z,
+        self.v_domain = gmsh.model.occ.add_box(0, 0, 0,
                                                self.DOMAIN_X, self.DOMAIN_Y, self.DOMAIN_Z)
 
         gmsh.model.occ.synchronize()
@@ -38,12 +38,12 @@ class App(GenerateMesh):
             material.create_physical_group()
 
         boundary_groups = (
-            BoundaryGroup(name="boundary_xneg", tag=1, dim=2, entities=[1]),
-            BoundaryGroup(name="boundary_xpos", tag=2, dim=2, entities=[2]),
-            BoundaryGroup(name="boundary_yneg", tag=3, dim=2, entities=[3]),
-            BoundaryGroup(name="boundary_ypos", tag=4, dim=2, entities=[4]),
-            BoundaryGroup(name="boundary_zpos", tag=5, dim=2, entities=[6]),
-            BoundaryGroup(name="boundary_zneg", tag=6, dim=2, entities=[5]),
+            VertexGroup(name="boundary_xneg", tag=1, dim=2, entities=[1]),
+            VertexGroup(name="boundary_xpos", tag=2, dim=2, entities=[2]),
+            VertexGroup(name="boundary_yneg", tag=3, dim=2, entities=[3]),
+            VertexGroup(name="boundary_ypos", tag=4, dim=2, entities=[4]),
+            VertexGroup(name="boundary_zpos", tag=5, dim=2, entities=[6]),
+            VertexGroup(name="boundary_zneg", tag=6, dim=2, entities=[5]),
         )
         for group in boundary_groups:
             group.create_physical_group()

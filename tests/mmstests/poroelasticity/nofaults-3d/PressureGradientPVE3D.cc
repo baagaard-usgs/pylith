@@ -131,36 +131,42 @@ class pylith::_PressureGradientPVE3D {
     static double viscous_strain_xx(const double x,
                                     const double y,
                                     const double z) {
-        return (strain_xx(x, y, z) - dq(x, y, z) * dev_strain_xx(x, y, z)) / expFac(x, y, z);
+        // return (strain_xx(x, y, z) - dq(x, y, z) * dev_strain_xx(x, y, z)) / expFac(x, y, z);
+        return 0.0;
     } // viscous_strain_xx
 
     static double viscous_strain_yy(const double x,
                                     const double y,
                                     const double z) {
-        return -dq(x, y, z) * dev_strain_yy(x, y, z) / expFac(x, y, z);
+        // return -dq(x, y, z) * dev_strain_yy(x, y, z) / expFac(x, y, z);
+        return 0.0;
     } // viscous_strain_yy
 
     static double viscous_strain_zz(const double x,
                                     const double y,
                                     const double z) {
-        return -dq(x, y, z) * dev_strain_zz(x, y, z) / expFac(x, y, z);
+        // return -dq(x, y, z) * dev_strain_zz(x, y, z) / expFac(x, y, z);
+        return 0.0;
     } // viscous_strain_zz
 
     static double viscous_strain_xy(const double x,
                                     const double y,
                                     const double z) {
-        return -dq(x, y, z) * dev_strain_xy(x, y, z) / expFac(x, y, z);
+        // return -dq(x, y, z) * dev_strain_xy(x, y, z) / expFac(x, y, z);
+        return -0.5;
     } // viscous_strain_xy
 
     static double viscous_strain_xz(const double x,
                                     const double y,
                                     const double z) {
-        return -dq(x, y, z) * dev_strain_xz(x, y, z) / expFac(x, y, z);
+        // return -dq(x, y, z) * dev_strain_xz(x, y, z) / expFac(x, y, z);
+        return 0.0;
     } // viscous_strain_xz
 
     static double viscous_strain_yz(const double x,
                                     const double y,
                                     const double z) {
+        // return -dq(x, y, z) * dev_strain_yz(x, y, z) / expFac(x, y, z); 
         return 0.0;
     } // viscous_strain_yz
 
@@ -209,88 +215,94 @@ class pylith::_PressureGradientPVE3D {
 
     // Solution subfields (nondimensional)
 
-    static double dq(const double x,
-                     const double y,
-                     const double z) {
-        double xN = x / LENGTH_SCALE;
-        double yN = y / LENGTH_SCALE;
-        double zN = z / LENGTH_SCALE;
-        double maxwellTime = (solid_viscosity(xN, yN, zN) / shear_modulus(xN, yN, zN)) / 2.0;
-        TestLinearPoroviscoelasticity_Data* data = new TestLinearPoroviscoelasticity_Data();assert(data);
-        double dt = data->dt/2.0;
-        return maxwellTime * (1.0 - exp(-dt / maxwellTime)) / dt;
-    } // dq
+    // static double dq(const double x,
+    //                  const double y,
+    //                  const double z) {
+    //     double xN = x / LENGTH_SCALE;
+    //     double yN = y / LENGTH_SCALE;
+    //     double zN = z / LENGTH_SCALE;
+    //     double maxwellTime = (solid_viscosity(xN, yN, zN) / shear_modulus(xN, yN, zN)) / 2.0;
+    //     TestLinearPoroviscoelasticity_Data* data = new TestLinearPoroviscoelasticity_Data();assert(data);
+    //     double dt = data->dt/2.0;
+    //     return maxwellTime * (1.0 - exp(-dt / maxwellTime)) / dt;
+    // } // dq
 
-    static double expFac(const double x,
-                         const double y,
-                         const double z) {
-        double xN = x / LENGTH_SCALE;
-        double yN = y / LENGTH_SCALE;
-        double zN = z / LENGTH_SCALE;
-        double maxwellTime = (solid_viscosity(xN, yN, zN) / shear_modulus(xN, yN, zN)) / 2.0;
-        TestLinearPoroviscoelasticity_Data* data = new TestLinearPoroviscoelasticity_Data();assert(data);
-        double dt = data->dt/2.0;
-        return exp(-dt/maxwellTime);
-    } // expFac
+    // static double expFac(const double x,
+    //                      const double y,
+    //                      const double z) {
+    //     double xN = x / LENGTH_SCALE;
+    //     double yN = y / LENGTH_SCALE;
+    //     double zN = z / LENGTH_SCALE;
+    //     double maxwellTime = (solid_viscosity(xN, yN, zN) / shear_modulus(xN, yN, zN)) / 2.0;
+    //     TestLinearPoroviscoelasticity_Data* data = new TestLinearPoroviscoelasticity_Data();assert(data);
+    //     double dt = data->dt/2.0;
+    //     return exp(-dt/maxwellTime);
+    // } // expFac
 
-    // Strain
-    static double strain_xx(const double x,
-                            const double y,
-                            const double z) {
-        double xN = x / LENGTH_SCALE;
-        double yN = y / LENGTH_SCALE;
-        double zN = z / LENGTH_SCALE;
-        const double muN = shear_modulus(xN, yN, zN) / PRESSURE_SCALE;
-        const double lambdaN = drained_bulk_modulus(xN, yN, zN) / PRESSURE_SCALE - 2.0/3.0 * muN;
-        const double alpha = biot_coefficient(xN, yN, zN);
+    // // Strain
+    // static double strain_xx(const double x,
+    //                         const double y,
+    //                         const double z) {
+    //     double xN = x / LENGTH_SCALE;
+    //     double yN = y / LENGTH_SCALE;
+    //     double zN = z / LENGTH_SCALE;
+    //     const double muN = shear_modulus(xN, yN, zN) / PRESSURE_SCALE;
+    //     const double lambdaN = drained_bulk_modulus(xN, yN, zN) / PRESSURE_SCALE - 2.0/3.0 * muN;
+    //     const double alpha = biot_coefficient(xN, yN, zN);
 
-        return  -(PRESSURE0 / PRESSURE_SCALE) * alpha * xN / ((XMAX / LENGTH_SCALE) * (lambdaN + 2.0 * muN));
-    }
+    //     return  -(PRESSURE0 / PRESSURE_SCALE) * alpha * xN / ((XMAX / LENGTH_SCALE) * (lambdaN + 2.0 * muN));
+    // }
 
-    // Deviatoric Strain
-    static double dev_strain_xx(const double x,
-                                const double y,
-                                const double z) {
-        double xN = x / LENGTH_SCALE;
-        double yN = y / LENGTH_SCALE;
-        double zN = z / LENGTH_SCALE;
-        double mean = trace_strain(xN, yN, zN, 0) / 3; 
+    // // Deviatoric Strain
+    // static double dev_strain_xx(const double x,
+    //                             const double y,
+    //                             const double z) {
+    //     double xN = x / LENGTH_SCALE;
+    //     double yN = y / LENGTH_SCALE;
+    //     double zN = z / LENGTH_SCALE;
+    //     double mean = trace_strain(xN, yN, zN, 0) / 3; 
         
-        double dev_strain = strain_xx(x, y, z) - mean;
-        return dev_strain;
-    } // dev_strain_xx
+    //     double dev_strain = strain_xx(x, y, z) - mean;
+    //     return dev_strain;
+    // } // dev_strain_xx
 
-    static double dev_strain_yy(const double x,
-                                const double y,
-                                const double z) {
-        double xN = x / LENGTH_SCALE;
-        double yN = y / LENGTH_SCALE;
-        double zN = z / LENGTH_SCALE;
-        double mean = trace_strain(xN, yN, zN, 0) / 3;
-        return -mean;
-    } // dev_strain_yy
+    // static double dev_strain_yy(const double x,
+    //                             const double y,
+    //                             const double z) {
+    //     double xN = x / LENGTH_SCALE;
+    //     double yN = y / LENGTH_SCALE;
+    //     double zN = z / LENGTH_SCALE;
+    //     double mean = trace_strain(xN, yN, zN, 0) / 3;
+    //     return -mean;
+    // } // dev_strain_yy
 
-    static double dev_strain_zz(const double x,
-                                const double y,
-                                const double z) {
-        double xN = x / LENGTH_SCALE;
-        double yN = y / LENGTH_SCALE;
-        double zN = z / LENGTH_SCALE;
-        double mean = trace_strain(xN, yN, zN, 0) / 3;
-        return -mean;
-    } // dev_strain_zz
+    // static double dev_strain_zz(const double x,
+    //                             const double y,
+    //                             const double z) {
+    //     double xN = x / LENGTH_SCALE;
+    //     double yN = y / LENGTH_SCALE;
+    //     double zN = z / LENGTH_SCALE;
+    //     double mean = trace_strain(xN, yN, zN, 0) / 3;
+    //     return -mean;
+    // } // dev_strain_zz
 
-    static double dev_strain_xy(const double x,
-                                const double y,
-                                const double z) {
-        return 0.0;
-    } // dev_strain_xy
+    // static double dev_strain_xy(const double x,
+    //                             const double y,
+    //                             const double z) {
+    //     return 0.0;
+    // } // dev_strain_xy
 
-    static double dev_strain_xz(const double x,
-                                const double y,
-                                const double z) {
-        return 0.0;
-    } // dev_strain_xz
+    // static double dev_strain_xz(const double x,
+    //                             const double y,
+    //                             const double z) {
+    //     return 0.0;
+    // } // dev_strain_xz
+
+    // static double dev_strain_yz(const double x,
+    //                             const double y,
+    //                             const double z) {
+    //     return 0.0;
+    // } // dev_strain_yz
 
     // Displacement
     static double disp_x(const double x,
@@ -301,7 +313,10 @@ class pylith::_PressureGradientPVE3D {
         const double lambdaN = drained_bulk_modulus(x, y, z) / PRESSURE_SCALE - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y, z);
         const double etaN = solid_viscosity(x, y, z) / (PRESSURE_SCALE * TIME_SCALE);
-        return -0.5 * alpha  * (PRESSURE0 / PRESSURE_SCALE) / (lambdaN + 2.0*muN) * (x*x / (XMAX / LENGTH_SCALE)) - alpha * (PRESSURE0 / PRESSURE_SCALE) * x * t  * (1.0/etaN);
+        return 0.0;
+        // return -0.5 * alpha  * (PRESSURE0 / PRESSURE_SCALE) / (lambdaN + 2.0*muN) * (x*x / (XMAX / LENGTH_SCALE)) - alpha * (PRESSURE0 / PRESSURE_SCALE) * x * t  * (1.0/etaN);
+        // return (PRESSURE0 / PRESSURE_SCALE) * x * alpha * (-(XMAX / LENGTH_SCALE) * t * (2.0 * lambdaN + 4.0 * muN) - x * lambdaN) / 
+        //         ((XMAX / LENGTH_SCALE) * etaN * (2.0 * lambdaN + 4.0 * muN));
     } // disp_x
 
     static double disp_y(const double x,
@@ -312,8 +327,11 @@ class pylith::_PressureGradientPVE3D {
         const double lambdaN = drained_bulk_modulus(x, y, z) / PRESSURE_SCALE - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y, z);
         const double etaN = solid_viscosity(x, y, z) / (PRESSURE_SCALE * TIME_SCALE);
-        return alpha * (PRESSURE0 / PRESSURE_SCALE) * ((-XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) * y * t * (1.0 / (XMAX / LENGTH_SCALE))
-        * (1.0 / etaN) * (1.0/(lambdaN + 2.0 * muN));
+        return x;
+        // return alpha * (PRESSURE0 / PRESSURE_SCALE) * ((-XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) * y * t * (1.0 / (XMAX / LENGTH_SCALE))
+            // * (1.0 / etaN) * (1.0/(lambdaN + 2.0 * muN));
+        // return (PRESSURE0 / PRESSURE_SCALE) * t * y * alpha * (-(XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) / 
+        //         ((XMAX / LENGTH_SCALE) * etaN * (lambdaN + 2.0 * muN));
     } // disp_y
 
     static double disp_z(const double x,
@@ -324,8 +342,11 @@ class pylith::_PressureGradientPVE3D {
         const double lambdaN = drained_bulk_modulus(x, y, z) / PRESSURE_SCALE - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y, z);
         const double etaN = solid_viscosity(x, y, z) / (PRESSURE_SCALE * TIME_SCALE);
-        return alpha * (PRESSURE0 / PRESSURE_SCALE) * ((-XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) * z * t * (1.0 / (XMAX / LENGTH_SCALE))
-        * (1.0 / etaN) * (1.0/(lambdaN + 2.0 * muN));
+        return 0.0;
+        // return alpha * (PRESSURE0 / PRESSURE_SCALE) * ((-XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) * z * t * (1.0 / (XMAX / LENGTH_SCALE))
+        //     * (1.0 / etaN) * (1.0/(lambdaN + 2.0 * muN));
+        // return (PRESSURE0 / PRESSURE_SCALE) * t * z * alpha * (-(XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) / 
+        //         ((XMAX / LENGTH_SCALE) * etaN * (lambdaN + 2.0 * muN));
     } // disp_z
 
     // Velocity
@@ -335,7 +356,8 @@ class pylith::_PressureGradientPVE3D {
                         const double t) {
         const double alpha = biot_coefficient(x, y, z);
         const double etaN = solid_viscosity(x, y, z) / (PRESSURE_SCALE * TIME_SCALE);
-        return -alpha * (PRESSURE0 / PRESSURE_SCALE) * x * (1.0/etaN);
+        return 0.0;
+        // return -alpha * (PRESSURE0 / PRESSURE_SCALE) * x * (1.0/etaN);
     } // vel_x
 
     static double vel_y(const double x,
@@ -346,8 +368,11 @@ class pylith::_PressureGradientPVE3D {
         const double lambdaN = drained_bulk_modulus(x, y, z) / PRESSURE_SCALE - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y, z);
         const double etaN = solid_viscosity(x, y, z) / (PRESSURE_SCALE * TIME_SCALE);
-        return alpha * (PRESSURE0 / PRESSURE_SCALE) * ((-XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) * y * (1.0 / (XMAX / LENGTH_SCALE))
-        * (1.0 / etaN) * (1.0/(lambdaN + 2.0 * muN));
+        return 0.0;
+        // return alpha * (PRESSURE0 / PRESSURE_SCALE) * ((-XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) * y * (1.0 / (XMAX / LENGTH_SCALE))
+        //     * (1.0 / etaN) * (1.0/(lambdaN + 2.0 * muN));
+            // return (PRESSURE0 / PRESSURE_SCALE) * y * alpha * (-(XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) / 
+            //     ((XMAX / LENGTH_SCALE) * etaN * (lambdaN + 2.0 * muN));
     } // vel_y
 
     static double vel_z(const double x,
@@ -358,8 +383,11 @@ class pylith::_PressureGradientPVE3D {
         const double lambdaN = drained_bulk_modulus(x, y, z) / PRESSURE_SCALE - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y, z);
         const double etaN = solid_viscosity(x, y, z) / (PRESSURE_SCALE * TIME_SCALE);
-        return alpha * (PRESSURE0 / PRESSURE_SCALE) * ((-XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) * z * (1.0 / (XMAX / LENGTH_SCALE))
-        * (1.0 / etaN) * (1.0/(lambdaN + 2.0 * muN));
+        return 0.0;
+        // return alpha * (PRESSURE0 / PRESSURE_SCALE) * ((-XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) * z * (1.0 / (XMAX / LENGTH_SCALE))
+        //     * (1.0 / etaN) * (1.0/(lambdaN + 2.0 * muN));
+        // return (PRESSURE0 / PRESSURE_SCALE) * z * alpha * (-(XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) / 
+        //         ((XMAX / LENGTH_SCALE) * etaN * (lambdaN + 2.0 * muN));
     } // vel_z
 
 
@@ -367,7 +395,9 @@ class pylith::_PressureGradientPVE3D {
     static double fluid_pressure(const double x,
                                  const double y,
                                  const double z) {
-        return (PRESSURE0 / PRESSURE_SCALE) * (1.0 - x / (XMAX / LENGTH_SCALE));
+        
+        return (PRESSURE0 / PRESSURE_SCALE);
+        // return (PRESSURE0 / PRESSURE_SCALE) * (1.0 - x / (XMAX / LENGTH_SCALE));
     } // fluid_pressure
 
     // Trace strain
@@ -379,10 +409,11 @@ class pylith::_PressureGradientPVE3D {
         const double lambdaN = drained_bulk_modulus(x, y, z) / PRESSURE_SCALE - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y, z);
         const double etaN = solid_viscosity(x, y, z) / (PRESSURE_SCALE * TIME_SCALE);
+        return 0.0;
         // return alpha * (PRESSURE0 / PRESSURE_SCALE) * (-2.0 * (XMAX / LENGTH_SCALE) * t * lambdaN - 4.0 * (XMAX / LENGTH_SCALE) * t * muN + 2.0 * t * x * muN 
-        // - x * etaN) * (1.0 / (XMAX / LENGTH_SCALE)) * (1.0 / etaN) * (1.0 / (lambdaN + 2.0 * muN));
-         return alpha * (PRESSURE0 / PRESSURE_SCALE) * (-4.0 * (XMAX / LENGTH_SCALE) * t * lambdaN - 8.0 * (XMAX / LENGTH_SCALE) * t * muN + 2.0 * t * x * muN 
-         - x * etaN) * (1.0 / (XMAX / LENGTH_SCALE)) * (1.0 / etaN) * (1.0 / (lambdaN + 2.0 * muN));
+        //     - x * etaN) * (1.0 / (XMAX / LENGTH_SCALE)) * (1.0 / etaN) * (1.0 / (lambdaN + 2.0 * muN));
+        // return (PRESSURE0 / PRESSURE_SCALE) * alpha * (-3.0 * (XMAX / LENGTH_SCALE) * t * lambdaN - 6.0 * (XMAX / LENGTH_SCALE) * t * muN + 4.0 * t * x * muN - x * etaN) /
+        //         ((XMAX / LENGTH_SCALE) * etaN * (lambdaN + 2.0 * muN));
         
     } // trace_strain
 
@@ -394,8 +425,11 @@ class pylith::_PressureGradientPVE3D {
         const double lambdaN = drained_bulk_modulus(x, y, z) / PRESSURE_SCALE - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y, z);
         const double etaN = solid_viscosity(x, y, z) / (PRESSURE_SCALE * TIME_SCALE);
-        return alpha * (PRESSURE0 / PRESSURE_SCALE) * (-2.0 * (XMAX / LENGTH_SCALE) * lambdaN - 4.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) 
-        * (1.0 / (XMAX / LENGTH_SCALE)) * (1.0 / etaN) * (1.0 / (lambdaN + 2.0 * muN));
+        return 0.0;
+        // return alpha * (PRESSURE0 / PRESSURE_SCALE) * (-2.0 * (XMAX / LENGTH_SCALE) * lambdaN - 4.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) 
+        //     * (1.0 / (XMAX / LENGTH_SCALE)) * (1.0 / etaN) * (1.0 / (lambdaN + 2.0 * muN));
+        // return (PRESSURE0 / PRESSURE_SCALE) * alpha * (-3.0 * (XMAX / LENGTH_SCALE) * lambdaN - 6.0 * (XMAX / LENGTH_SCALE) * muN + 4.0 * x * muN) /
+        //         ((XMAX / LENGTH_SCALE) * etaN * (lambdaN + 2.0 * muN));
     } // trace_strain_dot
 
     static PetscErrorCode solnkernel_disp(PetscInt spaceDim,
@@ -415,6 +449,23 @@ class pylith::_PressureGradientPVE3D {
 
         return 0;
     } // solnkernel_disp
+
+    static PetscErrorCode solnkernel_fixed_disp(PetscInt spaceDim,
+                                                PetscReal t,
+                                                const PetscReal x[],
+                                                PetscInt numComponents,
+                                                PetscScalar* s,
+                                                void* context) {
+        assert(3 == spaceDim);
+        assert(x);
+        assert(s);
+
+        s[0] = 0.0;
+        s[1] = 0.0;
+        s[2] = 0.0;
+
+        return 0;
+    } // solnkernel_fixed_disp
 
     static PetscErrorCode solnkernel_fluid_pressure(PetscInt spaceDim,
                                                     PetscReal t,
@@ -581,17 +632,23 @@ public:
         data->material.setName("material-id=24");
         data->material.setLabelValue(24);
 
-        static const PylithInt constrainedX[1] = { 0 };
-        static const PylithInt constrainedY[1] = { 1 };
-        static const PylithInt constrainedZ[1] = { 2 };
-        static const PylithInt numConstrained = 1;
-        data->bcs.resize(8);
+        // static const PylithInt constrainedX[1] = { 0 };
+        // static const PylithInt constrainedY[1] = { 1 };
+        // static const PylithInt constrainedZ[1] = { 2 };
+        // static const PylithInt numConstrained = 1;
+        static const PylithInt constrainedXYZ[3] = { 0, 1, 2 };
+        static const PylithInt numConstrained = 3;
+        // data->bcs.resize(8);
+        data->bcs.resize(7);
+
         { // Displacement -x
             pylith::bc::DirichletUserFn*bc = new pylith::bc::DirichletUserFn();assert(bc);
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_xneg");
             bc->setLabelValue(1);
-            bc->setConstrainedDOF(constrainedX, numConstrained);
+            // bc->setConstrainedDOF(constrainedX, numConstrained);
+            bc->setConstrainedDOF(constrainedXYZ, numConstrained);
+
             bc->setUserFn(solnkernel_disp);
             data->bcs[0] = bc;
         }
@@ -600,7 +657,9 @@ public:
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_xpos");
             bc->setLabelValue(2);
-            bc->setConstrainedDOF(constrainedX, numConstrained);
+            // bc->setConstrainedDOF(constrainedX, numConstrained);
+            bc->setConstrainedDOF(constrainedXYZ, numConstrained);
+
             bc->setUserFn(solnkernel_disp);
             data->bcs[1] = bc;
         }
@@ -609,7 +668,9 @@ public:
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_yneg");
             bc->setLabelValue(3);
-            bc->setConstrainedDOF(constrainedY, numConstrained);
+            // bc->setConstrainedDOF(constrainedY, numConstrained);
+            bc->setConstrainedDOF(constrainedXYZ, numConstrained);
+
             bc->setUserFn(solnkernel_disp);
             data->bcs[2] = bc;
         }
@@ -618,7 +679,9 @@ public:
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_ypos");
             bc->setLabelValue(4);
-            bc->setConstrainedDOF(constrainedY, numConstrained);
+            // bc->setConstrainedDOF(constrainedY, numConstrained);
+            bc->setConstrainedDOF(constrainedXYZ, numConstrained);
+
             bc->setUserFn(solnkernel_disp);
             data->bcs[3] = bc;
         }
@@ -627,7 +690,9 @@ public:
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_zneg");
             bc->setLabelValue(6);
-            bc->setConstrainedDOF(constrainedZ, numConstrained);
+            // bc->setConstrainedDOF(constrainedZ, numConstrained);
+            bc->setConstrainedDOF(constrainedXYZ, numConstrained);
+
             bc->setUserFn(solnkernel_disp);
             data->bcs[4] = bc;
         }
@@ -636,28 +701,40 @@ public:
             bc->setSubfieldName("displacement");
             bc->setLabelName("boundary_zpos");
             bc->setLabelValue(5);
-            bc->setConstrainedDOF(constrainedZ, numConstrained);
+            // bc->setConstrainedDOF(constrainedZ, numConstrained);
+            bc->setConstrainedDOF(constrainedXYZ, numConstrained);
+
             bc->setUserFn(solnkernel_disp);
             data->bcs[5] = bc;
         }
-        { // Pressure -x
+        { // Pressure +z
             pylith::bc::DirichletUserFn*bc = new pylith::bc::DirichletUserFn();assert(bc);
+            static const PylithInt constrainedDOF[1] = {0};
             bc->setSubfieldName("pressure");
-            bc->setLabelName("boundary_xneg");
-            bc->setLabelValue(1);
-            bc->setConstrainedDOF(constrainedX, numConstrained);
+            bc->setLabelName("boundary_zpos");
+            bc->setLabelValue(5);
+            bc->setConstrainedDOF(constrainedDOF, 1);
             bc->setUserFn(solnkernel_fluid_pressure);
             data->bcs[6] = bc;
         }
-        { // Pressure +x
-            pylith::bc::DirichletUserFn*bc = new pylith::bc::DirichletUserFn();assert(bc);
-            bc->setSubfieldName("pressure");
-            bc->setLabelName("boundary_xpos");
-            bc->setLabelValue(2);
-            bc->setConstrainedDOF(constrainedX, numConstrained);
-            bc->setUserFn(solnkernel_fluid_pressure);
-            data->bcs[7] = bc;
-        }
+        // { // Pressure -x
+        //     pylith::bc::DirichletUserFn*bc = new pylith::bc::DirichletUserFn();assert(bc);
+        //     bc->setSubfieldName("pressure");
+        //     bc->setLabelName("boundary_xneg");
+        //     bc->setLabelValue(1);
+        //     bc->setConstrainedDOF(constrainedX, numConstrained);
+        //     bc->setUserFn(solnkernel_fluid_pressure);
+        //     data->bcs[6] = bc;
+        // }
+        // { // Pressure +x
+        //     pylith::bc::DirichletUserFn*bc = new pylith::bc::DirichletUserFn();assert(bc);
+        //     bc->setSubfieldName("pressure");
+        //     bc->setLabelName("boundary_xpos");
+        //     bc->setLabelValue(2);
+        //     bc->setConstrainedDOF(constrainedX, numConstrained);
+        //     bc->setUserFn(solnkernel_fluid_pressure);
+        //     data->bcs[7] = bc;
+        // }
 
         static const pylith::testing::MMSTest::solution_fn _exactSolnFns[3] = {
             solnkernel_disp,
