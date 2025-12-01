@@ -11,6 +11,8 @@
 dist_noinst_PYTHON = \
 	meshes.py \
 	terzaghi_gendb.py \
+	terzaghi_soln.py \
+
 
 
 dist_noinst_DATA = \
