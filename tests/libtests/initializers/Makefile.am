@@ -10,6 +10,8 @@
 
 include $(top_srcdir)/tests/check_catch2.am
 
+SUBDIRS = data
+
 TESTS = libtest_initializers
 
 check_PROGRAMS = libtest_initializers
