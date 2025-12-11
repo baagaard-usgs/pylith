@@ -16,6 +16,8 @@
 #include "pylith/problems/problemsfwd.hh"
 #include "pylith/topology/topologyfwd.hh"
 
+#include <vector> // HASA std::vector
+
 class pylith::initializers::Initializer : public pylith::utils::PyreComponent {
     friend class TestInitializer;
 

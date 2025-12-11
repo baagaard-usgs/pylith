@@ -50,7 +50,7 @@ pylith::initializers::Initializer::setPhases(pylith::initializers::InitializePha
     assert( (!phases && 0 == numPhases) || (phases && 0 < numPhases) );
 
     _phases.resize(numPhases);
-    for (int i = 0; i < numPhases; ++i) {
+    for (size_t i = 0; i < numPhases; ++i) {
         _phases[i] = phases[i];
     } // for
 

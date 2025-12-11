@@ -17,6 +17,8 @@
 #include "pylith/faults/faultsfwd.hh" // USES FaultCohesive
 #include "pylith/utils/petscfwd.h" // USES PetscDM
 
+#include <vector> // USES std::vector
+
 class pylith::topology::Distributor : public pylith::utils::PyreComponent {
     friend class TestDistributor; // unit testing
 
