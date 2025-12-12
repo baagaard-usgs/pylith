@@ -8,7 +8,7 @@
 #
 # See https://mit-license.org/ and LICENSE.md and for license information. 
 # =================================================================================================
-# @file tests/fullscale/poroelasticity/terzaghi/terzaghi_gendb.py
+# @file tests/fullscale/poroviscoelasticity/terzaghi/terzaghi_gendb.py
 #
 # @brief Python script to generate spatial database with displacement
 # boundary conditions for the terzaghi test.
@@ -18,7 +18,7 @@ import numpy
 
 class GenerateDB(object):
     """Python object to generate spatial database with initial conditions
-    for the terzaghi poroelastic test.
+    for the terzaghi poroviscoelastic test.
     """
 
     def run(self):

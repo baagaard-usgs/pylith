@@ -1316,26 +1316,6 @@ public:
         const PylithReal C1122 = -2.0/3.0 * shearModulus * dq;
         const PylithReal C1212 = shearModulus * dq;
 
-        /* j(f,g,df,dg) = C(f,df,g,dg)
-         *
-         * 0:  j0000 = C1111 = 1.0*drainedBulkModulus + 1.33333333333333*delHM*shearModulus
-         * 1:  j0001 = C1112 = 0
-         * 2:  j0010 = C1211 = 0
-         * 3:  j0011 = C1212 = 1.0*delHM*shearModulus
-         * 4:  j0100 = C1121 = 0
-         * 5:  j0101 = C1122 = 1.0*drainedBulkModulus - 0.666666666666667*delHM*shearModulus
-         * 6:  j0110 = C1221 = 1.0*delHM*shearModulus
-         * 7:  j0111 = C1222 = 0
-         * 8:  j1000 = C2111 = 0
-         * 9:  j1001 = C2112 = 1.0*delHM*shearModulus
-         * 10:  j1010 = C2211 = 1.0*drainedBulkModulus - 0.666666666666667*delHM*shearModulus
-         * 11:  j1011 = C2212 = 0
-         * 12:  j1100 = C2121 = 1.0*delHM*shearModulus
-         * 13:  j1101 = C2122 = 0
-         * 14:  j1110 = C2221 = 0
-         * 15:  j1111 = C2222 = 1.0*drainedBulkModulus + 1.33333333333333*delHM*shearModulus
-         */
-
         /* Nonzero Jacobian entries. */
         Jf3[0] -= C1111;// - 2.6666 * shearModulus; /* j0000 */
         Jf3[3] -= C1212;// - shearModulus; /* j0011 */

@@ -7,7 +7,7 @@
 #
 # See https://mit-license.org/ and LICENSE.md and for license information. 
 # =================================================================================================
-# @file tests/fullscale/poroelasticity/terzaghi/terzaghi_soln.py
+# @file tests/fullscale/poroviscoelasticity/terzaghi/terzaghi_soln.py
 #
 # @brief Analytical solution to Terzaghi's problem.
 #
@@ -265,10 +265,10 @@ class AnalyticalSoln(object):
         e_xy = 0.0
 
         strain = numpy.zeros((ntpts, npts, self.TENSOR_SIZE), dtype=numpy.float64)
-        strain[:, :, 0] = exx
-        strain[:, :, 1] = eyy
-        strain[:, :, 2] = ezz
-        strain[:, :, 3] = exy
+        strain[:, :, 0] = e_xx
+        strain[:, :, 1] = e_yy
+        strain[:, :, 2] = e_zz
+        strain[:, :, 3] = e_xy
         return strain
 
     def stress(self, locs):
