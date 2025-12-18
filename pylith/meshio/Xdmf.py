@@ -406,8 +406,13 @@ class Xdmf(object):
             numPoints, numComponents = field.data.shape
             numTimeSteps = 1
         else:
-            assert 3 == len(field.data.shape)
-            numTimeSteps, numPoints, numComponents = field.data.shape
+            if len(field.data.shape) == 2:
+                numPoints, numComponents = field.data.shape
+                numTimeSteps = 1
+            elif 3 == len(field.data.shape):
+                numTimeSteps, numPoints, numComponents = field.data.shape
+            else:
+                raise ValueError("Unexpected shape for dataset '%s'." % field.name)
 
         self.file.write(
             '        <Attribute Name="%(componentName)s" Type="Scalar" Center="%(domain)s">\n'
