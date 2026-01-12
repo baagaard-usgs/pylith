@@ -58,7 +58,6 @@ pylith::initializers::Initializer::setPhases(pylith::initializers::InitializePha
 }
 
 
-#include <iostream>
 // ------------------------------------------------------------------------------------------------
 // Run initialization phase.
 pylith::topology::Mesh*
