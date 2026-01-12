@@ -58,7 +58,11 @@ pylith::initializers::MeshWriter::run(pylith::topology::Mesh* mesh,
 
     _writer->write(mesh);
 
-    PYLITH_METHOD_RETURN(mesh);
+    PetscDM dmOrig = mesh->getDM();assert(dmOrig);
+    PetscObjectReference(PetscObject(dmOrig));
+    pylith::topology::Mesh* meshNew = new pylith::topology::Mesh(dmOrig, *mesh);assert(meshNew);
+
+    PYLITH_METHOD_RETURN(meshNew);
 } // run
 
 

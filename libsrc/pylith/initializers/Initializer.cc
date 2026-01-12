@@ -58,6 +58,7 @@ pylith::initializers::Initializer::setPhases(pylith::initializers::InitializePha
 }
 
 
+#include <iostream>
 // ------------------------------------------------------------------------------------------------
 // Run initialization phase.
 pylith::topology::Mesh*
@@ -79,7 +80,7 @@ pylith::initializers::Initializer::runPhases(const pylith::problems::Problem& pr
     if (debug.state()) {
         meshNew->view("mesh_domain_after_initialize.txt:ascii_info_detail");
         meshNew->view(":mesh_domain_after_initialize.tex:ascii_latex");
-    } // of
+    } // if
     pylith::topology::MeshOps::checkTopology(*meshNew);
 
     PYLITH_METHOD_RETURN(meshNew);
