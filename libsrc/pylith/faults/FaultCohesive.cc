@@ -340,6 +340,7 @@ pylith::faults::FaultCohesive::transformTopology(pylith::topology::Mesh* const m
         err = DMPlexTransformSetUp(transform);PYLITH_CHECK_ERROR(err);
 
         PetscDM dmMeshNew = PETSC_NULLPTR;
+        err = PetscObjectViewFromOptions((PetscObject)transform, NULL, "-dm_plex_transform_view");PYLITH_CHECK_ERROR(err);
         err = DMPlexTransformApply(transform, dmMesh, &dmMeshNew);PYLITH_CHECK_ERROR(err);assert(dmMeshNew);
 
         // Set label and label value for newly created cohesive cells.

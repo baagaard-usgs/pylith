@@ -380,14 +380,7 @@ pylith::topology::_Distributor::DMPlexCopy(DM dmin,
     PylithCallPetsc(DMPlexSetUseCeed(dmout, useCeed));
     PylithCallPetsc(DMPlexGetPartitionBalance(dmin, &balance_partition));
     PylithCallPetsc(DMPlexSetPartitionBalance(dmout, balance_partition));
-    ((DM_Plex *)dmout->data)->useHashLocation = ((DM_Plex *)dmin->data)->useHashLocation;
-    ((DM_Plex *)dmout->data)->printSetValues = ((DM_Plex *)dmin->data)->printSetValues;
-    ((DM_Plex *)dmout->data)->printFEM = ((DM_Plex *)dmin->data)->printFEM;
-    ((DM_Plex *)dmout->data)->printFVM = ((DM_Plex *)dmin->data)->printFVM;
-    ((DM_Plex *)dmout->data)->printL2 = ((DM_Plex *)dmin->data)->printL2;
-    ((DM_Plex *)dmout->data)->printLocate = ((DM_Plex *)dmin->data)->printLocate;
-    ((DM_Plex *)dmout->data)->printProject = ((DM_Plex *)dmin->data)->printProject;
-    ((DM_Plex *)dmout->data)->printTol = ((DM_Plex *)dmin->data)->printTol;
+    PylithCallPetsc(DMPlexCopyFlags(dmin, dmout));
     PetscFunctionReturn(PETSC_SUCCESS);
 }
 
