@@ -466,6 +466,15 @@ pylith::faults::TopologyOps::updateCohesiveLabel(const pylith::topology::Mesh* m
         err = ISRestoreIndices(pointIS, &points);PYLITH_CHECK_ERROR(err);
         err = ISDestroy(&pointIS);PYLITH_CHECK_ERROR(err);
     } // if
+
+    { // DEBUGGING
+        pythia::journal::debug_t debug("initialize_mesh");
+        if (debug.state() || true) {
+            mesh->view(":mesh_domain_before_orientlabel.txt:ascii_info_detail");
+            mesh->view(":mesh_domain_before_orientlabel.tex:ascii_latex");
+        } // if
+    } // DEBUGGING
+
     err = DMLabelDestroyIndex(dmLabel);PYLITH_CHECK_ERROR(err); // :KLUDGE: Clear out old indexing.
     err = DMPlexOrientLabel(dmMesh, dmLabel);PYLITH_CHECK_ERROR(err);
     err = DMPlexLabelCohesiveComplete(dmMesh, dmLabel, nullptr, 0, PETSC_FALSE, PETSC_FALSE, NULL);PYLITH_CHECK_ERROR(err);
