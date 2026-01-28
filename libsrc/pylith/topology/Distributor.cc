@@ -169,6 +169,13 @@ pylith::topology::Distributor::distribute(const pylith::topology::Mesh& mesh,
         _Distributor::write(_writer, *meshNew);
     } // if
 
+    if (pylith::topology::MeshOps::getNumCells(*meshNew) == 0) {
+        std::ostringstream msg;
+        msg << "No cells are assigned to process " << commRank << " after distribution. "
+            << "Either there are too many processes for the mesh or there is a topology related error.";
+        throw std::runtime_error(msg.str());
+    } // if
+
     PYLITH_METHOD_RETURN(meshNew);
 } // distribute
 
@@ -237,7 +244,7 @@ pylith::topology::Distributor::distributeOverlap(PetscDM* dmOverlap,
     PylithCallPetsc(DMPlexStratifyMigrationSF(dmMesh, sfOverlap, &sfStratified));
     PylithCallPetsc(PetscSFDestroy(&sfOverlap));
     sfOverlap = sfStratified;
-    PylithCallPetsc(PetscObjectSetName((PetscObject) sfOverlap, "Overlap SF"));
+    PylithCallPetsc(PetscObjectSetName((PetscObject) sfOverlap, "Overlap SF "));
     PylithCallPetsc(PetscSFSetFromOptions(sfOverlap));
 
     PylithCallPetsc(PetscSectionDestroy(&rootSection));
@@ -284,15 +291,15 @@ pylith::topology::_Distributor::write(meshio::DataWriter* const writer,
     PylithScalar rankReal = PylithReal(commRank);
 
     pylith::topology::Field partitionField(mesh);
-    partitionField.setLabel("partition");
+    partitionField.setLabel("partition ");
 
     pylith::topology::Field::Description description;
-    description.label = "partition";
-    description.alias = "partition";
+    description.label = "partition ";
+    description.alias = "partition ";
     description.vectorFieldType = pylith::topology::Field::SCALAR;
     description.numComponents = 1;
     description.componentNames.resize(1);
-    description.componentNames[0] = "rank";
+    description.componentNames[0] = "rank ";
     description.scale = 1.0;
     description.validator = NULL;
 
@@ -324,7 +331,7 @@ pylith::topology::_Distributor::write(meshio::DataWriter* const writer,
     const int basisOrder = 0;
     const int refineLevels = 0;
     pylith::meshio::OutputSubfield* outputField =
-        pylith::meshio::OutputSubfield::create(partitionField, mesh, "partition", basisOrder, refineLevels);
+        pylith::meshio::OutputSubfield::create(partitionField, mesh, "partition ", basisOrder, refineLevels);
     outputField->project(partitionField.getOutputVector());
 
     const PylithScalar t = 0.0;
