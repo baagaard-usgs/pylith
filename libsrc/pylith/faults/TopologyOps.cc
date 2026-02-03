@@ -467,14 +467,6 @@ pylith::faults::TopologyOps::updateCohesiveLabel(const pylith::topology::Mesh* m
         err = ISDestroy(&pointIS);PYLITH_CHECK_ERROR(err);
     } // if
 
-    { // DEBUGGING
-        pythia::journal::debug_t debug("initialize_mesh");
-        if (debug.state() || true) {
-            mesh->view(":mesh_domain_before_orientlabel.txt:ascii_info_detail");
-            mesh->view(":mesh_domain_before_orientlabel.tex:ascii_latex");
-        } // if
-    } // DEBUGGING
-
     err = DMLabelDestroyIndex(dmLabel);PYLITH_CHECK_ERROR(err); // :KLUDGE: Clear out old indexing.
     err = DMPlexOrientLabel(dmMesh, dmLabel);PYLITH_CHECK_ERROR(err);
     err = DMPlexLabelCohesiveComplete(dmMesh, dmLabel, nullptr, 0, PETSC_FALSE, PETSC_FALSE, NULL);PYLITH_CHECK_ERROR(err);
@@ -656,11 +648,6 @@ pylith::faults::TopologyOps::createFaultFromCohesiveCells(pylith::topology::Mesh
     const PetscBool hasLagrangeConstraints = PETSC_TRUE;
     err = DMPlexCreateCohesiveSubmesh(dmDomain, hasLagrangeConstraints, labelName, labelValue, &dmFaultMesh);PYLITH_CHECK_ERROR(err);
 #else
-#if 0
-    mesh.view(":mesh_domain.tex:ascii_latex");
-    mesh.view(":mesh_domain.txt:ascii_info_detail");
-    mesh.view("vtk:mesh_domain.vtu:vtk_vtu");
-#endif
 
     const char* negativeLabelName = "fault_cohesive_negative_sides";
     PetscDMLabel negativeLabel = nullptr;
@@ -705,12 +692,6 @@ pylith::faults::TopologyOps::createFaultFromCohesiveCells(pylith::topology::Mesh
 
     faultMesh->setDM(dmFaultMesh, surfaceLabel);
     pylith::topology::MeshOps::checkTopology(*faultMesh);
-
-#if 0
-    faultMesh->view(":mesh_fault.tex:ascii_latex");
-    faultMesh->view(":mesh_fault.txt:ascii_info_detail");
-    faultMesh->view("vtk:mesh_fault.vtu:vtk_vtu");
-#endif
 
     PYLITH_METHOD_END;
 } // createFaultFromCohesiveCells

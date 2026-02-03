@@ -163,7 +163,9 @@ pylith::topology::Distributor::distribute(const pylith::topology::Mesh& mesh,
     pythia::journal::debug_t debug(PyreComponent::getName());
     if (debug.state()) {
         meshNew->view(":mesh_distributed.txt:ascii_info_detail");
-        meshNew->view(":mesh_distributed.tex:ascii_latex");
+        pylith::topology::Mesh* meshExploded = pylith::topology::MeshOps::explode(*meshNew);
+        meshExploded->view(":mesh_domain_after_initialize.tex:ascii_latex");
+        delete meshExploded;meshExploded = nullptr;
     } // if
     if (_writer) {
         _Distributor::write(_writer, *meshNew);

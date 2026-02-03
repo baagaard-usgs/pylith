@@ -77,8 +77,10 @@ pylith::initializers::Initializer::runPhases(const pylith::problems::Problem& pr
 
     pythia::journal::debug_t debug("initialize_mesh");
     if (debug.state()) {
-        meshNew->view("mesh_domain_after_initialize.txt:ascii_info_detail");
-        meshNew->view(":mesh_domain_after_initialize.tex:ascii_latex");
+        meshNew->view(":mesh_domain_after_initialize.txt:ascii_info_detail");
+        pylith::topology::Mesh* meshExploded = pylith::topology::MeshOps::explode(*meshNew);
+        meshExploded->view(":mesh_domain_after_initialize.tex:ascii_latex");
+        delete meshExploded;meshExploded = nullptr;
     } // if
     pylith::topology::MeshOps::checkTopology(*meshNew);
 
