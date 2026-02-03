@@ -374,6 +374,84 @@ pylith::topology::MeshOps::nondimensionalize(Mesh* const mesh,
 
 
 // ------------------------------------------------------------------------------------------------
+// Create a new mesh with cells for each processes separated by a gap.
+pylith::topology::Mesh*
+pylith::topology::MeshOps::explode(const Mesh& mesh,
+                                   const double scale,
+                                   const double faultWidth) {
+    PYLITH_METHOD_BEGIN;
+    const double shrink = 0.8;
+
+    PetscErrorCode err = PETSC_SUCCESS;
+
+    // Compute center of domain bounding box
+    double domainCenter[3] = {0.0, 0.0, 0.0};
+    PylithReal coordMin[3];
+    PylithReal coordMax[3];
+    err = DMGetBoundingBox(mesh.getDM(), coordMin, coordMax);PYLITH_CHECK_ERROR(err);
+    for (int i = 0; i < 3; ++i) {
+        domainCenter[i] = 0.5 * (coordMin[i] + coordMax[i]);
+    } // for
+
+    // Compute centroid of cells on this process
+    const size_t spaceDim = mesh.getDimension();
+    pylith::topology::Stratum cells(mesh.getDM(), topology::Stratum::HEIGHT, 0);
+    const size_t numCellsLocal = cells.size();
+    PetscReal centroid[3] = {0.0, 0.0, 0.0};
+    PetscReal totalVolume = 0.0;
+    for (PetscInt cell = cells.begin(); cell < cells.end(); ++cell) {
+        PetscReal cellCentroid[3];
+        PetscReal cellVolume = 0.0;
+
+        err = DMPlexComputeCellGeometryFVM(mesh.getDM(), cell, &cellVolume, cellCentroid, nullptr);PYLITH_CHECK_ERROR(err);
+        for (size_t i = 0; i < spaceDim; ++i) {
+            centroid[i] += cellCentroid[i] * cellVolume;
+        } // for
+        totalVolume += cellVolume;
+    } // for
+    for (size_t i = 0; i < spaceDim; ++i) {
+        centroid[i] /= totalVolume;
+    } // for
+    const double avgCellDim = pow(totalVolume / double(numCellsLocal), 1.0/double(spaceDim));
+    double centroidNew[3];
+    for (size_t i = 0; i < spaceDim; ++i) {
+        centroidNew[i] = centroid[i] + scale * avgCellDim * (centroid[i] - domainCenter[i]);
+    } // for
+
+    pylith::topology::Mesh* meshExploded = mesh.clone();assert(meshExploded);
+    PetscVec coordsOrig = nullptr;
+    PetscVec coordsNew = nullptr;
+    err = DMGetCoordinatesLocal(meshExploded->getDM(), &coordsOrig);PYLITH_CHECK_ERROR(err);
+    err = VecDuplicate(coordsOrig, &coordsNew);PYLITH_CHECK_ERROR(err);
+    err = VecCopy(coordsOrig, coordsNew);PYLITH_CHECK_ERROR(err);
+
+    // Update coordinates
+    PetscScalar* coordsArray = nullptr;
+    PetscInt coordDim = 0;
+    err = VecGetArray(coordsNew, &coordsArray);PYLITH_CHECK_ERROR(err);
+    err = DMGetCoordinateDim(meshExploded->getDM(), &coordDim);PYLITH_CHECK_ERROR(err);
+
+    // Shift all coordinates on this process
+    pylith::topology::Stratum vertices(meshExploded->getDM(), topology::Stratum::DEPTH, 0);
+    const PetscInt numVertices = vertices.size();
+    for (PetscInt iPoint = 0; iPoint < numVertices; ++iPoint) {
+        const PetscInt index = iPoint * coordDim;
+        for (PetscInt iDim = 0; iDim < coordDim; ++iDim) {
+            coordsArray[index+iDim] = centroidNew[iDim] + shrink * (coordsArray[index+iDim] - centroid[iDim]);
+        } // for
+    } // for
+
+    // :TODO: Shift coordinates on fault faces
+
+    err = VecRestoreArray(coordsNew, &coordsArray);PYLITH_CHECK_ERROR(err);
+    err = DMSetCoordinatesLocal(meshExploded->getDM(), coordsNew);PYLITH_CHECK_ERROR(err);
+    err = VecDestroy(&coordsNew);PYLITH_CHECK_ERROR(err);
+
+    PYLITH_METHOD_RETURN(meshExploded);
+} // explode
+
+
+// ------------------------------------------------------------------------------------------------
 // Strip out "ghost" cells hanging off mesh
 PetscDM
 pylith::topology::MeshOps::removeHangingCells(const PetscDM& dmMesh) {
