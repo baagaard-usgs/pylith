@@ -469,6 +469,19 @@ pylith::faults::TopologyOps::updateCohesiveLabel(const pylith::topology::Mesh* m
 
     err = DMLabelDestroyIndex(dmLabel);PYLITH_CHECK_ERROR(err); // :KLUDGE: Clear out old indexing.
     err = DMPlexOrientLabel(dmMesh, dmLabel);PYLITH_CHECK_ERROR(err);
+    {
+      IS              valueIS;
+      const PetscInt *values;
+      PetscInt        depth, Nv;
+
+      err = DMPlexGetDepth(dmMesh, &depth);PYLITH_CHECK_ERROR(err);
+      err = DMLabelGetValueIS(dmLabel, &valueIS);PYLITH_CHECK_ERROR(err);
+      err = ISGetLocalSize(valueIS, &Nv);PYLITH_CHECK_ERROR(err);
+      err = ISGetIndices(valueIS, &values);PYLITH_CHECK_ERROR(err);
+      err = DMPlexRebalanceSharedLabelPoints(dmMesh, dmLabel, Nv, values, depth - 1);PYLITH_CHECK_ERROR(err);
+      err = ISRestoreIndices(valueIS, &values);PYLITH_CHECK_ERROR(err);
+      err = ISDestroy(&valueIS);PYLITH_CHECK_ERROR(err);
+    }
     err = DMPlexLabelCohesiveComplete(dmMesh, dmLabel, nullptr, 0, PETSC_FALSE, PETSC_FALSE, NULL);PYLITH_CHECK_ERROR(err);
 } // updateCohesiveLabel
 
