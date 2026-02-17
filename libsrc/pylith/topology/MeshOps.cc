@@ -27,6 +27,7 @@
 
 #include <algorithm> // USES std::sort, std::find
 #include <map> // USES std::map
+#include <set> // USES std::set
 
 namespace pylith {
     namespace topology {
@@ -373,6 +374,7 @@ pylith::topology::MeshOps::nondimensionalize(Mesh* const mesh,
 } // nondimensionalize
 
 
+#include <iostream>
 // ------------------------------------------------------------------------------------------------
 // Create a new mesh with cells for each processes separated by a gap.
 pylith::topology::Mesh*
@@ -441,7 +443,32 @@ pylith::topology::MeshOps::explode(const Mesh& mesh,
         } // for
     } // for
 
-    // :TODO: Shift coordinates on fault faces
+#if 0
+    // Shift coordinates on fault faces
+    PetscDM dmExploded = meshExploded->getDM();
+    std::set<PetscInt> verticesNegative;
+    std::set<PetscInt> verticesPositive;
+    for (PetscInt cell = cells.begin(); cell < cells.end(); ++cell) {
+        DMPolytopeType ct;
+        err = DMPlexGetCellType(dmExploded, cell, &ct);PYLITH_CHECK_ERROR(err);
+        if ((ct == DM_POLYTOPE_POINT_PRISM_TENSOR) ||
+            (ct == DM_POLYTOPE_SEG_PRISM_TENSOR) ||
+            (ct == DM_POLYTOPE_TRI_PRISM_TENSOR) ||
+            (ct == DM_POLYTOPE_QUAD_PRISM_TENSOR)) {
+            PetscInt* cone;
+            PetscInt coneSize;
+            err = DMPlexGetCone(dmExploded, cell, &cone);PYLITH_CHECK_ERROR(err);
+            err = DMPlexGetConeSize(dmExploded, cell, &coneSize);PYLITH_CHECK_ERROR(err);
+            assert(coneSize > 1);
+            const PetscInt faultFace = cone[0];
+            std::cout << "faultFace="<<faultFace<<std::endl;
+            PetscReal faultNormal[3];
+            err = DMPlexComputeCellGeometryFVM(dmExploded, cell, nullptr, nullptr, faultNormal);PYLITH_CHECK_ERROR(err);
+
+            for (int iCone = 0; iCone < coneSize; ++iCone) {} // for
+        } // if
+    } // for
+#endif
 
     err = VecRestoreArray(coordsNew, &coordsArray);PYLITH_CHECK_ERROR(err);
     err = DMSetCoordinatesLocal(meshExploded->getDM(), coordsNew);PYLITH_CHECK_ERROR(err);
