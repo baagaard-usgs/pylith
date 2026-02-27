@@ -444,6 +444,20 @@ pylith::topology::MeshOps::explode(const Mesh& mesh,
     } // for
 
 #if 0
+Get refine type of cells
+Label "refine_type"
+DMPlexTransformGetTransformTypes()
+  label
+  Point from new mesh DMPlexTransformGetSourcePoint()
+
+  Get label for transform type using DMPlexTransformGetTransformTypes()
+
+
+  Get cone -> face
+  Get closure of face and screen out to get just the vertices
+  Get point in original mesh using DMPlexTransformGetSourcePoint()
+  Look up point in label to determine if split or not (split >= 100; unpsplit < 100)
+
     // Shift coordinates on fault faces
     PetscDM dmExploded = meshExploded->getDM();
     std::set<PetscInt> verticesNegative;
