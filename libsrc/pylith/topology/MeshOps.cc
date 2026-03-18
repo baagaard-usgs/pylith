@@ -53,8 +53,20 @@ public:
 
                 static bool isInitialized;
             };
+
+            static
+            void moveFaultVertices(PetscScalar** coordsArray,
+                                   std::set<PetscInt>* movedVertices,
+                                   const PetscDM dmMesh,
+                                   const PetscInt faultFace,
+                                   const PetscReal faultNormal[],
+                                   const PetscReal scale,
+                                   const PetscInt vStart,
+                                   const PetscInt vEnd);
+
         };
     }
+
 }
 pylith::utils::EventLogger pylith::topology::_MeshOps::Events::logger;
 PylithInt pylith::topology::_MeshOps::Events::createSubdomainMesh;
@@ -374,7 +386,6 @@ pylith::topology::MeshOps::nondimensionalize(Mesh* const mesh,
 } // nondimensionalize
 
 
-#include <iostream>
 // ------------------------------------------------------------------------------------------------
 // Create a new mesh with cells for each processes separated by a gap.
 pylith::topology::Mesh*
@@ -450,119 +461,34 @@ pylith::topology::MeshOps::explode(const Mesh& mesh,
     // An improvement would be to move based on the average fault normal over all
     // fault faces a vertex is in.
     PetscDM dmExploded = meshExploded->getDM();
-    std::set<PetscInt> movedVertices;
+    std::set<PetscInt> movedVerticesPos;
+    std::set<PetscInt> movedVerticesNeg;
+    for (PetscInt cell = cells.begin(); cell < cells.end(); ++cell) {
+        DMPolytopeType ct;
+        err = DMPlexGetCellType(dmExploded, cell, &ct);PYLITH_CHECK_ERROR(err);
+        if ((ct == DM_POLYTOPE_POINT_PRISM_TENSOR) ||
+            (ct == DM_POLYTOPE_SEG_PRISM_TENSOR) ||
+            (ct == DM_POLYTOPE_TRI_PRISM_TENSOR) ||
+            (ct == DM_POLYTOPE_QUAD_PRISM_TENSOR)) {
+            const PetscInt* cone;
+            PetscInt coneSize;
+            err = DMPlexGetCone(dmExploded, cell, &cone);PYLITH_CHECK_ERROR(err);
+            err = DMPlexGetConeSize(dmExploded, cell, &coneSize);PYLITH_CHECK_ERROR(err);
+            assert(coneSize > 2);
+            const PetscInt faultFaceNeg = cone[0];
+            const PetscInt faultFacePos = cone[1];
 
-    //PetscDMLabel refineLabel = nullptr;
-    //DMPlexTransform transform = nullptr;
-    //err = DMPlexGetTransform(dmExploded, &transform);PYLITH_CHECK_ERROR(err);
-    //if (transform) {
-    if (true) {
-        //err = DMPlexTransformGetTransformTypes(transform, &refineLabel);PYLITH_CHECK_ERROR(err);
-        for (PetscInt cell = cells.begin(); cell < cells.end(); ++cell) {
-            DMPolytopeType ct;
-            err = DMPlexGetCellType(dmExploded, cell, &ct);PYLITH_CHECK_ERROR(err);
-            if ((ct == DM_POLYTOPE_POINT_PRISM_TENSOR) ||
-                (ct == DM_POLYTOPE_SEG_PRISM_TENSOR) ||
-                (ct == DM_POLYTOPE_TRI_PRISM_TENSOR) ||
-                (ct == DM_POLYTOPE_QUAD_PRISM_TENSOR)) {
-                const PetscInt* cone;
-                PetscInt coneSize;
-                err = DMPlexGetCone(dmExploded, cell, &cone);PYLITH_CHECK_ERROR(err);
-                err = DMPlexGetConeSize(dmExploded, cell, &coneSize);PYLITH_CHECK_ERROR(err);
-                assert(coneSize > 2);
-                const PetscInt faultFaceNeg = cone[0];
-                const PetscInt faultFacePos = cone[1];
+            // Get fault normal
+            PetscReal faultNormal[3]; // fault normal points out of cell
+            err = DMPlexComputeCellGeometryFVM(dmExploded, faultFaceNeg, nullptr, nullptr, faultNormal);PYLITH_CHECK_ERROR(err);
 
-                // Get fault normal
-                PetscReal faultNormal[3]; // fault normal points out of cell
-                err = DMPlexComputeCellGeometryFVM(dmExploded, faultFaceNeg, nullptr, nullptr, faultNormal);PYLITH_CHECK_ERROR(err);
-                { // Adjust coordinates of vertices on negative fault face
-                    const PetscInt faultFace = faultFaceNeg;
-                    const PetscReal scale = +0.2 * avgCellDim;
+            PetscReal scale = +0.15 * avgCellDim;
+            _MeshOps::moveFaultVertices(&coordsArray, &movedVerticesNeg, dmExploded, faultFaceNeg, faultNormal, scale, vStart, vEnd);
 
-                    // Get closure of face and screen out to get just the vertices
-                    PetscInt *closure = NULL, closureSize;
-                    err = DMPlexGetTransitiveClosure(dmExploded, faultFace, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
-                    for (PetscInt s = 0; s < closureSize*2; s += 2) {
-                        const PetscInt point = closure[s];
-
-                        if ((point < vStart) || (point >= vEnd) || (movedVertices.count(point) > 0)) {
-                            continue;
-                        } // if
-
-                        // Get point in original mesh
-#if 0
-                        PetscInt srcPoint;
-                        PetscInt refineType = 0;
-                        err = DMPlexTransformGetSourcePoint(transform, point, nullptr, nullptr, &srcPoint, nullptr);PYLITH_CHECK_ERROR(err);
-                        err = DMLabelGetValue(refineLabel, srcPoint, &refineType);PYLITH_CHECK_ERROR(err);
-                        if (refineType >= 100) { // split
-#endif
-                        if (true) { // split
-                            movedVertices.insert(point);
-                            const PetscInt index = (point - vStart)* coordDim;
-                            for (PetscInt iDim = 0; iDim < coordDim; ++iDim) {
-                                coordsArray[index+iDim] += scale * faultNormal[iDim];
-                            } // for
-
-                        } // if
-                    } // for
-                    err = DMPlexRestoreTransitiveClosure(dmExploded, faultFace, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
-
-                } // Adjust coordinates of vertices on negative fault face
-                { // Adjust coordinates of vertices on positive fault face
-                    const PetscInt faultFace = faultFacePos;
-                    const PetscReal scale = -0.2 * avgCellDim;
-
-                    // Get closure of face and screen out to get just the vertices
-                    PetscInt *closure = NULL, closureSize;
-                    err = DMPlexGetTransitiveClosure(dmExploded, faultFace, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
-                    for (PetscInt s = 0; s < closureSize*2; s += 2) {
-                        const PetscInt point = closure[s];
-
-                        if ((point < vStart) || (point >= vEnd) || (movedVertices.count(point) > 0)) {
-                            continue;
-                        } // if
-
-                        // Get point in original mesh
-#if 0
-                        PetscInt srcPoint;
-                        PetscInt refineType = 0;
-                        err = DMPlexTransformGetSourcePoint(transform, point, nullptr, nullptr, &srcPoint, nullptr);PYLITH_CHECK_ERROR(err);
-                        err = DMLabelGetValue(refineLabel, srcPoint, &refineType);PYLITH_CHECK_ERROR(err);
-                        if (refineType >= 100) { // split
-#endif
-                        if (true) { // split
-                            movedVertices.insert(point);
-                            const PetscInt index = (point - vStart)* coordDim;
-                            for (PetscInt iDim = 0; iDim < coordDim; ++iDim) {
-                                coordsArray[index+iDim] += scale * faultNormal[iDim];
-                            } // for
-
-                        } // if
-                    } // for
-                    err = DMPlexRestoreTransitiveClosure(dmExploded, faultFace, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
-
-                } // Adjust coordinates of vertices on positive fault face
-            } // if
-        } // for
-    } else {
-        pythia::journal::warning_t warning("debugging");
-        warning << pythia::journal::at(__HERE__)
-                << "No transform found when exploding mesh. Cannot adjust cohesive cells."
-                 << pythia::journal::endl;
-    } // if/else
-
-#if 0
-Get refine type of cells
-Label "refine_type"
-DMPlexTransformGetTransformTypes()
-  label
-  Point from new mesh DMPlexTransformGetSourcePoint()
-
-  Get label for transform type using DMPlexTransformGetTransformTypes()
-
-#endif
+            scale = -0.15 * avgCellDim;
+            _MeshOps::moveFaultVertices(&coordsArray, &movedVerticesPos, dmExploded, faultFacePos, faultNormal, scale, vStart, vEnd);
+        } // if
+    } // for
 
     err = VecRestoreArray(coordsNew, &coordsArray);PYLITH_CHECK_ERROR(err);
     err = DMSetCoordinatesLocal(meshExploded->getDM(), coordsNew);PYLITH_CHECK_ERROR(err);
@@ -570,6 +496,45 @@ DMPlexTransformGetTransformTypes()
 
     PYLITH_METHOD_RETURN(meshExploded);
 } // explode
+
+
+// ------------------------------------------------------------------------------------------------
+void
+pylith::topology::_MeshOps::moveFaultVertices(PetscScalar** coordsArray,
+                                              std::set<PetscInt>* movedVertices,
+                                              const PetscDM dmMesh,
+                                              const PetscInt faultFace,
+                                              const PetscReal faultNormal[],
+                                              const PetscReal scale,
+                                              const PetscInt vStart,
+                                              const PetscInt vEnd) {
+    PYLITH_METHOD_BEGIN;
+
+    PetscErrorCode err = PETSC_SUCCESS;
+    PetscInt coordDim = 0;
+    err = DMGetCoordinateDim(dmMesh, &coordDim);PYLITH_CHECK_ERROR(err);
+
+    // Get closure of face and screen out to get just the vertices
+    PetscInt *closure = NULL;
+    PetscInt closureSize = 0;
+    err = DMPlexGetTransitiveClosure(dmMesh, faultFace, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
+    for (PetscInt s = 0; s < closureSize*2; s += 2) {
+        const PetscInt point = closure[s];
+
+        if ((point < vStart) || (point >= vEnd) || (movedVertices->count(point) > 0)) {
+            continue;
+        } // if
+
+        movedVertices->insert(point);
+        const PetscInt index = (point - vStart)* coordDim;
+        for (PetscInt iDim = 0; iDim < coordDim; ++iDim) {
+            (*coordsArray)[index+iDim] += scale * faultNormal[iDim];
+        } // for
+    } // for
+    err = DMPlexRestoreTransitiveClosure(dmMesh, faultFace, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
+
+    PYLITH_METHOD_END;
+} // moveFaultVertices
 
 
 // ------------------------------------------------------------------------------------------------
