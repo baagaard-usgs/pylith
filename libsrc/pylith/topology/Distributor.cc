@@ -149,12 +149,16 @@ pylith::topology::Distributor::distribute(const pylith::topology::Mesh& mesh,
     PylithCallPetsc(DMPlexDistribute(dmOrig, overlap, NULL, &dmTmp));
     pylith::topology::Mesh* meshNew = nullptr;
     if (dmTmp) {
+#if 1
         PylithCallPetsc(Distributor::distributeOverlap(&dmNew, dmTmp, faults));
         PylithCallPetsc(DMDestroy(&dmTmp));
         PylithCallPetsc(DMPlexDistributeSetDefault(dmNew, PETSC_FALSE));
         PylithCallPetsc(DMPlexReorderCohesiveSupports(dmNew));
         PylithCallPetsc(DMViewFromOptions(dmNew, NULL, "-pylith_dist_dm_view"));
         meshNew = new pylith::topology::Mesh(dmNew, mesh);assert(meshNew);
+#else
+        meshNew = new pylith::topology::Mesh(dmTmp, mesh);assert(meshNew);
+#endif
     } else {
         PetscObjectReference(PetscObject(dmOrig));
         meshNew = new pylith::topology::Mesh(dmOrig, mesh);assert(meshNew);

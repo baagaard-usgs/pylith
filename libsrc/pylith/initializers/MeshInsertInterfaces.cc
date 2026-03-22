@@ -47,14 +47,15 @@ pylith::initializers::MeshInsertInterfaces::run(pylith::topology::Mesh* mesh,
                                                 const pylith::problems::Problem& problem) {
     PYLITH_METHOD_BEGIN;
     assert(mesh);
+    PetscErrorCode err = PETSC_SUCCESS;
 
     if (!problem.getInterfaces().size()) {
-        PetscErrorCode err = PETSC_SUCCESS;
         PetscDM dmOrig = mesh->getDM();assert(dmOrig);
         err = PetscObjectReference((PetscObject) dmOrig);PYLITH_CHECK_ERROR(err);
         pylith::topology::Mesh* meshNew = new pylith::topology::Mesh(dmOrig, *mesh);
         PYLITH_METHOD_RETURN(meshNew);
     } // if
+    err = DMPlexCheckGeometry(mesh->getDM());PYLITH_CHECK_ERROR_MSG(err, "Error in topology of the mesh.");
 
     // Determine starting label value for cohesive cells.
     PylithInt cohesiveLabelValue = 100;
@@ -75,9 +76,15 @@ pylith::initializers::MeshInsertInterfaces::run(pylith::topology::Mesh* mesh,
         cohesiveLabelValue += 1;
     } // for
 
+    err = DMPlexCheckGeometry(meshNew->getDM());PYLITH_CHECK_ERROR(err);
+
     PetscDM dmNew = nullptr;
+    // Set overlap since cohesive cells can be put in the SF
+    err = DMPlexSetOverlap(meshNew->getDM(), nullptr, 1);PYLITH_CHECK_ERROR(err);
     pylith::topology::Distributor::distributeOverlap(&dmNew, meshNew->getDM(), problem.getInterfaces());
     meshNew->setDM(dmNew);
+
+    err = DMPlexCheckGeometry(meshNew->getDM());PYLITH_CHECK_ERROR(err);
 
     PYLITH_METHOD_RETURN(meshNew);
 } // run
