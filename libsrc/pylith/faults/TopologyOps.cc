@@ -670,9 +670,6 @@ pylith::faults::TopologyOps::createBuriedEdgeLabel(PetscDM dmMeshNew,
         } // if
 
     } // for
-    if (!hasBuriedEdge) {
-        err = DMRemoveLabel(dmMeshNew, buriedEdgeLabelName, NULL);PYLITH_CHECK_ERROR(err);
-    } else {} // if/else
 
     PYLITH_METHOD_END;
 } // createBuriedEdgeLabel
