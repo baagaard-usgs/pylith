@@ -422,40 +422,45 @@ pylith::faults::TopologyOps::classifyCellsDM(PetscDM dmDomain,
     noReplaceCells.insert(vNoReplaceCells.begin(), vNoReplaceCells.end());
 } // classifyCellsDM
 
-static void MPIAPI label_cohesive_value_reduce(void *a, void *b, int *len, MPI_Datatype *datatype)
-{
-  const int N = *len;
 
-  if (*datatype == MPIU_INT) {
-    PetscInt *A = (PetscInt *)a;
-    PetscInt *B = (PetscInt *)b;
+static void MPIAPI
+label_cohesive_value_reduce(void *a,
+                            void *b,
+                            int *len,
+                            MPI_Datatype *datatype) {
+    const int N = *len;
 
-    for (int i = 0; i < N; i++) {
-      // Propagate errors
-      if (A[i] == -1 || B[i] == -1) {
-        B[i] = -1;
-        continue;
-      }
-      // Default values do not propagate
-      if (A[i] == -1) continue;
-      // Override default values
-      if (B[i] == -1) {
-        B[i] = A[i];
-        continue;
-      }
-      // Unsplit points are preferred
-      if (A[i] == B[i] + 200) {
-        B[i] = A[i];
-        continue;
-      }
-      if (B[i] == A[i] + 200) continue;
-      // Process can disagree about the surface side on the boundary
-      if (A[i] == -B[i]) continue;
-      // Error
-      if (A[i] != B[i]) MPI_Abort(MPI_COMM_WORLD, 1);
+    if (*datatype == MPIU_INT) {
+        PetscInt *A = (PetscInt *)a;
+        PetscInt *B = (PetscInt *)b;
+
+        for (int i = 0; i < N; i++) {
+            // Propagate errors
+            if ((A[i] == -1) || (B[i] == -1)) {
+                B[i] = -1;
+                continue;
+            }
+            // Default values do not propagate
+            if (A[i] == -1) { continue;}
+            // Override default values
+            if (B[i] == -1) {
+                B[i] = A[i];
+                continue;
+            }
+            // Unsplit points are preferred
+            if (A[i] == B[i] + 200) {
+                B[i] = A[i];
+                continue;
+            }
+            if (B[i] == A[i] + 200) { continue;}
+            // Process can disagree about the surface side on the boundary
+            if (A[i] == -B[i]) { continue;}
+            // Error
+            if (A[i] != B[i]) { MPI_Abort(MPI_COMM_WORLD, 1);}
+        }
     }
-  }
 }
+
 
 // ------------------------------------------------------------------------------------------------
 void
@@ -504,17 +509,17 @@ pylith::faults::TopologyOps::updateCohesiveLabel(const pylith::topology::Mesh* m
     err = DMLabelDestroyIndex(dmLabel);PYLITH_CHECK_ERROR(err); // :KLUDGE: Clear out old indexing.
     err = DMPlexOrientLabel(dmMesh, dmLabel);PYLITH_CHECK_ERROR(err);
     {
-      IS              valueIS;
-      const PetscInt *values;
-      PetscInt        depth, Nv;
+        IS valueIS;
+        const PetscInt *values;
+        PetscInt depth, Nv;
 
-      err = DMPlexGetDepth(dmMesh, &depth);PYLITH_CHECK_ERROR(err);
-      err = DMLabelGetValueIS(dmLabel, &valueIS);PYLITH_CHECK_ERROR(err);
-      err = ISGetLocalSize(valueIS, &Nv);PYLITH_CHECK_ERROR(err);
-      err = ISGetIndices(valueIS, &values);PYLITH_CHECK_ERROR(err);
-      err = DMPlexRebalanceSharedLabelPoints(dmMesh, dmLabel, Nv, values, depth - 1);PYLITH_CHECK_ERROR(err);
-      err = ISRestoreIndices(valueIS, &values);PYLITH_CHECK_ERROR(err);
-      err = ISDestroy(&valueIS);PYLITH_CHECK_ERROR(err);
+        err = DMPlexGetDepth(dmMesh, &depth);PYLITH_CHECK_ERROR(err);
+        err = DMLabelGetValueIS(dmLabel, &valueIS);PYLITH_CHECK_ERROR(err);
+        err = ISGetLocalSize(valueIS, &Nv);PYLITH_CHECK_ERROR(err);
+        err = ISGetIndices(valueIS, &values);PYLITH_CHECK_ERROR(err);
+        err = DMPlexRebalanceSharedLabelPoints(dmMesh, dmLabel, Nv, values, depth - 1);PYLITH_CHECK_ERROR(err);
+        err = ISRestoreIndices(valueIS, &values);PYLITH_CHECK_ERROR(err);
+        err = ISDestroy(&valueIS);PYLITH_CHECK_ERROR(err);
     }
     err = DMPlexLabelCohesiveComplete(dmMesh, dmLabel, nullptr, 0, PETSC_FALSE, PETSC_FALSE, NULL);PYLITH_CHECK_ERROR(err);
 
@@ -670,7 +675,12 @@ pylith::faults::TopologyOps::createBuriedEdgeLabel(PetscDM dmMeshNew,
         } // if
 
     } // for
-
+    const int hasBuriedEdgeValueLocal = hasBuriedEdge ? 1 : 0;
+    int hasBuriedEdgeValue = 0;
+    int mpierr = MPI_Allreduce(&hasBuriedEdgeValueLocal, &hasBuriedEdgeValue, 1, MPI_INT, MPI_MAX, PetscObjectComm((PetscObject) dmMeshNew));assert(MPI_SUCCESS == mpierr);
+    if (!hasBuriedEdgeValue) {
+        err = DMRemoveLabel(dmMeshNew, buriedEdgeLabelName, NULL);PYLITH_CHECK_ERROR(err);
+    } // if
     PYLITH_METHOD_END;
 } // createBuriedEdgeLabel
 
