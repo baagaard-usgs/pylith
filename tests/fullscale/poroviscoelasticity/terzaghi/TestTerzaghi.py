@@ -59,6 +59,7 @@ class TestCase(FullTestCase):
                     "porosity",
                     "shear_modulus",
                     "solid_density",
+                    "solid_viscosity",
                 ],
                 defaults=defaults,
             ),

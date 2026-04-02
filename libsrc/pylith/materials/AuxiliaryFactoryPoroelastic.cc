@@ -291,7 +291,7 @@ pylith::materials::AuxiliaryFactoryPoroelastic::addMaxwellTime(void) {
     PYLITH_JOURNAL_DEBUG("addMaxwellTime(void)");
 
     const char* subfieldName = "maxwell_time";
-    const PylithReal timeScale = _normalizer->getTimeScale();
+    const PylithReal timeScale = _scales->getTimeScale();
 
     pylith::topology::Field::Description description;
     description.label = subfieldName;

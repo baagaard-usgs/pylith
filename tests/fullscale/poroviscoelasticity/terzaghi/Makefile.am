@@ -10,6 +10,7 @@
 
 dist_noinst_PYTHON = \
 	meshes.py \
+	generate_gmsh.py \
 	terzaghi_gendb.py \
 	TestTerzaghi.py \
 	terzaghi_soln.py \
@@ -23,7 +24,9 @@ dist_noinst_DATA = \
 	mesh_tri.exo \
 	mesh_quad.jou \
 	mesh_quad.exo \
-	terzaghi.cfg \
+	mesh_quad.msh \
+	mesh_tri.msh \
+	pylithapp.cfg \
 	terzaghi_tri.cfg \
 	terzaghi_quad.cfg \
 
