@@ -14,6 +14,7 @@ dist_noinst_PYTHON = \
 	terzaghi_gendb.py \
 	TestTerzaghi.py \
 	terzaghi_soln.py \
+	test_pylith.py \
 
 
 

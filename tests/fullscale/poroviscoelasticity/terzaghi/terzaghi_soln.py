@@ -192,7 +192,7 @@ class AnalyticalSoln(object):
         y_star = 1.0 - locs[:, 1] / H
 
         # Laplace transforms of displacement
-        def u_t0_LT(s):
+        def u_t0_LT(y_star, s):
             G_bar = G * s / (s + (G / mu_s))
             K_bar = K_d * s / (s + (G / mu_s))
             alpha_bar = alpha * s / (s + (G / mu_s))
@@ -205,7 +205,7 @@ class AnalyticalSoln(object):
 
             return (-(P_0 * H * (1.0 - 2.0 * nu_u_bar )) / (s * 2 * G_bar * (1.0 - nu_u_bar))) * (1.0 - y_star)
 
-        def u_LT(s):
+        def u_LT(y_star, s):
             G_bar = G * s / (s + (G / mu_s))
             K_bar = K_d * s / (s + (G / mu_s))
             alpha_bar = alpha * s / (s + (G / mu_s))
@@ -216,14 +216,15 @@ class AnalyticalSoln(object):
             nu_bar = (3 * K_bar - 2 * G_bar) / (2 * (3 * K_bar + G_bar))
             nu_u_bar = (3 * Ku_bar - 2 * G_bar) / (2 * (3 * Ku_bar + G_bar))
 
-            return (-(P_0 * H * (1.0 - 2.0 * nu_u_bar )) / (s * 2 * G_bar * (1.0 - nu_u_bar))) * (1.0 - y_star) + (( P_0 *H *(nu_u_bar - nu_bar)) / (2.0 * G_bar * (1.0 - nu_u_bar) * (1.0 - nu_bar))) * F2_LT(y_star, s)
+            return (-(P_0 * H * (1.0 - 2.0 * nu_u_bar )) / (s * 2 * G_bar * (1.0 - nu_u_bar))) * (1.0 - y_star) + (( P_0 *H *(nu_u_bar - nu_bar)) / (2.0 * G_bar * (1.0 - nu_u_bar) * (1.0 - nu_bar))) * self.F2_LT(y_star, s)
 
-        for i_t, t in enumerate(tsteps):
-            if t < 0.0:
-                displacement[0, :, 1] = mpmath.invertlaplace(u_t0_LT, 0.0)
-            else:
-                t_star = (c * t) / ((2 * H) ** 2)
-                displacement[i_t, :, 1] = mpmath.invertlaplace(u_LT, t_star)
+        for i_y, y in enumerate(y_star):
+            for i_t, t in enumerate(tsteps):
+                if t < 0.0:
+                    displacement[0, i_y, 1] = mpmath.invertlaplace(lambda s: u_t0_LT(y, s), 0.0)
+                else:
+                    t_star = (c * t) / ((2 * H) ** 2)
+                    displacement[i_t, i_y, 1] = mpmath.invertlaplace(lambda s: u_LT(y, s), t_star)
 
         return displacement
 
@@ -236,7 +237,7 @@ class AnalyticalSoln(object):
         mpmath.dps = 30; mpmath.pretty = True
 
         # Laplace transform of pressure
-        def p_LT(s):
+        def p_LT(y_star, s):
             G_bar = G * s / (s + (G / mu_s))
             K_bar = K_d * s / (s + (G / mu_s))
             alpha_bar = alpha * s / (s + (G / mu_s))
@@ -245,11 +246,12 @@ class AnalyticalSoln(object):
             inverse_M_bar = (alpha_bar - phi) / K_sg + phi / K_fl
             S_bar = inverse_M_bar + 2 * alpha_bar**2 / (2 * K_bar + 4 * G_bar)
 
-            return ((P_0 * eta_bar) /(G_bar * S_bar))*F1_LT(y_star, s)
+            return ((P_0 * eta_bar) /(G_bar * S_bar)) * self.F1_LT(y_star, s)
 
-        for i_t, t in enumerate(tsteps):
-            t_star = (c * t) / (4.0 * H**2)
-            pressure[i_t, :, 0] = mpmath.invertlaplace(p_LT, t_star)
+        for i_y, y in enumerate(y_star):
+            for i_t, t in enumerate(tsteps):
+                t_star = (c * t) / (4.0 * H**2)
+                pressure[i_t, i_y, 0] = mpmath.invertlaplace(lambda s: p_LT(y, s), t_star)
 
         return pressure
 
@@ -261,7 +263,7 @@ class AnalyticalSoln(object):
         y_star = 1.0 - locs[:, 1] / H
 
         # Laplace transform of trace strain
-        def strain_LT(s):
+        def strain_LT(y_star, s):
             G_bar = G * s / (s + (G / mu_s))
             K_bar = K_d * s / (s + (G / mu_s))
             alpha_bar = alpha * s / (s + (G / mu_s))
@@ -272,35 +274,51 @@ class AnalyticalSoln(object):
             nu_bar = (3 * K_bar - 2 * G_bar) / (2 * (3 * K_bar + G_bar))
             nu_u_bar = (3 * Ku_bar - 2 * G_bar) / (2 * (3 * Ku_bar + G_bar))
 
-            return -((P_0 * H * (1-2*nu_u_bar))/(2.0* s * G_bar * (1.0 - nu_u_bar) * H)) + (( P_0 * H * (nu_u_bar - nu_bar)) / (2.0 * G_bar * (1.0 - nu_u_bar) * (1.0 - nu_bar)))*F3_LT(y_star, s)
+            return -((P_0 * H * (1-2*nu_u_bar))/(2.0* s * G_bar * (1.0 - nu_u_bar) * H)) + (( P_0 * H * (nu_u_bar - nu_bar)) / (2.0 * G_bar * (1.0 - nu_u_bar) * (1.0 - nu_bar))) * self.F3_LT(y_star, s)
 
-        for i_t, t in enumerate(tsteps):
-            t_star = (c * t) / (4 * H**2)
-            trace_strain[i_t, :, 0] = mpmath.invertlaplace(strain_LT, t_star)
+        for i_y, y in enumerate(y_star):
+            for i_t, t in enumerate(tsteps):
+                t_star = (c * t) / (4 * H**2)
+                trace_strain[i_t, i_y, 0] = mpmath.invertlaplace(lambda s: strain_LT(y, s), t_star)
 
         return trace_strain
 
     # Series functions
 
     def F1_LT(self, y_star, s):
-        m = numpy.arange(1, 2 * self.ITERATIONS + 1, 2)
-        F1 = numpy.zeros(y_star.shape)
-        for i_y, y in enumerate(y_star):
-            F1[i_y] = numpy.sum(4.0 / (m * numpy.pi) * mpmath.sin(0.5 * m * numpy.pi * y) * (1.0 / (s + (m * numpy.py)**2)))
+        # m = numpy.arange(1, 2 * self.ITERATIONS + 1, 2)
+        # F1 = numpy.zeros(y_star.shape)
+        # for i_y, y in enumerate(y_star):
+        #     F1[i_y] = numpy.sum(4.0 / (m * numpy.pi) * mpmath.sin(0.5 * m * numpy.pi * y) * (1.0 / (s + (m * numpy.pi)**2)))
+        # return F1
+
+        F1=0
+        for m in numpy.arange(1, 2 * self.ITERATIONS + 1, 2):
+            F1 += 4. / (m * numpy.pi) * mpmath.sin(0.5 * m * numpy.pi * y_star) * (1. / (s + m**2 * numpy.pi**2))
         return F1
 
     def F2_LT(self, y_star, s):
-        m = numpy.arange(1, 2 * self.ITERATIONS + 1, 2)
-        F2 = numpy.zeros(y_star.shape)
-        for i_y, y in enumerate(y_star):
-            F2[i_y] = numpy.sum((8.0 / (m * numpy.pi) ** 2) * mpmath.cos(0.5 * m * numpy.pi * y) * ((1.0 / s) - (1.0 / (s + (m * numpy.py)**2))))
+        # m = numpy.arange(1, 2 * self.ITERATIONS + 1, 2)
+        # F2 = numpy.zeros(y_star.shape)
+        # np_cos = numpy.frompyfunc(mpmath.cos, 1, 1)
+        # for i_y, y in enumerate(y_star):
+        #     F2[i_y] = numpy.sum((8.0 / (m * numpy.pi) ** 2) * np_cos(0.5 * m * numpy.pi * y) * ((1.0 / s) - (1.0 / (s + (m * numpy.pi)**2))))
+        # return F2
+        F2 = 0.
+        for m in numpy.arange(1, 2 * self.ITERATIONS + 1, 2):
+            F2 += (8. / (m * numpy.pi)**2) * mpmath.cos(0.5 * m * numpy.pi * y_star) * (1. / s - (1. / (s + m**2 * numpy.pi**2)))
         return F2
 
     def F3_LT(self, y_star, s):
-        m = numpy.arange(1, 2 * self.ITERATIONS + 1, 2)
-        F3 = numpy.zeros(y_star.shape)
-        for i_y, y in enumerate(y_star):
-            F3[i_y] = numpy.sum((-4.0 / (m * numpy.pi * H)) * mpmath.sin(0.5 * m * numpy.pi * y) * ((1.0 / s) - (1.0 / (s + (m * numpy.py)**2))))
+        # m = numpy.arange(1, 2 * self.ITERATIONS + 1, 2)
+        # F3 = numpy.zeros(y_star.shape)
+        # for i_y, y in enumerate(y_star):
+        #     F3[i_y] = numpy.sum((-4.0 / (m * numpy.pi * H)) * mpmath.sin(0.5 * m * numpy.pi * y) * ((1.0 / s) - (1.0 / (s + (m * numpy.pi)**2))))
+        # return F3
+
+        F3 = 0.
+        for m in numpy.arange(1, 2 * self.ITERATIONS + 1, 2):
+            F3 += (-4.0 / (m * numpy.pi * H)) * mpmath.sin(0.5 * m * numpy.pi * y_star) * (1.0 / s - (1. / (s + m**2 * numpy.pi**2)))
         return F3
 
     def strain(self, locs):
