@@ -17,32 +17,24 @@
 
 
 namespace pylith::fekernels::momentum {
-    template<class AuxiliaryLayout>
-    struct IsotropicLinear {
-        double _bulkModulus;
-        double _shearModulus;
-
-        // Local order of auxiliary subfields
-        struct LocalLayout {
-            static constexpr size_t i_bulkModulus = 0;
-            static constexpr size_t i_shearModulus = 1;
-            static constexpr size_t size = 2;
-        };
-
-
-        PYLITH_KERNEL void loadAuxiliary(const double* a,
-                                         const int* aOff,
-                                         pylith::fekernels::momentum::AuxiliaryLayout& layout) {
-            _bulkModulus = a[aOff[layout::i_bulkModulus]];
-            _shearModulus = a[aOff[layout::i_shearModulus]];
-        } // loadAuxiliary
-
+    template<size_t dim, class AuxiliaryLayout>
+    struct IsotropicLinearElasticity {
         PYLITH_KERNEL static void compute(pylith::fekernels::Matrix3D& stress,
-                                          const pylith::fekernels::Matrix3D& strain) {
-            const size_t dim = strain.getDim();
+                                          const pylith::fekernels::Matrix3D& strain,
+                                          const AuxiliaryLayout& auxiliary) {
+            stress.zero();
+            meanStress(stress, auxiliary.bulk_modulus, strain);
+            deviatoricStress(stress, auxiliary.shear_modulus, strain);
 
-            meanStress(stress, _bulkModulus, strain);
-            deviatoricStress(stress, _shearModulus, strain);
+            // Reference stress subtracted from residual
+            if constexpr (auxiliary::has(ISOTROPIC_LINEAR_REFERENCE)) {
+                const auto& reference_stress = aux.template get<ISOTROPIC_LINEAR_REFERENCE_STRESS>();
+                for (size_t i = 0; i < dim; i++) {
+                    for (size_t j = 0; j < dim; j++) {
+                        stress(i, j) -= reference_stress(i,j);
+                    } // for
+                } // for
+            } // if
 
         } // compute
 

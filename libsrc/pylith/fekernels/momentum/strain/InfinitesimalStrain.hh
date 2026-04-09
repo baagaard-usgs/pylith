@@ -18,14 +18,15 @@
 
 namespace pylith::fekernels::momentum {
     /// ε_ij = 1/2 (∂u_i/∂x_j + ∂u_j/∂x_i)
+    template<int dim, class SolutionLayout>
     struct InfinitesimalStrain {
-        PYLITH_KERNEL static void compute(pylith::fekernels::Matrix3D& strain,
-                                          const pylith::fekernels::Matrix3D& grad_u) {
+        PYLITH_KERNEL static void compute(pylith::fekernels::common::Matrix<dim>& strain,
+                                          const SolutionLayout& solution) {
             strain.zero();
-            const size_t dim = strain.getDim();
+            const pylith::fekernels::common::VectorField<dim>& disp = solution.displacement;
             for (size_t i = 0; i < dim; i++) {
                 for (size_t j = 0; j < dim; j++) {
-                    strain(i, j) = 0.5 * (grad_u(i, j) + grad_u(j, i));
+                    strain(i, j) = 0.5 * (disp.gradient(i, j) + disp.gradient(j, i));
                 } // for
             } // for
         } // compute
