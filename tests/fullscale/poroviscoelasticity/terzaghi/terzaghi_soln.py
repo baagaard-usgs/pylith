@@ -198,10 +198,8 @@ class AnalyticalSoln(object):
             alpha_bar = alpha * s / (s + (G / mu_s))
 
             inverse_M_bar = (alpha_bar - phi) / K_sg + phi / K_fl
-            Ku_bar = K_bar + alpha_bar**2 * (1.0 / inverse_M_bar)
-
-            nu_bar = (3 * K_bar - 2 * G_bar) / (2 * (3 * K_bar + G_bar))
-            nu_u_bar = (3 * Ku_bar - 2 * G_bar) / (2 * (3 * Ku_bar + G_bar))
+            Ku_bar = K_bar + alpha_bar**2 * (1. / inverse_M_bar)
+            nu_u_bar = (3.0 * Ku_bar - 2.0 * G_bar)/(2 * (3.0 * Ku_bar + G_bar))
 
             return (-(P_0 * H * (1.0 - 2.0 * nu_u_bar )) / (s * 2 * G_bar * (1.0 - nu_u_bar))) * (1.0 - y_star)
 
@@ -211,10 +209,9 @@ class AnalyticalSoln(object):
             alpha_bar = alpha * s / (s + (G / mu_s))
 
             inverse_M_bar = (alpha_bar - phi) / K_sg + phi / K_fl
-            Ku_bar = K_bar + alpha_bar**2 * (1.0 / inverse_M_bar)
-
-            nu_bar = (3 * K_bar - 2 * G_bar) / (2 * (3 * K_bar + G_bar))
-            nu_u_bar = (3 * Ku_bar - 2 * G_bar) / (2 * (3 * Ku_bar + G_bar))
+            Ku_bar = K_bar + alpha_bar**2 * (1. / inverse_M_bar)
+            nu_bar = (3.0 * K_bar - 2.0 * G_bar) / (2.0 * (3.0 * K_bar + G_bar))
+            nu_u_bar = (3.0 * Ku_bar - 2.0 * G_bar)/(2 * (3.0 * Ku_bar + G_bar))
 
             return (-(P_0 * H * (1.0 - 2.0 * nu_u_bar )) / (s * 2 * G_bar * (1.0 - nu_u_bar))) * (1.0 - y_star) + (( P_0 *H *(nu_u_bar - nu_bar)) / (2.0 * G_bar * (1.0 - nu_u_bar) * (1.0 - nu_bar))) * self.F2_LT(y_star, s)
 
@@ -242,9 +239,9 @@ class AnalyticalSoln(object):
             K_bar = K_d * s / (s + (G / mu_s))
             alpha_bar = alpha * s / (s + (G / mu_s))
 
-            eta_bar = 3 * alpha_bar * G_bar /(2 * K_bar + 4 * G_bar)
+            eta_bar = (3.0 * alpha_bar * G_bar) / (3.0 * K_bar + 4.0 * G_bar)
             inverse_M_bar = (alpha_bar - phi) / K_sg + phi / K_fl
-            S_bar = inverse_M_bar + 2 * alpha_bar**2 / (2 * K_bar + 4 * G_bar)
+            S_bar = inverse_M_bar + 3.0 * alpha_bar**2 / (3.0 * K_bar + 4.0 * G_bar)
 
             return ((P_0 * eta_bar) /(G_bar * S_bar)) * self.F1_LT(y_star, s)
 
@@ -269,10 +266,9 @@ class AnalyticalSoln(object):
             alpha_bar = alpha * s / (s + (G / mu_s))
 
             inverse_M_bar = (alpha_bar - phi) / K_sg + phi / K_fl
-            Ku_bar = K_bar + alpha_bar**2 * (1.0 / inverse_M_bar)
-
-            nu_bar = (3 * K_bar - 2 * G_bar) / (2 * (3 * K_bar + G_bar))
-            nu_u_bar = (3 * Ku_bar - 2 * G_bar) / (2 * (3 * Ku_bar + G_bar))
+            Ku_bar = K_bar + alpha_bar**2 * (1. / inverse_M_bar)
+            nu_bar = (3.0 * K_bar - 2.0 * G_bar) / (2.0 * (3.0 * K_bar + G_bar))
+            nu_u_bar = (3.0 * Ku_bar - 2.0 * G_bar)/(2 * (3.0 * Ku_bar + G_bar))
 
             return -((P_0 * H * (1-2*nu_u_bar))/(2.0* s * G_bar * (1.0 - nu_u_bar) * H)) + (( P_0 * H * (nu_u_bar - nu_bar)) / (2.0 * G_bar * (1.0 - nu_u_bar) * (1.0 - nu_bar))) * self.F3_LT(y_star, s)
 

@@ -1325,25 +1325,33 @@ public:
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
         const PylithScalar shearModulus = isotropicLinearPoroelasticityRheologyContext.shearModulus;
+        const PylithScalar drainedBulkModulus = isotropicLinearPoroelasticityRheologyContext.drainedBulkModulus;
         const PylithScalar maxwellTime = isotropicLinearMaxwellRheologyContext.maxwellTime;
         const PylithScalar dt = isotropicLinearMaxwellRheologyContext.dt;
 
         const PylithScalar dq = pylith::fekernels::IsotropicLinearMaxwell::viscousStrainCoeff(dt, maxwellTime);
 
         //Unique components of Jacobian.
-        const PylithReal C1111 = 4.0/3.0 * shearModulus * dq;
-        const PylithReal C1122 = -2.0/3.0 * shearModulus * dq;
+        const PylithReal C1111 = drainedBulkModulus + 4.0/3.0 * shearModulus * dq;
+        // const PylithReal C1122 = -2.0/3.0 * shearModulus * dq;
         const PylithReal C1212 = shearModulus * dq;
 
-        /* Nonzero Jacobian entries. */
+        // /* Nonzero Jacobian entries. */
         Jf3[0] -= C1111;// - 2.6666 * shearModulus; /* j0000 */
         Jf3[3] -= C1212;// - shearModulus; /* j0011 */
-        Jf3[5] -= C1122; /* j0101 */
+        // Jf3[5] -= C1122; /* j0101 */
         Jf3[6] -= C1212;// - shearModulus; /* j0110 */
         Jf3[9] -= C1212;// - shearModulus; /* j1001 */
-        Jf3[10] -= C1122; /* j1010 */
+        // Jf3[10] -= C1122; /* j1010 */
         Jf3[12] -= C1212;// - shearModulus; /* j1100 */
         Jf3[15] -= C1111;// - 2.6666 * shearModulus; /* j1111 */
+
+        // for (PylithInt i = 0; i < _dim; ++i) {
+        //     for (PylithInt j = 0; j < _dim; ++j) {
+        //         Jf3[((i * _dim + i) * _dim + j) * _dim + j] -= shearModulus*dq;
+        //         Jf3[((i * _dim + j) * _dim + j) * _dim + i] -= shearModulus*dq;
+        //     }
+        // }
 
     }
 
@@ -1414,8 +1422,27 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf2ue_context(
-            dim, &rheologyContext, Jf2);
+        pylith::fekernels::IsotropicLinearMaxwell::Context isotropicLinearMaxwellRheologyContext;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearMaxwellContext(
+            &isotropicLinearMaxwellRheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
+
+
+        // Rheological Auxiliaries
+        const PylithScalar shearModulus = rheologyContext.shearModulus;
+        const PylithScalar drainedBulkModulus = rheologyContext.drainedBulkModulus;
+
+        const PylithScalar maxwellTime = isotropicLinearMaxwellRheologyContext.maxwellTime;
+        const PylithScalar dt = isotropicLinearMaxwellRheologyContext.dt;
+
+        const PylithScalar dq = pylith::fekernels::IsotropicLinearMaxwell::viscousStrainCoeff(dt, maxwellTime);
+
+        for (PylithInt d = 0; d < _dim; ++d) {
+            Jf2[d * _dim + d] -= drainedBulkModulus - (2.0 * shearModulus * dq) / 3.0;
+        } // for
+
+        // pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf2ue_context(
+        //     dim, &rheologyContext, Jf2);
     } // Jf2ue
 
     // ----------------------------------------------------------------------
