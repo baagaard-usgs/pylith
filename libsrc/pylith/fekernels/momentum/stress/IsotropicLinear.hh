@@ -35,7 +35,6 @@ namespace pylith::fekernels::momentum {
                     } // for
                 } // for
             } // if
-
         } // compute
 
         /// C_ijkl = λ δ_ij δ_kl + μ(δ_ik δ_jl + δ_il δ_jk)
