@@ -108,23 +108,47 @@ pylith::materials::IsotropicLinearElasticity::getKernelf1v(const spatialdata::ge
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("getKernelResidualStress(coordsys="<<typeid(coordsys).name()<<")");
 
-    const int spaceDim = coordsys->getSpaceDim();
-    PetscPointFn* f1v =
-        (!_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticity3D::f1v_infinitesimalStrain :
-        (!_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticityPlaneStrain::f1v_infinitesimalStrain :
-        (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticity3D::f1v_infinitesimalStrain_refState :
-        (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticityPlaneStrain::f1v_infinitesimalStrain_refState :
-        NULL;
+    // :TODO: Change name to getResidualKernelMomentumDivStress
 
-    constexpr size_t dim = 2;
-    constexpr pylith::fekernels::pde::elasticity::SolutionFlags solnFlags = pylith::fekernels::pde::elasticity::NONE;
-    constexpr pylith::fekernels::pde::elasticity::MomentumFlags momentumFlags = pylith::fekernels::pde::elasticity::MOMENTUM_NONE;
-    constexpr pylith::fekernels::pde::elasticity::IsotropicLinearFlags auxFlags = pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_NONE;
+    // :TODO: Make these arguments to function.
+    constexpr pylith::fekernels::pde::elasticity::SolutionFlags solnFlags = pylith::fekernels::pde::elasticity::DEFAULT;
+    constexpr pylith::fekernels::momentum::MomentumFlags momentumFlags = pylith::fekernels::momentum::DEFAULT;
+
+    const int spaceDim = coordsys->getSpaceDim();
     using SolutionLayout = pylith::fekernels::pde::elasticity::SolutionLayout<solnFlags>;
-    using AuxiliaryLayout = pylith::fekernels::pde::elasticity::IsotropicLinearLayout<momentumFlags, auxFlags>;
-    using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<dim, SolutionLayout::Unpacked<dim> >;
-    using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear<dim, AuxiliaryLayout, AuxiliaryLayout::Unpacked<dim> >;
-    f1v = pylith::fekernels::momentum::DivStress<dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout>::f1;
+    PetscPointFn* f1v = nullptr;
+    if (_useReferenceState) {
+        constexpr pylith::fekernels::pde::elasticity::IsotropicLinearFlags auxFlags = pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_DEFAULT | pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_REFERENCE_STRAIN | pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_REFERENCE_STRESS;
+        using AuxiliaryLayout = pylith::fekernels::pde::elasticity::IsotropicLinearLayout<momentumFlags, auxFlags>;
+
+        if (2 == spaceDim) {
+            constexpr size_t dim = 2;
+            using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<dim, SolutionLayout>;
+            using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear<dim, AuxiliaryLayout>;
+            f1v = pylith::fekernels::momentum::DivStress<dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout>::f1;
+        } else if (3 == spaceDim) {
+            constexpr size_t dim = 3;
+            using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<dim, SolutionLayout>;
+            using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear<dim, AuxiliaryLayout>;
+            f1v = pylith::fekernels::momentum::DivStress<dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout>::f1;
+        } // if/else
+
+    } else {
+        constexpr pylith::fekernels::pde::elasticity::IsotropicLinearFlags auxFlags = pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_DEFAULT;
+        using AuxiliaryLayout = pylith::fekernels::pde::elasticity::IsotropicLinearLayout<momentumFlags, auxFlags>;
+
+        if (2 == spaceDim) {
+            constexpr size_t dim = 2;
+            using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<dim, SolutionLayout>;
+            using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear<dim, AuxiliaryLayout>;
+            f1v = pylith::fekernels::momentum::DivStress<dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout>::f1;
+        } else if (3 == spaceDim) {
+            constexpr size_t dim = 3;
+            using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<dim, SolutionLayout>;
+            using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear<dim, AuxiliaryLayout>;
+            f1v = pylith::fekernels::momentum::DivStress<dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout>::f1;
+        } // if/else
+    } // if/else
 
     PYLITH_METHOD_RETURN(f1v);
 } // getKernelf1v
@@ -137,11 +161,29 @@ pylith::materials::IsotropicLinearElasticity::getKernelJf3vu(const spatialdata::
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("getKernelJacobianElasticConstants(coordsys="<<typeid(coordsys).name()<<")");
 
-    const int spaceDim = coordsys->getSpaceDim();
-    PetscPointJacFn* Jf3vu =
-        (3 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticity3D::Jf3vu_infinitesimalStrain :
-        (2 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticityPlaneStrain::Jf3vu_infinitesimalStrain :
-        NULL;
+    // :TODO: Change name to getJacobianKernelMomentumDivStress
+
+    // :TODO: Make these arguments to function.
+    constexpr pylith::fekernels::pde::elasticity::SolutionFlags solnFlags = pylith::fekernels::pde::elasticity::DEFAULT;
+    constexpr pylith::fekernels::momentum::MomentumFlags momentumFlags = pylith::fekernels::momentum::DEFAULT;
+
+    const size_t spaceDim = coordsys->getSpaceDim();
+    constexpr pylith::fekernels::pde::elasticity::IsotropicLinearFlags auxFlags = pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_DEFAULT;
+    using SolutionLayout = pylith::fekernels::pde::elasticity::SolutionLayout<solnFlags>;
+    using AuxiliaryLayout = pylith::fekernels::pde::elasticity::IsotropicLinearLayout<momentumFlags, auxFlags>;
+
+    PetscPointJacFn* Jf3vu = nullptr;
+    if (2 == spaceDim) {
+        constexpr size_t dim = 2;
+        using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<dim, SolutionLayout>;
+        using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear<dim, AuxiliaryLayout>;
+        Jf3vu = pylith::fekernels::momentum::DivStress<dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout>::Jf3uu;
+    } else if (3 == spaceDim) {
+        constexpr size_t dim = 3;
+        using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<dim, SolutionLayout>;
+        using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear<dim, AuxiliaryLayout>;
+        Jf3vu = pylith::fekernels::momentum::DivStress<dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout>::Jf3uu;
+    } // if/else
 
     PYLITH_METHOD_RETURN(Jf3vu);
 } // getKernelJacobianElasticConstants
