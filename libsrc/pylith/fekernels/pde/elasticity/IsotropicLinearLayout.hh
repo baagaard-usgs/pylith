@@ -21,17 +21,17 @@
 
 
 namespace pylith::fekernels::pde::elasticity {
-    // Flags for isotropic linear auxiliary field
+    // Flags for optional subfields in isotropic linear auxiliary field
     enum IsotropicLinearFlags : size_t {
         ISOTROPIC_LINEAR_NONE=0,
         ISOTROPIC_LINEAR_REFERENCE_STRESS=1 << 2,
         ISOTROPIC_LINEAR_REFERENCE_STRAIN=1 << 3,
-    }; // MomentumFlags
+    }; // IsotropicLinearFlags
 
     template<MomentumFlags mflags, IsotropicLinearFlags flags> struct IsotropicLinearLayout;
-} // pylith::fekernels::pde::elasticity
+} // namespace
 
-
+/// Layout of auxiliary field for isotropic linear elasticity.
 template<pylith::fekernels::pde::elasticity::MomentumFlags mflags,
          pylith::fekernels::pde::elasticity::IsotropicLinearFlags flags>
 struct pylith::fekernels::pde::elasticity::IsotropicLinearLayout {
@@ -53,6 +53,7 @@ struct pylith::fekernels::pde::elasticity::IsotropicLinearLayout {
     template <typename T>
     struct OptionalMember<true, T> { T member; };
 
+    /// Order of auxiliary subfields.
     enum Fields : int {
         DENSITY=0,
         BULK_MODULUS=1,
@@ -73,6 +74,7 @@ struct pylith::fekernels::pde::elasticity::IsotropicLinearLayout {
                     +(has(ISOTROPIC_LINEAR_REFERENCE_STRAIN) ? 1 : 0),
     }; // IsotropicLinearFlags
 
+    /// Struct wth names for holding subfields
     template <size_t dim>
     struct Unpacked {
         pylith::fekernels::common::ScalarField density;
@@ -104,6 +106,7 @@ struct pylith::fekernels::pde::elasticity::IsotropicLinearLayout {
 
     }; // Unpacked
 
+    /// Unpack solution fields from array into struct with names.
     template <size_t dim>
     PYLITH_KERNEL static Unpacked<dim> unpack(const pylith::integer sOff[],
                                               const pylith::integer sOff_x[],

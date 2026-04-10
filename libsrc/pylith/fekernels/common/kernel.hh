@@ -15,5 +15,5 @@
 #  define PYLITH_HOST_DEVICE
 #endif
 
-// Shorthand for every kernel helper
+// Shorthand for every kernel
 #define PYLITH_KERNEL PYLITH_HOST_DEVICE inline

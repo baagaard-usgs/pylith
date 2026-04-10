@@ -18,22 +18,24 @@
 
 
 namespace pylith::fekernels::momentum {
-    /// ε_dev = ε − 1/3 (tr ε) I
-    struct DeviatoricStrain {
-        PYLITH_KERNEL static void compute(pylith::fekernels::Matrix3D& deviatoricStrain,
-                                          const pylith::fekernels::Matrix3D& strain) {
-            const size_t dim = strain.getDim();
+    template<int dim, class SolutionLayout> struct DeviatoricStrain;
+} // namespace
 
-            const double volumetricStrain = VolumetricStrain::compute(strain);
-            const double h = volumetricStrain / 3.0;
 
-            for (size_t i = 0; i < dim; i++) {
-                for (size_t j = 0; j < dim; j++) {
-                    deviatoricStrain(i,j) = strain(i,j) - (i == j ? h : 0.0);
-                } // for
+/// ε_dev = ε − 1/3 (tr ε) I
+template<int dim, class SolutionLayout>
+struct pylith::fekernels::momentum::DeviatoricStrain {
+    /// Compute deviatoric strain given total strain.
+    PYLITH_KERNEL static void compute(pylith::fekernels::common::Matrix<dim>& deviatoricStrain,
+                                      const pylith::fekernels::Matrix<dim>& strain) {
+        const pylith::scalar volumetricStrain = VolumetricStrain<dim, SolutionLayout>::compute(strain);
+        const pylith::scalar h = volumetricStrain / 3.0;
+
+        for (size_t i = 0; i < dim; i++) {
+            for (size_t j = 0; j < dim; j++) {
+                deviatoricStrain(i,j) = strain(i,j) - (i == j ? h : 0.0);
             } // for
-        } // compute
+        } // for
+    } // compute
 
-    }; // DeviatoricStrain
-
-} // pylith::fekernels::momentum
+}; // DeviatoricStrain

@@ -17,40 +17,44 @@
 
 
 namespace pylith::fekernels::momentum {
-    /// strain = 1/2 (F^T F − I) with F = I + ∇
-    struct FiniteStrain {
-        PYLITH_KERNEL static void compute(pylith::fekernels::Matrix3D& strain,
-                                          const pylith::fekernels::Matrix3D& grad_u) {
-            strain.zero();
-            const size_t dim = strain.getDim();
+    template<int dim, class SolutionLayout> struct FiniteStrain;
+} // namespace
 
-            // F = I + grad_u
-            pylith::fekernels::Matrix3D F;
-            for (size_t i = 0; i < dim; i++) {
-                for (size_t j = 0; j < dim; j++) {
-                    F(i,j) = grad_u(i,j) + (i == j ? 1.0 : 0.0);
+
+/// Finite, small strain
+/// strain = 1/2 (F^T F − I) with F = I + ∇
+template<int dim, class SolutionLayout>
+struct pylith::fekernels::momentum::FiniteStrain {
+    /// Compute strain.
+    PYLITH_KERNEL static void compute(pylith::fekernels::common::Matrix<dim>& strain,
+                                      const SolutionLayout& solution) {
+        strain.zero();
+
+        // F = I + grad_u
+        pylith::fekernels::common::Matrix<dim> F;
+        for (size_t i = 0; i < dim; i++) {
+            for (size_t j = 0; j < dim; j++) {
+                F(i,j) = solution.displacement.gradient(i,j) + (i == j ? 1.0 : 0.0);
+            } // for
+        } // for
+
+        // C = F^T F
+        pylith::fekernels::common::Matrix<dim> C;
+        C.zero();
+        for (size_t i = 0; i < dim; i++) {
+            for (size_t j = 0; j < dim; j++) {
+                for (size_t k = 0; k < dim; k++) {
+                    C(i,j) += F(k,i) * F(k,j);
                 } // for
             } // for
+        } // for
 
-            // C = F^T F
-            pylith::fekernels::Matrix3D C;
-            C.zero();
-            for (size_t i = 0; i < dim; i++) {
-                for (size_t j = 0; j < dim; j++) {
-                    for (size_t k = 0; k < dim; k++) {
-                        C(i,j) += F(k,i) * F(k,j);
-                    } // for
-                } // for
+        // strain = 1/2 (C - I)
+        for (size_t i = 0; i < dim; i++) {
+            for (size_t j = 0; j < dim; j++) {
+                strain(i,j) = 0.5 * (C(i,j) - (i == j ? 1.0 : 0.0));
             } // for
+        } // for
+    } // compute
 
-            // strain = 1/2 (C - I)
-            for (size_t i = 0; i < dim; i++) {
-                for (size_t j = 0; j < dim; j++) {
-                    strain(i,j) = 0.5 * (C(i,j) - (i == j ? 1.0 : 0.0));
-                } // for
-            } // for
-        } // compute
-
-    }; // FiniteStrain
-
-} // pylith::fekernels::momentum
+}; // FiniteStrain

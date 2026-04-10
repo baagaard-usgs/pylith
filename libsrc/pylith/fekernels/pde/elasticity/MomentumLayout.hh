@@ -9,23 +9,16 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/fekernels/common/kernel.hh"
-#include "pylith/fekernels/common/Matrix.hh"
 
-#include <cassert>
 #include <cstddef>
 
-namespace pylith::fekernels::momentum {
-    template<int dim, class SolutionLayout> struct VolumetricStrain;
+
+namespace pylith::fekernels::pde::elasticity {
+    /// Flags for auxiliary subfields associated with momentum equation
+    enum MomentumFlags : size_t {
+        MOMENTUM_NONE=0,
+        MOMENTUM_BODY_FORCE=1 << 0,
+        MOMENTUM_GRAVITY=1 << 1,
+    }; // MomentumFlags
+
 } // namespace
-
-
-/// ε_vol = tr(ε)
-template<int dim, class SolutionLayout>
-struct pylith::fekernels::momentum::VolumetricStrain {
-    /// @brief  Compute strain.
-    PYLITH_KERNEL static pylith::scalar compute(const pylith::fekernels::common::Matrix<dim>& strain) {
-        return strain.trace();
-    } // compute
-
-}; // VolumetricStrain

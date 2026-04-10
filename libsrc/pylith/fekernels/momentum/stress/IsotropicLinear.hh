@@ -12,19 +12,20 @@
 #include "pylith/utils/types.hh"
 #include "pylith/fekernels/common/kernel.hh"
 #include "pylith/fekernels/common/Matrix.hh"
-#include "pylith/fekernels/common/Jacobian.hh"
+#include "pylith/fekernels/common/PetscJacobian.hh"
 
 #include <cstddef>
 
 
 namespace pylith::fekernels::momentum {
     template<size_t dim, class AuxiliaryLayout> struct IsotropicLinearElasticity;
-} // pylith::fekernels::momentum
+} // namespace
 
 
+/// Constitutive behavior for the isotropic linear elastic bulk rheology.
 template<size_t dim, class AuxiliaryLayout>
 struct pylith::fekernels::momentum::IsotropicLinearElasticity {
-    // Mean stress = K * tr(E)
+    /// σ^mean_ij = K * ε_kk = K * tr(ε)
     PYLITH_KERNEL static void meanStress(pylith::fekernels::common::Matrix<dim>& stress,
                                          const pylith::scalar bulkModulus,
                                          const pylith::fekernels::common::Matrix<dim>& strain) {
@@ -35,7 +36,7 @@ struct pylith::fekernels::momentum::IsotropicLinearElasticity {
         } // for
     } // meanStress
 
-    // Deviatoric stress =
+    /// σ^dev_ij = 2 μ ε_ij - 1/3 tr(ε) δ_ij
     PYLITH_KERNEL static void deviatoricStress(pylith::fekernels::common::Matrix<dim>& stress,
                                                const pylith::scalar shearModulus,
                                                const pylith::fekernels::common::Matrix<dim>& strain) {
@@ -48,7 +49,7 @@ struct pylith::fekernels::momentum::IsotropicLinearElasticity {
         } // for
     } // meanStress
 
-    // Compute stress.
+    /// σ = σ^mean + σ^dev.
     PYLITH_KERNEL static void cauchyStress(pylith::fekernels::Matrix<dim>& stress,
                                            const pylith::fekernels::Matrix<dim>& strain,
                                            const AuxiliaryLayout& auxiliary) {
@@ -76,7 +77,7 @@ struct pylith::fekernels::momentum::IsotropicLinearElasticity {
         const pylith::scalar mu = auxiliary.shear_modulus;
 
         // C(f,df,g,dg)
-        using Jacobian = pylith::fekernels::common::Jacobian<dim>;
+        using Jacobian = pylith::fekernels::common::PetscJacobian<dim>;
         for (size_t i = 0; i < dim; i++) {
             for (size_t j = 0; j < dim; j++) {
                 for (size_t k = 0; k < dim; k++) {
@@ -90,4 +91,4 @@ struct pylith::fekernels::momentum::IsotropicLinearElasticity {
         } // for
     } // tangent
 
-}; // IsotropicLinear
+}; // IsotropicLinearElasticity

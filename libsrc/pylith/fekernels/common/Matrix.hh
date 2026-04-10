@@ -16,12 +16,14 @@
 
 namespace pylith::fekernels::common {
     template<size_t dim> struct Matrix;
-} // pylith::fekernels::common
+} // namespace
 
 
+/// Matrix storage and access.
 template<size_t dim>
 struct pylith::fekernels::common::Matrix {
     pylith::scalar _matrix[dim][dim];
+
     PYLITH_KERNEL double& operator()(int i,
                                      int j) noexcept {
         assert(i < dim);assert(j < dim);

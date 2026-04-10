@@ -26,8 +26,9 @@ namespace pylith::fekernels::pde::elasticity {
     }; // SolutionFlags
 
     template<SolutionFlags flags> struct SolutionLayout;
-} // pylith::fekernels::pde::elasticity
+} // namespace
 
+/// Layout of solution field for elasticity
 template<pylith::fekernels::pde::elasticity::SolutionFlags flags>
 struct pylith::fekernels::pde::elasticity::SolutionLayout {
     // Is a given flag present?
@@ -43,6 +44,7 @@ struct pylith::fekernels::pde::elasticity::SolutionLayout {
     template <typename T>
     struct OptionalMember<true, T> { T member; };
 
+    /// Order of solution subfields
     enum Fields : int {
         DISPLACEMENT=0,
         VELOCITY=1,
@@ -51,6 +53,7 @@ struct pylith::fekernels::pde::elasticity::SolutionLayout {
                     + (has(FAULT) ? 1 : 0)
     };
 
+    /// Struct wth names for holding subfields
     template <size_t dim>
     struct Unpacked {
         pylith::fekernels::common::VectorField<dim> displacement;
@@ -72,6 +75,7 @@ struct pylith::fekernels::pde::elasticity::SolutionLayout {
 
     }; // Unpacked
 
+    /// Unpack solution fields from array into struct with names.
     template <size_t dim>
     PYLITH_KERNEL static Unpacked<dim> unpack(const pylith::integer sOff[],
                                               const pylith::integer sOff_x[],

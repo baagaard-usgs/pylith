@@ -19,10 +19,10 @@
 namespace pylith::fekernels::momentum {
     template<int pde_dim, class StrainModel, class StressModel, class SolutionLayout, class AuxiliaryLayout>
     struct BodyForce;
-} // pylith::fekernels::momentum
+} // namespce
 
 
-// f0 = f_i + ρ g_i
+/// f0 = f_i + ρ g_i
 template<size_t dim, class StrainModel, class StressModel, class SolutionLayout, class AuxiliaryLayout>
 struct pylith::fekernels::momentum::BodyForce {
     PYLITH_KERNEL static void f0(const pylith::integer cellDim,
