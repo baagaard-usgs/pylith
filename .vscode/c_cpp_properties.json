@@ -21,7 +21,7 @@
                 "/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/System/Library/Frameworks"
             ],
             "cStandard": "c11",
-            "cppStandard": "c++14",
+            "cppStandard": "c++20",
             "intelliSenseMode": "macos-clang-arm64"
         },
         {
@@ -42,7 +42,7 @@
             ],
             "defines": [],
             "cStandard": "c11",
-            "cppStandard": "c++14",
+            "cppStandard": "c++20",
             "intelliSenseMode": "gcc-x64"
         }
     ],
