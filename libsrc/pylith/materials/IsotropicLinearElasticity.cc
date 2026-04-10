@@ -122,8 +122,8 @@ pylith::materials::IsotropicLinearElasticity::getKernelf1v(const spatialdata::ge
     constexpr pylith::fekernels::pde::elasticity::IsotropicLinearFlags auxFlags = pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_NONE;
     using SolutionLayout = pylith::fekernels::pde::elasticity::SolutionLayout<solnFlags>;
     using AuxiliaryLayout = pylith::fekernels::pde::elasticity::IsotropicLinearLayout<momentumFlags, auxFlags>;
-    using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<dim, SolutionLayout>;
-    using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear<dim, AuxiliaryLayout>;
+    using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<dim, SolutionLayout::Unpacked<dim> >;
+    using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear<dim, AuxiliaryLayout, AuxiliaryLayout::Unpacked<dim> >;
     f1v = pylith::fekernels::momentum::DivStress<dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout>::f1;
 
     PYLITH_METHOD_RETURN(f1v);
