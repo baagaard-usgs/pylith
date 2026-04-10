@@ -9,7 +9,7 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/fekernels/common/portability.hh"
+#include "pylith/fekernels/common/kernel.hh"
 #include "pylith/fekernels/common/Matrix.hh"
 
 #include <cassert>
@@ -19,7 +19,7 @@
 namespace pylith::fekernels::momentum {
     /// ε_vol = tr(ε)
     struct VolumetricStrain {
-        PYLITH_KERNEL static double compute(const pylith::fekernels::Matrix3D& strain) {
+        PYLITH_KERNEL static pylith::scalar compute(const pylith::fekernels::Matrix3D& strain) {
             return strain.trace();
         } // compute
 

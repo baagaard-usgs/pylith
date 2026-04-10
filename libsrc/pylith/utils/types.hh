@@ -15,6 +15,12 @@ typedef PetscScalar PylithScalar;
 typedef PetscReal PylithReal;
 typedef PetscInt PylithInt;
 
+namespace pylith {
+    typedef PetscScalar scalar;
+    typedef PetscReal real;
+    typedef PetscInt integer;
+}
+
 typedef PetscErrorCode (*PetscUserFieldFunc)(PetscInt,
                                              PetscReal,
                                              const PetscReal x[],

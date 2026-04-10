@@ -11,7 +11,7 @@
 
 #include "pylith/utils/types.hh"
 
-#include "portability.hh"
+#include "kernel.hh"
 
 #include <cassert>
 #include <cstddef>

@@ -9,7 +9,7 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/fekernels/common/portability.hh"
+#include "pylith/fekernels/common/kernel.hh"
 #include "pylith/fekernels/common/Matrix.hh"
 #include "VolumetricStrain.hh"
 

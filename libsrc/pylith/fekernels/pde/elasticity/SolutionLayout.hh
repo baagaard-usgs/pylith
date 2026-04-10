@@ -11,14 +11,14 @@
 
 #include "pylith/utils/types.hh"
 
-#include "pylith/fekernels/common/portability.hh"
+#include "pylith/fekernels/common/kernel.hh"
 #include "pylith/fekernels/common/Fields.hh"
 
 #include <cassert>
 #include <cstddef>
 
 
-namespace pylith::fekernels::pdes::elasticity {
+namespace pylith::fekernels::pde::elasticity {
     // Flags for elasticity solution
     enum SolutionFlags : size_t {
         FAULT=0,
@@ -26,10 +26,10 @@ namespace pylith::fekernels::pdes::elasticity {
     }; // SolutionFlags
 
     template<SolutionFlags flags> struct SolutionLayout;
-} // pylith::fekernels::pdes::elasticity
+} // pylith::fekernels::pde::elasticity
 
-template<pylith::fekernels::pdes::elasticity::SolutionFlags flags>
-struct pylith::fekernels::pdes::elasticity::SolutionLayout {
+template<pylith::fekernels::pde::elasticity::SolutionFlags flags>
+struct pylith::fekernels::pde::elasticity::SolutionLayout {
     // Is a given flag present?
     static constexpr bool has(SolutionFlags f) {
         return (flags & f);

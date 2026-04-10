@@ -9,36 +9,32 @@
 // =================================================================================================
 #pragma once
 
-#include "portability.hh"
+#include "pylith/utils/types.hh"
+#include "pylith/fekernels/common/kernel.hh"
 
 #include <cassert>
 #include <cstddef>
 
-namespace pylith::fekernels {
-    template <int dim>
-    struct Vector {
-        double _vector[dim];
+namespace pylith::fekernels::common {
+    template <size_t dim> struct Vector;
+} // pylith::fekernels::common
 
-        PYLITH_KERNEL double& operator()(size_t i) noexcept {
-            assert(i < dim);return _vector[i];
-        }
+template <size_t dim>
+struct pylith::fekernels::common::Vector {
+    pylith::scalar _vector[dim];
 
-        PYLITH_KERNEL double operator()(size_t i) const noexcept {
-            assert(i < dim);return _vector[i];
-        }
+    PYLITH_KERNEL double& operator()(size_t i) noexcept {
+        assert(i < dim);return _vector[i];
+    }
 
-        PYLITH_KERNEL void zero(void) noexcept {
-            for (size_t i = 0; i < dim: ++i) {
-                _vector[i] = 0.0;
-            } // for
-        }
+    PYLITH_KERNEL double operator()(size_t i) const noexcept {
+        assert(i < dim);return _vector[i];
+    }
 
-        PYLITH_KERNEL size_t getDim(void) const noexcept {
-            return dim;
-        } // getDim
+    PYLITH_KERNEL void zero(void) noexcept {
+        for (size_t i = 0; i < dim: ++i) {
+            _vector[i] = 0.0;
+        } // for
+    }
 
-    };
-    using Vector2D = Vector<2>;
-    using Vector3D = Vector<3>;
-
-} // pylith::fekernels
+}; // Vector
