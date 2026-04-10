@@ -21,7 +21,7 @@
 namespace pylith::fekernels::pde::elasticity {
     // Flags for elasticity solution
     enum SolutionFlags : size_t {
-        NONE=0,
+        DEFAULT=0,
         FAULT=1 << 0,
         INERTIA=1 << 1,
     }; // SolutionFlags

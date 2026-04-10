@@ -9,16 +9,10 @@
 // =================================================================================================
 #pragma once
 
-
-#include <cstddef>
-
-
-namespace pylith::fekernels::pde::elasticity {
-    /// Flags for auxiliary subfields associated with momentum equation
-    enum MomentumFlags : size_t {
-        MOMENTUM_NONE=0,
-        MOMENTUM_BODY_FORCE=1 << 0,
-        MOMENTUM_GRAVITY=1 << 1,
-    }; // MomentumFlags
+namespace pylith::fekernels::common {
+    template<class Layout, auto Flag>
+    concept hasFlag = requires(Layout layout) {
+        layout.template get<Flag>();
+    }; // hasField
 
 } // namespace

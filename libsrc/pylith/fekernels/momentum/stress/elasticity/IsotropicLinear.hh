@@ -11,6 +11,7 @@
 
 #include "pylith/utils/types.hh"
 #include "pylith/fekernels/common/kernel.hh"
+#include "pylith/fekernels/common/Flags.hh"
 #include "pylith/fekernels/common/Matrix.hh"
 #include "pylith/fekernels/common/PetscJacobian.hh"
 
@@ -18,13 +19,15 @@
 
 
 namespace pylith::fekernels::momentum::stress::elasticity {
-    template<size_t dim, class AuxiliaryLayout, class AuxiliaryUnpacked> struct IsotropicLinear;
+    template<size_t dim, class AuxiliaryUnpacked> struct IsotropicLinear;
 } // namespace
 
 
 /// Constitutive behavior for the isotropic linear elastic bulk rheology.
-template<size_t dim, class AuxiliaryLayout, class AuxiliaryUnpacked>
+template<size_t dim, class AuxiliaryLayout>
 struct pylith::fekernels::momentum::stress::elasticity::IsotropicLinear {
+    using AuxiliaryUnpacked = typename AuxiliaryLayout::template Unpacked<dim>;
+
     /// σ = σ^mean + σ^dev.
     PYLITH_KERNEL static void cauchyStress(pylith::fekernels::common::Matrix<dim>& stress,
                                            const pylith::fekernels::common::Matrix<dim>& strain,
@@ -34,7 +37,7 @@ struct pylith::fekernels::momentum::stress::elasticity::IsotropicLinear {
         deviatoricStress(stress, auxiliary.shear_modulus(), strain);
 
         // Reference stress subtracted from residual
-        if constexpr (AuxiliaryLayout::has(pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_REFERENCE_STRESS)) {
+        if constexpr (requires { auxiliary.template get<pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_REFERENCE_STRESS>(); }) {
             const auto& reference_stress = auxiliary.template get<pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_REFERENCE_STRESS>();
             for (size_t i = 0; i < dim; i++) {
                 for (size_t j = 0; j < dim; j++) {
@@ -42,7 +45,7 @@ struct pylith::fekernels::momentum::stress::elasticity::IsotropicLinear {
                 } // for
             } // for
         } // if
-    } // compute
+    } // cauchyStress
 
     /// J(f,g,df,dg) = C(f,df,g,dg)
     /// C_ijkl = λ δ_ij δ_kl + μ(δ_ik δ_jl + δ_il δ_jk)
@@ -65,7 +68,7 @@ struct pylith::fekernels::momentum::stress::elasticity::IsotropicLinear {
                 } // for
             } // for
         } // for
-    } // tangent
+    } // cauchyStressTangent
 
     /// σ^mean_ij = K * ε_kk = K * tr(ε)
     PYLITH_KERNEL static void meanStress(pylith::fekernels::common::Matrix<dim>& stress,

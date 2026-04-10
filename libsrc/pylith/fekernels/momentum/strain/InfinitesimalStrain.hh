@@ -17,14 +17,16 @@
 
 
 namespace pylith::fekernels::momentum {
-    template<int dim, class SolutionUnpacked> struct InfinitesimalStrain;
+    template<size_t dim, class SolutionLayout> struct InfinitesimalStrain;
 } // namespace
 
 
 /// Infinitesimal strain
 /// ε_ij = 1/2 (∂u_i/∂x_j + ∂u_j/∂x_i)
-template<int dim, class SolutionUnpacked>
+template<size_t dim, class SolutionLayout>
 struct pylith::fekernels::momentum::InfinitesimalStrain {
+    using SolutionUnpacked = typename SolutionLayout::template Unpacked<dim>;
+
     PYLITH_KERNEL static void compute(pylith::fekernels::common::Matrix<dim>& strain,
                                       const SolutionUnpacked& solution) {
         strain.zero();

@@ -27,8 +27,8 @@ template<size_t dim, class StrainModel, class StressModel, class SolutionLayout,
 struct pylith::fekernels::momentum::DivStress {
     // f1 = -σ
     PYLITH_KERNEL static void f1(const pylith::integer cellDim,
-                                 const pylith::integer numS,
-                                 const pylith::integer numA,
+                                 [[maybe_unused]] const pylith::integer numS,
+                                 [[maybe_unused]] const pylith::integer numA,
                                  const pylith::integer sOff[],
                                  const pylith::integer sOff_x[],
                                  const pylith::scalar s[],
@@ -39,10 +39,10 @@ struct pylith::fekernels::momentum::DivStress {
                                  const pylith::scalar a[],
                                  const pylith::scalar a_t[],
                                  const pylith::scalar a_x[],
-                                 const pylith::real t,
-                                 const pylith::real x[],
-                                 const pylith::integer numConstants,
-                                 const pylith::scalar constants[],
+                                 [[maybe_unused]] const pylith::real t,
+                                 [[maybe_unused]] const pylith::real x[],
+                                 [[maybe_unused]] const pylith::integer numConstants,
+                                 [[maybe_unused]] const pylith::scalar constants[],
                                  pylith::scalar f1[]) noexcept {
         assert(dim == cellDim);
 
@@ -64,22 +64,23 @@ struct pylith::fekernels::momentum::DivStress {
 
     // Jf3uu = j(f,g,df,dg) = C(f,df,g,dg)
     PYLITH_KERNEL static void Jf3uu(const pylith::integer cellDim,
-                                    const pylith::integer numS,
-                                    const pylith::integer numA,
-                                    const pylith::integer sOff[],
-                                    const pylith::integer sOff_x[],
-                                    const pylith::scalar s[],
-                                    const pylith::scalar s_t[],
-                                    const pylith::scalar s_x[],
+                                    [[maybe_unused]] const pylith::integer numS,
+                                    [[maybe_unused]] const pylith::integer numA,
+                                    [[maybe_unused]] const pylith::integer sOff[],
+                                    [[maybe_unused]] const pylith::integer sOff_x[],
+                                    [[maybe_unused]] const pylith::scalar s[],
+                                    [[maybe_unused]] const pylith::scalar s_t[],
+                                    [[maybe_unused]] const pylith::scalar s_x[],
                                     const pylith::integer aOff[],
                                     const pylith::integer aOff_x[],
                                     const pylith::scalar a[],
                                     const pylith::scalar a_t[],
                                     const pylith::scalar a_x[],
-                                    const pylith::real t,
-                                    const pylith::real x[],
-                                    const pylith::integer numConstants,
-                                    const pylith::scalar constants[],
+                                    [[maybe_unused]] const pylith::real t,
+                                    [[maybe_unused]] const pylith::real s_tshift,
+                                    [[maybe_unused]] const pylith::real x[],
+                                    [[maybe_unused]] const pylith::integer numConstants,
+                                    [[maybe_unused]] const pylith::scalar constants[],
                                     pylith::scalar Jf3[]) noexcept {
         assert(dim == cellDim);
 

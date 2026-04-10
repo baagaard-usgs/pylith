@@ -10,7 +10,7 @@
 #pragma once
 
 #include "pylith/fekernels/common/kernel.hh"
-#include "pylith/fekernels/pde/elasticity/MomentumLayout.hh"
+#include "MomentumLayout.hh"
 
 #include <cassert>
 #include <cstddef>

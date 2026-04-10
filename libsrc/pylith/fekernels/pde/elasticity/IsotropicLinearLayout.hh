@@ -13,7 +13,8 @@
 
 #include "pylith/fekernels/common/kernel.hh"
 #include "pylith/fekernels/common/Fields.hh"
-#include "pylith/fekernels/pde/elasticity/MomentumLayout.hh"
+#include "pylith/fekernels/common/Flags.hh"
+#include "pylith/fekernels/momentum/pde/MomentumLayout.hh"
 
 
 #include <cassert>
@@ -23,21 +24,38 @@
 namespace pylith::fekernels::pde::elasticity {
     // Flags for optional subfields in isotropic linear auxiliary field
     enum IsotropicLinearFlags : size_t {
-        ISOTROPIC_LINEAR_NONE=0,
+        ISOTROPIC_LINEAR_DEFAULT=0,
         ISOTROPIC_LINEAR_REFERENCE_STRESS=1 << 2,
         ISOTROPIC_LINEAR_REFERENCE_STRAIN=1 << 3,
+
     }; // IsotropicLinearFlags
 
-    template<MomentumFlags mflags, IsotropicLinearFlags flags> struct IsotropicLinearLayout;
+    inline constexpr IsotropicLinearFlags
+    operator|(IsotropicLinearFlags a,
+              IsotropicLinearFlags b) noexcept {
+        return static_cast<IsotropicLinearFlags>(
+            static_cast<size_t>(a) | static_cast<size_t>(b));
+    } // operator|
+
+
+    inline constexpr IsotropicLinearFlags&
+    operator|=(IsotropicLinearFlags& a,
+               IsotropicLinearFlags b) noexcept {
+        a = a | b;
+        return a;
+    }
+
+
+    template<pylith::fekernels::momentum::MomentumFlags mflags, IsotropicLinearFlags flags> struct IsotropicLinearLayout;
 } // namespace
 
 /// Layout of auxiliary field for isotropic linear elasticity.
-template<pylith::fekernels::pde::elasticity::MomentumFlags mflags,
+template<pylith::fekernels::momentum::MomentumFlags mflags,
          pylith::fekernels::pde::elasticity::IsotropicLinearFlags flags>
 struct pylith::fekernels::pde::elasticity::IsotropicLinearLayout {
     // Is a given flag present?
-    static constexpr bool has(MomentumFlags f) {
-        return (flags & f);
+    static constexpr bool has(pylith::fekernels::momentum::MomentumFlags f) {
+        return (mflags & f);
     } // has
 
     // Is a given flag present?
@@ -59,17 +77,17 @@ struct pylith::fekernels::pde::elasticity::IsotropicLinearLayout {
         BULK_MODULUS=1,
         SHEAR_MODULUS=2,
         BODY_FORCE=3,
-        GRAVITY=3 + (has(MOMENTUM_BODY_FORCE) ? 1 : 0),
+        GRAVITY=3 + (has(pylith::fekernels::momentum::BODY_FORCE) ? 1 : 0),
         REFERENCE_STRESS=3
-                          + (has(MOMENTUM_BODY_FORCE) ? 1 : 0)
-                          + (has(MOMENTUM_GRAVITY) ? 1 : 0),
+                          + (has(pylith::fekernels::momentum::BODY_FORCE) ? 1 : 0)
+                          + (has(pylith::fekernels::momentum::GRAVITY) ? 1 : 0),
         REFERENCE_STRAIN=3
-                          + (has(MOMENTUM_BODY_FORCE) ? 1 : 0)
-                          + (has(MOMENTUM_GRAVITY) ? 1 : 0)
+                          + (has(pylith::fekernels::momentum::BODY_FORCE) ? 1 : 0)
+                          + (has(pylith::fekernels::momentum::GRAVITY) ? 1 : 0)
                           + (has(ISOTROPIC_LINEAR_REFERENCE_STRESS) ? 1 : 0),
         NUM_FIELDS=3
-                    + (has(MOMENTUM_BODY_FORCE) ? 1 : 0)
-                    + (has(MOMENTUM_GRAVITY) ? 1 : 0)
+                    + (has(pylith::fekernels::momentum::BODY_FORCE) ? 1 : 0)
+                    + (has(pylith::fekernels::momentum::GRAVITY) ? 1 : 0)
                     + (has(ISOTROPIC_LINEAR_REFERENCE_STRESS) ? 1 : 0)
                     +(has(ISOTROPIC_LINEAR_REFERENCE_STRAIN) ? 1 : 0),
     }; // IsotropicLinearFlags
@@ -77,30 +95,34 @@ struct pylith::fekernels::pde::elasticity::IsotropicLinearLayout {
     /// Struct wth names for holding subfields
     template <size_t dim>
     struct Unpacked {
+        using Layout = pylith::fekernels::pde::elasticity::IsotropicLinearLayout<mflags, flags>;
+
         pylith::fekernels::common::ScalarField density;
         pylith::fekernels::common::ScalarField bulk_modulus;
         pylith::fekernels::common::ScalarField shear_modulus;
 
         // Optional — zero size if absent
         [[no_unique_address]]
-        OptionalMember<has(MOMENTUM_BODY_FORCE), pylith::fekernels::common::VectorField<dim> > body_force;
+        OptionalMember<has(pylith::fekernels::momentum::BODY_FORCE), pylith::fekernels::common::VectorField<dim> > body_force;
 
         [[no_unique_address]]
-        OptionalMember<has(MOMENTUM_GRAVITY), pylith::fekernels::common::VectorField<dim> > gravitational_acceleration;
+        OptionalMember<has(pylith::fekernels::momentum::GRAVITY), pylith::fekernels::common::VectorField<dim> > gravitational_acceleration;
 
         [[no_unique_address]]
-        OptionalMember<has(ISOTROPIC_LINEAR_REFERENCE_STRESS), pylith::fekernels::common::VectorField<dim> > reference_stress;
+        OptionalMember<has(ISOTROPIC_LINEAR_REFERENCE_STRESS), pylith::fekernels::common::MatrixField<dim> > reference_stress;
 
         [[no_unique_address]]
-        OptionalMember<has(ISOTROPIC_LINEAR_REFERENCE_STRAIN), pylith::fekernels::common::VectorField<dim> > reference_strain;
+        OptionalMember<has(ISOTROPIC_LINEAR_REFERENCE_STRAIN), pylith::fekernels::common::MatrixField<dim> > reference_strain;
 
         // Type-safe accessor — compile error if field not present
-        template <MomentumFlags M, IsotropicLinearFlags F>
-        PYLITH_KERNEL auto& get() {
-            static_assert(has(M), "Momentum auxiliary subfield not present in this layout.");
-            static_assert(has(F), "Isotropic linear elasticity auxiliary subfield not present in this layout.");
-            if constexpr (M == MOMENTUM_BODY_FORCE) { return body_force.member;}
-            if constexpr (M == MOMENTUM_GRAVITY) { return gravitational_acceleration.member;}
+        template <pylith::fekernels::momentum::MomentumFlags F>
+        auto& get() requires(Layout::has(F)) {
+            if constexpr (F == pylith::fekernels::momentum::BODY_FORCE) { return body_force.member;}
+            if constexpr (F == pylith::fekernels::momentum::GRAVITY) { return gravitational_acceleration.member;}
+        } // get()
+
+        template <IsotropicLinearFlags F>
+        auto& get() requires(Layout::has(F)) {
             if constexpr (F == ISOTROPIC_LINEAR_REFERENCE_STRESS) { return reference_stress.member;}
             if constexpr (F == ISOTROPIC_LINEAR_REFERENCE_STRAIN) { return reference_strain.member;}
         } // get()
@@ -134,7 +156,7 @@ struct pylith::fekernels::pde::elasticity::IsotropicLinearLayout {
             s_x ? &s_x[sOff_x[SHEAR_MODULUS]] : nullptr,
         };
 
-        if constexpr (has(MOMENTUM_BODY_FORCE)) {
+        if constexpr (has(pylith::fekernels::momentum::BODY_FORCE)) {
             data.body_force = {
                 &s[sOff[BODY_FORCE]],
                 s_t ? &s_t[sOff[BODY_FORCE]] : nullptr,
@@ -142,7 +164,7 @@ struct pylith::fekernels::pde::elasticity::IsotropicLinearLayout {
             };
         }
 
-        if constexpr (has(MOMENTUM_GRAVITY)) {
+        if constexpr (has(pylith::fekernels::momentum::GRAVITY)) {
             data.gravitational_acceleration = {
                 &s[sOff[GRAVITY]],
                 s_t ? &s_t[sOff[GRAVITY]] : nullptr,

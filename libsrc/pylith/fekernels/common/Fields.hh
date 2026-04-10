@@ -20,6 +20,7 @@
 namespace pylith::fekernels::common {
     struct ScalarField;
     template<size_t dim> struct VectorField;
+    template<size_t dim> struct MatrixField;
 }
 
 
@@ -70,6 +71,61 @@ struct pylith::fekernels::common::VectorField {
                                           size_t j) const {
         return grad[i*dim+j];
     } // grad_ij()
+
+#if 0
+    PYLITH_KERNEL pylith::scalar symmetricGradient(size_t i,
+                                                   size_t j) const {
+        return 0.5*(grad[i*dim+j] + grad[j*dim+i]);
+    } // symmetricGradient()
+
+    PYLITH_KERNEL pylith::scalar trace() const {
+        pylith::scalar tr = 0.0;
+        for (size_t i = 0; i < dim; i++) {
+            tr += grad[i*dim+i];
+        }
+        return tr;
+    } // trace()
+
+    PYLITH_KERNEL pylith::scalar traceDot() const {
+        pylith::scalar tr = 0.0;
+        for (size_t i = 0; i < dim; i++) {
+            tr += value_t[i*dim+i];
+        }
+        return tr;
+    }
+
+#endif
+};
+
+template <size_t dim>
+struct pylith::fekernels::common::MatrixField {
+    const pylith::scalar* value; ///< Value of field
+    const pylith::scalar* value_t; ///< Time derivative of field
+    const pylith::scalar* grad; ///< Gradient of field
+
+    /// Get field value.
+    PYLITH_KERNEL pylith::scalar operator()(size_t i,
+                                            size_t j) const {
+        return value[i*dim+j];
+    } // operator()
+
+    /// Get time derivative of field.
+    PYLITH_KERNEL pylith::scalar dot(size_t i,
+                                     size_t j) const {
+        return value_t[i*dim+j];
+    } // dot()
+
+#if 0
+    /** Get gradient of field.
+     *
+     *  grad[i*dim+j] = du_i/dx_j
+     */
+    PYLITH_KERNEL pylith::scalar gradient(size_t i,
+                                          size_t j) const {
+        return grad[i*dim+j];
+    } // grad_ij()
+
+#endif
 
 #if 0
     PYLITH_KERNEL pylith::scalar symmetricGradient(size_t i,

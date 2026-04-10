@@ -15,11 +15,11 @@
 
 
 namespace pylith::fekernels::common {
-    template<size_t dim> class PetscJacobian;
+    template<size_t dim> struct PetscJacobian;
 }
 
 template<size_t dim>
-class pylith::fekernels::common::PetscJacobian {
+struct pylith::fekernels::common::PetscJacobian {
     /** Get index in J3 Jacobian term.
      *
      * @param[in] f Trial function component
