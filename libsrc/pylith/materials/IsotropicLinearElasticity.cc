@@ -96,6 +96,11 @@ pylith::materials::IsotropicLinearElasticity::addAuxiliarySubfields(void) {
 } // addAuxiliarySubfields
 
 
+#include "pylith/fekernels//pde/elasticity/SolutionLayout.hh"
+#include "pylith/fekernels//pde/elasticity/IsotropicLinearLayout.hh"
+#include "pylith/fekernels/momentum/pde/DivStress.hh"
+#include "pylith/fekernels/momentum/strain/InfinitesimalStrain.hh"
+#include "pylith/fekernels/momentum/stress/elasticity/IsotropicLinear.hh"
 // ------------------------------------------------------------------------------------------------
 // Get stress kernel for LHS residual, F(t,s,\dot{s}).
 PetscPointFn*
@@ -110,6 +115,16 @@ pylith::materials::IsotropicLinearElasticity::getKernelf1v(const spatialdata::ge
         (_useReferenceState && 3 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticity3D::f1v_infinitesimalStrain_refState :
         (_useReferenceState && 2 == spaceDim) ? pylith::fekernels::IsotropicLinearElasticityPlaneStrain::f1v_infinitesimalStrain_refState :
         NULL;
+
+    constexpr size_t dim = 2;
+    constexpr pylith::fekernels::pde::elasticity::SolutionFlags solnFlags = pylith::fekernels::pde::elasticity::NONE;
+    constexpr pylith::fekernels::pde::elasticity::MomentumFlags momentumFlags = pylith::fekernels::pde::elasticity::MOMENTUM_NONE;
+    constexpr pylith::fekernels::pde::elasticity::IsotropicLinearFlags auxFlags = pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_NONE;
+    using SolutionLayout = pylith::fekernels::pde::elasticity::SolutionLayout<solnFlags>;
+    using AuxiliaryLayout = pylith::fekernels::pde::elasticity::IsotropicLinearLayout<momentumFlags, auxFlags>;
+    using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<dim, SolutionLayout>;
+    using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear<dim, AuxiliaryLayout>;
+    f1v = pylith::fekernels::momentum::DivStress<dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout>::f1;
 
     PYLITH_METHOD_RETURN(f1v);
 } // getKernelf1v

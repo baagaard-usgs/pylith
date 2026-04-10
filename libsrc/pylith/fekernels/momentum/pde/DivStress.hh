@@ -17,7 +17,7 @@
 
 
 namespace pylith::fekernels::momentum {
-    template<int pde_dim, class StrainModel, class StressModel, class SolutionLayout, class AuxiliaryLayout>
+    template<size_t im, class StrainModel, class StressModel, class SolutionLayout, class AuxiliaryLayout>
     struct DivStress;
 } // pylith::fekernels::momentum
 
@@ -54,8 +54,8 @@ struct pylith::fekernels::momentum::DivStress {
         StrainModel::compute(strain, solution);
         StressModel::cauchyStress(stress, strain, auxiliary);
 
-        for (pylith::integer i = 0; i < dim; ++i) {
-            for (pylith::integer j = 0; j < dim; ++j) {
+        for (size_t i = 0; i < dim; ++i) {
+            for (size_t j = 0; j < dim; ++j) {
                 f1[i*dim+j] = -stress(i, j);
             } // for
         } // for

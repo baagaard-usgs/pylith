@@ -24,21 +24,21 @@ template<size_t dim>
 struct pylith::fekernels::common::Matrix {
     pylith::scalar _matrix[dim][dim];
 
-    PYLITH_KERNEL double& operator()(int i,
-                                     int j) noexcept {
+    PYLITH_KERNEL double& operator()(size_t i,
+                                     size_t j) noexcept {
         assert(i < dim);assert(j < dim);
         return _matrix[i][j];
     } // operator()
 
-    PYLITH_KERNEL double operator()(int i,
-                                    int j) const noexcept {
+    PYLITH_KERNEL double operator()(size_t i,
+                                    size_t j) const noexcept {
         assert(i < dim);assert(j < dim);
         return _matrix[i][j];
     } // operator()
 
     PYLITH_KERNEL void zero(void) noexcept {
-        for (int i = 0; i < dim; i++) {
-            for (int j = 0; j < dim; j++) {
+        for (size_t i = 0; i < dim; i++) {
+            for (size_t j = 0; j < dim; j++) {
                 _matrix[i][j] = 0.0;
             } // for
         } // for

@@ -17,14 +17,14 @@
 #include <cstddef>
 
 
-namespace pylith::fekernels::momentum {
-    template<size_t dim, class AuxiliaryLayout> struct IsotropicLinearElasticity;
+namespace pylith::fekernels::momentum::stress::elasticity {
+    template<size_t dim, class AuxiliaryLayout> struct IsotropicLinear;
 } // namespace
 
 
 /// Constitutive behavior for the isotropic linear elastic bulk rheology.
 template<size_t dim, class AuxiliaryLayout>
-struct pylith::fekernels::momentum::IsotropicLinearElasticity {
+struct pylith::fekernels::momentum::stress::elasticity::IsotropicLinear {
     /// σ^mean_ij = K * ε_kk = K * tr(ε)
     PYLITH_KERNEL static void meanStress(pylith::fekernels::common::Matrix<dim>& stress,
                                          const pylith::scalar bulkModulus,
@@ -50,16 +50,16 @@ struct pylith::fekernels::momentum::IsotropicLinearElasticity {
     } // meanStress
 
     /// σ = σ^mean + σ^dev.
-    PYLITH_KERNEL static void cauchyStress(pylith::fekernels::Matrix<dim>& stress,
-                                           const pylith::fekernels::Matrix<dim>& strain,
+    PYLITH_KERNEL static void cauchyStress(pylith::fekernels::common::Matrix<dim>& stress,
+                                           const pylith::fekernels::common::Matrix<dim>& strain,
                                            const AuxiliaryLayout& auxiliary) {
         stress.zero();
         meanStress(stress, auxiliary.bulk_modulus, strain);
         deviatoricStress(stress, auxiliary.shear_modulus, strain);
 
         // Reference stress subtracted from residual
-        if constexpr (auxiliary::has(ISOTROPIC_LINEAR_REFERENCE_STRESS)) {
-            const auto& reference_stress = auxiliary.template get<ISOTROPIC_LINEAR_REFERENCE_STRESS>();
+        if constexpr (AuxiliaryLayout::has(pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_REFERENCE_STRESS)) {
+            const auto& reference_stress = auxiliary.template get<pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_REFERENCE_STRESS>();
             for (size_t i = 0; i < dim; i++) {
                 for (size_t j = 0; j < dim; j++) {
                     stress(i, j) -= reference_stress(i,j);
@@ -91,4 +91,4 @@ struct pylith::fekernels::momentum::IsotropicLinearElasticity {
         } // for
     } // tangent
 
-}; // IsotropicLinearElasticity
+}; // IsotropicLinear

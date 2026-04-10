@@ -83,23 +83,24 @@ struct pylith::fekernels::pde::elasticity::IsotropicLinearLayout {
 
         // Optional — zero size if absent
         [[no_unique_address]]
-        OptionalMember<has(MOMENTUM_BODY_FORCE), VectorField<dim> > body_force;
+        OptionalMember<has(MOMENTUM_BODY_FORCE), pylith::fekernels::common::VectorField<dim> > body_force;
 
         [[no_unique_address]]
-        OptionalMember<has(MOMENTUM_GRAVITY), VectorField<dim> > gravitational_acceleration;
+        OptionalMember<has(MOMENTUM_GRAVITY), pylith::fekernels::common::VectorField<dim> > gravitational_acceleration;
 
         [[no_unique_address]]
-        OptionalMember<has(ISOTROPIC_LINEAR_REFERENCE_STRESS), VectorField<dim> > reference_stress;
+        OptionalMember<has(ISOTROPIC_LINEAR_REFERENCE_STRESS), pylith::fekernels::common::VectorField<dim> > reference_stress;
 
         [[no_unique_address]]
-        OptionalMember<has(ISOTROPIC_LINEAR_REFERENCE_STRAIN), VectorField<dim> > reference_strain;
+        OptionalMember<has(ISOTROPIC_LINEAR_REFERENCE_STRAIN), pylith::fekernels::common::VectorField<dim> > reference_strain;
 
         // Type-safe accessor — compile error if field not present
-        template <ElasticitySolutionFlags F>
+        template <MomentumFlags M, IsotropicLinearFlags F>
         PYLITH_KERNEL auto& get() {
+            static_assert(has(M), "Momentum auxiliary subfield not present in this layout.");
             static_assert(has(F), "Isotropic linear elasticity auxiliary subfield not present in this layout.");
-            if constexpr (F == MOMENTUM_BODY_FORCE) { return body_force.member;}
-            if constexpr (F == MOMENTUM_GRAVITY) { return gravitational_acceleration.member;}
+            if constexpr (M == MOMENTUM_BODY_FORCE) { return body_force.member;}
+            if constexpr (M == MOMENTUM_GRAVITY) { return gravitational_acceleration.member;}
             if constexpr (F == ISOTROPIC_LINEAR_REFERENCE_STRESS) { return reference_stress.member;}
             if constexpr (F == ISOTROPIC_LINEAR_REFERENCE_STRAIN) { return reference_strain.member;}
         } // get()
@@ -116,19 +117,19 @@ struct pylith::fekernels::pde::elasticity::IsotropicLinearLayout {
         Unpacked<dim> data;
 
         data.density = {
-            s[sOff[DENSITY]],
+            &s[sOff[DENSITY]],
             s_t ? &s_t[sOff[DENSITY]] : nullptr,
             s_x ? &s_x[sOff_x[DENSITY]] : nullptr,
         };
 
         data.bulk_modulus = {
-            s[sOff[BULK_MODULUS]],
+            &s[sOff[BULK_MODULUS]],
             s_t ? &s_t[sOff[BULK_MODULUS]] : nullptr,
             s_x ? &s_x[sOff_x[BULK_MODULUS]] : nullptr,
         };
 
         data.shear_modulus = {
-            s[sOff[SHEAR_MODULUS]],
+            &s[sOff[SHEAR_MODULUS]],
             s_t ? &s_t[sOff[SHEAR_MODULUS]] : nullptr,
             s_x ? &s_x[sOff_x[SHEAR_MODULUS]] : nullptr,
         };

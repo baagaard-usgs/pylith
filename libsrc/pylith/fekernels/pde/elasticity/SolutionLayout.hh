@@ -21,8 +21,9 @@
 namespace pylith::fekernels::pde::elasticity {
     // Flags for elasticity solution
     enum SolutionFlags : size_t {
-        FAULT=0,
-        INERTIA=1 << 0,
+        NONE=0,
+        FAULT=1 << 0,
+        INERTIA=1 << 1,
     }; // SolutionFlags
 
     template<SolutionFlags flags> struct SolutionLayout;
@@ -85,9 +86,9 @@ struct pylith::fekernels::pde::elasticity::SolutionLayout {
         Unpacked<dim> data;
 
         data.displacement = {
-            s[sOff[DISPLACEMENT]],
-            s_t ? s_t[sOff[DISPLACEMENT]] : nullptr,
-            s_x ? s_x[sOff_x[DISPLACEMENT]] : nullptr,
+            &s[sOff[DISPLACEMENT]],
+            s_t ? &s_t[sOff[DISPLACEMENT]] : nullptr,
+            s_x ? &s_x[sOff_x[DISPLACEMENT]] : nullptr,
         };
 
         if constexpr (has(INERTIA)) {
