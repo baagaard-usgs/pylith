@@ -7,6 +7,15 @@
 //
 // See https://mit-license.org/ and LICENSE.md and for license information.
 // =================================================================================================
+
+/** ArgFields objects provide access to subfields of the solution and auxiliary field arrays that
+ * are passed as arguments to the kernels.
+ *
+ * The objects hold pointers to the storage already allocated.
+ * The objects are intended to be members of the Unpacked objects which provide named access to
+ * the solution and auxiliary subfields.
+ */
+
 #pragma once
 
 #include "pylith/utils/types.hh"
@@ -15,7 +24,6 @@
 
 #include <cassert>
 #include <cstddef>
-
 
 namespace pylith::fekernels::common {
     struct ScalarField;

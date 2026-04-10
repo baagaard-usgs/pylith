@@ -12,7 +12,7 @@
 #include "pylith/utils/types.hh"
 #include "pylith/fekernels/common/kernel.hh"
 #include "pylith/fekernels/common/Flags.hh"
-#include "pylith/fekernels/common/Matrix.hh"
+#include "pylith/fekernels/common/StorageTypes.hh"
 #include "pylith/fekernels/common/PetscJacobian.hh"
 
 #include <cstddef>

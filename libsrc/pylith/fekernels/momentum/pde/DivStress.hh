@@ -10,8 +10,8 @@
 #pragma once
 
 #include "pylith/fekernels/common/kernel.hh"
-#include "pylith/fekernels/common/Fields.hh"
-#include "pylith/fekernels/common/Matrix.hh"
+#include "pylith/fekernels/common/ArgFields.hh"
+#include "pylith/fekernels/common/StorageTypes.hh"
 
 #include <cassert>
 #include <cstddef>

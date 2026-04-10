@@ -7,6 +7,12 @@
 //
 // See https://mit-license.org/ and LICENSE.md and for license information.
 // =================================================================================================
+
+/** StorageTypes objects provide access to local storage of vectors, matrices, and tensors.
+ *
+ * The objects allocate local storage.
+ */
+
 #pragma once
 
 #include "pylith/utils/types.hh"
@@ -15,8 +21,31 @@
 #include <cstddef>
 
 namespace pylith::fekernels::common {
+    template<size_t dim> struct Vector;
     template<size_t dim> struct Matrix;
 } // namespace
+
+
+/// Vector storage and access.
+template <size_t dim>
+struct pylith::fekernels::common::Vector {
+    pylith::scalar _vector[dim];
+
+    PYLITH_KERNEL double& operator()(size_t i) noexcept {
+        assert(i < dim);return _vector[i];
+    } // operator()
+
+    PYLITH_KERNEL double operator()(size_t i) const noexcept {
+        assert(i < dim);return _vector[i];
+    } // operator()
+
+    PYLITH_KERNEL void zero(void) noexcept {
+        for (size_t i = 0; i < dim; ++i) {
+            _vector[i] = 0.0;
+        } // for
+    } // zero()
+
+}; // Vector
 
 
 /// Matrix storage and access.
