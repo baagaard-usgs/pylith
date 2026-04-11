@@ -47,14 +47,14 @@ struct pylith::fekernels::momentum::BodyForce {
 
         const auto auxiliary = AuxiliaryLayout::template unpack<dim>(aOff, aOff_x, a, a_t, a_x);
 
-        if constexpr (auxiliary::has(MOMENTUM_BODY_FORCE)) {
+        if constexpr (AuxiliaryLayout::has(MOMENTUM_BODY_FORCE)) {
             const auto& body_force = auxiliary.template get<MOMENTUM_BODY_FORCE>();
             for (size_t i = 0; i < dim; i++) {
                 f0[i] += body_force(i);
             } // for
         } // if
 
-        if constexpr (auxiliary::has(MOMENTUM_GRAVITY)) {
+        if constexpr (AuxiliaryLayout::has(MOMENTUM_GRAVITY)) {
             const auto& density = auxiliary.density;
             const auto& grav_acc = auxiliary.template get<MOMENTUM_GRAVITY>();
             for (size_t i = 0; i < dim; i++) {
