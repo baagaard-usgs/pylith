@@ -18,12 +18,12 @@
 
 
 namespace pylith::fekernels::momentum {
-    template<int dim, class SolutionLayout> struct DeviatoricStrain;
+    template<size_t dim, class SolutionLayout> struct DeviatoricStrain;
 } // namespace
 
 
 /// ε_dev = ε − 1/3 (tr ε) I
-template<int dim, class SolutionLayout>
+template<size_t dim, class SolutionLayout>
 struct pylith::fekernels::momentum::DeviatoricStrain {
     /// Compute deviatoric strain given total strain.
     PYLITH_KERNEL static void compute(pylith::fekernels::common::Matrix<dim>& deviatoricStrain,

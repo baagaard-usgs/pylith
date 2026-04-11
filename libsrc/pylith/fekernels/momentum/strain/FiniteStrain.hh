@@ -17,13 +17,13 @@
 
 
 namespace pylith::fekernels::momentum {
-    template<int dim, class SolutionLayout> struct FiniteStrain;
+    template<size_t dim, class SolutionLayout> struct FiniteStrain;
 } // namespace
 
 
 /// Finite, small strain
 /// strain = 1/2 (F^T F − I) with F = I + ∇
-template<int dim, class SolutionLayout>
+template<size_t dim, class SolutionLayout>
 struct pylith::fekernels::momentum::FiniteStrain {
     /// Compute strain.
     PYLITH_KERNEL static void compute(pylith::fekernels::common::Matrix<dim>& strain,

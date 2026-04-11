@@ -72,6 +72,7 @@ struct pylith::fekernels::pde::elasticity::IsotropicLinearLayout {
     struct OptionalMember<true, T> { T member; };
 
     /// Order of auxiliary subfields.
+#if 0 // Desired order but inconsistent with creation of auxiliary field
     enum Fields : int {
         DENSITY=0,
         BULK_MODULUS=1,
@@ -90,6 +91,34 @@ struct pylith::fekernels::pde::elasticity::IsotropicLinearLayout {
                     + (has(pylith::fekernels::momentum::GRAVITY) ? 1 : 0)
                     + (has(ISOTROPIC_LINEAR_REFERENCE_STRESS) ? 1 : 0)
                     +(has(ISOTROPIC_LINEAR_REFERENCE_STRAIN) ? 1 : 0),
+#else
+    enum Fields : int {
+        DENSITY=0,
+        BODY_FORCE=1,
+        GRAVITY=1 + (has(pylith::fekernels::momentum::BODY_FORCE) ? 1 : 0),
+        REFERENCE_STRESS=1
+                          + (has(pylith::fekernels::momentum::BODY_FORCE) ? 1 : 0)
+                          + (has(pylith::fekernels::momentum::GRAVITY) ? 1 : 0),
+        REFERENCE_STRAIN=3
+                          + (has(pylith::fekernels::momentum::BODY_FORCE) ? 1 : 0)
+                          + (has(pylith::fekernels::momentum::GRAVITY) ? 1 : 0)
+                          + (has(ISOTROPIC_LINEAR_REFERENCE_STRESS) ? 1 : 0),
+        BULK_MODULUS=1
+                      + (has(pylith::fekernels::momentum::BODY_FORCE) ? 1 : 0)
+                      + (has(pylith::fekernels::momentum::GRAVITY) ? 1 : 0)
+                      + (has(ISOTROPIC_LINEAR_REFERENCE_STRESS) ? 1 : 0)
+                      +(has(ISOTROPIC_LINEAR_REFERENCE_STRAIN) ? 1 : 0),
+        SHEAR_MODULUS=2
+                       + (has(pylith::fekernels::momentum::BODY_FORCE) ? 1 : 0)
+                       + (has(pylith::fekernels::momentum::GRAVITY) ? 1 : 0)
+                       +(has(ISOTROPIC_LINEAR_REFERENCE_STRESS) ? 1 : 0)
+                       +(has(ISOTROPIC_LINEAR_REFERENCE_STRAIN) ? 1 : 0),
+        NUM_FIELDS=2
+                    + (has(pylith::fekernels::momentum::BODY_FORCE) ? 1 : 0)
+                    + (has(pylith::fekernels::momentum::GRAVITY) ? 1 : 0)
+                    + (has(ISOTROPIC_LINEAR_REFERENCE_STRESS) ? 1 : 0)
+                    +(has(ISOTROPIC_LINEAR_REFERENCE_STRAIN) ? 1 : 0),
+#endif
     }; // IsotropicLinearFlags
 
     /// Struct wth names for holding subfields

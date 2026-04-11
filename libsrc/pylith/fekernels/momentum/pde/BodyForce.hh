@@ -62,6 +62,6 @@ struct pylith::fekernels::momentum::BodyForce {
             } // for
         } // if
 
-    } // f1
+    } // f0
 
 }; // BodyForce

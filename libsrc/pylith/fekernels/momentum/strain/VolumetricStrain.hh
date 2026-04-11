@@ -16,12 +16,12 @@
 #include <cstddef>
 
 namespace pylith::fekernels::momentum {
-    template<int dim, class SolutionLayout> struct VolumetricStrain;
+    template<size_t dim, class SolutionLayout> struct VolumetricStrain;
 } // namespace
 
 
 /// ε_vol = tr(ε)
-template<int dim, class SolutionLayout>
+template<size_t dim, class SolutionLayout>
 struct pylith::fekernels::momentum::VolumetricStrain {
     /// @brief  Compute strain.
     PYLITH_KERNEL static pylith::scalar compute(const pylith::fekernels::common::Matrix<dim>& strain) {

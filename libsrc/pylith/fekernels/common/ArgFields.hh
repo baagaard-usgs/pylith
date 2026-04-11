@@ -39,16 +39,19 @@ struct pylith::fekernels::common::ScalarField {
 
     /// Get field value.
     PYLITH_KERNEL pylith::scalar operator()() const {
+        assert(value);
         return value[0];
     }
 
     /// Get time derivative of field.
     PYLITH_KERNEL pylith::scalar dot(void) const {
+        assert(value_t);
         return value_t[0];
     }
 
     /// Get gradient of field.
     PYLITH_KERNEL pylith::scalar gradient(size_t i) const {
+        assert(grad);
         return grad[i];
     }
 
@@ -63,11 +66,13 @@ struct pylith::fekernels::common::VectorField {
 
     /// Get field value.
     PYLITH_KERNEL pylith::scalar operator()(size_t i) const {
+        assert(value);
         return value[i];
     } // operator()
 
     /// Get time derivative of field.
     PYLITH_KERNEL pylith::scalar dot(size_t i) const {
+        assert(value_t);
         return value_t[i];
     } // dot()
 
@@ -77,6 +82,7 @@ struct pylith::fekernels::common::VectorField {
      */
     PYLITH_KERNEL pylith::scalar gradient(size_t i,
                                           size_t j) const {
+        assert(grad);
         return grad[i*dim+j];
     } // grad_ij()
 
@@ -114,12 +120,14 @@ struct pylith::fekernels::common::MatrixField {
     /// Get field value.
     PYLITH_KERNEL pylith::scalar operator()(size_t i,
                                             size_t j) const {
+        assert(value);
         return value[i*dim+j];
     } // operator()
 
     /// Get time derivative of field.
     PYLITH_KERNEL pylith::scalar dot(size_t i,
                                      size_t j) const {
+        assert(value_t);
         return value_t[i*dim+j];
     } // dot()
 

@@ -31,11 +31,11 @@ template <size_t dim>
 struct pylith::fekernels::common::Vector {
     pylith::scalar _vector[dim];
 
-    PYLITH_KERNEL double& operator()(size_t i) noexcept {
+    PYLITH_KERNEL pylith::scalar& operator()(size_t i) noexcept {
         assert(i < dim);return _vector[i];
     } // operator()
 
-    PYLITH_KERNEL double operator()(size_t i) const noexcept {
+    PYLITH_KERNEL pylith::scalar operator()(size_t i) const noexcept {
         assert(i < dim);return _vector[i];
     } // operator()
 
@@ -53,14 +53,14 @@ template<size_t dim>
 struct pylith::fekernels::common::Matrix {
     pylith::scalar _matrix[dim][dim];
 
-    PYLITH_KERNEL double& operator()(size_t i,
-                                     size_t j) noexcept {
+    PYLITH_KERNEL pylith::scalar& operator()(size_t i,
+                                             size_t j) noexcept {
         assert(i < dim);assert(j < dim);
         return _matrix[i][j];
     } // operator()
 
-    PYLITH_KERNEL double operator()(size_t i,
-                                    size_t j) const noexcept {
+    PYLITH_KERNEL pylith::scalar operator()(size_t i,
+                                            size_t j) const noexcept {
         assert(i < dim);assert(j < dim);
         return _matrix[i][j];
     } // operator()
@@ -73,8 +73,8 @@ struct pylith::fekernels::common::Matrix {
         } // for
     } // zero
 
-    PYLITH_KERNEL double trace(void) const noexcept {
-        double value = 0.0;
+    PYLITH_KERNEL pylith::scalar trace(void) const noexcept {
+        pylith::scalar value = 0.0;
         for (size_t i = 0; i < dim; ++i) {
             value += _matrix[i][i];
         } // for
