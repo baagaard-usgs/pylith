@@ -13,6 +13,7 @@
 
 #include "pylith/fekernels/common/kernel.hh"
 #include "pylith/fekernels/common/ArgFields.hh"
+#include "pylith/fekernels/common/OptionalFields.hh"
 
 #include <cassert>
 #include <cstddef>
@@ -37,21 +38,16 @@ struct pylith::fekernels::pde::elasticity::SolutionLayout {
         return (flags & f);
     } // has
 
-    // Optional subfields
-    // Empty base class optimization ensures zero size when unused
-    template <bool present, typename T>
-    struct OptionalMember {};
-
-    template <typename T>
-    struct OptionalMember<true, T> { T member; };
+    // Use shared OptionalMember from common utilities
+    using OptionalMember = pylith::fekernels::common::OptionalMember;
 
     /// Order of solution subfields
     enum Fields : int {
         DISPLACEMENT=0,
         VELOCITY=1,
-        LAGRANGE_MULTIPLIER_FAULT=0 + (has(INERTIA) ? 1 : 0),
-        NUM_FIELDS=1 + (has(INERTIA) ? 1 : 0)
-                    + (has(FAULT) ? 1 : 0)
+        LAGRANGE_MULTIPLIER_FAULT=0 + pylith::fekernels::common::addIfPresent(has(INERTIA)),
+        NUM_FIELDS=1 + pylith::fekernels::common::addIfPresent(has(INERTIA))
+                    + pylith::fekernels::common::addIfPresent(has(FAULT))
     };
 
     /// Struct wth names for holding subfields

@@ -14,6 +14,7 @@
 #include "pylith/fekernels/common/kernel.hh"
 #include "pylith/fekernels/common/ArgFields.hh"
 #include "pylith/fekernels/common/Flags.hh"
+#include "pylith/fekernels/common/OptionalFields.hh"
 #include "pylith/fekernels/momentum/pde/MomentumLayout.hh"
 
 
@@ -63,13 +64,8 @@ struct pylith::fekernels::pde::elasticity::IsotropicLinearLayout {
         return (flags & f);
     } // has
 
-    // Optional subfields
-    // Empty base class optimization ensures zero size when unused
-    template <bool present, typename T>
-    struct OptionalMember {};
-
-    template <typename T>
-    struct OptionalMember<true, T> { T member; };
+    // Use shared OptionalMember from common utilities
+    using OptionalMember = pylith::fekernels::common::OptionalMember;
 
     /// Order of auxiliary subfields.
 #if 0 // Desired order but inconsistent with creation of auxiliary field
@@ -95,29 +91,29 @@ struct pylith::fekernels::pde::elasticity::IsotropicLinearLayout {
     enum Fields : int {
         DENSITY=0,
         BODY_FORCE=1,
-        GRAVITY=1 + (has(pylith::fekernels::momentum::BODY_FORCE) ? 1 : 0),
+        GRAVITY=1 + pylith::fekernels::common::addIfPresent(has(pylith::fekernels::momentum::BODY_FORCE)),
         REFERENCE_STRESS=1
-                          + (has(pylith::fekernels::momentum::BODY_FORCE) ? 1 : 0)
-                          + (has(pylith::fekernels::momentum::GRAVITY) ? 1 : 0),
+                          + pylith::fekernels::common::addIfPresent(has(pylith::fekernels::momentum::BODY_FORCE))
+                          + pylith::fekernels::common::addIfPresent(has(pylith::fekernels::momentum::GRAVITY)),
         REFERENCE_STRAIN=3
-                          + (has(pylith::fekernels::momentum::BODY_FORCE) ? 1 : 0)
-                          + (has(pylith::fekernels::momentum::GRAVITY) ? 1 : 0)
-                          + (has(ISOTROPIC_LINEAR_REFERENCE_STRESS) ? 1 : 0),
+                          + pylith::fekernels::common::addIfPresent(has(pylith::fekernels::momentum::BODY_FORCE))
+                          + pylith::fekernels::common::addIfPresent(has(pylith::fekernels::momentum::GRAVITY))
+                          + pylith::fekernels::common::addIfPresent(has(ISOTROPIC_LINEAR_REFERENCE_STRESS)),
         BULK_MODULUS=1
-                      + (has(pylith::fekernels::momentum::BODY_FORCE) ? 1 : 0)
-                      + (has(pylith::fekernels::momentum::GRAVITY) ? 1 : 0)
-                      + (has(ISOTROPIC_LINEAR_REFERENCE_STRESS) ? 1 : 0)
-                      +(has(ISOTROPIC_LINEAR_REFERENCE_STRAIN) ? 1 : 0),
+                      + pylith::fekernels::common::addIfPresent(has(pylith::fekernels::momentum::BODY_FORCE))
+                      + pylith::fekernels::common::addIfPresent(has(pylith::fekernels::momentum::GRAVITY))
+                      + pylith::fekernels::common::addIfPresent(has(ISOTROPIC_LINEAR_REFERENCE_STRESS))
+                      + pylith::fekernels::common::addIfPresent(has(ISOTROPIC_LINEAR_REFERENCE_STRAIN)),
         SHEAR_MODULUS=2
-                       + (has(pylith::fekernels::momentum::BODY_FORCE) ? 1 : 0)
-                       + (has(pylith::fekernels::momentum::GRAVITY) ? 1 : 0)
-                       +(has(ISOTROPIC_LINEAR_REFERENCE_STRESS) ? 1 : 0)
-                       +(has(ISOTROPIC_LINEAR_REFERENCE_STRAIN) ? 1 : 0),
+                       + pylith::fekernels::common::addIfPresent(has(pylith::fekernels::momentum::BODY_FORCE))
+                       + pylith::fekernels::common::addIfPresent(has(pylith::fekernels::momentum::GRAVITY))
+                       + pylith::fekernels::common::addIfPresent(has(ISOTROPIC_LINEAR_REFERENCE_STRESS))
+                       + pylith::fekernels::common::addIfPresent(has(ISOTROPIC_LINEAR_REFERENCE_STRAIN)),
         NUM_FIELDS=2
-                    + (has(pylith::fekernels::momentum::BODY_FORCE) ? 1 : 0)
-                    + (has(pylith::fekernels::momentum::GRAVITY) ? 1 : 0)
-                    + (has(ISOTROPIC_LINEAR_REFERENCE_STRESS) ? 1 : 0)
-                    +(has(ISOTROPIC_LINEAR_REFERENCE_STRAIN) ? 1 : 0),
+                    + pylith::fekernels::common::addIfPresent(has(pylith::fekernels::momentum::BODY_FORCE))
+                    + pylith::fekernels::common::addIfPresent(has(pylith::fekernels::momentum::GRAVITY))
+                    + pylith::fekernels::common::addIfPresent(has(ISOTROPIC_LINEAR_REFERENCE_STRESS))
+                    + pylith::fekernels::common::addIfPresent(has(ISOTROPIC_LINEAR_REFERENCE_STRAIN)),
 #endif
     }; // IsotropicLinearFlags
 
