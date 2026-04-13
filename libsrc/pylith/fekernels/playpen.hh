@@ -611,3 +611,318 @@ void registerKernels(PetscDS ds, PylithInt field, bool dynamic) {
                            K::Jf0_uu_inertial,
                            nullptr, nullptr, nullptr);
 }
+
+
+
+REGISTRY
+
+```
+ProblemConfig (runtime)
+    │
+    ├─ solution_layout() ──► SolutionLayout enum
+    ├─ aux_layout()      ──► AuxLayout enum
+    │
+    └─► KernelKey { dim, solution, aux, strain, stress }
+              │
+              │  hash lookup (O(1))
+              ▼
+        KernelRegistry::map_
+              │
+              │  populated at startup by walking ValidConfigs
+              │  register_one<Config<Dim,S,T>>() for each entry
+              ▼
+        &kernel<Dim, StrainModel, StressModel>   (function pointer)
+              │
+              ▼
+        fn(data, n)
+```
+
+
+```
+#include <unordered_map>
+#include <stdexcept>
+#include <tuple>
+#include <cstdint>
+#include <string>
+
+// ============================================================
+// 1. DIMENSIONS
+// ============================================================
+
+struct Dim2 { static constexpr int value = 2; };
+struct Dim3 { static constexpr int value = 3; };
+
+// ============================================================
+// 2. LAYOUT ENUMS
+// ============================================================
+
+enum class SolutionLayout : uint32_t {
+    DEFAULT           = 0,
+    FAULT             = 1 << 0,
+    INERTIA           = 1 << 1,
+    FAULT_AND_INERTIA = FAULT | INERTIA,
+};
+
+enum class AuxLayout : uint32_t {
+    DEFAULT                = 0,
+    BODY_FORCE             = 1 << 0,
+    GRAVITY                = 1 << 1,
+    BODY_FORCE_AND_GRAVITY = BODY_FORCE | GRAVITY,
+};
+
+// ============================================================
+// 3. STRAIN AND STRESS MODEL TEMPLATES
+// ============================================================
+
+template<typename Dim, SolutionLayout S> struct Infinitesimal {};
+template<typename Dim, SolutionLayout S> struct Finite {};
+
+template<typename Dim, AuxLayout A> struct IsotropicLinear {};
+template<typename Dim, AuxLayout A> struct IsotropicMaxwell {};
+template<typename Dim, AuxLayout A> struct IsotropicPowerLaw {};
+
+// ============================================================
+// 4. RUNTIME ENUMS AND PROBLEM CONFIG
+// ============================================================
+
+enum class StrainType  { Infinitesimal, Finite };
+enum class StressType  { IsotropicLinear, IsotropicMaxwell, IsotropicPowerLaw };
+
+struct ProblemConfig {
+    int        dim;
+    bool       has_fault;
+    bool       has_inertia;
+    bool       has_body_force;
+    bool       has_gravity;
+    StrainType strain;
+    StressType stress;
+};
+
+SolutionLayout solution_layout(const ProblemConfig& cfg) {
+    uint32_t v = 0;
+    if (cfg.has_fault)   v |= uint32_t(SolutionLayout::FAULT);
+    if (cfg.has_inertia) v |= uint32_t(SolutionLayout::INERTIA);
+    return SolutionLayout(v);
+}
+
+AuxLayout aux_layout(const ProblemConfig& cfg) {
+    uint32_t v = 0;
+    if (cfg.has_body_force) v |= uint32_t(AuxLayout::BODY_FORCE);
+    if (cfg.has_gravity)    v |= uint32_t(AuxLayout::GRAVITY);
+    return AuxLayout(v);
+}
+
+// ============================================================
+// 5. RUNTIME KEY
+// ============================================================
+
+struct KernelKey {
+    int            dim;
+    SolutionLayout solution;
+    AuxLayout      aux;
+    StrainType     strain;
+    StressType     stress;
+
+    bool operator==(const KernelKey&) const = default;
+};
+
+struct KernelKeyHash {
+    size_t operator()(const KernelKey& k) const {
+        auto h = [](size_t seed, auto v) {
+            return seed ^ (std::hash<size_t>{}(size_t(v)) + 0x9e3779b9 + (seed << 6) + (seed >> 2));
+        };
+        size_t s = std::hash<int>{}(k.dim);
+        s = h(s, k.solution);
+        s = h(s, k.aux);
+        s = h(s, k.strain);
+        s = h(s, k.stress);
+        return s;
+    }
+};
+
+// ============================================================
+// 6. MODEL TRAITS — extract runtime identity from template types
+// ============================================================
+
+template<typename T> struct model_traits;
+
+template<typename Dim, SolutionLayout S>
+struct model_traits<Infinitesimal<Dim, S>> {
+    static constexpr StrainType     strain   = StrainType::Infinitesimal;
+    static constexpr SolutionLayout solution = S;
+};
+
+template<typename Dim, SolutionLayout S>
+struct model_traits<Finite<Dim, S>> {
+    static constexpr StrainType     strain   = StrainType::Finite;
+    static constexpr SolutionLayout solution = S;
+};
+
+template<typename Dim, AuxLayout A>
+struct model_traits<IsotropicLinear<Dim, A>> {
+    static constexpr StressType stress = StressType::IsotropicLinear;
+    static constexpr AuxLayout  aux    = A;
+};
+
+template<typename Dim, AuxLayout A>
+struct model_traits<IsotropicMaxwell<Dim, A>> {
+    static constexpr StressType stress = StressType::IsotropicMaxwell;
+    static constexpr AuxLayout  aux    = A;
+};
+
+template<typename Dim, AuxLayout A>
+struct model_traits<IsotropicPowerLaw<Dim, A>> {
+    static constexpr StressType stress = StressType::IsotropicPowerLaw;
+    static constexpr AuxLayout  aux    = A;
+};
+
+// ============================================================
+// 7. CONFIG TYPE AND KEY EXTRACTION
+// ============================================================
+
+template<typename Dim, typename StrainModel, typename StressModel>
+struct Config {};
+
+template<typename Dim, typename StrainModel, typename StressModel>
+constexpr KernelKey key_for() {
+    return {
+        Dim::value,
+        model_traits<StrainModel>::solution,
+        model_traits<StressModel>::aux,
+        model_traits<StrainModel>::strain,
+        model_traits<StressModel>::stress,
+    };
+}
+
+// ============================================================
+// 8. KERNEL
+// ============================================================
+
+using KernelFn = void(*)(float*, size_t);
+
+template<typename Dim, typename StrainModel, typename StressModel>
+void kernel(float* data, size_t n) {
+    // Compile-time branches — dead code is eliminated
+    if constexpr (std::is_same_v<Dim, Dim2>)                              { /* 2D setup   */ }
+    if constexpr (std::is_same_v<Dim, Dim3>)                              { /* 3D setup   */ }
+    if constexpr (model_traits<StrainModel>::strain == StrainType::Finite) { /* finite     */ }
+    if constexpr (model_traits<StressModel>::stress == StressType::IsotropicMaxwell) { /* maxwell */ }
+    if constexpr ((uint32_t(model_traits<StressModel>::aux) &
+                   uint32_t(AuxLayout::GRAVITY)) != 0)                    { /* gravity    */ }
+}
+
+// ============================================================
+// 9. VALID CONFIGS — the physics contract
+// ============================================================
+
+using ValidConfigs = std::tuple
+    // 2D — Infinitesimal strain
+    Config<Dim2, Infinitesimal<Dim2, SolutionLayout::DEFAULT>,           IsotropicLinear<Dim2,   AuxLayout::DEFAULT>>,
+    Config<Dim2, Infinitesimal<Dim2, SolutionLayout::DEFAULT>,           IsotropicLinear<Dim2,   AuxLayout::BODY_FORCE>>,
+    Config<Dim2, Infinitesimal<Dim2, SolutionLayout::DEFAULT>,           IsotropicLinear<Dim2,   AuxLayout::GRAVITY>>,
+    Config<Dim2, Infinitesimal<Dim2, SolutionLayout::DEFAULT>,           IsotropicLinear<Dim2,   AuxLayout::BODY_FORCE_AND_GRAVITY>>,
+    Config<Dim2, Infinitesimal<Dim2, SolutionLayout::FAULT>,             IsotropicLinear<Dim2,   AuxLayout::DEFAULT>>,
+    Config<Dim2, Infinitesimal<Dim2, SolutionLayout::FAULT>,             IsotropicLinear<Dim2,   AuxLayout::GRAVITY>>,
+    Config<Dim2, Infinitesimal<Dim2, SolutionLayout::DEFAULT>,           IsotropicMaxwell<Dim2,  AuxLayout::DEFAULT>>,
+    Config<Dim2, Infinitesimal<Dim2, SolutionLayout::DEFAULT>,           IsotropicMaxwell<Dim2,  AuxLayout::GRAVITY>>,
+    Config<Dim2, Infinitesimal<Dim2, SolutionLayout::DEFAULT>,           IsotropicPowerLaw<Dim2, AuxLayout::DEFAULT>>,
+    Config<Dim2, Finite<Dim2,        SolutionLayout::DEFAULT>,           IsotropicLinear<Dim2,   AuxLayout::DEFAULT>>,
+    Config<Dim2, Finite<Dim2,        SolutionLayout::DEFAULT>,           IsotropicLinear<Dim2,   AuxLayout::GRAVITY>>,
+
+    // 3D — Infinitesimal strain
+    Config<Dim3, Infinitesimal<Dim3, SolutionLayout::DEFAULT>,           IsotropicLinear<Dim3,   AuxLayout::DEFAULT>>,
+    Config<Dim3, Infinitesimal<Dim3, SolutionLayout::DEFAULT>,           IsotropicLinear<Dim3,   AuxLayout::BODY_FORCE>>,
+    Config<Dim3, Infinitesimal<Dim3, SolutionLayout::DEFAULT>,           IsotropicLinear<Dim3,   AuxLayout::GRAVITY>>,
+    Config<Dim3, Infinitesimal<Dim3, SolutionLayout::DEFAULT>,           IsotropicLinear<Dim3,   AuxLayout::BODY_FORCE_AND_GRAVITY>>,
+    Config<Dim3, Infinitesimal<Dim3, SolutionLayout::FAULT>,             IsotropicLinear<Dim3,   AuxLayout::DEFAULT>>,
+    Config<Dim3, Infinitesimal<Dim3, SolutionLayout::FAULT>,             IsotropicLinear<Dim3,   AuxLayout::GRAVITY>>,
+    Config<Dim3, Infinitesimal<Dim3, SolutionLayout::DEFAULT>,           IsotropicMaxwell<Dim3,  AuxLayout::DEFAULT>>,
+    Config<Dim3, Infinitesimal<Dim3, SolutionLayout::DEFAULT>,           IsotropicMaxwell<Dim3,  AuxLayout::GRAVITY>>,
+    Config<Dim3, Infinitesimal<Dim3, SolutionLayout::DEFAULT>,           IsotropicPowerLaw<Dim3, AuxLayout::DEFAULT>>,
+    Config<Dim3, Finite<Dim3,        SolutionLayout::DEFAULT>,           IsotropicLinear<Dim3,   AuxLayout::DEFAULT>>,
+    Config<Dim3, Finite<Dim3,        SolutionLayout::DEFAULT>,           IsotropicLinear<Dim3,   AuxLayout::GRAVITY>>
+>;
+
+// ============================================================
+// 10. KERNEL REGISTRY
+// ============================================================
+
+class KernelRegistry {
+    std::unordered_map<KernelKey, KernelFn, KernelKeyHash> map_;
+
+public:
+    KernelRegistry() {
+        register_all(std::make_index_sequence<std::tuple_size_v<ValidConfigs>>{});
+    }
+
+    KernelFn get(const ProblemConfig& cfg) const {
+        KernelKey key {
+            cfg.dim,
+            solution_layout(cfg),
+            aux_layout(cfg),
+            cfg.strain,
+            cfg.stress,
+        };
+        auto it = map_.find(key);
+        if (it == map_.end())
+            throw std::invalid_argument(unsupported_msg(key));
+        return it->second;
+    }
+
+private:
+    template<size_t... Is>
+    void register_all(std::index_sequence<Is...>) {
+        (register_one<std::tuple_element_t<Is, ValidConfigs>>(), ...);
+    }
+
+    template<typename Cfg>
+    void register_one();                           // defined below via partial specialization
+};
+
+template<typename Dim, typename StrainModel, typename StressModel>
+void register_config(std::unordered_map<KernelKey, KernelFn, KernelKeyHash>& map) {
+    map.emplace(key_for<Dim, StrainModel, StressModel>(),
+                &kernel<Dim, StrainModel, StressModel>);
+}
+
+template<> template<typename Dim, typename S, typename T>
+void KernelRegistry::register_one<Config<Dim, S, T>>() {
+    register_config<Dim, S, T>(map_);
+}
+
+std::string unsupported_msg(const KernelKey& k) {
+    return "Unsupported physics combination: dim=" + std::to_string(k.dim)
+         + " solution=" + std::to_string(uint32_t(k.solution))
+         + " aux="      + std::to_string(uint32_t(k.aux))
+         + " strain="   + std::to_string(int(k.strain))
+         + " stress="   + std::to_string(int(k.stress));
+}
+
+// ============================================================
+// 11. USAGE
+// ============================================================
+
+static const KernelRegistry registry;
+
+void solve(const ProblemConfig& cfg, float* data, size_t n) {
+    KernelFn fn = registry.get(cfg);
+    fn(data, n);
+}
+
+int main() {
+    ProblemConfig cfg {
+        .dim           = 2,
+        .has_fault     = false,
+        .has_inertia   = false,
+        .has_body_force = false,
+        .has_gravity   = true,
+        .strain        = StrainType::Infinitesimal,
+        .stress        = StressType::IsotropicMaxwell,
+    };
+
+    float data[1024] = {};
+    solve(cfg, data, 1024);   // dispatches to kernel<Dim2, Infinitesimal<Dim2, DEFAULT>, IsotropicMaxwell<Dim2, GRAVITY>>
+
+    return 0;
+}
+```
