@@ -16,17 +16,20 @@
 #include "pylith/topology/Field.hh" // USES pylith::topology::Field::Discretization
 #include "pylith/utils/journals.hh" // USES pythia::journal::debug_t
 
+#include "pylith/scales/ElasticityScales.hh" // USES ElasticityScales
+
 namespace pylith {
     class _PressureGradientPVE;
 } // pylith
 
 class pylith::_PressureGradientPVE {
-    static const double LENGTH_SCALE;
-    static const double TIME_SCALE;
-    static const double PRESSURE_SCALE;
+    static pylith::scales::Scales scales;
+    // static const double LENGTH_SCALE;
+    // static const double TIME_SCALE;
+    // static const double PRESSURE_SCALE;
 
-    static const double PRESSURE0; // dimensional
-    static const double XMAX; // dimensional
+    static const double PRESSURE; // dimensional
+    static const double X_MAX; // dimensional
 
     // Density
     static double solid_density(const double x,
@@ -51,7 +54,7 @@ class pylith::_PressureGradientPVE {
 
     static double solid_viscosity(const double x,
                                   const double y) {
-            return 1.0e21;
+            return 1.0e25;
     } // solid viscosity
 
     static const char* viscosity_units(void) {
@@ -59,7 +62,7 @@ class pylith::_PressureGradientPVE {
     } // fluid_viscosity_units
 
     // Porosity
-    static double porosity(const double x,
+   static double porosity(const double x,
                            const double y) {
         return 0.02;
     } // porosity
@@ -87,7 +90,7 @@ class pylith::_PressureGradientPVE {
     // Biot coefficient
     static double biot_coefficient(const double x,
                                    const double y) {
-        return 1.0;
+        return 0.8;
     } // biot_coefficient
 
     static const char* biot_coefficient_units(void) {
@@ -97,14 +100,8 @@ class pylith::_PressureGradientPVE {
     // Fluid modulus
     static double fluid_bulk_modulus(const double x,
                                      const double y) {
-        return 1.0e+10;
+        return 2.0e+9;
     } // fluid_bulk_modulus
-
-    // Solid modulus
-    static double solid_bulk_modulus(const double x,
-                                     const double y) {
-        return 9.0e+10;
-    } // solid_bulk_modulus
 
     // Permeability
     static double isotropic_permeability(const double x,
@@ -120,11 +117,13 @@ class pylith::_PressureGradientPVE {
     static double viscous_strain_xx(const double x,
                                     const double y) {
         return (strain_xx(x, y) - dq(x, y) * dev_strain_xx(x, y)) / expFac(x, y);
+        // return 0.0;
     } // viscous_strain_xx
 
     static double viscous_strain_yy(const double x,
                                     const double y) {
         return -dq(x, y) * dev_strain_yy(x, y) / expFac(x, y);
+        // return 0.0;
     } // viscous_strain_yy
 
     static double viscous_strain_zz(const double x,
@@ -135,6 +134,7 @@ class pylith::_PressureGradientPVE {
     static double viscous_strain_xy(const double x,
                                     const double y) {
         return -dq(x, y) * dev_strain_xy(x, y) / expFac(x, y);
+        // return 0.0;
     } // viscous_strain_xy
 
     static double viscous_strain_xz(const double x,
@@ -188,8 +188,9 @@ class pylith::_PressureGradientPVE {
 
     static double dq(const double x,
                      const double y) {
-        double xN = x / LENGTH_SCALE;
-        double yN = y / LENGTH_SCALE;
+        const PylithReal lengthScale = scales.getLengthScale();
+        double xN = x / lengthScale;
+        double yN = y / lengthScale;
         double maxwellTime = (solid_viscosity(xN, yN) / shear_modulus(xN, yN)) / 2.0;
         TestLinearPoroviscoelasticity_Data* data = new TestLinearPoroviscoelasticity_Data();assert(data);
         double dt = data->dt/2.0;
@@ -198,8 +199,9 @@ class pylith::_PressureGradientPVE {
 
     static double expFac(const double x,
                          const double y) {
-        double xN = x / LENGTH_SCALE;
-        double yN = y / LENGTH_SCALE;
+        const PylithReal lengthScale = scales.getLengthScale();
+        double xN = x / lengthScale;
+        double yN = y / lengthScale;
         double maxwellTime = (solid_viscosity(xN, yN) / shear_modulus(xN, yN)) / 2.0;
         TestLinearPoroviscoelasticity_Data* data = new TestLinearPoroviscoelasticity_Data();assert(data);
         double dt = data->dt/2.0;
@@ -209,21 +211,26 @@ class pylith::_PressureGradientPVE {
     // Strain
     static double strain_xx(const double x,
                             const double y) {
-        double xN = x / LENGTH_SCALE;
-        double yN = y / LENGTH_SCALE;
-        const double muN = shear_modulus(xN, yN) / PRESSURE_SCALE;
-        const double lambdaN = drained_bulk_modulus(xN, yN) / PRESSURE_SCALE - 2.0/3.0 * muN;
+        const PylithReal lengthScale = scales.getLengthScale();
+        const PylithReal fluidPressureScale = pylith::scales::ElasticityScales::getFluidPressureScale(scales);
+        const PylithReal rigidityScale = scales.getRigidityScale();
+
+        double xN = x / lengthScale;
+        double yN = y / lengthScale;
+        const double muN = shear_modulus(xN, yN) / rigidityScale;
+        const double lambdaN = drained_bulk_modulus(xN, yN) / rigidityScale - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(xN, yN);
 
-        return  -(PRESSURE0 / PRESSURE_SCALE) * alpha * xN / ((XMAX / LENGTH_SCALE) * (lambdaN + 2.0 * muN));
+        return  -(PRESSURE / fluidPressureScale) * alpha * xN / ((X_MAX / lengthScale) * (lambdaN + 2.0 * muN));
     }
 
     // Deviatoric Strain
     static double dev_strain_xx(const double x,
                                 const double y) {
-        double xN = x / LENGTH_SCALE;
-        double yN = y / LENGTH_SCALE;
-        double mean = trace_strain(xN, yN, 0) / 3; // Dived by 3 instead of 2 because that's how it's done in the deviatoric function in
+        const PylithReal lengthScale = scales.getLengthScale();
+        double xN = x / lengthScale;
+        double yN = y / lengthScale;
+        double mean = trace_strain(xN, yN) / 3; // Dived by 3 instead of 2 because that's how it's done in the deviatoric function in
                                               // Elasticity.cc even for 2D. Double check this!
         
         double dev_strain = strain_xx(x, y) - mean;
@@ -232,9 +239,10 @@ class pylith::_PressureGradientPVE {
 
     static double dev_strain_yy(const double x,
                                 const double y) {
-        double xN = x / LENGTH_SCALE;
-        double yN = y / LENGTH_SCALE;
-        double mean = trace_strain(xN, yN, 0) / 3; // Dived by 3 instead of 2 because that's how it's done in the deviatoric function in
+        const PylithReal lengthScale = scales.getLengthScale();
+        double xN = x / lengthScale;
+        double yN = y / lengthScale;
+        double mean = trace_strain(xN, yN) / 3; // Dived by 3 instead of 2 because that's how it's done in the deviatoric function in
                                               // Elasticity.cc even for 2D. Double check this!
         return -mean;
     } // dev_strain_yy
@@ -245,44 +253,82 @@ class pylith::_PressureGradientPVE {
     } // dev_strain_xy
 
     // Displacement
-    static double disp_x(const double x,
-                         const double y,
-                         const double t) {
-        const double muN = shear_modulus(x, y) / PRESSURE_SCALE;
-        const double lambdaN = drained_bulk_modulus(x, y) / PRESSURE_SCALE - 2.0/3.0 * muN;
+    // static double disp_x(const double x,
+    //                      const double y,
+    //                      const double t) {
+    //     const PylithReal lengthScale = scales.getLengthScale();
+    //     const PylithReal rigidityScale = scales.getRigidityScale();
+    //     const PylithReal fluidPressureScale = pylith::scales::ElasticityScales::getFluidPressureScale(scales);
+    //     const PylithReal timeScale = scales.getTimeScale();
+
+    //     const double muN = shear_modulus(x, y) / rigidityScale;
+    //     const double lambdaN = drained_bulk_modulus(x, y) / rigidityScale - 2.0/3.0 * muN;
+    //     const double alpha = biot_coefficient(x, y);
+    //     const double etaN = solid_viscosity(x, y) / (rigidityScale * timeScale);
+    //     return -0.5 * alpha  * (PRESSURE / fluidPressureScale) / (lambdaN + 2.0*muN) * (x*x / (X_MAX / lengthScale)) - alpha * (PRESSURE / fluidPressureScale) * x * t  * (1.0/etaN);
+    // } // disp_x
+
+    // static double disp_y(const double x,
+    //                      const double y,
+    //                      const double t) {
+    //     const PylithReal lengthScale = scales.getLengthScale();
+    //     const PylithReal rigidityScale = scales.getRigidityScale();
+    //     const PylithReal fluidPressureScale = pylith::scales::ElasticityScales::getFluidPressureScale(scales);
+    //     const PylithReal timeScale = scales.getTimeScale();
+
+    //     const double muN = shear_modulus(x, y) / rigidityScale;
+    //     const double lambdaN = drained_bulk_modulus(x, y) / rigidityScale - 2.0/3.0 * muN;
+    //     const double alpha = biot_coefficient(x, y);
+    //     const double etaN = solid_viscosity(x, y) / (rigidityScale * timeScale);
+    //     return alpha * (PRESSURE / fluidPressureScale) * ((-X_MAX / lengthScale) * lambdaN - 2.0 * (X_MAX / lengthScale) * muN + 2.0 * x * muN) * y * t * (1.0 / (X_MAX / lengthScale))
+    //     * (1.0 / etaN) * (1.0/(lambdaN + 2.0 * muN));
+    // }
+
+     static double disp_x(const double x,
+                         const double y) {
+        const PylithReal lengthScale = scales.getLengthScale();
+        const PylithReal rigidityScale = scales.getRigidityScale();
+        const PylithReal fluidPressureScale = pylith::scales::ElasticityScales::getFluidPressureScale(scales);
+
+        const double muN = shear_modulus(x, y) / rigidityScale;
+        const double lambdaN = drained_bulk_modulus(x, y) / rigidityScale - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y);
-        const double etaN = solid_viscosity(x, y) / (PRESSURE_SCALE * TIME_SCALE);
-        return -0.5 * alpha  * (PRESSURE0 / PRESSURE_SCALE) / (lambdaN + 2.0*muN) * (x*x / (XMAX / LENGTH_SCALE)) - alpha * (PRESSURE0 / PRESSURE_SCALE) * x * t  * (1.0/etaN);
+        return -0.5 * alpha  * (PRESSURE / fluidPressureScale) / (lambdaN + 2.0*muN) * (x*x / (X_MAX / lengthScale));
     } // disp_x
 
     static double disp_y(const double x,
-                         const double y,
-                         const double t) {
-        const double muN = shear_modulus(x, y) / PRESSURE_SCALE;
-        const double lambdaN = drained_bulk_modulus(x, y) / PRESSURE_SCALE - 2.0/3.0 * muN;
-        const double alpha = biot_coefficient(x, y);
-        const double etaN = solid_viscosity(x, y) / (PRESSURE_SCALE * TIME_SCALE);
-        return alpha * (PRESSURE0 / PRESSURE_SCALE) * ((-XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) * y * t * (1.0 / (XMAX / LENGTH_SCALE))
-        * (1.0 / etaN) * (1.0/(lambdaN + 2.0 * muN));
-    }
+                         const double y) {
+        return 0.0;
+    } // disp_y
+
 
     // Velocity
     static double vel_x(const double x,
                         const double y,
                         const double t) {
+        const PylithReal lengthScale = scales.getLengthScale();
+        const PylithReal rigidityScale = scales.getRigidityScale();
+        const PylithReal fluidPressureScale = pylith::scales::ElasticityScales::getFluidPressureScale(scales);
+        const PylithReal timeScale = scales.getTimeScale();
+        
         const double alpha = biot_coefficient(x, y);
-        const double etaN = solid_viscosity(x, y) / (PRESSURE_SCALE * TIME_SCALE);
-        return -alpha * (PRESSURE0 / PRESSURE_SCALE) * x * (1.0/etaN);
+        const double etaN = solid_viscosity(x, y) / (fluidPressureScale * timeScale);
+        return -alpha * (PRESSURE / fluidPressureScale) * x * (1.0/etaN);
     } // vel_x
 
     static double vel_y(const double x,
                          const double y,
                          const double t) {
-        const double muN = shear_modulus(x, y) / PRESSURE_SCALE;
-        const double lambdaN = drained_bulk_modulus(x, y) / PRESSURE_SCALE - 2.0/3.0 * muN;
+        const PylithReal lengthScale = scales.getLengthScale();
+        const PylithReal rigidityScale = scales.getRigidityScale();
+        const PylithReal fluidPressureScale = pylith::scales::ElasticityScales::getFluidPressureScale(scales);
+        const PylithReal timeScale = scales.getTimeScale();
+        
+        const double muN = shear_modulus(x, y) / rigidityScale;
+        const double lambdaN = drained_bulk_modulus(x, y) / rigidityScale - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y);
-        const double etaN = solid_viscosity(x, y) / (PRESSURE_SCALE * TIME_SCALE);
-        return alpha * (PRESSURE0 / PRESSURE_SCALE) * ((-XMAX / LENGTH_SCALE) * lambdaN - 2.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) * y * (1.0 / (XMAX / LENGTH_SCALE))
+        const double etaN = solid_viscosity(x, y) / (rigidityScale * timeScale);
+        return alpha * (PRESSURE / fluidPressureScale) * ((-X_MAX / lengthScale) * lambdaN - 2.0 * (X_MAX / lengthScale) * muN + 2.0 * x * muN) * y * (1.0 / (X_MAX / lengthScale))
         * (1.0 / etaN) * (1.0/(lambdaN + 2.0 * muN));
     } // vel_y
 
@@ -290,30 +336,55 @@ class pylith::_PressureGradientPVE {
     // Pressure
     static double fluid_pressure(const double x,
                                  const double y) {
-        return (PRESSURE0 / PRESSURE_SCALE) * (1.0 - x / (XMAX / LENGTH_SCALE));
+        const PylithReal lengthScale = scales.getLengthScale();\
+        const PylithReal fluidPressureScale = pylith::scales::ElasticityScales::getFluidPressureScale(scales);
+
+        return (PRESSURE / fluidPressureScale) * (1.0 - x / (X_MAX / lengthScale));
     } // fluid_pressure
 
     // Trace strain
+    // static double trace_strain(const double x,
+    //                            const double y,
+    //                            const double t) {
+    //     const PylithReal lengthScale = scales.getLengthScale();
+    //     const PylithReal rigidityScale = scales.getRigidityScale();
+    //     const PylithReal fluidPressureScale = pylith::scales::ElasticityScales::getFluidPressureScale(scales);
+    //     const PylithReal timeScale = scales.getTimeScale();
+        
+    //     const double muN = shear_modulus(x, y) / rigidityScale;
+    //     const double lambdaN = drained_bulk_modulus(x, y) / rigidityScale - 2.0/3.0 * muN;
+    //     const double alpha = biot_coefficient(x, y);
+    //     const double etaN = solid_viscosity(x, y) / (rigidityScale * timeScale);
+    //     return alpha * (PRESSURE / fluidPressureScale) * (-2.0 * (X_MAX / lengthScale) * t * lambdaN - 4.0 * (X_MAX / lengthScale) * t * muN + 2.0 * t * x * muN 
+    //     - x * etaN) * (1.0 / (X_MAX / lengthScale)) * (1.0 / etaN) * (1.0 / (lambdaN + 2.0 * muN));
+    // } // trace_strain
+
     static double trace_strain(const double x,
-                               const double y,
-                               const double t) {
-        const double muN = shear_modulus(x, y) / PRESSURE_SCALE;
-        const double lambdaN = drained_bulk_modulus(x, y) / PRESSURE_SCALE - 2.0/3.0 * muN;
+                               const double y) {
+        const PylithReal lengthScale = scales.getLengthScale();
+        const PylithReal rigidityScale = scales.getRigidityScale();
+        const PylithReal fluidPressureScale = pylith::scales::ElasticityScales::getFluidPressureScale(scales);
+
+        const double muN = shear_modulus(x, y) / rigidityScale;
+        const double lambdaN = drained_bulk_modulus(x, y) / rigidityScale - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y);
-        const double etaN = solid_viscosity(x, y) / (PRESSURE_SCALE * TIME_SCALE);
-        return alpha * (PRESSURE0 / PRESSURE_SCALE) * (-2.0 * (XMAX / LENGTH_SCALE) * t * lambdaN - 4.0 * (XMAX / LENGTH_SCALE) * t * muN + 2.0 * t * x * muN 
-        - x * etaN) * (1.0 / (XMAX / LENGTH_SCALE)) * (1.0 / etaN) * (1.0 / (lambdaN + 2.0 * muN));
+        return -alpha  * (PRESSURE / fluidPressureScale)  / (lambdaN + 2.0*muN) * (x / (X_MAX / lengthScale));
     } // trace_strain
 
     static double trace_strain_dot(const double x,
                                    const double y,
                                    const double t) {
-        const double muN = shear_modulus(x, y) / PRESSURE_SCALE;
-        const double lambdaN = drained_bulk_modulus(x, y) / PRESSURE_SCALE - 2.0/3.0 * muN;
+        const PylithReal lengthScale = scales.getLengthScale();
+        const PylithReal rigidityScale = scales.getRigidityScale();
+        const PylithReal fluidPressureScale = pylith::scales::ElasticityScales::getFluidPressureScale(scales);
+        const PylithReal timeScale = scales.getTimeScale();
+        
+        const double muN = shear_modulus(x, y) / rigidityScale;
+        const double lambdaN = drained_bulk_modulus(x, y) / rigidityScale - 2.0/3.0 * muN;
         const double alpha = biot_coefficient(x, y);
-        const double etaN = solid_viscosity(x, y) / (PRESSURE_SCALE * TIME_SCALE);
-        return alpha * (PRESSURE0 / PRESSURE_SCALE) * (-2.0 * (XMAX / LENGTH_SCALE) * lambdaN - 4.0 * (XMAX / LENGTH_SCALE) * muN + 2.0 * x * muN) 
-        * (1.0 / (XMAX / LENGTH_SCALE)) * (1.0 / etaN) * (1.0 / (lambdaN + 2.0 * muN));
+        const double etaN = solid_viscosity(x, y) / (rigidityScale * timeScale);
+        return alpha * (PRESSURE / fluidPressureScale) * (-2.0 * (X_MAX / lengthScale) * lambdaN - 4.0 * (X_MAX / lengthScale) * muN + 2.0 * x * muN) 
+        * (1.0 / (X_MAX / lengthScale)) * (1.0 / etaN) * (1.0 / (lambdaN + 2.0 * muN));
     } // trace_strain_dot
 
     static PetscErrorCode solnkernel_disp(PetscInt spaceDim,
@@ -327,8 +398,10 @@ class pylith::_PressureGradientPVE {
         //assert(2 == numComponents); // Not needed, should be covered by space dim
         assert(s);
 
-        s[0] = disp_x(x[0], x[1], t);
-        s[1] = disp_y(x[0], x[1], t);
+        // s[0] = disp_x(x[0], x[1], t);
+        // s[1] = disp_y(x[0], x[1], t);
+        s[0] = disp_x(x[0], x[1]);
+        s[1] = disp_y(x[0], x[1]);
 
         return 0;
     } // solnkernel_disp
@@ -358,7 +431,7 @@ class pylith::_PressureGradientPVE {
         assert(1 == numComponents);
         assert(s);
 
-        s[0] = trace_strain(x[0], x[1], t);
+        s[0] = trace_strain(x[0], x[1]);//trace_strain(x[0], x[1], t);
 
         return 0;
     } // solnkernel_trace_strain
@@ -373,8 +446,11 @@ class pylith::_PressureGradientPVE {
         assert(2 == numComponents);
         assert(s);
 
-        s[0] = vel_x(x[0], x[1], t);
-        s[1] = vel_y(x[0], x[1], t);
+        // s[0] = vel_x(x[0], x[1], t);
+        // s[1] = vel_y(x[0], x[1], t);
+
+        s[0] = 0.0;
+        s[1] = 0.0;
 
         return 0;
     } // solnkernel_vel
@@ -404,7 +480,7 @@ class pylith::_PressureGradientPVE {
         assert(1 == numComponents);
         assert(s);
 
-        s[0] = trace_strain_dot(x[0], x[1], t);
+        s[0] = 0.0;//trace_strain_dot(x[0], x[1], t);
 
         return 0;
     } // solnkernel_trace_strain_dot
@@ -423,10 +499,12 @@ public:
         data->meshFilename = ":UNKNOWN:"; // Set in child class.
         data->boundaryLabel = "boundary";
 
-        data->normalizer.setLengthScale(LENGTH_SCALE);
-        data->normalizer.setTimeScale(TIME_SCALE);
-        data->normalizer.setPressureScale(PRESSURE_SCALE);
-        data->normalizer.computeDensityScale();
+        scales = data->scales;
+
+        // data->scales.setLengthScale(LENGTH_SCALE);
+        // data->scales.setTimeScale(TIME_SCALE);
+        // data->scales.setPressureScale(PRESSURE_SCALE);
+        // data->scales.computeDensityScale();
 
         // solnDiscretizations set in derived class.
 
@@ -471,7 +549,7 @@ public:
         data->auxDB.addValue("drained_bulk_modulus", drained_bulk_modulus, modulus_units());
         data->auxDB.addValue("biot_coefficient", biot_coefficient, modulus_units());
         data->auxDB.addValue("fluid_bulk_modulus", fluid_bulk_modulus, modulus_units());
-        data->auxDB.addValue("solid_bulk_modulus", solid_bulk_modulus, modulus_units());
+        // data->auxDB.addValue("solid_bulk_modulus", solid_bulk_modulus, modulus_units());
         data->auxDB.addValue("solid_viscosity", solid_viscosity, viscosity_units());
 
         data->auxDB.addValue("viscous_strain_xx", viscous_strain_xx, strain_units());
@@ -597,12 +675,16 @@ public:
     // } // createDataStateVars
 
 }; //PressureGradientPVE
-const double pylith::_PressureGradientPVE::LENGTH_SCALE = 1.0e+3;
-const double pylith::_PressureGradientPVE::TIME_SCALE = 2.0;
-const double pylith::_PressureGradientPVE::PRESSURE_SCALE = 2.25e+10;
+pylith::scales::Scales pylith::_PressureGradientPVE::scales;
+const double pylith::_PressureGradientPVE::PRESSURE = 4.0e+6;
+const double pylith::_PressureGradientPVE::X_MAX = 8.0e+3;
 
-const double pylith::_PressureGradientPVE::PRESSURE0 = 4.0e+6;
-const double pylith::_PressureGradientPVE::XMAX = 8.0e+3;
+// const double pylith::_PressureGradientPVE::LENGTH_SCALE = 1.0e+3;
+// const double pylith::_PressureGradientPVE::TIME_SCALE = 2.0;
+// const double pylith::_PressureGradientPVE::PRESSURE_SCALE = 2.25e+10;
+
+// const double pylith::_PressureGradientPVE::PRESSURE0 = 4.0e+6;
+// const double pylith::_PressureGradientPVE::XMAX = 8.0e+3;
 
 // ------------------------------------------------------------------------------------------------
 pylith::TestLinearPoroviscoelasticity_Data*

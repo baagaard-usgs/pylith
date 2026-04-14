@@ -408,7 +408,8 @@ public:
      * @param[out] stress Stress tensor.
      */
     static inline
-    void cauchyStress(const pylith::fekernels::IsotropicLinearPoroelasticity::Context* isotropicLinearPoroelasticityContext,
+    void cauchyStress(const pylith::fekernels::Poroelasticity::Context* poroelasticContext,
+                      const pylith::fekernels::IsotropicLinearPoroelasticity::Context* isotropicLinearPoroelasticityContext,
                       const pylith::fekernels::IsotropicLinearMaxwell::Context* isotropicLinearMaxwellContext,
                       const pylith::fekernels::Tensor& strain,
                       const pylith::fekernels::TensorOps& tensorOps,
@@ -420,14 +421,22 @@ public:
         pylith::fekernels::IsotropicLinearPoroelasticity::meanStress(isotropicLinearPoroelasticityContext->pressure, isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearPoroelasticityContext->drainedBulkModulus, 
                                                                      isotropicLinearPoroelasticityContext->biotCoefficient, strain, stress);
 
+        // PylithScalar pressure_t = (poroelasticContext->pressure_t ? poroelasticContext->pressure_t : 0.0);
+        // meanStress(pressure_t, isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearPoroelasticityContext->drainedBulkModulus, 
+        //                                                              isotropicLinearPoroelasticityContext->biotCoefficient, strain, stress);
+
+        
+
         const PylithReal dt = isotropicLinearMaxwellContext->dt;assert(dt > 0.0);
         const PylithReal maxwellTime = isotropicLinearMaxwellContext->maxwellTime;
         const pylith::fekernels::Tensor& totalStrain = isotropicLinearMaxwellContext->totalStrain;
         const pylith::fekernels::Tensor& viscousStrainPrev = isotropicLinearMaxwellContext->viscousStrain;
         pylith::fekernels::Tensor viscousStrain;
-        pylith::fekernels::IsotropicLinearMaxwell::viscousStrain(maxwellTime, viscousStrainPrev, totalStrain, strain, dt, &viscousStrain);
 
-        deviatoricStress(isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearMaxwellContext->shearModulus, viscousStrain, stress);
+        viscousStrainFn(maxwellTime, viscousStrainPrev, totalStrain, strain, dt, isotropicLinearPoroelasticityContext->trace_strain, &viscousStrain);
+        // pylith::fekernels::IsotropicLinearMaxwell::viscousStrain(maxwellTime, viscousStrainPrev, totalStrain, strain, dt, &viscousStrain);
+
+        deviatoricStress(isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearMaxwellContext->shearModulus, dt, maxwellTime, viscousStrain, stress);
 
     } // cauchyStress
 
@@ -465,19 +474,89 @@ public:
         deviatoricStress_refState(isotropicLinearPoroelasticityContext->trace_strain, isotropicLinearMaxwellContext->shearModulus, refStress, refStrain, viscousStrain, stress);
     } // cauchyStress_refState
 
+
+    static inline
+    void meanStress(const PylithReal pressure_t,
+                        const PylithReal strainTrace,
+                        const PylithReal drainedBulkModulus,
+                        const PylithReal biotCoefficient,
+                        const pylith::fekernels::Tensor& strain,
+                        pylith::fekernels::Tensor* stress) {
+        assert(drainedBulkModulus > 0.0);
+        assert(stress);
+
+        // const PylithReal strainTrace = strain.xx + strain.yy + strain.zz;
+        const PylithReal meanStress = drainedBulkModulus * strainTrace - biotCoefficient*pressure_t;
+
+        stress->xx += meanStress;
+        stress->yy += meanStress;
+        stress->zz += meanStress;
+    } // meanStress
+
+    static inline
+    void viscousStrain_asVector(const pylith::fekernels::Elasticity::StrainContext& strainContext,
+                                const pylith::fekernels::IsotropicLinearMaxwell::Context& rheologyContext,
+                                const pylith::fekernels::IsotropicLinearPoroelasticity::Context& isotropicLinearPoroelasticityContext,
+                                pylith::fekernels::Elasticity::strainfn_type strainFn,
+                                const pylith::fekernels::TensorOps& tensorOps,
+                                PylithScalar viscousStrainVector[]) {
+        assert(viscousStrainVector);
+
+        Tensor strain;
+        strainFn(strainContext, &strain);
+
+        const PylithReal dt = rheologyContext.dt;
+        const PylithReal maxwellTime = rheologyContext.maxwellTime;
+        const PylithReal strainTrace = isotropicLinearPoroelasticityContext.trace_strain;
+        const pylith::fekernels::Tensor& totalStrain = rheologyContext.totalStrain;
+        const pylith::fekernels::Tensor& viscousStrainPrev = rheologyContext.viscousStrain;
+        pylith::fekernels::Tensor viscousStrainTensor;
+        viscousStrainFn(maxwellTime, viscousStrainPrev, totalStrain, strain, dt, strainTrace, &viscousStrainTensor);
+
+        tensorOps.toVector(viscousStrainTensor, viscousStrainVector);
+    }
+
+    static inline
+    void viscousStrainFn(const PylithReal maxwellTime,
+                       const pylith::fekernels::Tensor& viscousStrainPrev,
+                       const pylith::fekernels::Tensor& totalStrain,
+                       const pylith::fekernels::Tensor& strain,
+                       const PylithReal dt,
+                       const PylithReal strainTrace,
+                       pylith::fekernels::Tensor* viscousStrain) {
+        assert(viscousStrain);
+
+        pylith::fekernels::Tensor devTotalStrain;
+        pylith::fekernels::Elasticity::deviatoric(totalStrain, &devTotalStrain);
+
+        const PylithScalar dq = pylith::fekernels::IsotropicLinearMaxwell::viscousStrainCoeff(dt, maxwellTime);
+        const PylithScalar expFac = exp(-dt/maxwellTime);
+
+        viscousStrain->xx = expFac * viscousStrainPrev.xx + dq * (strain.xx - ((1.0 / 3.0) * strainTrace) - devTotalStrain.xx);
+        viscousStrain->yy = expFac * viscousStrainPrev.yy + dq * (strain.yy - ((1.0 / 3.0) * strainTrace) - devTotalStrain.yy);
+        viscousStrain->zz = expFac * viscousStrainPrev.zz + dq * (strain.zz - ((1.0 / 3.0) * strainTrace) - devTotalStrain.zz);
+        viscousStrain->xy = expFac * viscousStrainPrev.xy + dq * (strain.xy - devTotalStrain.xy);
+        viscousStrain->yz = expFac * viscousStrainPrev.yz + dq * (strain.yz - devTotalStrain.yz);
+        viscousStrain->xz = expFac * viscousStrainPrev.xz + dq * (strain.xz - devTotalStrain.xz);
+
+    }
+
      // --------------------------------------------------------------------------------------------
     /** Calculate deviatoric stress WITHOUT reference stress and strain.
      */
     static inline
     void deviatoricStress(const PylithReal strainTrace,
                           const PylithReal shearModulus,
+                          const PylithReal dt,
+                          const PylithReal maxwellTime,
                           const pylith::fekernels::Tensor& viscousStrain,
                           pylith::fekernels::Tensor* stress) {
         assert(shearModulus > 0.0);
         assert(stress);
 
-        // const PylithReal strainTrace = strain.xx + strain.yy + strain.zz;
-        const PylithReal traceTerm = -2.0/3.0*shearModulus * strainTrace;
+        const PylithScalar dq = pylith::fekernels::IsotropicLinearMaxwell::viscousStrainCoeff(dt, maxwellTime);
+        // const PylithReal traceTerm = viscousStrain.xx + viscousStrain.yy + viscousStrain.zz;
+        const PylithReal traceTerm = -2.0/3.0*shearModulus *  strainTrace;
 
         stress->xx += 2.0*shearModulus*viscousStrain.xx;// + traceTerm;
         stress->yy += 2.0*shearModulus*viscousStrain.yy;// + traceTerm;
@@ -501,10 +580,11 @@ public:
         const PylithReal refStrainTrace = refStrain.xx + refStrain.yy + refStrain.zz;
         const PylithReal meanRefStress = (refStress.xx + refStress.yy + refStress.zz) / 3.0;
         const PylithReal traceTerm = -2.0/3.0*shearModulus * (strainTrace - refStrainTrace);
+        // const PylithReal traceTerm = viscousStrain.xx + viscousStrain.yy + viscousStrain.zz;
 
-        stress->xx += refStress.xx - meanRefStress + 2.0*shearModulus*(viscousStrain.xx-refStrain.xx);// + traceTerm;
-        stress->yy += refStress.yy - meanRefStress + 2.0*shearModulus*(viscousStrain.yy-refStrain.yy);// + traceTerm;
-        stress->zz += refStress.zz - meanRefStress + 2.0*shearModulus*(viscousStrain.zz-refStrain.zz);// + traceTerm;
+        stress->xx += refStress.xx - meanRefStress + 2.0*shearModulus*(viscousStrain.xx-refStrain.xx) + traceTerm;
+        stress->yy += refStress.yy - meanRefStress + 2.0*shearModulus*(viscousStrain.yy-refStrain.yy) + traceTerm;
+        stress->zz += refStress.zz - meanRefStress + 2.0*shearModulus*(viscousStrain.zz-refStrain.zz) + traceTerm;
         stress->xy += refStress.xy + 2.0*shearModulus*(viscousStrain.xy - refStrain.xy);
         stress->yz += refStress.yz + 2.0*shearModulus*(viscousStrain.yz - refStrain.yz);
         stress->xz += refStress.xz + 2.0*shearModulus*(viscousStrain.xz - refStrain.xz);
@@ -769,6 +849,11 @@ public:
         pylith::fekernels::Elasticity::StrainContext strainContext;
         pylith::fekernels::Elasticity::setStrainContext(&strainContext, _dim, numS, sOff, sOff_x, s, s_t, s_x, x);
 
+        // Poroelastic context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, _dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
         // Rheological Context
         pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContextIsotropicLinearPoroelasticity;
         pylith::fekernels::IsotropicLinearMaxwell::Context rheologyContextIsotropicLinearMaxwell;
@@ -783,19 +868,21 @@ public:
             &rheologyContextIsotropicLinearMaxwell, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
+        /////////////////////PE way////////////////////////////////////////////////////////////
         // pylith::fekernels::Elasticity::f1v(
         //     strainContext, &rheologyContextIsotropicLinearPoroelasticity,
         //     pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain,
         //     pylith::fekernels::IsotropicLinearPoroelasticity::cauchyStress,
         //     pylith::fekernels::Tensor::ops2D,
         //     f1);
-
+        ////////////////////////////////////////////////////////////
         Tensor strain;
         pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain(strainContext, &strain);
 
         Tensor stress;
         TensorOps tensorOps = pylith::fekernels::Tensor::ops2D;
-        pylith::fekernels::PoroIsotropicLinearMaxwell::cauchyStress(&rheologyContextIsotropicLinearPoroelasticity, &rheologyContextIsotropicLinearMaxwell, strain, tensorOps, &stress);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::cauchyStress(&poroelasticContext, &rheologyContextIsotropicLinearPoroelasticity, 
+                                                                    &rheologyContextIsotropicLinearMaxwell, strain, tensorOps, &stress);
 
         PylithScalar stressTensor[9] = {0.0, 0.0, 0.0,  0.0, 0.0, 0.0,  0.0, 0.0, 0.0 };
         tensorOps.toTensor(stress, stressTensor);
@@ -857,6 +944,15 @@ public:
             &rheologyContextIsotropicLinearMaxwell, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
+        //////////////////////////PE way////////////////////////////////////////
+        // pylith::fekernels::Elasticity::f1v(
+        //     strainContext, &rheologyContextIsotropicLinearPoroelasticity,
+        //     pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain,
+        //     pylith::fekernels::IsotropicLinearPoroelasticity::cauchyStress_refState,
+        //     pylith::fekernels::Tensor::ops2D,
+        //     f1);
+
+        //////////////////////////PVE way////////////////////////////////////////
         Tensor strain;
         pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain(strainContext, &strain);
 
@@ -1332,24 +1428,30 @@ public:
         const PylithScalar dq = pylith::fekernels::IsotropicLinearMaxwell::viscousStrainCoeff(dt, maxwellTime);
 
         //Unique components of Jacobian.
-        const PylithReal C1111 = drainedBulkModulus + 4.0/3.0 * shearModulus * dq;
+        // const PylithReal C1111 = drainedBulkModulus + 4.0/3.0 * shearModulus * dq;
+        // const PylithReal C1111 =  2.0/3.0 * shearModulus + 4.0/3.0 * shearModulus * dq;
+
         // const PylithReal C1122 = -2.0/3.0 * shearModulus * dq;
+        // const PylithReal C1212 = shearModulus * dq;
+
+        const PylithReal C1111 = 4.0/3.0 * shearModulus * dq;
+        const PylithReal C1122 = -2.0/3.0 * shearModulus * dq;
         const PylithReal C1212 = shearModulus * dq;
 
-        // /* Nonzero Jacobian entries. */
+        /* Nonzero Jacobian entries. */
         Jf3[0] -= C1111;// - 2.6666 * shearModulus; /* j0000 */
         Jf3[3] -= C1212;// - shearModulus; /* j0011 */
-        // Jf3[5] -= C1122; /* j0101 */
+        //Jf3[5] -= C1122; /* j0101 */
         Jf3[6] -= C1212;// - shearModulus; /* j0110 */
         Jf3[9] -= C1212;// - shearModulus; /* j1001 */
-        // Jf3[10] -= C1122; /* j1010 */
+        //Jf3[10] -= C1122; /* j1010 */
         Jf3[12] -= C1212;// - shearModulus; /* j1100 */
         Jf3[15] -= C1111;// - 2.6666 * shearModulus; /* j1111 */
 
         // for (PylithInt i = 0; i < _dim; ++i) {
         //     for (PylithInt j = 0; j < _dim; ++j) {
-        //         Jf3[((i * _dim + i) * _dim + j) * _dim + j] -= shearModulus*dq;
-        //         Jf3[((i * _dim + j) * _dim + j) * _dim + i] -= shearModulus*dq;
+        //         Jf3[((i * _dim + i) * _dim + j) * _dim + j] -= shearModulus * dq;
+        //         Jf3[((i * _dim + j) * _dim + j) * _dim + i] -= shearModulus * dq;
         //     }
         // }
 
@@ -1437,12 +1539,14 @@ public:
 
         const PylithScalar dq = pylith::fekernels::IsotropicLinearMaxwell::viscousStrainCoeff(dt, maxwellTime);
 
+        //////////////////////////////////PE way///////////////////////////////////////////////
+        // pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf2ue_context(
+        //     dim, &rheologyContext, Jf2);
+        ///////////////////////////////////PVE Way///////////////////////////////////////////
         for (PylithInt d = 0; d < _dim; ++d) {
             Jf2[d * _dim + d] -= drainedBulkModulus - (2.0 * shearModulus * dq) / 3.0;
         } // for
 
-        // pylith::fekernels::IsotropicLinearPoroelasticityPlaneStrain::Jf2ue_context(
-        //     dim, &rheologyContext, Jf2);
     } // Jf2ue
 
     // ----------------------------------------------------------------------
@@ -1651,8 +1755,17 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
-        pylith::fekernels::IsotropicLinearMaxwell::viscousStrain_asVector(
-            strainContext, rheologyContext,
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContextIsotropicLinearPoroelasticity;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextQuasistatic(
+            &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+
+        pylith::fekernels::PoroIsotropicLinearMaxwell::viscousStrain_asVector(
+            strainContext, rheologyContext, rheologyContextIsotropicLinearPoroelasticity,
             pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain,
             pylith::fekernels::Tensor::ops2D,
             viscousStrain);
@@ -1775,23 +1888,29 @@ public:
             &rheologyContextIsotropicLinearMaxwell, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops2D);
 
+        // Poroelastic context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, _dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
 
         Tensor strain;
         pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain(strainContext, &strain);
 
         Tensor stress;
         TensorOps tensorOps = pylith::fekernels::Tensor::ops2D;
-        pylith::fekernels::PoroIsotropicLinearMaxwell::cauchyStress(&rheologyContextIsotropicLinearPoroelasticity, &rheologyContextIsotropicLinearMaxwell, strain, tensorOps, &stress);
 
-        tensorOps.toVector(stress, stressVector);
-
-
+        /////////////////////////PE Way////////////////////////////////////////////////////////////////////////
         // pylith::fekernels::Elasticity::stress_asVector(
-        //     strainContext, &rheologyContext,
+        //     strainContext, &rheologyContextIsotropicLinearPoroelasticity,
         //     pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain,
         //     pylith::fekernels::IsotropicLinearPoroelasticity::cauchyStress,
         //     pylith::fekernels::Tensor::ops2D,
         //     stressVector);
+        ///////////////////////////PVE Way///////////////////////////////////////////////////////////////////////
+        pylith::fekernels::PoroIsotropicLinearMaxwell::cauchyStress(&poroelasticContext, &rheologyContextIsotropicLinearPoroelasticity, &rheologyContextIsotropicLinearMaxwell, strain, tensorOps, &stress);
+
+        tensorOps.toVector(stress, stressVector);
 
     } // cauchyStress_infinitesimalStrain_asVector
 
@@ -1856,6 +1975,14 @@ public:
 
         Tensor stress;
         TensorOps tensorOps = pylith::fekernels::Tensor::ops2D;
+        /////////////////////PE Way/////////////////////////////////////////////////////////////////
+
+        // pylith::fekernels::Elasticity::stress_asVector(
+        //     strainContext, &rheologyContextIsotropicLinearPoroelasticity,
+        //     pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain,
+        //     pylith::fekernels::IsotropicLinearPoroelasticity::cauchyStress_refState,
+        //     pylith::fekernels::Tensor::ops2D, stressVector);
+        /////////////////PVE Way/////////////////////////////////////////////////////////////////////
         pylith::fekernels::PoroIsotropicLinearMaxwell::cauchyStress_refState(&rheologyContextIsotropicLinearPoroelasticity, &rheologyContextIsotropicLinearMaxwell, strain, tensorOps, &stress);
 
         tensorOps.toVector(stress, stressVector);
@@ -2137,6 +2264,11 @@ public:
         pylith::fekernels::Elasticity::StrainContext strainContext;
         pylith::fekernels::Elasticity::setStrainContext(&strainContext, _dim, numS, sOff, sOff_x, s, s_t, s_x, x);
 
+        // Poroelastic context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, _dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
         // Rheological Context
         pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContextIsotropicLinearPoroelasticity;
         pylith::fekernels::IsotropicLinearMaxwell::Context rheologyContextIsotropicLinearMaxwell;
@@ -2156,7 +2288,8 @@ public:
 
         Tensor stress;
         TensorOps tensorOps = pylith::fekernels::Tensor::ops3D;
-        pylith::fekernels::PoroIsotropicLinearMaxwell::cauchyStress(&rheologyContextIsotropicLinearPoroelasticity, &rheologyContextIsotropicLinearMaxwell, strain, tensorOps, &stress);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::cauchyStress(&poroelasticContext, &rheologyContextIsotropicLinearPoroelasticity, 
+                                                                    &rheologyContextIsotropicLinearMaxwell, strain, tensorOps, &stress);
 
         PylithScalar stressTensor[9] = {0.0, 0.0, 0.0,  0.0, 0.0, 0.0,  0.0, 0.0, 0.0 };
         tensorOps.toTensor(stress, stressTensor);
@@ -3083,11 +3216,26 @@ public:
             &rheologyContext, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
 
-        pylith::fekernels::IsotropicLinearMaxwell::viscousStrain_asVector(
-            strainContext, rheologyContext,
+        pylith::fekernels::IsotropicLinearPoroelasticity::Context rheologyContextIsotropicLinearPoroelasticity;
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContext(
+            &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::setIsotropicLinearPoroelasticityContextQuasistatic(
+            &rheologyContextIsotropicLinearPoroelasticity, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
+            t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
+
+
+        pylith::fekernels::PoroIsotropicLinearMaxwell::viscousStrain_asVector(
+            strainContext, rheologyContext, rheologyContextIsotropicLinearPoroelasticity,
             pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain,
-            pylith::fekernels::Tensor::ops3D,
+            pylith::fekernels::Tensor::ops2D,
             viscousStrain);
+
+        // pylith::fekernels::IsotropicLinearMaxwell::viscousStrain_asVector(
+        //     strainContext, rheologyContext,
+        //     pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain,
+        //     pylith::fekernels::Tensor::ops3D,
+        //     viscousStrain);
     }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -3207,13 +3355,19 @@ public:
             &rheologyContextIsotropicLinearMaxwell, _dim, numS, numA, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x,
             t, x, numConstants, constants, pylith::fekernels::Tensor::ops3D);
 
+        // Poroelastic context
+        pylith::fekernels::Poroelasticity::Context poroelasticContext;
+        pylith::fekernels::Poroelasticity::setContextQuasistatic(
+            &poroelasticContext, _dim, numS, sOff, sOff_x, s, s_t, s_x, aOff, aOff_x, a, a_t, a_x, t, x);
+
 
         Tensor strain;
         pylith::fekernels::ElasticityPlaneStrain::infinitesimalStrain(strainContext, &strain);
 
         Tensor stress;
         TensorOps tensorOps = pylith::fekernels::Tensor::ops3D;
-        pylith::fekernels::PoroIsotropicLinearMaxwell::cauchyStress(&rheologyContextIsotropicLinearPoroelasticity, &rheologyContextIsotropicLinearMaxwell, strain, tensorOps, &stress);
+        pylith::fekernels::PoroIsotropicLinearMaxwell::cauchyStress(&poroelasticContext, &rheologyContextIsotropicLinearPoroelasticity, 
+                                                                    &rheologyContextIsotropicLinearMaxwell, strain, tensorOps, &stress);
 
         tensorOps.toVector(stress, stressVector);
 

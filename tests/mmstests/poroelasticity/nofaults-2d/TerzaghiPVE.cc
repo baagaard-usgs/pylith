@@ -337,10 +337,10 @@ public:
         data->meshFilename = ":UNKNOWN:"; // Set in child class.
         data->boundaryLabel = "boundary";
 
-        data->normalizer.setLengthScale(LENGTH_SCALE);
-        data->normalizer.setTimeScale(TIME_SCALE);
-        data->normalizer.setPressureScale(PRESSURE_SCALE);
-        data->normalizer.computeDensityScale();
+        // data->normalizer.setLengthScale(LENGTH_SCALE);
+        // data->normalizer.setTimeScale(TIME_SCALE);
+        // data->normalizer.setPressureScale(PRESSURE_SCALE);
+        // data->normalizer.computeDensityScale();
 
         // solnDiscretizations set in derived class.
 
