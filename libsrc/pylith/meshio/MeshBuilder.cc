@@ -156,6 +156,8 @@ pylith::meshio::MeshBuilder::buildMesh(pylith::topology::Mesh* mesh,
     PetscDM dmMesh = NULL;
     PetscBool interpolate = PETSC_TRUE;
     PylithCallPetsc(DMPlexCreateFromCellListPetsc(comm, dim, topology.numCells, geometry.numVertices, topology.numCorners, interpolate, &cellsCopy[0], dim, &geometry.vertices[0], &dmMesh));
+    PylithCallPetsc(DMPlexDistributeSetDefault(dmMesh, PETSC_FALSE));
+    PylithCallPetsc(DMSetFromOptions(dmMesh));
     mesh->setDM(dmMesh, "domain");
 
     _MeshBuilder::Events::logger.eventEnd(_MeshBuilder::Events::buildMesh);
