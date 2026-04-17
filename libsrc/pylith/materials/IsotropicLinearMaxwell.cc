@@ -107,7 +107,9 @@ pylith::materials::IsotropicLinearMaxwell::addAuxiliarySubfields(void) {
 // ------------------------------------------------------------------------------------------------
 // Get stress kernel for LHS residual, F(t,s,\dot{s}).
 PetscPointFn*
-pylith::materials::IsotropicLinearMaxwell::getKernelf1v(const spatialdata::geocoords::CoordSys* coordsys) const {
+pylith::materials::IsotropicLinearMaxwell::getKernelf1v(const spatialdata::geocoords::CoordSys* coordsys,
+                                                        const pylith::fekernels::pde::elasticity::SolutionFlags solutionFlags,
+                                                        const pylith::fekernels::momentum::MomentumFlags& momentumFlags) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("getKernelf1v(coordsys="<<typeid(coordsys).name()<<")");
 
@@ -126,7 +128,9 @@ pylith::materials::IsotropicLinearMaxwell::getKernelf1v(const spatialdata::geoco
 // ------------------------------------------------------------------------------------------------
 // Get elastic constants kernel for LHS Jacobian F(t,s,\dot{s}).
 PetscPointJacFn*
-pylith::materials::IsotropicLinearMaxwell::getKernelJf3vu(const spatialdata::geocoords::CoordSys* coordsys) const {
+pylith::materials::IsotropicLinearMaxwell::getKernelJf3vu(const spatialdata::geocoords::CoordSys* coordsys,
+                                                          const pylith::fekernels::pde::elasticity::SolutionFlags solutionFlags,
+                                                          const pylith::fekernels::momentum::MomentumFlags& momentumFlags) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("getKernelJf3vu(coordsys="<<typeid(coordsys).name()<<")");
 

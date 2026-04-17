@@ -13,7 +13,17 @@
 #include "pylith/materials/IsotropicLinearElasticity.hh" // implementation of object methods
 
 #include "pylith/materials/AuxiliaryFactoryElastic.hh" // USES AuxiliaryFactoryElastic
+// OLD
 #include "pylith/fekernels/IsotropicLinearElasticity.hh" // USES IsotropicLinearElasticity kernels
+
+// NEW
+#include "pylith/fekernels/common/kernel.hh"
+#include "pylith/fekernels/pde/elasticity/isotropic_linear/AuxiliaryLayout.hh"
+#include "pylith/fekernels/pde/elasticity/isotropic_linear/KernelRegistry.hh"
+#include "pylith/fekernels/momentum/pde/DivStress.hh"
+#include "pylith/fekernels/momentum/strain/InfinitesimalStrain.hh"
+#include "pylith/fekernels/momentum/stress/elasticity/IsotropicLinear.hh"
+
 #include "pylith/utils/journals.hh" // USES PYLITH_COMPONENT_*
 #include "pylith/utils/error.hh" // USES PYLITH_METHOD_BEGIN/END
 
@@ -96,59 +106,29 @@ pylith::materials::IsotropicLinearElasticity::addAuxiliarySubfields(void) {
 } // addAuxiliarySubfields
 
 
-#include "pylith/fekernels//pde/elasticity/SolutionLayout.hh"
-#include "pylith/fekernels//pde/elasticity/IsotropicLinearLayout.hh"
-#include "pylith/fekernels/momentum/pde/DivStress.hh"
-#include "pylith/fekernels/momentum/strain/InfinitesimalStrain.hh"
-#include "pylith/fekernels/momentum/stress/elasticity/IsotropicLinear.hh"
 // ------------------------------------------------------------------------------------------------
 // Get stress kernel for LHS residual, F(t,s,\dot{s}).
 PetscPointFn*
-pylith::materials::IsotropicLinearElasticity::getKernelf1v(const spatialdata::geocoords::CoordSys* coordsys) const {
+pylith::materials::IsotropicLinearElasticity::getKernelf1v(const spatialdata::geocoords::CoordSys* coordsys,
+                                                           const pylith::fekernels::pde::elasticity::SolutionFlags solutionFlags,
+                                                           const pylith::fekernels::momentum::MomentumFlags& momentumFlags) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("getKernelResidualStress(coordsys="<<typeid(coordsys).name()<<")");
 
     // :TODO: Change name to getResidualKernelMomentumDivStress
 
-    // :TODO: Make these arguments to function.
-    constexpr pylith::fekernels::pde::elasticity::SolutionFlags solnFlags = pylith::fekernels::pde::elasticity::DEFAULT;
-    constexpr pylith::fekernels::momentum::MomentumFlags momentumFlags = pylith::fekernels::momentum::DEFAULT;
-
-    const int spaceDim = coordsys->getSpaceDim();
-    using SolutionLayout = pylith::fekernels::pde::elasticity::SolutionLayout<solnFlags>;
-    PetscPointFn* f1v = nullptr;
+    const size_t spaceDim = coordsys->getSpaceDim();
+    using AuxiliaryFlags = pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags;
+    AuxiliaryFlags auxiliaryFlags = AuxiliaryFlags::DEFAULT;
     if (_useReferenceState) {
-        constexpr pylith::fekernels::pde::elasticity::IsotropicLinearFlags auxFlags = pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_DEFAULT | pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_REFERENCE_STRAIN | pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_REFERENCE_STRESS;
-        using AuxiliaryLayout = pylith::fekernels::pde::elasticity::IsotropicLinearLayout<momentumFlags, auxFlags>;
+        auxiliaryFlags |= AuxiliaryFlags::REFERENCE_STRESS;
+        auxiliaryFlags |= AuxiliaryFlags::REFERENCE_STRAIN;
+    } //
 
-        if (2 == spaceDim) {
-            constexpr size_t dim = 2;
-            using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<dim, SolutionLayout>;
-            using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear<dim, AuxiliaryLayout>;
-            f1v = pylith::fekernels::momentum::DivStress<dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout>::f1;
-        } else if (3 == spaceDim) {
-            constexpr size_t dim = 3;
-            using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<dim, SolutionLayout>;
-            using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear<dim, AuxiliaryLayout>;
-            f1v = pylith::fekernels::momentum::DivStress<dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout>::f1;
-        } // if/else
+    // Move to header file
+    static pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry registry;
 
-    } else {
-        constexpr pylith::fekernels::pde::elasticity::IsotropicLinearFlags auxFlags = pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_DEFAULT;
-        using AuxiliaryLayout = pylith::fekernels::pde::elasticity::IsotropicLinearLayout<momentumFlags, auxFlags>;
-
-        if (2 == spaceDim) {
-            constexpr size_t dim = 2;
-            using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<dim, SolutionLayout>;
-            using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear<dim, AuxiliaryLayout>;
-            f1v = pylith::fekernels::momentum::DivStress<dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout>::f1;
-        } else if (3 == spaceDim) {
-            constexpr size_t dim = 3;
-            using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<dim, SolutionLayout>;
-            using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear<dim, AuxiliaryLayout>;
-            f1v = pylith::fekernels::momentum::DivStress<dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout>::f1;
-        } // if/else
-    } // if/else
+    PetscPointFn* f1v = registry.f1(spaceDim, pylith::fekernels::momentum::StrainFlags::INFINITESIMAL, solutionFlags, momentumFlags, auxiliaryFlags);
 
     PYLITH_METHOD_RETURN(f1v);
 } // getKernelf1v
@@ -157,36 +137,29 @@ pylith::materials::IsotropicLinearElasticity::getKernelf1v(const spatialdata::ge
 // ------------------------------------------------------------------------------------------------
 // Get elastic constants kernel for LHS Jacobian F(t,s,\dot{s}).
 PetscPointJacFn*
-pylith::materials::IsotropicLinearElasticity::getKernelJf3vu(const spatialdata::geocoords::CoordSys* coordsys) const {
+pylith::materials::IsotropicLinearElasticity::getKernelJf3vu(const spatialdata::geocoords::CoordSys* coordsys,
+                                                             const pylith::fekernels::pde::elasticity::SolutionFlags solutionFlags,
+                                                             const pylith::fekernels::momentum::MomentumFlags& momentumFlags) const {
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("getKernelJacobianElasticConstants(coordsys="<<typeid(coordsys).name()<<")");
 
     // :TODO: Change name to getJacobianKernelMomentumDivStress
 
-    // :TODO: Make these arguments to function.
-    constexpr pylith::fekernels::pde::elasticity::SolutionFlags solnFlags = pylith::fekernels::pde::elasticity::DEFAULT;
-    constexpr pylith::fekernels::momentum::MomentumFlags momentumFlags = pylith::fekernels::momentum::DEFAULT;
-
     const size_t spaceDim = coordsys->getSpaceDim();
-    constexpr pylith::fekernels::pde::elasticity::IsotropicLinearFlags auxFlags = pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_DEFAULT;
-    using SolutionLayout = pylith::fekernels::pde::elasticity::SolutionLayout<solnFlags>;
-    using AuxiliaryLayout = pylith::fekernels::pde::elasticity::IsotropicLinearLayout<momentumFlags, auxFlags>;
+    using AuxiliaryFlags = pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags;
+    AuxiliaryFlags auxiliaryFlags = AuxiliaryFlags::DEFAULT;
+    if (_useReferenceState) {
+        auxiliaryFlags |= AuxiliaryFlags::REFERENCE_STRESS;
+        auxiliaryFlags |= AuxiliaryFlags::REFERENCE_STRAIN;
+    } //
 
-    PetscPointJacFn* Jf3vu = nullptr;
-    if (2 == spaceDim) {
-        constexpr size_t dim = 2;
-        using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<dim, SolutionLayout>;
-        using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear<dim, AuxiliaryLayout>;
-        Jf3vu = pylith::fekernels::momentum::DivStress<dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout>::Jf3uu;
-    } else if (3 == spaceDim) {
-        constexpr size_t dim = 3;
-        using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<dim, SolutionLayout>;
-        using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear<dim, AuxiliaryLayout>;
-        Jf3vu = pylith::fekernels::momentum::DivStress<dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout>::Jf3uu;
-    } // if/else
+    // Move to header file
+    static pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry registry;
 
-    PYLITH_METHOD_RETURN(Jf3vu);
-} // getKernelJacobianElasticConstants
+    PetscPointJacFn* Jf3uu = registry.Jf3uu(spaceDim, pylith::fekernels::momentum::StrainFlags::INFINITESIMAL, solutionFlags, momentumFlags, auxiliaryFlags);
+
+    PYLITH_METHOD_RETURN(Jf3uu);
+} // getKernelJf3vu
 
 
 // ------------------------------------------------------------------------------------------------

@@ -60,7 +60,19 @@ public:
      *
      * @return LHS residual kernel for stress.
      */
-    PetscPointFn* getKernelf1v(const spatialdata::geocoords::CoordSys* coordsys) const;
+    PetscPointFn* getKernelf1v(const spatialdata::geocoords::CoordSys* coordsys,
+                               const pylith::fekernels::pde::elasticity::SolutionFlags solutionFlags,
+                               const pylith::fekernels::momentum::MomentumFlags& momentumFlags) const;
+
+    /** Get elastic constants kernel for LHS Jacobian F(t,s,\dot{s}).
+     *
+     * @param[in] coordsys Coordinate system.
+     *
+     * @return LHS Jacobian kernel for elastic constants.
+     */
+    PetscPointJacFn* getKernelJf3vu(const spatialdata::geocoords::CoordSys* coordsys,
+                                    const pylith::fekernels::pde::elasticity::SolutionFlags solutionFlags,
+                                    const pylith::fekernels::momentum::MomentumFlags& momentumFlags) const;
 
     /** Get f0 kernel for LHS interface residual, F(t,s,dot{s}), for negative fault face.
      *
@@ -77,14 +89,6 @@ public:
      * @return LHS residual f0 kernel.
      */
     PetscBdPointFn* getKernelf0Pos(const spatialdata::geocoords::CoordSys* coordsys) const;
-
-    /** Get elastic constants kernel for LHS Jacobian F(t,s,\dot{s}).
-     *
-     * @param[in] coordsys Coordinate system.
-     *
-     * @return LHS Jacobian kernel for elastic constants.
-     */
-    PetscPointJacFn* getKernelJf3vu(const spatialdata::geocoords::CoordSys* coordsys) const;
 
     /** Get stress kernel for derived field.
      *

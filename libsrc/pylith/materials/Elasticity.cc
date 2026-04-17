@@ -441,6 +441,10 @@ pylith::materials::Elasticity::_getDerivedFactory(void) {
 } // _getDerivedFactory
 
 
+#include "pylith/fekernels/pde/elasticity/SolutionLayout.hh"
+#include "pylith/fekernels/pde/elasticity/isotropic_linear/AuxiliaryLayout.hh"
+#include "pylith/fekernels/momentum/pde/MomentumLayout.hh"
+#include "pylith/fekernels/pde/elasticity/isotropic_linear/KernelRegistry.hh"
 // ------------------------------------------------------------------------------------------------
 // Set kernels for residual.
 void
@@ -449,8 +453,37 @@ pylith::materials::Elasticity::_setKernelsResidual(pylith::feassemble::Integrato
     PYLITH_METHOD_BEGIN;
     PYLITH_COMPONENT_DEBUG("_setKernelsResidual(integrator="<<integrator<<", solution="<<solution.getLabel()<<")");
 
-    const spatialdata::geocoords::CoordSys* coordsys = solution.getMesh().getCoordSys();
+    const spatialdata::geocoords::CoordSys* coordsys = solution.getMesh().getCoordSys();assert(coordsys);
 
+    // Elasticity - Set solution flags
+    // Elasticity - Set momentum flags
+    // Rheology - Set auxiliary flags
+    // Rheology - Set strain model
+    pylith::fekernels::pde::elasticity::SolutionFlags solutionFlags = pylith::fekernels::pde::elasticity::SolutionFlags::DEFAULT;
+    pylith::fekernels::momentum::MomentumFlags momentumFlags = pylith::fekernels::momentum::MomentumFlags::DEFAULT;
+    pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags auxiliaryFlags = pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags::DEFAULT;
+
+    const size_t spaceDim = coordsys->getSpaceDim();
+
+#if 1
+    if (solution.hasSubfield("lagrange_multiplier_fault")) {
+        solutionFlags |= pylith::fekernels::pde::elasticity::SolutionFlags::FAULT;
+    } // if
+    if (_formulation == DYNAMIC) {
+        solutionFlags |= pylith::fekernels::pde::elasticity::SolutionFlags::INERTIA;
+    } // if
+    if (_useBodyForce) {
+        momentumFlags |= pylith::fekernels::momentum::MomentumFlags::BODY_FORCE;
+    } // if
+    if (_gravityField) {
+        momentumFlags |= pylith::fekernels::momentum::MomentumFlags::GRAVITY;
+    } // if
+
+    // Move to header file
+    static pylith::fekernels::pde::elasticity::isotropic_linear::BodyForceRegistry registry;
+    PetscPointFn* r0 = registry.f0(spaceDim, momentumFlags, auxiliaryFlags);
+
+#else
     const int bitBodyForce = _useBodyForce ? 0x1 : 0x0;
     const int bitGravity = _gravityField ? 0x2 : 0x0;
     const int bitUse = bitBodyForce | bitGravity;
@@ -471,7 +504,8 @@ pylith::materials::Elasticity::_setKernelsResidual(pylith::feassemble::Integrato
     default:
         PYLITH_COMPONENT_LOGICERROR("Unknown case (bitUse=" << bitUse << ") for residual kernels.");
     } // switch
-    PetscPointFn* r1 = _rheology->getKernelf1v(coordsys);
+#endif
+    PetscPointFn* r1 = _rheology->getKernelf1v(coordsys, solutionFlags, momentumFlags);
 
     std::vector<ResidualKernels> kernels;
     switch (_formulation) {
@@ -548,6 +582,29 @@ pylith::materials::Elasticity::_setKernelsJacobian(pylith::feassemble::Integrato
 
     const spatialdata::geocoords::CoordSys* coordsys = solution.getMesh().getCoordSys();
 
+    // Elasticity - Set solution flags
+    // Elasticity - Set momentum flags
+    // Rheology - Set auxiliary flags
+    // Rheology - Set strain model
+    pylith::fekernels::pde::elasticity::SolutionFlags solutionFlags = pylith::fekernels::pde::elasticity::SolutionFlags::DEFAULT;
+    pylith::fekernels::momentum::MomentumFlags momentumFlags = pylith::fekernels::momentum::MomentumFlags::DEFAULT;
+    pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags auxiliaryFlags = pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags::DEFAULT;
+
+    const size_t spaceDim = coordsys->getSpaceDim();
+
+    if (solution.hasSubfield("lagrange_multiplier_fault")) {
+        solutionFlags |= pylith::fekernels::pde::elasticity::SolutionFlags::FAULT;
+    } // if
+    if (_formulation == DYNAMIC) {
+        solutionFlags |= pylith::fekernels::pde::elasticity::SolutionFlags::INERTIA;
+    } // if
+    if (_useBodyForce) {
+        momentumFlags |= pylith::fekernels::momentum::MomentumFlags::BODY_FORCE;
+    } // if
+    if (_gravityField) {
+        momentumFlags |= pylith::fekernels::momentum::MomentumFlags::GRAVITY;
+    } // if
+
     std::vector<JacobianKernels> kernels;
 
     switch (_formulation) {
@@ -555,7 +612,7 @@ pylith::materials::Elasticity::_setKernelsJacobian(pylith::feassemble::Integrato
         PetscPointJacFn* Jf0uu = NULL;
         PetscPointJacFn* Jf1uu = NULL;
         PetscPointJacFn* Jf2uu = NULL;
-        PetscPointJacFn* Jf3uu = _rheology->getKernelJf3vu(coordsys);
+        PetscPointJacFn* Jf3uu = _rheology->getKernelJf3vu(coordsys, solutionFlags, momentumFlags);
 
         integrator->setLHSJacobianTriggers(_rheology->getLHSJacobianTriggers());
 

@@ -15,6 +15,8 @@
 #include "pylith/topology/topologyfwd.hh" // USES Field
 #include "pylith/utils/arrayfwd.hh" // USES std::vector
 #include "pylith/feassemble/IntegratorDomain.hh" // USES IntegratorDomain::ProjectKernels
+#include "pylith/fekernels/pde/elasticity/SolutionLayout.hh" // USES SolutionFlags
+#include "pylith/fekernels/momentum/pde/MomentumLayout.hh" // USES MomentumFlags
 
 #include "spatialdata/geocoords/geocoordsfwd.hh" // USES Coordsys
 
@@ -53,7 +55,9 @@ public:
      * @return RHS residual kernel for stress.
      */
     virtual
-    PetscPointFn* getKernelf1v(const spatialdata::geocoords::CoordSys* coordsys) const = 0;
+    PetscPointFn* getKernelf1v(const spatialdata::geocoords::CoordSys* coordsys,
+                               const pylith::fekernels::pde::elasticity::SolutionFlags solutionFlags,
+                               const pylith::fekernels::momentum::MomentumFlags& momentumFlags) const = 0;
 
     /** Get elastic constants kernel for RHS Jacobian G(t,s).
      *
@@ -62,7 +66,9 @@ public:
      * @return RHS Jacobian kernel for elastic constants.
      */
     virtual
-    PetscPointJacFn* getKernelJf3vu(const spatialdata::geocoords::CoordSys* coordsys) const = 0;
+    PetscPointJacFn* getKernelJf3vu(const spatialdata::geocoords::CoordSys* coordsys,
+                                    const pylith::fekernels::pde::elasticity::SolutionFlags solutionFlags,
+                                    const pylith::fekernels::momentum::MomentumFlags& momentumFlags) const = 0;
 
     /** Get f0 kernel for LHS interface residual, F(t,s,dot{s}), for negative fault face.
      *
