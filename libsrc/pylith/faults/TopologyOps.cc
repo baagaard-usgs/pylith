@@ -422,46 +422,6 @@ pylith::faults::TopologyOps::classifyCellsDM(PetscDM dmDomain,
     noReplaceCells.insert(vNoReplaceCells.begin(), vNoReplaceCells.end());
 } // classifyCellsDM
 
-
-static void MPIAPI
-label_cohesive_value_reduce(void *a,
-                            void *b,
-                            int *len,
-                            MPI_Datatype *datatype) {
-    const int N = *len;
-
-    if (*datatype == MPIU_INT) {
-        PetscInt *A = (PetscInt *)a;
-        PetscInt *B = (PetscInt *)b;
-
-        for (int i = 0; i < N; i++) {
-            // Propagate errors
-            if ((A[i] == -1) || (B[i] == -1)) {
-                B[i] = -1;
-                continue;
-            }
-            // Default values do not propagate
-            if (A[i] == -1) { continue;}
-            // Override default values
-            if (B[i] == -1) {
-                B[i] = A[i];
-                continue;
-            }
-            // Unsplit points are preferred
-            if (A[i] == B[i] + 200) {
-                B[i] = A[i];
-                continue;
-            }
-            if (B[i] == A[i] + 200) { continue;}
-            // Process can disagree about the surface side on the boundary
-            if (A[i] == -B[i]) { continue;}
-            // Error
-            if (A[i] != B[i]) { MPI_Abort(MPI_COMM_WORLD, 1);}
-        }
-    }
-}
-
-
 // ------------------------------------------------------------------------------------------------
 void
 pylith::faults::TopologyOps::updateCohesiveLabel(const pylith::topology::Mesh* mesh,
@@ -522,11 +482,6 @@ pylith::faults::TopologyOps::updateCohesiveLabel(const pylith::topology::Mesh* m
         err = ISDestroy(&valueIS);PYLITH_CHECK_ERROR(err);
     }
     err = DMPlexLabelCohesiveComplete(dmMesh, dmLabel, nullptr, 0, PETSC_FALSE, PETSC_FALSE, NULL);PYLITH_CHECK_ERROR(err);
-
-    MPI_Op reduceop;
-    err = MPI_Op_create(label_cohesive_value_reduce, PETSC_TRUE, &reduceop);PYLITH_CHECK_ERROR(err);
-    err = DMPlexReconcileLabel(dmMesh, reduceop, dmLabel);PYLITH_CHECK_ERROR(err);
-    err = MPI_Op_free(&reduceop);PYLITH_CHECK_ERROR(err);
 } // updateCohesiveLabel
 
 
