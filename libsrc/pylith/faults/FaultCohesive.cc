@@ -367,6 +367,8 @@ pylith::faults::FaultCohesive::transformTopology(pylith::topology::Mesh* const m
             pylith::faults::TopologyOps::createBuriedEdgeLabel(dmMeshNew, dmMesh, buriedEdgeLabelName.c_str(), buriedEdgeLabelValue, surfaceLabel, transform);
         } // if
         meshNew = new pylith::topology::Mesh(dmMeshNew, *mesh);
+        // Check consistency of transformed mesh
+        err = DMPlexTransformCheck(transform, meshNew->getDM());PYLITH_CHECK_ERROR(err);
         err = DMPlexTransformDestroy(&transform);PYLITH_CHECK_ERROR(err);
 
         // Check consistency of mesh.
