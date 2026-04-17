@@ -9,8 +9,6 @@
 // =================================================================================================
 #pragma once
 
-#include <cstddef>
-
 
 namespace pylith::fekernels::common {
     /// Optional subfields helper using empty base class optimization.
@@ -24,7 +22,7 @@ namespace pylith::fekernels::common {
 
     /// Helper to compute field count contribution (0 or 1 based on condition).
     constexpr int
-    addIfPresent(bool condition) noexcept {
+    addIf(bool condition) noexcept {
         return condition ? 1 : 0;
     }
 

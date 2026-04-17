@@ -18,21 +18,21 @@
 
 
 namespace pylith::fekernels::momentum {
-    template<size_t dim, class SolutionLayout> struct DeviatoricStrain;
+    template<typename Dim, class SolutionLayout> struct DeviatoricStrain;
 } // namespace
 
 
 /// ε_dev = ε − 1/3 (tr ε) I
-template<size_t dim, class SolutionLayout>
+template<typename Dim, class SolutionLayout>
 struct pylith::fekernels::momentum::DeviatoricStrain {
     /// Compute deviatoric strain given total strain.
-    PYLITH_KERNEL static void compute(pylith::fekernels::common::Matrix<dim>& deviatoricStrain,
-                                      const pylith::fekernels::Matrix<dim>& strain) {
-        const pylith::scalar volumetricStrain = VolumetricStrain<dim, SolutionLayout>::compute(strain);
+    PYLITH_KERNEL static void compute(pylith::fekernels::common::Tensor2<Dim>& deviatoricStrain,
+                                      const pylith::fekernels::Tensor2<Dim>& strain) {
+        const pylith::scalar volumetricStrain = VolumetricStrain<Dim::value, SolutionLayout>::compute(strain);
         const pylith::scalar h = volumetricStrain / 3.0;
 
-        for (size_t i = 0; i < dim; i++) {
-            for (size_t j = 0; j < dim; j++) {
+        for (size_t i = 0; i < Dim::value; i++) {
+            for (size_t j = 0; j < Dim::value; j++) {
                 deviatoricStrain(i,j) = strain(i,j) - (i == j ? h : 0.0);
             } // for
         } // for

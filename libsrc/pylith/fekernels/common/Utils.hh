@@ -9,23 +9,19 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/fekernels/common/kernel.hh"
-#include "pylith/fekernels/common/StorageTypes.hh"
+#include "kernel.hh"
 
-#include <cassert>
+#include <type_traits>
 #include <cstddef>
 
-namespace pylith::fekernels::momentum {
-    template<typename Dim, class SolutionLayout> struct VolumetricStrain;
+namespace pylith::fekernels::common {
+    template <typename Enum>
+    PYLITH_KERNEL constexpr std::size_t
+    toIndex(Enum etype) noexcept {
+        static_assert(std::is_enum_v<Enum>, "toIndex() requires an enum type");
+        using UnderlyingType = std::underlying_type_t<Enum>;
+        return static_cast<std::size_t>(static_cast<UnderlyingType>(etype));
+    } // toIndex
+
+
 } // namespace
-
-
-/// ε_vol = tr(ε)
-template<typename Dim, class SolutionLayout>
-struct pylith::fekernels::momentum::VolumetricStrain {
-    /// @brief  Compute strain.
-    PYLITH_KERNEL static pylith::scalar compute(const pylith::fekernels::common::Tensor2<Dim>& strain) {
-        return strain.trace();
-    } // compute
-
-}; // VolumetricStrain

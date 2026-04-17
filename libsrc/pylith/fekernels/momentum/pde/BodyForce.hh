@@ -17,47 +17,47 @@
 
 
 namespace pylith::fekernels::momentum {
-    template<int pde_dim, class StrainModel, class StressModel, class SolutionLayout, class AuxiliaryLayout>
+    template<typename Dim, class AuxiliaryLayout>
     struct BodyForce;
 } // namespce
 
 
 /// f0 = f_i + ρ g_i
-template<size_t dim, class StrainModel, class StressModel, class SolutionLayout, class AuxiliaryLayout>
+template<typename Dim, class AuxiliaryLayout>
 struct pylith::fekernels::momentum::BodyForce {
     PYLITH_KERNEL static void f0(const pylith::integer cellDim,
-                                 const pylith::integer numS,
-                                 const pylith::integer numA,
-                                 const pylith::integer sOff[],
-                                 const pylith::integer sOff_x[],
-                                 const pylith::scalar s[],
-                                 const pylith::scalar s_t[],
-                                 const pylith::scalar s_x[],
+                                 [[maybe_unused]] const pylith::integer numS,
+                                 [[maybe_unused]] const pylith::integer numA,
+                                 [[maybe_unused]] const pylith::integer sOff[],
+                                 [[maybe_unused]] const pylith::integer sOff_x[],
+                                 [[maybe_unused]] const pylith::scalar s[],
+                                 [[maybe_unused]] const pylith::scalar s_t[],
+                                 [[maybe_unused]] const pylith::scalar s_x[],
                                  const pylith::integer aOff[],
                                  const pylith::integer aOff_x[],
                                  const pylith::scalar a[],
                                  const pylith::scalar a_t[],
                                  const pylith::scalar a_x[],
-                                 const pylith::real t,
-                                 const pylith::real x[],
-                                 const pylith::integer numConstants,
-                                 const pylith::scalar constants[],
+                                 [[maybe_unused]] const pylith::real t,
+                                 [[maybe_unused]] const pylith::real x[],
+                                 [[maybe_unused]] const pylith::integer numConstants,
+                                 [[maybe_unused]] const pylith::scalar constants[],
                                  pylith::scalar f0[]) noexcept {
-        assert(dim == cellDim);
+        assert(Dim::value == cellDim);
 
-        const auto auxiliary = AuxiliaryLayout::template unpack<dim>(aOff, aOff_x, a, a_t, a_x);
+        const auto auxiliary = AuxiliaryLayout::template unpack<Dim>(aOff, aOff_x, a, a_t, a_x);
 
-        if constexpr (AuxiliaryLayout::has(MOMENTUM_BODY_FORCE)) {
-            const auto& body_force = auxiliary.template get<MOMENTUM_BODY_FORCE>();
-            for (size_t i = 0; i < dim; i++) {
+        if constexpr (AuxiliaryLayout::has(MomentumFlags::BODY_FORCE)) {
+            const auto& body_force = auxiliary.template get<MomentumFlags::BODY_FORCE>();
+            for (size_t i = 0; i < Dim::value; i++) {
                 f0[i] += body_force(i);
             } // for
         } // if
 
-        if constexpr (AuxiliaryLayout::has(MOMENTUM_GRAVITY)) {
-            const auto& density = auxiliary.density;
-            const auto& grav_acc = auxiliary.template get<MOMENTUM_GRAVITY>();
-            for (size_t i = 0; i < dim; i++) {
+        if constexpr (AuxiliaryLayout::has(MomentumFlags::GRAVITY)) {
+            const auto& density = auxiliary.density();
+            const auto& grav_acc = auxiliary.template get<MomentumFlags::GRAVITY>();
+            for (size_t i = 0; i < Dim::value; i++) {
                 f0[i] += density * grav_acc(i);
             } // for
         } // if

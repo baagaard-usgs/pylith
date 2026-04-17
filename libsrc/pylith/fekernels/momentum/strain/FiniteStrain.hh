@@ -17,41 +17,41 @@
 
 
 namespace pylith::fekernels::momentum {
-    template<size_t dim, class SolutionLayout> struct FiniteStrain;
+    template<typename Dim, class SolutionLayout> struct FiniteStrain;
 } // namespace
 
 
 /// Finite, small strain
 /// strain = 1/2 (F^T F − I) with F = I + ∇
-template<size_t dim, class SolutionLayout>
+template<typename Dim, class SolutionLayout>
 struct pylith::fekernels::momentum::FiniteStrain {
     /// Compute strain.
-    PYLITH_KERNEL static void compute(pylith::fekernels::common::Matrix<dim>& strain,
+    PYLITH_KERNEL static void compute(pylith::fekernels::common::Tensor2<Dim>& strain,
                                       const SolutionLayout& solution) {
         strain.zero();
 
         // F = I + grad_u
-        pylith::fekernels::common::Matrix<dim> F;
-        for (size_t i = 0; i < dim; i++) {
-            for (size_t j = 0; j < dim; j++) {
+        pylith::fekernels::common::Tensor2<Dim::value> F;
+        for (size_t i = 0; i < Dim::value; i++) {
+            for (size_t j = 0; j < Dim::value; j++) {
                 F(i,j) = solution.displacement.gradient(i,j) + (i == j ? 1.0 : 0.0);
             } // for
         } // for
 
         // C = F^T F
-        pylith::fekernels::common::Matrix<dim> C;
+        pylith::fekernels::common::Tensor2<Dim::value> C;
         C.zero();
-        for (size_t i = 0; i < dim; i++) {
-            for (size_t j = 0; j < dim; j++) {
-                for (size_t k = 0; k < dim; k++) {
+        for (size_t i = 0; i < Dim::value; i++) {
+            for (size_t j = 0; j < Dim::value; j++) {
+                for (size_t k = 0; k < Dim::value; k++) {
                     C(i,j) += F(k,i) * F(k,j);
                 } // for
             } // for
         } // for
 
         // strain = 1/2 (C - I)
-        for (size_t i = 0; i < dim; i++) {
-            for (size_t j = 0; j < dim; j++) {
+        for (size_t i = 0; i < Dim::value; i++) {
+            for (size_t j = 0; j < Dim::value; j++) {
                 strain(i,j) = 0.5 * (C(i,j) - (i == j ? 1.0 : 0.0));
             } // for
         } // for

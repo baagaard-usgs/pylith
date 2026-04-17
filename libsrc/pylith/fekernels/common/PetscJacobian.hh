@@ -15,10 +15,10 @@
 
 
 namespace pylith::fekernels::common {
-    template<size_t dim> struct PetscJacobian;
+    template<typename Dim> struct PetscJacobian;
 }
 
-template<size_t dim>
+template<typename Dim>
 struct pylith::fekernels::common::PetscJacobian {
     /** Get index in J3 Jacobian term.
      *
@@ -32,7 +32,7 @@ struct pylith::fekernels::common::PetscJacobian {
                                        const size_t df,
                                        const size_t g,
                                        const size_t dg) {
-        return dim*dim*dim*f + dim*dim*g + dim*df + dg;
+        return Dim::value*Dim::value*Dim::value*f + Dim::value*Dim::value*g + Dim::value*df + dg;
     } // index3
 
 }; // Jacobian

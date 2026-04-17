@@ -9,10 +9,18 @@
 // =================================================================================================
 #pragma once
 
-namespace pylith::fekernels::common {
-    template<class Layout, auto Flag>
-    concept hasFlag = requires(Layout layout) {
-        layout.template get<Flag>();
-    }; // hasField
+#include "pylith/utils/types.hh"
+
+#include "pylith/fekernels/common/kernel.hh"
+
+#include <cstddef>
+
+
+namespace pylith::fekernels::momentum {
+    /// Flags indicating strain model
+    enum class StrainFlags : uint32_t {
+        INFINITESIMAL=0,
+        FINITE=1,
+    }; // StrainFlags
 
 } // namespace

@@ -9,16 +9,40 @@
 // =================================================================================================
 #pragma once
 
+#include "pylith/fekernels/common/kernel.hh"
 
 #include <cstddef>
 
 
 namespace pylith::fekernels::momentum {
     /// Flags for auxiliary subfields associated with momentum equation
-    enum MomentumFlags : size_t {
+    enum class MomentumFlags : size_t {
         DEFAULT=0,
         BODY_FORCE=1 << 0,
         GRAVITY=1 << 1,
     }; // MomentumFlags
+
+    PYLITH_KERNEL constexpr MomentumFlags
+    operator|(MomentumFlags a,
+              MomentumFlags b) noexcept {
+        return static_cast<MomentumFlags>(
+            static_cast<size_t>(a) | static_cast<size_t>(b));
+    } // operator|
+
+
+    PYLITH_KERNEL constexpr MomentumFlags&
+    operator|=(MomentumFlags& a,
+               MomentumFlags b) noexcept {
+        a = a | b;
+        return a;
+    }
+
+
+    PYLITH_KERNEL constexpr bool
+    operator&(MomentumFlags a,
+              MomentumFlags b) noexcept {
+        return static_cast<size_t>(a) & static_cast<size_t>(b);
+    }
+
 
 } // namespace

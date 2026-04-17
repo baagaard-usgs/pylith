@@ -12,6 +12,7 @@
 #include "pylith/utils/types.hh"
 
 #include "pylith/fekernels/common/kernel.hh"
+#include "pylith/fekernels/common/Utils.hh"
 #include "pylith/fekernels/common/ArgFields.hh"
 #include "pylith/fekernels/common/OptionalFields.hh"
 
@@ -19,16 +20,42 @@
 #include <cstddef>
 
 
+namespace common = pylith::fekernels::common;
+
 namespace pylith::fekernels::pde::elasticity {
     // Flags for elasticity solution
-    enum SolutionFlags : size_t {
+    enum class SolutionFlags : size_t {
         DEFAULT=0,
         FAULT=1 << 0,
         INERTIA=1 << 1,
     }; // SolutionFlags
 
+    PYLITH_KERNEL constexpr SolutionFlags
+    operator|(SolutionFlags a,
+              SolutionFlags b) noexcept {
+        return static_cast<SolutionFlags>(
+            static_cast<size_t>(a) | static_cast<size_t>(b));
+    } // operator|
+
+
+    PYLITH_KERNEL constexpr SolutionFlags&
+    operator|=(SolutionFlags& a,
+               SolutionFlags b) noexcept {
+        a = a | b;
+        return a;
+    }
+
+
+    PYLITH_KERNEL constexpr bool
+    operator&(SolutionFlags a,
+              SolutionFlags b) noexcept {
+        return static_cast<size_t>(a) & static_cast<size_t>(b);
+    }
+
+
     template<SolutionFlags flags> struct SolutionLayout;
 } // namespace
+
 
 /// Layout of solution field for elasticity
 template<pylith::fekernels::pde::elasticity::SolutionFlags flags>
@@ -38,68 +65,66 @@ struct pylith::fekernels::pde::elasticity::SolutionLayout {
         return (flags & f);
     } // has
 
-    // Use shared OptionalMember from common utilities
-    using OptionalMember = pylith::fekernels::common::OptionalMember;
-
     /// Order of solution subfields
-    enum Fields : int {
+    enum class Fields : uint32_t {
         DISPLACEMENT=0,
-        VELOCITY=1,
-        LAGRANGE_MULTIPLIER_FAULT=0 + pylith::fekernels::common::addIfPresent(has(INERTIA)),
-        NUM_FIELDS=1 + pylith::fekernels::common::addIfPresent(has(INERTIA))
-                    + pylith::fekernels::common::addIfPresent(has(FAULT))
+        INERTIA=1,
+        LAGRANGE_MULTIPLIER_FAULT=1 + pylith::fekernels::common::addIf(has(SolutionFlags::INERTIA)),
+        NUM_FIELDS=1 + pylith::fekernels::common::addIf(has(SolutionFlags::INERTIA))
+                    + pylith::fekernels::common::addIf(has(SolutionFlags::FAULT))
     };
 
     /// Struct wth names for holding subfields
-    template <size_t dim>
+    template <typename Dim>
     struct Unpacked {
-        pylith::fekernels::common::VectorField<dim> displacement;
+        using Layout = pylith::fekernels::pde::elasticity::SolutionLayout<flags>;
+
+        pylith::fekernels::common::VectorField<Dim> displacement;
 
         // Optional — zero size if absent
         [[no_unique_address]]
-        OptionalMember<has(INERTIA), pylith::fekernels::common::VectorField<dim> > velocity;
+        pylith::fekernels::common::OptionalMember<has(SolutionFlags::INERTIA), pylith::fekernels::common::VectorField<Dim> > velocity;
 
         [[no_unique_address]]
-        OptionalMember<has(FAULT), pylith::fekernels::common::VectorField<dim> > lagrange_multiplier_fault;
+        pylith::fekernels::common::OptionalMember<has(SolutionFlags::FAULT), pylith::fekernels::common::VectorField<Dim> > lagrange_multiplier_fault;
 
         // Type-safe accessor — compile error if field not present
         template <SolutionFlags F>
-        PYLITH_KERNEL auto& get() {
-            static_assert(has(F), "Elasticity solution subfield not present in this layout.");
-            if constexpr (F == INERTIA) { return velocity.member;}
-            if constexpr (F == FAULT) { return lagrange_multiplier_fault.member;}
+        PYLITH_KERNEL const auto& get() const noexcept requires(Layout::has(F)) {
+            if constexpr (F == SolutionFlags::INERTIA) { return velocity.member;}
+            if constexpr (F == SolutionFlags::FAULT) { return lagrange_multiplier_fault.member;}
         } // get()
 
     }; // Unpacked
 
     /// Unpack solution fields from array into struct with names.
-    template <size_t dim>
-    PYLITH_KERNEL static Unpacked<dim> unpack(const pylith::integer sOff[],
+    template <typename Dim>
+    PYLITH_KERNEL static Unpacked<Dim> unpack(const pylith::integer sOff[],
                                               const pylith::integer sOff_x[],
                                               const pylith::scalar s[],
                                               const pylith::scalar s_t[],
                                               const pylith::scalar s_x[]) {
-        Unpacked<dim> data;
+        Unpacked<Dim> data;
 
         data.displacement = {
-            &s[sOff[DISPLACEMENT]],
-            s_t ? &s_t[sOff[DISPLACEMENT]] : nullptr,
-            s_x ? &s_x[sOff_x[DISPLACEMENT]] : nullptr,
+            &s[sOff[common::toIndex(Fields::DISPLACEMENT)]],
+            s_t ? &s_t[sOff[common::toIndex(Fields::DISPLACEMENT)]] : nullptr,
+            s_x ? &s_x[sOff_x[common::toIndex(Fields::DISPLACEMENT)]] : nullptr,
         };
 
-        if constexpr (has(INERTIA)) {
+        if constexpr (has(SolutionFlags::INERTIA)) {
             data.velocity = {
-                &s[sOff[VELOCITY]],
-                s_t ? &s_t[sOff[VELOCITY]] : nullptr,
-                s_x ? &s_x[sOff_x[VELOCITY]] : nullptr,
+                &s[sOff[common::toIndex(Fields::INERTIA)]],
+                s_t ? &s_t[sOff[common::toIndex(Fields::INERTIA)]] : nullptr,
+                s_x ? &s_x[sOff_x[common::toIndex(Fields::INERTIA)]] : nullptr,
             };
         }
 
-        if constexpr (has(FAULT)) {
+        if constexpr (has(SolutionFlags::FAULT)) {
             data.lagrange_multiplier_fault = {
-                &s[sOff[LAGRANGE_MULTIPLIER_FAULT]],
-                s_t ? &s_t[sOff[LAGRANGE_MULTIPLIER_FAULT]] : nullptr,
-                s_x ? &s_x[sOff_x[LAGRANGE_MULTIPLIER_FAULT]] : nullptr,
+                &s[sOff[common::toIndex(Fields::LAGRANGE_MULTIPLIER_FAULT)]],
+                s_t ? &s_t[sOff[common::toIndex(Fields::LAGRANGE_MULTIPLIER_FAULT)]] : nullptr,
+                s_x ? &s_x[sOff_x[common::toIndex(Fields::LAGRANGE_MULTIPLIER_FAULT)]] : nullptr,
             };
         }
 

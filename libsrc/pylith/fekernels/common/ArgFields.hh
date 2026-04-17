@@ -27,8 +27,8 @@
 
 namespace pylith::fekernels::common {
     struct ScalarField;
-    template<size_t dim> struct VectorField;
-    template<size_t dim> struct MatrixField;
+    template<typename Dim> struct VectorField;
+    template<typename Dim> struct Tensor2Field;
 }
 
 
@@ -58,7 +58,7 @@ struct pylith::fekernels::common::ScalarField {
 }; // ScalarField
 
 
-template <size_t dim>
+template <typename Dim>
 struct pylith::fekernels::common::VectorField {
     const pylith::scalar* value; ///< Value of field
     const pylith::scalar* value_t; ///< Time derivative of field
@@ -83,7 +83,7 @@ struct pylith::fekernels::common::VectorField {
     PYLITH_KERNEL pylith::scalar gradient(size_t i,
                                           size_t j) const {
         assert(grad);
-        return grad[i*dim+j];
+        return grad[i*Dim::value+j];
     } // grad_ij()
 
 #if 0
@@ -111,8 +111,8 @@ struct pylith::fekernels::common::VectorField {
 #endif
 };
 
-template <size_t dim>
-struct pylith::fekernels::common::MatrixField {
+template <typename Dim>
+struct pylith::fekernels::common::Tensor2Field {
     const pylith::scalar* value; ///< Value of field
     const pylith::scalar* value_t; ///< Time derivative of field
     const pylith::scalar* grad; ///< Gradient of field
@@ -121,14 +121,14 @@ struct pylith::fekernels::common::MatrixField {
     PYLITH_KERNEL pylith::scalar operator()(size_t i,
                                             size_t j) const {
         assert(value);
-        return value[i*dim+j];
+        return value[i*Dim::value+j];
     } // operator()
 
     /// Get time derivative of field.
     PYLITH_KERNEL pylith::scalar dot(size_t i,
                                      size_t j) const {
         assert(value_t);
-        return value_t[i*dim+j];
+        return value_t[i*Dim::value+j];
     } // dot()
 
 #if 0

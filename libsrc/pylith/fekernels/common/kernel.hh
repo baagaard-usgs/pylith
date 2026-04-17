@@ -9,6 +9,8 @@
 // =================================================================================================
 #pragma once
 
+#include <cstddef>
+
 #if defined(__CUDACC__) || defined(__HIPCC__)
 #  define PYLITH_HOST_DEVICE __host__ __device__
 #else
@@ -17,3 +19,9 @@
 
 // Shorthand for every kernel
 #define PYLITH_KERNEL PYLITH_HOST_DEVICE inline
+
+
+namespace pylith::fekernels {
+    struct Dim2 { static constexpr size_t value = 2; };
+    struct Dim3 { static constexpr size_t value = 3; };
+} // namespace

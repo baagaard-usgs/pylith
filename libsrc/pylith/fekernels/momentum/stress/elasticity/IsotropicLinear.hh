@@ -11,7 +11,6 @@
 
 #include "pylith/utils/types.hh"
 #include "pylith/fekernels/common/kernel.hh"
-#include "pylith/fekernels/common/Flags.hh"
 #include "pylith/fekernels/common/StorageTypes.hh"
 #include "pylith/fekernels/common/PetscJacobian.hh"
 
@@ -19,28 +18,29 @@
 
 
 namespace pylith::fekernels::momentum::stress::elasticity {
-    template<size_t dim, class AuxiliaryUnpacked> struct IsotropicLinear;
+    template<typename Dim, class AuxiliaryUnpacked> struct IsotropicLinear;
 } // namespace
 
 
 /// Constitutive behavior for the isotropic linear elastic bulk rheology.
-template<size_t dim, class AuxiliaryLayout>
+template<typename Dim, class AuxiliaryLayout>
 struct pylith::fekernels::momentum::stress::elasticity::IsotropicLinear {
-    using AuxiliaryUnpacked = typename AuxiliaryLayout::template Unpacked<dim>;
+    using AuxiliaryFlags = pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags;
+    using AuxiliaryUnpacked = typename AuxiliaryLayout::template Unpacked<Dim>;
 
     /// σ = σ^mean + σ^dev.
-    PYLITH_KERNEL static void cauchyStress(pylith::fekernels::common::Matrix<dim>& stress,
-                                           const pylith::fekernels::common::Matrix<dim>& strain,
+    PYLITH_KERNEL static void cauchyStress(pylith::fekernels::common::Tensor2<Dim>& stress,
+                                           const pylith::fekernels::common::Tensor2<Dim>& strain,
                                            const AuxiliaryUnpacked& auxiliary) {
         stress.zero();
         meanStress(stress, auxiliary.bulk_modulus(), strain);
         deviatoricStress(stress, auxiliary.shear_modulus(), strain);
 
         // Reference stress subtracted from residual
-        if constexpr (requires { auxiliary.template get<pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_REFERENCE_STRESS>(); }) {
-            const auto& reference_stress = auxiliary.template get<pylith::fekernels::pde::elasticity::ISOTROPIC_LINEAR_REFERENCE_STRESS>();
-            for (size_t i = 0; i < dim; i++) {
-                for (size_t j = 0; j < dim; j++) {
+        if constexpr (requires { auxiliary.template get<AuxiliaryFlags::REFERENCE_STRESS>(); }) {
+            const auto& reference_stress = auxiliary.template get<AuxiliaryFlags::REFERENCE_STRESS>();
+            for (size_t i = 0; i < Dim::value; i++) {
+                for (size_t j = 0; j < Dim::value; j++) {
                     stress(i, j) -= reference_stress(i,j);
                 } // for
             } // for
@@ -56,11 +56,11 @@ struct pylith::fekernels::momentum::stress::elasticity::IsotropicLinear {
         const pylith::scalar mu = auxiliary.shear_modulus();
 
         // C(f,df,g,dg)
-        using Jacobian = pylith::fekernels::common::PetscJacobian<dim>;
-        for (size_t i = 0; i < dim; i++) {
-            for (size_t j = 0; j < dim; j++) {
-                for (size_t k = 0; k < dim; k++) {
-                    for (size_t l = 0; l < dim; l++) {
+        using Jacobian = pylith::fekernels::common::PetscJacobian<Dim>;
+        for (size_t i = 0; i < Dim::value; i++) {
+            for (size_t j = 0; j < Dim::value; j++) {
+                for (size_t k = 0; k < Dim::value; k++) {
+                    for (size_t l = 0; l < Dim::value; l++) {
                         Jf3[Jacobian::index3(i, j, k, l)] = sign * (
                             lambda * (i == j) * (k == l)
                             + mu * ((i == k)*(j == l) + (i == l)*(j == k)));
@@ -71,24 +71,24 @@ struct pylith::fekernels::momentum::stress::elasticity::IsotropicLinear {
     } // cauchyStressTangent
 
     /// σ^mean_ij = K * ε_kk = K * tr(ε)
-    PYLITH_KERNEL static void meanStress(pylith::fekernels::common::Matrix<dim>& stress,
+    PYLITH_KERNEL static void meanStress(pylith::fekernels::common::Tensor2<Dim>& stress,
                                          const pylith::scalar bulkModulus,
-                                         const pylith::fekernels::common::Matrix<dim>& strain) {
+                                         const pylith::fekernels::common::Tensor2<Dim>& strain) {
         assert(bulkModulus > 0.0);
 
-        for (size_t i = 0; i < dim; ++i) {
+        for (size_t i = 0; i < Dim::value; ++i) {
             stress(i, i) += bulkModulus * strain.trace();
         } // for
     } // meanStress
 
     /// σ^dev_ij = 2 μ ε_ij - 1/3 tr(ε) δ_ij
-    PYLITH_KERNEL static void deviatoricStress(pylith::fekernels::common::Matrix<dim>& stress,
+    PYLITH_KERNEL static void deviatoricStress(pylith::fekernels::common::Tensor2<Dim>& stress,
                                                const pylith::scalar shearModulus,
-                                               const pylith::fekernels::common::Matrix<dim>& strain) {
+                                               const pylith::fekernels::common::Tensor2<Dim>& strain) {
         assert(shearModulus > 0.0);
 
-        for (size_t i = 0; i < dim; ++i) {
-            for (size_t j = 0; j < dim; ++j) {
+        for (size_t i = 0; i < Dim::value; ++i) {
+            for (size_t j = 0; j < Dim::value; ++j) {
                 stress(i, j) += 2.0*shearModulus * (strain(i,j) - (i == j)*1.0/3.0*strain.trace());
             } // for
         } // for

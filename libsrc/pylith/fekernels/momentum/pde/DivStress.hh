@@ -18,12 +18,12 @@
 
 
 namespace pylith::fekernels::momentum {
-    template<size_t im, class StrainModel, class StressModel, class SolutionLayout, class AuxiliaryLayout>
+    template<typename Dim, class StrainModel, class StressModel, class SolutionLayout, class AuxiliaryLayout>
     struct DivStress;
 } // pylith::fekernels::momentum
 
 
-template<size_t dim, class StrainModel, class StressModel, class SolutionLayout, class AuxiliaryLayout>
+template<typename Dim, class StrainModel, class StressModel, class SolutionLayout, class AuxiliaryLayout>
 struct pylith::fekernels::momentum::DivStress {
     // f1 = -σ
     PYLITH_KERNEL static void f1(const pylith::integer cellDim,
@@ -44,20 +44,20 @@ struct pylith::fekernels::momentum::DivStress {
                                  [[maybe_unused]] const pylith::integer numConstants,
                                  [[maybe_unused]] const pylith::scalar constants[],
                                  pylith::scalar f1[]) noexcept {
-        assert(dim == cellDim);
+        assert(Dim::value == cellDim);
 
-        pylith::fekernels::common::Matrix<dim> strain;
-        pylith::fekernels::common::Matrix<dim> stress;
+        pylith::fekernels::common::Tensor2<Dim> strain;
+        pylith::fekernels::common::Tensor2<Dim> stress;
 
-        const auto solution = SolutionLayout::template unpack<dim>(sOff, sOff_x, s, s_t, s_x);
-        const auto auxiliary = AuxiliaryLayout::template unpack<dim>(aOff, aOff_x, a, a_t, a_x);
+        const auto solution = SolutionLayout::template unpack<Dim>(sOff, sOff_x, s, s_t, s_x);
+        const auto auxiliary = AuxiliaryLayout::template unpack<Dim>(aOff, aOff_x, a, a_t, a_x);
 
         StrainModel::compute(strain, solution);
         StressModel::cauchyStress(stress, strain, auxiliary);
 
-        for (size_t i = 0; i < dim; ++i) {
-            for (size_t j = 0; j < dim; ++j) {
-                f1[i*dim+j] = -stress(i, j);
+        for (size_t i = 0; i < Dim::value; ++i) {
+            for (size_t j = 0; j < Dim::value; ++j) {
+                f1[i*Dim::value+j] = -stress(i, j);
             } // for
         } // for
     } // f1
@@ -82,11 +82,11 @@ struct pylith::fekernels::momentum::DivStress {
                                     [[maybe_unused]] const pylith::integer numConstants,
                                     [[maybe_unused]] const pylith::scalar constants[],
                                     pylith::scalar Jf3[]) noexcept {
-        assert(dim == cellDim);
+        assert(Dim::value == cellDim);
 
-        const auto auxiliary = AuxiliaryLayout::template unpack<dim>(aOff, aOff_x, a, a_t, a_x);
+        const auto auxiliary = AuxiliaryLayout::template unpack<Dim>(aOff, aOff_x, a, a_t, a_x);
         constexpr pylith::scalar sign = -1.0;
         StressModel::cauchyStressTangent(Jf3, auxiliary, sign);
-    } // Jf3
+    } // Jf3uu
 
 }; // DivStress
