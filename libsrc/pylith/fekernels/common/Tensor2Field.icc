@@ -9,14 +9,24 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/utils/types.hh"
+#include "Tensor2Field.hh"
 
 
-namespace pylith::fekernels::momentum {
-    /// Flags indicating strain model
-    enum class StrainFlags : uint32_t {
-        INFINITESIMAL=0,
-        FINITE=1,
-    }; // StrainFlags
+template <typename Dim>
+inline
+pylith::scalar
+pylith::fekernels::common::Tensor2Field<Dim>::operator()(size_t i,
+                                                         size_t j) const {
+    assert(value);
+    return value[i*Dim::value+j];
+}
 
-} // namespace
+
+template <typename Dim>
+inline
+pylith::scalar
+pylith::fekernels::common::Tensor2Field<Dim>::dot(size_t i,
+                                                  size_t j) const {
+    assert(value_t);
+    return value_t[i*Dim::value+j];
+}

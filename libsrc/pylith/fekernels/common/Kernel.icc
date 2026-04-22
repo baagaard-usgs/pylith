@@ -9,14 +9,17 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/utils/types.hh"
+#include "Kernel.hh"
+
+class pylith::fekernels::Dim2 {
+public:
+
+    static constexpr size_t value = 2;
+};
 
 
-namespace pylith::fekernels::momentum {
-    /// Flags indicating strain model
-    enum class StrainFlags : uint32_t {
-        INFINITESIMAL=0,
-        FINITE=1,
-    }; // StrainFlags
+class pylith::fekernels::Dim3 {
+public:
 
-} // namespace
+    static constexpr size_t value = 3;
+};

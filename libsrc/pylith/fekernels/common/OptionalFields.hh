@@ -15,16 +15,14 @@ namespace pylith::fekernels::common {
     /// When `present` is false, OptionalMember<false, T> has zero size.
     /// When `present` is true, OptionalMember<true, T> contains a T member.
     template <bool present, typename T>
-    struct OptionalMember {};
+    class OptionalMember {};
 
     template <typename T>
-    struct OptionalMember<true, T> { T member; };
+    class OptionalMember<true, T>;
 
     /// Helper to compute field count contribution (0 or 1 based on condition).
-    constexpr int
-    addIf(bool condition) noexcept {
-        return condition ? 1 : 0;
-    }
-
+    constexpr int addIf(bool condition) noexcept;
 
 } // namespace pylith::fekernels::common
+
+#include "OptionalFields.icc"

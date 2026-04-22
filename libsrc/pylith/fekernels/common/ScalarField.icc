@@ -9,14 +9,27 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/utils/types.hh"
+#include "ScalarField.hh"
+
+inline
+pylith::scalar
+pylith::fekernels::common::ScalarField::operator()() const {
+    assert(value);
+    return value[0];
+}
 
 
-namespace pylith::fekernels::momentum {
-    /// Flags indicating strain model
-    enum class StrainFlags : uint32_t {
-        INFINITESIMAL=0,
-        FINITE=1,
-    }; // StrainFlags
+inline
+pylith::scalar
+pylith::fekernels::common::ScalarField::dot(void) const {
+    assert(value_t);
+    return value_t[0];
+}
 
-} // namespace
+
+inline
+pylith::scalar
+pylith::fekernels::common::ScalarField::gradient(size_t i) const {
+    assert(grad);
+    return grad[i];
+}

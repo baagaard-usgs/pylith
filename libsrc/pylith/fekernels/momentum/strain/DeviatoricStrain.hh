@@ -9,11 +9,9 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/fekernels/common/kernel.hh"
-#include "pylith/fekernels/common/StorageTypes.hh"
-#include "VolumetricStrain.hh"
+#include "pylith/fekernels/common/Kernel.hh"
+#include "pylith/fekernels/common/Tensor2.hh"
 
-#include <cassert>
 #include <cstddef>
 
 
@@ -24,18 +22,14 @@ namespace pylith::fekernels::momentum {
 
 /// ε_dev = ε − 1/3 (tr ε) I
 template<typename Dim, class SolutionLayout>
-struct pylith::fekernels::momentum::DeviatoricStrain {
+class pylith::fekernels::momentum::DeviatoricStrain {
+public:
+
     /// Compute deviatoric strain given total strain.
     PYLITH_KERNEL static void compute(pylith::fekernels::common::Tensor2<Dim>& deviatoricStrain,
-                                      const pylith::fekernels::Tensor2<Dim>& strain) {
-        const pylith::scalar volumetricStrain = VolumetricStrain<Dim::value, SolutionLayout>::compute(strain);
-        const pylith::scalar h = volumetricStrain / 3.0;
-
-        for (size_t i = 0; i < Dim::value; i++) {
-            for (size_t j = 0; j < Dim::value; j++) {
-                deviatoricStrain(i,j) = strain(i,j) - (i == j ? h : 0.0);
-            } // for
-        } // for
-    } // compute
+                                      const pylith::fekernels::Tensor2<Dim>& strain);
 
 }; // DeviatoricStrain
+
+
+#include "DeviatoricStrain.icc"

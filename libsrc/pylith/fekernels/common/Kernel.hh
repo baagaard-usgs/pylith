@@ -9,14 +9,19 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/utils/types.hh"
+#include <cstddef>
+
+#if defined(__CUDACC__) || defined(__HIPCC__)
+#  define PYLITH_HOST_DEVICE __host__ __device__
+#else
+#  define PYLITH_HOST_DEVICE
+#endif
+
+// Shorthand for every kernel
+#define PYLITH_KERNEL PYLITH_HOST_DEVICE inline
 
 
-namespace pylith::fekernels::momentum {
-    /// Flags indicating strain model
-    enum class StrainFlags : uint32_t {
-        INFINITESIMAL=0,
-        FINITE=1,
-    }; // StrainFlags
-
+namespace pylith::fekernels {
+    class Dim2;
+    class Dim3;
 } // namespace

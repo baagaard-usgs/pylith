@@ -9,14 +9,32 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/utils/types.hh"
+#include "Vector.hh"
 
 
-namespace pylith::fekernels::momentum {
-    /// Flags indicating strain model
-    enum class StrainFlags : uint32_t {
-        INFINITESIMAL=0,
-        FINITE=1,
-    }; // StrainFlags
+template <typename Dim>
+inline
+pylith::scalar&
+pylith::fekernels::common::Vector<Dim>::operator()(size_t i) noexcept {
+    assert(i < Dim::value);
+    return _vector[i];
+}
 
-} // namespace
+
+template <typename Dim>
+inline
+pylith::scalar
+pylith::fekernels::common::Vector<Dim>::operator()(size_t i) const noexcept {
+    assert(i < Dim::value);
+    return _vector[i];
+}
+
+
+template <typename Dim>
+inline
+void
+pylith::fekernels::common::Vector<Dim>::zero(void) noexcept {
+    for (size_t i = 0; i < Dim::value; ++i) {
+        _vector[i] = 0.0;
+    }
+}

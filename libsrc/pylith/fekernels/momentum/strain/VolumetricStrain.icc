@@ -9,14 +9,11 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/utils/types.hh"
+#include "VolumetricStrain.hh"
 
-
-namespace pylith::fekernels::momentum {
-    /// Flags indicating strain model
-    enum class StrainFlags : uint32_t {
-        INFINITESIMAL=0,
-        FINITE=1,
-    }; // StrainFlags
-
-} // namespace
+/// ε_vol = tr(ε)
+template<typename Dim, class SolutionLayout>
+PYLITH_KERNEL static pylith::scalar
+pylith::fekernels::momentum::VolumetricStrain<Dim, SolutionLayout>::compute(const pylith::fekernels::common::Tensor2<Dim>& strain) {
+    return strain.trace();
+} // compute

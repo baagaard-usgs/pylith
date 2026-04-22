@@ -1,0 +1,58 @@
+// =================================================================================================
+// This code is part of PyLith, developed through the Computational Infrastructure
+// for Geodynamics (https://github.com/geodynamics/pylith).
+//
+// Copyright (c) 2010-2025, University of California, Davis and the PyLith Development Team.
+// All rights reserved.
+//
+// See https://mit-license.org/ and LICENSE.md and for license information.
+// =================================================================================================
+#pragma once
+
+#include "Tensor2.hh"
+
+
+template<typename Dim>
+inline
+pylith::scalar&
+pylith::fekernels::common::Tensor2<Dim>::operator()(size_t i,
+                                                    size_t j) noexcept {
+    assert(i < Dim::value);
+    assert(j < Dim::value);
+    return _matrix[i][j];
+}
+
+
+template<typename Dim>
+inline
+pylith::scalar
+pylith::fekernels::common::Tensor2<Dim>::operator()(size_t i,
+                                                    size_t j) const noexcept {
+    assert(i < Dim::value);
+    assert(j < Dim::value);
+    return _matrix[i][j];
+}
+
+
+template<typename Dim>
+inline
+void
+pylith::fekernels::common::Tensor2<Dim>::zero(void) noexcept {
+    for (size_t i = 0; i < Dim::value; i++) {
+        for (size_t j = 0; j < Dim::value; j++) {
+            _matrix[i][j] = 0.0;
+        }
+    }
+}
+
+
+template<typename Dim>
+inline
+pylith::scalar
+pylith::fekernels::common::Tensor2<Dim>::trace(void) const noexcept {
+    pylith::scalar value = 0.0;
+    for (size_t i = 0; i < Dim::value; ++i) {
+        value += _matrix[i][i];
+    }
+    return value;
+}

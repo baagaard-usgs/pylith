@@ -9,10 +9,9 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/fekernels/common/kernel.hh"
-#include "pylith/fekernels/common/StorageTypes.hh"
+#include "pylith/fekernels/common/Kernel.hh"
+#include "pylith/fekernels/common/Tensor2.hh"
 
-#include <cassert>
 #include <cstddef>
 
 
@@ -24,18 +23,12 @@ namespace pylith::fekernels::momentum {
 /// Infinitesimal strain
 /// ε_ij = 1/2 (∂u_i/∂x_j + ∂u_j/∂x_i)
 template<typename Dim, class SolutionLayout>
-struct pylith::fekernels::momentum::InfinitesimalStrain {
+class pylith::fekernels::momentum::InfinitesimalStrain {
+public:
+
     using SolutionUnpacked = typename SolutionLayout::template Unpacked<Dim>;
 
     PYLITH_KERNEL static void compute(pylith::fekernels::common::Tensor2<Dim>& strain,
-                                      const SolutionUnpacked& solution) {
-        strain.zero();
-        const pylith::fekernels::common::VectorField<Dim>& disp = solution.displacement;
-        for (size_t i = 0; i < Dim::value; i++) {
-            for (size_t j = 0; j < Dim::value; j++) {
-                strain(i, j) = 0.5 * (disp.gradient(i, j) + disp.gradient(j, i));
-            } // for
-        } // for
-    } // compute
+                                      const SolutionUnpacked& solution);
 
 }; // InfinitesimalStrain

@@ -1,0 +1,40 @@
+// =================================================================================================
+// This code is part of PyLith, developed through the Computational Infrastructure
+// for Geodynamics (https://github.com/geodynamics/pylith).
+//
+// Copyright (c) 2010-2025, University of California, Davis and the PyLith Development Team.
+// All rights reserved.
+//
+// See https://mit-license.org/ and LICENSE.md and for license information.
+// =================================================================================================
+#pragma once
+
+#include "VectorField.hh"
+
+
+template <typename Dim>
+inline
+pylith::scalar
+pylith::fekernels::common::VectorField<Dim>::operator()(size_t i) const {
+    assert(value);
+    return value[i];
+}
+
+
+template <typename Dim>
+inline
+pylith::scalar
+pylith::fekernels::common::VectorField<Dim>::dot(size_t i) const {
+    assert(value_t);
+    return value_t[i];
+}
+
+
+template <typename Dim>
+inline
+pylith::scalar
+pylith::fekernels::common::VectorField<Dim>::gradient(size_t i,
+                                                      size_t j) const {
+    assert(grad);
+    return grad[i*Dim::value+j];
+}

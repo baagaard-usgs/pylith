@@ -9,7 +9,7 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/fekernels/common/kernel.hh"
+#include "pylith/fekernels/common/Kernel.hh"
 
 #include <cstddef>
 

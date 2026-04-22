@@ -1,0 +1,58 @@
+// =================================================================================================
+// This code is part of PyLith, developed through the Computational Infrastructure
+// for Geodynamics (https://github.com/geodynamics/pylith).
+//
+// Copyright (c) 2010-2025, University of California, Davis and the PyLith Development Team.
+// All rights reserved.
+//
+// See https://mit-license.org/ and LICENSE.md and for license information.
+// =================================================================================================
+#pragma once
+
+#include "BodyForce.hh"
+
+#include <cassert>
+
+
+template<typename Dim, class AuxiliaryLayout>
+inline
+void
+pylith::fekernels::momentum::BodyForce<Dim, AuxiliaryLayout>::f0(
+    const pylith::integer cellDim,
+    [[maybe_unused]] const pylith::integer numS,
+    [[maybe_unused]] const pylith::integer numA,
+    [[maybe_unused]] const pylith::integer sOff[],
+    [[maybe_unused]] const pylith::integer sOff_x[],
+    [[maybe_unused]] const pylith::scalar s[],
+    [[maybe_unused]] const pylith::scalar s_t[],
+    [[maybe_unused]] const pylith::scalar s_x[],
+    const pylith::integer aOff[],
+    const pylith::integer aOff_x[],
+    const pylith::scalar a[],
+    const pylith::scalar a_t[],
+    const pylith::scalar a_x[],
+    [[maybe_unused]] const pylith::real t,
+    [[maybe_unused]] const pylith::real x[],
+    [[maybe_unused]] const pylith::integer numConstants,
+    [[maybe_unused]] const pylith::scalar constants[],
+    pylith::scalar f0[]) noexcept {
+    assert(Dim::value == cellDim);
+
+    const auto auxiliary = AuxiliaryLayout::template unpack<Dim>(aOff, aOff_x, a, a_t, a_x);
+
+    if constexpr (AuxiliaryLayout::has(MomentumFlags::BODY_FORCE)) {
+        const auto& body_force = auxiliary.template get<MomentumFlags::BODY_FORCE>();
+        for (size_t i = 0; i < Dim::value; i++) {
+            f0[i] += body_force(i);
+        } // for
+    } // if
+
+    if constexpr (AuxiliaryLayout::has(MomentumFlags::GRAVITY)) {
+        const auto& density = auxiliary.density();
+        const auto& grav_acc = auxiliary.template get<MomentumFlags::GRAVITY>();
+        for (size_t i = 0; i < Dim::value; i++) {
+            f0[i] += density * grav_acc(i);
+        } // for
+    } // if
+
+} // f0

@@ -7,17 +7,37 @@
 //
 // See https://mit-license.org/ and LICENSE.md and for license information.
 // =================================================================================================
+
+/** Vector storage and access.
+ *
+ * Provides local storage for a vector and access methods.
+ */
+
 #pragma once
 
-#include "Kernel.hh"
+#include "pylith/utils/types.hh"
+#include "pylith/fekernels/common/kernel.hh"
 
-#include <type_traits>
 #include <cstddef>
 
 namespace pylith::fekernels::common {
-    template <typename Enum>
-    PYLITH_KERNEL constexpr std::size_t toIndex(Enum etype) noexcept;
-
+    template<typename Dim> class Vector;
 } // namespace
 
-#include "Utils.icc"
+
+/// Vector storage and access.
+template <typename Dim>
+class pylith::fekernels::common::Vector {
+public:
+
+    pylith::scalar _vector[Dim::value];
+
+    PYLITH_KERNEL pylith::scalar& operator()(size_t i) noexcept;
+
+    PYLITH_KERNEL pylith::scalar operator()(size_t i) const noexcept;
+
+    PYLITH_KERNEL void zero(void) noexcept;
+
+}; // Vector
+
+#include "Vector.icc"

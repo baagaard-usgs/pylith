@@ -9,14 +9,14 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/utils/types.hh"
+#include "Utils.hh"
 
 
-namespace pylith::fekernels::momentum {
-    /// Flags indicating strain model
-    enum class StrainFlags : uint32_t {
-        INFINITESIMAL=0,
-        FINITE=1,
-    }; // StrainFlags
-
-} // namespace
+template <typename Enum>
+inline
+constexpr std::size_t
+pylith::fekernels::common::toIndex(Enum etype) noexcept {
+    static_assert(std::is_enum_v<Enum>, "toIndex() requires an enum type");
+    using UnderlyingType = std::underlying_type_t<Enum>;
+    return static_cast<std::size_t>(static_cast<UnderlyingType>(etype));
+}

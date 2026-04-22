@@ -9,14 +9,16 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/utils/types.hh"
+#include "OptionalFields.hh"
 
+template <typename T>
+class pylith::fekernels::common::OptionalMember<true, T> {
+public:
 
-namespace pylith::fekernels::momentum {
-    /// Flags indicating strain model
-    enum class StrainFlags : uint32_t {
-        INFINITESIMAL=0,
-        FINITE=1,
-    }; // StrainFlags
+    T member;
+};
 
-} // namespace
+constexpr int
+addIf(bool condition) noexcept {
+    return condition ? 1 : 0;
+} // addIf

@@ -9,10 +9,9 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/fekernels/common/kernel.hh"
-#include "pylith/fekernels/common/StorageTypes.hh"
+#include "pylith/fekernels/common/Kernel.hh"
+#include "pylith/fekernels/common/Tensor2.hh"
 
-#include <cassert>
 #include <cstddef>
 
 
@@ -24,37 +23,14 @@ namespace pylith::fekernels::momentum {
 /// Finite, small strain
 /// strain = 1/2 (F^T F − I) with F = I + ∇
 template<typename Dim, class SolutionLayout>
-struct pylith::fekernels::momentum::FiniteStrain {
+class pylith::fekernels::momentum::FiniteStrain {
+public:
+
     /// Compute strain.
     PYLITH_KERNEL static void compute(pylith::fekernels::common::Tensor2<Dim>& strain,
-                                      const SolutionLayout& solution) {
-        strain.zero();
-
-        // F = I + grad_u
-        pylith::fekernels::common::Tensor2<Dim::value> F;
-        for (size_t i = 0; i < Dim::value; i++) {
-            for (size_t j = 0; j < Dim::value; j++) {
-                F(i,j) = solution.displacement.gradient(i,j) + (i == j ? 1.0 : 0.0);
-            } // for
-        } // for
-
-        // C = F^T F
-        pylith::fekernels::common::Tensor2<Dim::value> C;
-        C.zero();
-        for (size_t i = 0; i < Dim::value; i++) {
-            for (size_t j = 0; j < Dim::value; j++) {
-                for (size_t k = 0; k < Dim::value; k++) {
-                    C(i,j) += F(k,i) * F(k,j);
-                } // for
-            } // for
-        } // for
-
-        // strain = 1/2 (C - I)
-        for (size_t i = 0; i < Dim::value; i++) {
-            for (size_t j = 0; j < Dim::value; j++) {
-                strain(i,j) = 0.5 * (C(i,j) - (i == j ? 1.0 : 0.0));
-            } // for
-        } // for
-    } // compute
+                                      const SolutionLayout& solution);
 
 }; // FiniteStrain
+
+
+#include "FiniteStrain.hh"

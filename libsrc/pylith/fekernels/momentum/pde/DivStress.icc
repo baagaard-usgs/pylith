@@ -1,0 +1,87 @@
+// =================================================================================================
+// This code is part of PyLith, developed through the Computational Infrastructure
+// for Geodynamics (https://github.com/geodynamics/pylith).
+//
+// Copyright (c) 2010-2025, University of California, Davis and the PyLith Development Team.
+// All rights reserved.
+//
+// See https://mit-license.org/ and LICENSE.md and for license information.
+// =================================================================================================
+#pragma once
+
+#include "DivStress.hh"
+#include "pylith/fekernels/common/Tensor2.hh"
+
+#include <cassert>
+
+
+template<typename Dim, class StrainModel, class StressModel, class SolutionLayout, class AuxiliaryLayout>
+inline
+void
+pylith::fekernels::momentum::DivStress<Dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout>::f1(
+    const pylith::integer cellDim,
+    [[maybe_unused]] const pylith::integer numS,
+    [[maybe_unused]] const pylith::integer numA,
+    const pylith::integer sOff[],
+    const pylith::integer sOff_x[],
+    const pylith::scalar s[],
+    const pylith::scalar s_t[],
+    const pylith::scalar s_x[],
+    const pylith::integer aOff[],
+    const pylith::integer aOff_x[],
+    const pylith::scalar a[],
+    const pylith::scalar a_t[],
+    const pylith::scalar a_x[],
+    [[maybe_unused]] const pylith::real t,
+    [[maybe_unused]] const pylith::real x[],
+    [[maybe_unused]] const pylith::integer numConstants,
+    [[maybe_unused]] const pylith::scalar constants[],
+    pylith::scalar f1[]) noexcept {
+    assert(Dim::value == cellDim);
+
+    pylith::fekernels::common::Tensor2<Dim> strain;
+    pylith::fekernels::common::Tensor2<Dim> stress;
+
+    const auto solution = SolutionLayout::template unpack<Dim>(sOff, sOff_x, s, s_t, s_x);
+    const auto auxiliary = AuxiliaryLayout::template unpack<Dim>(aOff, aOff_x, a, a_t, a_x);
+
+    StrainModel::compute(strain, solution);
+    StressModel::cauchyStress(stress, strain, auxiliary);
+
+    for (size_t i = 0; i < Dim::value; ++i) {
+        for (size_t j = 0; j < Dim::value; ++j) {
+            f1[i*Dim::value+j] = -stress(i, j);
+        } // for
+    } // for
+} // f1
+
+
+template<typename Dim, class StrainModel, class StressModel, class SolutionLayout, class AuxiliaryLayout>
+inline
+void
+pylith::fekernels::momentum::DivStress<Dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout>::Jf3uu(
+    const pylith::integer cellDim,
+    [[maybe_unused]] const pylith::integer numS,
+    [[maybe_unused]] const pylith::integer numA,
+    [[maybe_unused]] const pylith::integer sOff[],
+    [[maybe_unused]] const pylith::integer sOff_x[],
+    [[maybe_unused]] const pylith::scalar s[],
+    [[maybe_unused]] const pylith::scalar s_t[],
+    [[maybe_unused]] const pylith::scalar s_x[],
+    const pylith::integer aOff[],
+    const pylith::integer aOff_x[],
+    const pylith::scalar a[],
+    const pylith::scalar a_t[],
+    const pylith::scalar a_x[],
+    [[maybe_unused]] const pylith::real t,
+    [[maybe_unused]] const pylith::real s_tshift,
+    [[maybe_unused]] const pylith::real x[],
+    [[maybe_unused]] const pylith::integer numConstants,
+    [[maybe_unused]] const pylith::scalar constants[],
+    pylith::scalar Jf3[]) noexcept {
+    assert(Dim::value == cellDim);
+
+    const auto auxiliary = AuxiliaryLayout::template unpack<Dim>(aOff, aOff_x, a, a_t, a_x);
+    constexpr pylith::scalar sign = -1.0;
+    StressModel::cauchyStressTangent(Jf3, auxiliary, sign);
+} // Jf3uu

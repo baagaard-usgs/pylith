@@ -9,10 +9,9 @@
 // =================================================================================================
 #pragma once
 
-#include "pylith/fekernels/common/kernel.hh"
-#include "pylith/fekernels/common/StorageTypes.hh"
+#include "pylith/fekernels/common/Kernel.hh"
+#include "pylith/fekernels/common/Tensor2.hh"
 
-#include <cassert>
 #include <cstddef>
 
 namespace pylith::fekernels::momentum {
@@ -22,10 +21,10 @@ namespace pylith::fekernels::momentum {
 
 /// ε_vol = tr(ε)
 template<typename Dim, class SolutionLayout>
-struct pylith::fekernels::momentum::VolumetricStrain {
-    /// @brief  Compute strain.
-    PYLITH_KERNEL static pylith::scalar compute(const pylith::fekernels::common::Tensor2<Dim>& strain) {
-        return strain.trace();
-    } // compute
+class pylith::fekernels::momentum::VolumetricStrain {
+public:
+
+    /// Compute strain.
+    PYLITH_KERNEL static pylith::scalar compute(const pylith::fekernels::common::Tensor2<Dim>& strain);
 
 }; // VolumetricStrain
