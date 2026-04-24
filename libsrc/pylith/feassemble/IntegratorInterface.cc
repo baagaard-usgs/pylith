@@ -661,10 +661,19 @@ pylith::feassemble::_IntegratorInterface::computeResidual(pylith::topology::Fiel
         PylithCallPetsc(ISGetIndices(patchCellsIS, &patchCells));assert(patchCells);
         assert(pylith::topology::MeshOps::isCohesiveCell(dmSoln, patchCells[0]));
 
-        assert(solution->getLocalVector());
-        assert(residual->getLocalVector());
-        PylithCallPetsc(DMPlexComputeResidualHybridByKey(dmSoln, weakFormKeys, patchCellsIS, t, solution->getLocalVector(),
-                                                         solutionDotVec, t, residual->getLocalVector(), NULL));
+        // Ignore cohesive cells that are not owned
+        PetscSF sf;
+        const PetscInt *leaves;
+        PetscInt Nl, pos = -1;
+        PylithCallPetsc(DMGetPointSF(dmSoln, &sf));
+        PylithCallPetsc(PetscSFGetGraph(sf, NULL, &Nl, &leaves, NULL));
+        if (leaves) {PylithCallPetsc(PetscFindInt(patchCells[0], Nl, leaves, &pos));}
+        if (pos < 0) {
+            assert(solution->getLocalVector());
+            assert(residual->getLocalVector());
+            PylithCallPetsc(DMPlexComputeResidualHybridByKey(dmSoln, weakFormKeys, patchCellsIS, t, solution->getLocalVector(),
+                                                             solutionDotVec, t, residual->getLocalVector(), NULL));
+        }
         PylithCallPetsc(ISRestoreIndices(patchCellsIS, &patchCells));
         PylithCallPetsc(ISDestroy(&patchCellsIS));
     } // for
@@ -728,10 +737,18 @@ pylith::feassemble::_IntegratorInterface::computeJacobian(PetscMat jacobianMat,
         PylithCallPetsc(ISGetIndices(patchCellsIS, &patchCells));assert(patchCells);
         assert(pylith::topology::MeshOps::isCohesiveCell(dmSoln, patchCells[0]));
 
-        assert(solution->getLocalVector());
-        PylithCallPetsc(DMPlexComputeJacobianHybridByKey(dmSoln, weakFormKeys, patchCellsIS, t, s_tshift, solution->getLocalVector(),
-                                                         solutionDot->getLocalVector(), jacobianMat, precondMat,
-                                                         NULL));
+        // Ignore cohesive cells that are not owned
+        PetscSF sf;
+        const PetscInt *leaves;
+        PetscInt Nl, pos = -1;
+        PylithCallPetsc(DMGetPointSF(dmSoln, &sf));
+        PylithCallPetsc(PetscSFGetGraph(sf, NULL, &Nl, &leaves, NULL));
+        if (leaves) {PylithCallPetsc(PetscFindInt(patchCells[0], Nl, leaves, &pos));}
+        if (pos < 0) {
+            assert(solution->getLocalVector());
+            PylithCallPetsc(DMPlexComputeJacobianHybridByKey(dmSoln, weakFormKeys, patchCellsIS, t, s_tshift, solution->getLocalVector(),
+                                                             solutionDot->getLocalVector(), jacobianMat, precondMat, NULL));
+        } // if
         PylithCallPetsc(ISRestoreIndices(patchCellsIS, &patchCells));
         PylithCallPetsc(ISDestroy(&patchCellsIS));
     }
