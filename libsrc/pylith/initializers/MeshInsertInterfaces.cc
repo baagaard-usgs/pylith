@@ -14,6 +14,7 @@
 
 #include "pylith/problems/Problem.hh" // USES Problem
 #include "pylith/topology/Mesh.hh" // USES Mesh
+#include "pylith/topology/MeshOps.hh" // USES MeshOps
 #include "pylith/topology/Distributor.hh" // USES Distributor
 #include "pylith/materials/Material.hh" // USES Material
 #include "pylith/faults/FaultCohesive.hh" // USES FaultCohesive
@@ -57,6 +58,14 @@ pylith::initializers::MeshInsertInterfaces::run(pylith::topology::Mesh* mesh,
     } // if
     err = DMPlexCheckGeometry(mesh->getDM());PYLITH_CHECK_ERROR_MSG(err, "Error in topology of the mesh.");
 
+    pythia::journal::debug_t debug("initialize_mesh");
+    if (debug.state()) {
+        mesh->view(":mesh_domain_before_faults.txt:ascii_info_detail");
+        pylith::topology::Mesh* meshExploded = pylith::topology::MeshOps::explode(*mesh);
+        meshExploded->view(":mesh_domain_before_faults.tex:ascii_latex");
+        delete meshExploded;meshExploded = nullptr;
+    } // if
+
     // Determine starting label value for cohesive cells.
     PylithInt cohesiveLabelValue = 100;
     for (auto material : problem.getMaterials()) {
@@ -78,11 +87,27 @@ pylith::initializers::MeshInsertInterfaces::run(pylith::topology::Mesh* mesh,
 
     err = DMPlexCheckGeometry(meshNew->getDM());PYLITH_CHECK_ERROR(err);
 
+    if (debug.state()) {
+        DMPlexCheckTransform(meshNew->getDM());
+        meshNew->view(":mesh_domain_before_overlap.txt:ascii_info_detail");
+        pylith::topology::Mesh* meshExploded = pylith::topology::MeshOps::explode(*meshNew);
+        meshExploded->view(":mesh_domain_before_overlap.tex:ascii_latex");
+        delete meshExploded;meshExploded = nullptr;
+    } // if
+
     PetscDM dmNew = nullptr;
     // Set overlap since cohesive cells can be put in the SF
     err = DMPlexSetOverlap(meshNew->getDM(), nullptr, 1);PYLITH_CHECK_ERROR(err);
     pylith::topology::Distributor::distributeOverlap(&dmNew, meshNew->getDM(), problem.getInterfaces());
     meshNew->setDM(dmNew);
+
+    /* Need to reorder supports of cohesive cells after migration */
+    DMPlexTransform tr;
+    err = DMPlexTransformCreate(meshNew->getComm(), &tr);PYLITH_CHECK_ERROR(err);
+    err = DMPlexTransformSetType(tr, DMPLEXCOHESIVEEXTRUDE);PYLITH_CHECK_ERROR(err);
+    //err = DMPlexTransformSetUp(tr);PYLITH_CHECK_ERROR(err);
+    err = DMPlexTransformOrderSupports(tr, dmNew, dmNew);PYLITH_CHECK_ERROR(err);
+    err = DMPlexTransformDestroy(&tr);PYLITH_CHECK_ERROR(err);
 
     err = DMPlexCheckGeometry(meshNew->getDM());PYLITH_CHECK_ERROR(err);
 
