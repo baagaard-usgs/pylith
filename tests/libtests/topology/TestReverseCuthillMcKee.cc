@@ -78,7 +78,6 @@ pylith::topology::TestReverseCuthillMcKee::testReorder(void) {
 
     // Check groups
     PetscInt numGroupsE, numGroups;
-    PetscErrorCode err;
     PylithCallPetscRequire(DMGetNumLabels(dmOrig, &numGroupsE));
     PylithCallPetscRequire(DMGetNumLabels(dmNew, &numGroups));
     REQUIRE(numGroupsE == numGroups);

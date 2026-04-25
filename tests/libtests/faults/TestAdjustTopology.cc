@@ -113,26 +113,25 @@ pylith::faults::TestAdjustTopology::run(void) {
     REQUIRE(_data->numCells == size_t(cellsStratum.size()));
     for (PetscInt c = cStart, cell = 0; c < cEnd; ++c, ++cell) {
         PetscInt coneSize = 0;
-        PylithCallPetsc(DMPlexGetConeSize(dmMesh, c, &coneSize));
+        PylithCallPetscRequire(DMPlexGetConeSize(dmMesh, c, &coneSize));
         REQUIRE(_data->numCorners[cell] == coneSize);
     } // for
 
     // check materials
-    REQUIRE(_data->materialIds);
     PetscDMLabel labelMaterials = NULL;
     const char* const cellsLabelName = pylith::topology::Mesh::cells_label_name;
-    PylithCallPetsc(DMGetLabel(dmMesh, cellsLabelName, &labelMaterials));
+    PylithCallPetscRequire(DMGetLabel(dmMesh, cellsLabelName, &labelMaterials));
     REQUIRE(labelMaterials);
     const PetscInt idDefault = -999;
     for (PetscInt c = cStart, cell = 0; c < cEnd; ++c, ++cell) {
         PetscInt labelValue;
 
-        PylithCallPetsc(DMLabelGetValue(labelMaterials, c, &labelValue));
+        PylithCallPetscRequire(DMLabelGetValue(labelMaterials, c, &labelValue));
         if (labelValue == -1) {
             labelValue = idDefault;
         } // if
         double centroid[3] = {0.0, 0.0, 0.0};
-        err = DMPlexComputeCellGeometryFVM(dmMesh, c, NULL, centroid, NULL);PYLITH_CHECK_ERROR(err);
+        PylithCallPetscRequire(DMPlexComputeCellGeometryFVM(dmMesh, c, NULL, centroid, NULL));
         const PetscInt labelValueE = _data->getMatId(c, _data->numNoncohesiveCells, centroid);
         INFO("cell="<<c<<" with centroid ("<<centroid[0]<<","<<centroid[1]<<","<<centroid[2]<<")");
         CHECK(labelValueE == labelValue);
@@ -143,7 +142,7 @@ pylith::faults::TestAdjustTopology::run(void) {
     REQUIRE(_data->groupNames);
     REQUIRE(_data->groupTypes);
     PetscInt numLabels;
-    PylithCallPetsc(DMGetNumLabels(dmMesh, &numLabels));
+    PylithCallPetscRequire(DMGetNumLabels(dmMesh, &numLabels));
     for (PetscInt iLabel = 0; iLabel < numLabels; ++iLabel) {
         PetscDMLabel label = NULL;
         PetscIS pointIS = NULL;
@@ -158,15 +157,15 @@ pylith::faults::TestAdjustTopology::run(void) {
         ignoreLabels.insert("dim");
         ignoreLabels.insert("celltype");
 
-        PylithCallPetsc(DMGetLabelName(dmMesh, iLabel, &labelName));
+        PylithCallPetscRequire(DMGetLabelName(dmMesh, iLabel, &labelName));
         if (ignoreLabels.count(labelName) > 0) { continue; }
-        PylithCallPetsc(DMGetLabel(dmMesh, labelName, &label));REQUIRE(label);
-        PylithCallPetsc(DMLabelGetStratumIS(label, 1, &pointIS));
-        PylithCallPetsc(ISGetLocalSize(pointIS, &numPoints));
-        PylithCallPetsc(ISGetIndices(pointIS, &points));
-        PylithCallPetsc(DMGetLabelValue(dmMesh, "depth", points[0], &depth));
-        PylithCallPetsc(ISRestoreIndices(pointIS, &points));
-        PylithCallPetsc(ISDestroy(&pointIS));
+        PylithCallPetscRequire(DMGetLabel(dmMesh, labelName, &label));REQUIRE(label);
+        PylithCallPetscRequire(DMLabelGetStratumIS(label, 1, &pointIS));
+        PylithCallPetscRequire(ISGetLocalSize(pointIS, &numPoints));
+        PylithCallPetscRequire(ISGetIndices(pointIS, &points));
+        PylithCallPetscRequire(DMGetLabelValue(dmMesh, "depth", points[0], &depth));
+        PylithCallPetscRequire(ISRestoreIndices(pointIS, &points));
+        PylithCallPetscRequire(ISDestroy(&pointIS));
         std::string groupType = depth ? "face" : "vertex";
 
         bool foundGroup = false;
@@ -244,14 +243,13 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
 
     // check cells
     assert(_data->numCorners);
-    PetscErrorCode err = 0;
     pylith::topology::Stratum cellsStratum(dmMesh, pylith::topology::Stratum::HEIGHT, 0);
     const PetscInt cStart = cellsStratum.begin();
     const PetscInt cEnd = cellsStratum.end();
     REQUIRE(_data->numCells == size_t(cellsStratum.size()));
     for (PetscInt c = cStart, cell = 0; c < cEnd; ++c, ++cell) {
         PetscInt coneSize = 0;
-        err = DMPlexGetConeSize(dmMesh, c, &coneSize);PYLITH_CHECK_ERROR(err);
+        PylithCallPetscRequire(DMPlexGetConeSize(dmMesh, c, &coneSize));
         INFO("cell="<<cell);
         CHECK(_data->numCorners[cell] == coneSize);
     } // for
@@ -260,18 +258,18 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
     assert(_data->getMatId);
     PetscDMLabel labelMaterials = NULL;
     const char* const cellsLabelName = pylith::topology::Mesh::cells_label_name;
-    err = DMGetLabel(dmMesh, cellsLabelName, &labelMaterials);PYLITH_CHECK_ERROR(err);
+    PylithCallPetscRequire(DMGetLabel(dmMesh, cellsLabelName, &labelMaterials));
     assert(labelMaterials);
     const PetscInt idDefault = -999;
     for (PetscInt c = cStart, cell = 0; c < cEnd; ++c, ++cell) {
         PetscInt labelValue;
 
-        err = DMLabelGetValue(labelMaterials, c, &labelValue);PYLITH_CHECK_ERROR(err);
+        PylithCallPetscRequire(DMLabelGetValue(labelMaterials, c, &labelValue));
         if (labelValue == -1) {
             labelValue = idDefault;
         } // if
         double centroid[3];
-        err = DMPlexComputeCellGeometryFVM(dmMesh, c, NULL, centroid, NULL);PYLITH_CHECK_ERROR(err);
+        PylithCallPetscRequire(DMPlexComputeCellGeometryFVM(dmMesh, c, NULL, centroid, NULL));
         const PetscInt labelValueE = _data->getMatId(c, _data->numNoncohesiveCells, centroid);
         INFO("cell="<<c<<" with centroid ("<<centroid[0]<<","<<centroid[1]<<","<<centroid[2]<<")");
         CHECK(labelValueE == labelValue);
@@ -282,7 +280,7 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
     assert(_data->groupNames);
     assert(_data->groupTypes);
     PetscInt numLabels;
-    err = DMGetNumLabels(dmMesh, &numLabels);PYLITH_CHECK_ERROR(err);
+    PylithCallPetscRequire(DMGetNumLabels(dmMesh, &numLabels));
     for (PetscInt iLabel = 0; iLabel < numLabels; ++iLabel) {
         PetscDMLabel label = NULL;
         PetscIS pointIS = NULL;
@@ -297,17 +295,17 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
         ignoreLabels.insert("dim");
         ignoreLabels.insert("celltype");
 
-        err = DMGetLabelName(dmMesh, iLabel, &labelName);PYLITH_CHECK_ERROR(err);
+        PylithCallPetscRequire(DMGetLabelName(dmMesh, iLabel, &labelName));
         if (ignoreLabels.count(labelName) > 0) { continue; }
         INFO("Checking label '" <<labelName << "'");
-        err = DMGetLabel(dmMesh, labelName, &label);PYLITH_CHECK_ERROR(err);assert(label);
-        err = DMLabelGetStratumIS(label, 1, &pointIS);PYLITH_CHECK_ERROR(err);
+        PylithCallPetscRequire(DMGetLabel(dmMesh, labelName, &label));
+        PylithCallPetscRequire(DMLabelGetStratumIS(label, 1, &pointIS));
         REQUIRE(pointIS);
-        err = ISGetLocalSize(pointIS, &numPoints);PYLITH_CHECK_ERROR(err);
-        err = ISGetIndices(pointIS, &points);PYLITH_CHECK_ERROR(err);
-        err = DMGetLabelValue(dmMesh, "depth", points[0], &depth);PYLITH_CHECK_ERROR(err);
-        err = ISRestoreIndices(pointIS, &points);PYLITH_CHECK_ERROR(err);
-        err = ISDestroy(&pointIS);PYLITH_CHECK_ERROR(err);
+        PylithCallPetscRequire(ISGetLocalSize(pointIS, &numPoints));
+        PylithCallPetscRequire(ISGetIndices(pointIS, &points));
+        PylithCallPetscRequire(DMGetLabelValue(dmMesh, "depth", points[0], &depth));
+        PylithCallPetscRequire(ISRestoreIndices(pointIS, &points));
+        PylithCallPetscRequire(ISDestroy(&pointIS));
         std::string groupType = depth ? "face" : "vertex";
 
         bool foundGroup = false;

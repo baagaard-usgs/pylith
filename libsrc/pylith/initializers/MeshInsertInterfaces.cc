@@ -18,7 +18,7 @@
 #include "pylith/topology/Distributor.hh" // USES Distributor
 #include "pylith/materials/Material.hh" // USES Material
 #include "pylith/faults/FaultCohesive.hh" // USES FaultCohesive
-#include "pylith/utils/error.hh" // USES PYLITH_CHECK_ERROR
+#include "pylith/utils/error.hh" // USES PylithCallPetsc()
 #include "pylith/utils/journals.hh" // USES PYLITH_COMPONENT_*
 
 // ------------------------------------------------------------------------------------------------
@@ -48,15 +48,14 @@ pylith::initializers::MeshInsertInterfaces::run(pylith::topology::Mesh* mesh,
                                                 const pylith::problems::Problem& problem) {
     PYLITH_METHOD_BEGIN;
     assert(mesh);
-    PetscErrorCode err = PETSC_SUCCESS;
 
     if (!problem.getInterfaces().size()) {
         PetscDM dmOrig = mesh->getDM();assert(dmOrig);
-        err = PetscObjectReference((PetscObject) dmOrig);PYLITH_CHECK_ERROR(err);
+        PylithCallPetsc(PetscObjectReference((PetscObject) dmOrig));
         pylith::topology::Mesh* meshNew = new pylith::topology::Mesh(dmOrig, *mesh);
         PYLITH_METHOD_RETURN(meshNew);
     } // if
-    err = DMPlexCheckGeometry(mesh->getDM());PYLITH_CHECK_ERROR_MSG(err, "Error in topology of the mesh.");
+    PylithCallPetsc(DMPlexCheckGeometry(mesh->getDM()));
 
     pythia::journal::debug_t debug("initialize_mesh");
     if (debug.state()) {
@@ -85,7 +84,7 @@ pylith::initializers::MeshInsertInterfaces::run(pylith::topology::Mesh* mesh,
         cohesiveLabelValue += 1;
     } // for
 
-    err = DMPlexCheckGeometry(meshNew->getDM());PYLITH_CHECK_ERROR(err);
+    PylithCallPetsc(DMPlexCheckGeometry(meshNew->getDM()));
 
     if (debug.state()) {
         DMPlexCheckTransform(meshNew->getDM());
@@ -97,19 +96,19 @@ pylith::initializers::MeshInsertInterfaces::run(pylith::topology::Mesh* mesh,
 
     PetscDM dmNew = nullptr;
     // Set overlap since cohesive cells can be put in the SF
-    err = DMPlexSetOverlap(meshNew->getDM(), nullptr, 1);PYLITH_CHECK_ERROR(err);
+    PylithCallPetsc(DMPlexSetOverlap(meshNew->getDM(), nullptr, 1));
     pylith::topology::Distributor::distributeOverlap(&dmNew, meshNew->getDM(), problem.getInterfaces());
     meshNew->setDM(dmNew);
 
     /* Need to reorder supports of cohesive cells after migration */
     DMPlexTransform tr;
-    err = DMPlexTransformCreate(meshNew->getComm(), &tr);PYLITH_CHECK_ERROR(err);
-    err = DMPlexTransformSetType(tr, DMPLEXCOHESIVEEXTRUDE);PYLITH_CHECK_ERROR(err);
-    //err = DMPlexTransformSetUp(tr);PYLITH_CHECK_ERROR(err);
-    err = DMPlexTransformOrderSupports(tr, dmNew, dmNew);PYLITH_CHECK_ERROR(err);
-    err = DMPlexTransformDestroy(&tr);PYLITH_CHECK_ERROR(err);
+    PylithCallPetsc(DMPlexTransformCreate(meshNew->getComm(), &tr));
+    PylithCallPetsc(DMPlexTransformSetType(tr, DMPLEXCOHESIVEEXTRUDE));
+    // PylithCallPetsc(DMPlexTransformSetUp(tr));
+    PylithCallPetsc(DMPlexTransformOrderSupports(tr, dmNew, dmNew));
+    PylithCallPetsc(DMPlexTransformDestroy(&tr));
 
-    err = DMPlexCheckGeometry(meshNew->getDM());PYLITH_CHECK_ERROR(err);
+    PylithCallPetsc(DMPlexCheckGeometry(meshNew->getDM()));
 
     PYLITH_METHOD_RETURN(meshNew);
 } // run

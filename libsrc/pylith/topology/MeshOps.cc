@@ -395,13 +395,11 @@ pylith::topology::MeshOps::explode(const Mesh& mesh,
     PYLITH_METHOD_BEGIN;
     const double shrink = 0.8;
 
-    PetscErrorCode err = PETSC_SUCCESS;
-
     // Compute center of domain bounding box
     double domainCenter[3] = {0.0, 0.0, 0.0};
     PylithReal coordMin[3];
     PylithReal coordMax[3];
-    err = DMGetBoundingBox(mesh.getDM(), coordMin, coordMax);PYLITH_CHECK_ERROR(err);
+    PylithCallPetsc(DMGetBoundingBox(mesh.getDM(), coordMin, coordMax));
     for (int i = 0; i < 3; ++i) {
         domainCenter[i] = 0.5 * (coordMin[i] + coordMax[i]);
     } // for
@@ -416,7 +414,7 @@ pylith::topology::MeshOps::explode(const Mesh& mesh,
         PetscReal cellCentroid[3];
         PetscReal cellVolume = 0.0;
 
-        err = DMPlexComputeCellGeometryFVM(mesh.getDM(), cell, &cellVolume, cellCentroid, nullptr);PYLITH_CHECK_ERROR(err);
+        PylithCallPetsc(DMPlexComputeCellGeometryFVM(mesh.getDM(), cell, &cellVolume, cellCentroid, nullptr));
         for (size_t i = 0; i < spaceDim; ++i) {
             centroid[i] += cellCentroid[i] * cellVolume;
         } // for
@@ -434,15 +432,15 @@ pylith::topology::MeshOps::explode(const Mesh& mesh,
     pylith::topology::Mesh* meshExploded = mesh.clone();assert(meshExploded);
     PetscVec coordsOrig = nullptr;
     PetscVec coordsNew = nullptr;
-    err = DMGetCoordinatesLocal(meshExploded->getDM(), &coordsOrig);PYLITH_CHECK_ERROR(err);
-    err = VecDuplicate(coordsOrig, &coordsNew);PYLITH_CHECK_ERROR(err);
-    err = VecCopy(coordsOrig, coordsNew);PYLITH_CHECK_ERROR(err);
+    PylithCallPetsc(DMGetCoordinatesLocal(meshExploded->getDM(), &coordsOrig));
+    PylithCallPetsc(VecDuplicate(coordsOrig, &coordsNew));
+    PylithCallPetsc(VecCopy(coordsOrig, coordsNew));
 
     // Update coordinates
     PetscScalar* coordsArray = nullptr;
     PetscInt coordDim = 0;
-    err = VecGetArray(coordsNew, &coordsArray);PYLITH_CHECK_ERROR(err);
-    err = DMGetCoordinateDim(meshExploded->getDM(), &coordDim);PYLITH_CHECK_ERROR(err);
+    PylithCallPetsc(VecGetArray(coordsNew, &coordsArray));
+    PylithCallPetsc(DMGetCoordinateDim(meshExploded->getDM(), &coordDim));
 
     // Shift all coordinates on this process
     pylith::topology::Stratum vertices(meshExploded->getDM(), topology::Stratum::DEPTH, 0);
@@ -465,22 +463,22 @@ pylith::topology::MeshOps::explode(const Mesh& mesh,
     std::set<PetscInt> movedVerticesNeg;
     for (PetscInt cell = cells.begin(); cell < cells.end(); ++cell) {
         DMPolytopeType ct;
-        err = DMPlexGetCellType(dmExploded, cell, &ct);PYLITH_CHECK_ERROR(err);
+        PylithCallPetsc(DMPlexGetCellType(dmExploded, cell, &ct));
         if ((ct == DM_POLYTOPE_POINT_PRISM_TENSOR) ||
             (ct == DM_POLYTOPE_SEG_PRISM_TENSOR) ||
             (ct == DM_POLYTOPE_TRI_PRISM_TENSOR) ||
             (ct == DM_POLYTOPE_QUAD_PRISM_TENSOR)) {
             const PetscInt* cone;
             PetscInt coneSize;
-            err = DMPlexGetCone(dmExploded, cell, &cone);PYLITH_CHECK_ERROR(err);
-            err = DMPlexGetConeSize(dmExploded, cell, &coneSize);PYLITH_CHECK_ERROR(err);
+            PylithCallPetsc(DMPlexGetCone(dmExploded, cell, &cone));
+            PylithCallPetsc(DMPlexGetConeSize(dmExploded, cell, &coneSize));
             assert(coneSize > 2);
             const PetscInt faultFaceNeg = cone[0];
             const PetscInt faultFacePos = cone[1];
 
             // Get fault normal
             PetscReal faultNormal[3]; // fault normal points out of cell
-            err = DMPlexComputeCellGeometryFVM(dmExploded, faultFaceNeg, nullptr, nullptr, faultNormal);PYLITH_CHECK_ERROR(err);
+            PylithCallPetsc(DMPlexComputeCellGeometryFVM(dmExploded, faultFaceNeg, nullptr, nullptr, faultNormal));
 
             PetscReal scale = +0.15 * avgCellDim;
             _MeshOps::moveFaultVertices(&coordsArray, &movedVerticesNeg, dmExploded, faultFaceNeg, faultNormal, scale, vStart, vEnd);
@@ -490,9 +488,9 @@ pylith::topology::MeshOps::explode(const Mesh& mesh,
         } // if
     } // for
 
-    err = VecRestoreArray(coordsNew, &coordsArray);PYLITH_CHECK_ERROR(err);
-    err = DMSetCoordinatesLocal(meshExploded->getDM(), coordsNew);PYLITH_CHECK_ERROR(err);
-    err = VecDestroy(&coordsNew);PYLITH_CHECK_ERROR(err);
+    PylithCallPetsc(VecRestoreArray(coordsNew, &coordsArray));
+    PylithCallPetsc(DMSetCoordinatesLocal(meshExploded->getDM(), coordsNew));
+    PylithCallPetsc(VecDestroy(&coordsNew));
 
     PYLITH_METHOD_RETURN(meshExploded);
 } // explode
@@ -510,14 +508,13 @@ pylith::topology::_MeshOps::moveFaultVertices(PetscScalar** coordsArray,
                                               const PetscInt vEnd) {
     PYLITH_METHOD_BEGIN;
 
-    PetscErrorCode err = PETSC_SUCCESS;
     PetscInt coordDim = 0;
-    err = DMGetCoordinateDim(dmMesh, &coordDim);PYLITH_CHECK_ERROR(err);
+    PylithCallPetsc(DMGetCoordinateDim(dmMesh, &coordDim));
 
     // Get closure of face and screen out to get just the vertices
     PetscInt *closure = NULL;
     PetscInt closureSize = 0;
-    err = DMPlexGetTransitiveClosure(dmMesh, faultFace, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
+    PylithCallPetsc(DMPlexGetTransitiveClosure(dmMesh, faultFace, PETSC_TRUE, &closureSize, &closure));
     for (PetscInt s = 0; s < closureSize*2; s += 2) {
         const PetscInt point = closure[s];
 
@@ -531,7 +528,7 @@ pylith::topology::_MeshOps::moveFaultVertices(PetscScalar** coordsArray,
             (*coordsArray)[index+iDim] += scale * faultNormal[iDim];
         } // for
     } // for
-    err = DMPlexRestoreTransitiveClosure(dmMesh, faultFace, PETSC_TRUE, &closureSize, &closure);PYLITH_CHECK_ERROR(err);
+    PylithCallPetsc(DMPlexRestoreTransitiveClosure(dmMesh, faultFace, PETSC_TRUE, &closureSize, &closure));
 
     PYLITH_METHOD_END;
 } // moveFaultVertices
