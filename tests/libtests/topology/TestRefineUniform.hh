@@ -41,7 +41,7 @@ private:
      *
      * @mesh Mesh to setup.
      */
-    void _initializeMesh(Mesh* const mesh);
+    void _initializeMesh(Mesh* mesh);
 
     TestRefineUniform_Data* _data; ///< Data for testing.
 

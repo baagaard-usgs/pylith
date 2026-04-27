@@ -182,6 +182,7 @@ pylith::meshio::TestDataWriterHDF5::checkFile(const char* filename) {
     PYLITH_METHOD_BEGIN;
 
     const std::string filenameE = "data/" + std::string(filename);
+    INFO("Checking file '" << filename << "' againts '" << filenameE << "'.");
 
     herr_t err = 0;
 

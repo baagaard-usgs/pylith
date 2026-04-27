@@ -206,7 +206,8 @@ pylith::topology::TestReverseCuthillMcKee::_initialize() {
         pylith::faults::FaultCohesiveStub fault;
         fault.setCohesiveLabelValue(100);
         fault.setSurfaceLabelName(_data->faultLabel);
-        fault.adjustTopology(_mesh);
+        pylith::topology::Mesh* meshNew = fault.transformTopology(_mesh);
+        delete _mesh;_mesh = meshNew;
     } // if
 
     PYLITH_METHOD_END;

@@ -173,7 +173,7 @@ pylith::topology::TestRefineUniform::testRefine(void) {
 
 // ------------------------------------------------------------------------------------------------
 void
-pylith::topology::TestRefineUniform::_initializeMesh(Mesh* const mesh) {
+pylith::topology::TestRefineUniform::_initializeMesh(Mesh* mesh) {
     PYLITH_METHOD_BEGIN;
     REQUIRE(_data);
     REQUIRE(mesh);
@@ -187,14 +187,16 @@ pylith::topology::TestRefineUniform::_initializeMesh(Mesh* const mesh) {
         faults::FaultCohesiveStub faultA;
         faultA.setCohesiveLabelValue(100);
         faultA.setSurfaceLabelName(_data->faultA);
-        faultA.adjustTopology(mesh);
+        pylith::topology::Mesh* meshNew = faultA.transformTopology(mesh);
+        delete mesh;mesh = meshNew;
     } // if
 
     if (_data->faultB) {
         faults::FaultCohesiveStub faultB;
         faultB.setCohesiveLabelValue(101);
         faultB.setSurfaceLabelName(_data->faultB);
-        faultB.adjustTopology(mesh);
+        pylith::topology::Mesh* meshNew = faultB.transformTopology(mesh);
+        delete mesh;mesh = meshNew;
     } // if
 
     PYLITH_METHOD_END;

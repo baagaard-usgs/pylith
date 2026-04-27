@@ -11,7 +11,7 @@
 import unittest
 
 from pylith.testing.TestCases import TestAbstractComponent, make_suite
-from pylith.topology.MeshRefiner import MeshRefiner
+from pylith.initializers.MeshRefiner import MeshRefiner
 
 
 class TestMeshRefiner(TestAbstractComponent):
