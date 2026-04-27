@@ -233,6 +233,7 @@ pylith::faults::FaultCohesive::setRefDir2(const double vec[3]) {
 } // setRefDir2
 
 
+#if 0
 // ------------------------------------------------------------------------------------------------
 // Adjust mesh topology for fault implementation.
 void
@@ -298,6 +299,8 @@ pylith::faults::FaultCohesive::adjustTopology(pylith::topology::Mesh* const mesh
     PYLITH_METHOD_END;
 } // adjustTopology
 
+
+#endif
 
 // ------------------------------------------------------------------------------------------------
 // Transform mesh topology for fault implementation.

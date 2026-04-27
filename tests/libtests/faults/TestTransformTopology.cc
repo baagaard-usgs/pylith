@@ -10,7 +10,7 @@
 
 #include <portinfo>
 
-#include "TestAdjustTopology.hh"
+#include "TestTransformTopology.hh"
 
 #include "tests/src/FaultCohesiveStub.hh" // USES FaultsCohesiveStub
 
@@ -35,26 +35,27 @@
 
 // ------------------------------------------------------------------------------------------------
 // Constructor
-pylith::faults::TestAdjustTopology::TestAdjustTopology(TestAdjustTopology_Data* data) :
+pylith::faults::TestTransformTopology::TestTransformTopology(TestTransformTopology_Data* data) :
     _data(data),
     _mesh(nullptr) {
     REQUIRE(_data);
-    GenericComponent::setName("TestAdjustTopology");
+    GenericComponent::setName("TestTransformTopology");
 } // constructor
 
 
 // ------------------------------------------------------------------------------------------------
 // Destructor
-pylith::faults::TestAdjustTopology::~TestAdjustTopology(void) {
+pylith::faults::TestTransformTopology::~TestTransformTopology(void) {
     delete _data;_data = nullptr;
     delete _mesh;_mesh = nullptr;
 } // tearDown
 
 
+#if 0
 // ------------------------------------------------------------------------------------------------
 // Run adjustTopology().
 void
-pylith::faults::TestAdjustTopology::run(void) {
+pylith::faults::TestTransformTopology::run(void) {
     _initialize();
     REQUIRE(_mesh);
     REQUIRE(_data);
@@ -187,10 +188,12 @@ pylith::faults::TestAdjustTopology::run(void) {
 } // run
 
 
+#endif
+
 // ------------------------------------------------------------------------------------------------
 // Test creation of cohesive cells using TransformApply().
 void
-pylith::faults::TestAdjustTopology::run_transform(void) {
+pylith::faults::TestTransformTopology::run(void) {
     _initialize();
     assert(_mesh);
     assert(_data);
@@ -327,7 +330,7 @@ pylith::faults::TestAdjustTopology::run_transform(void) {
 
 // ------------------------------------------------------------------------------------------------
 void
-pylith::faults::TestAdjustTopology::_initialize(void) {
+pylith::faults::TestTransformTopology::_initialize(void) {
     PYLITH_METHOD_BEGIN;
     REQUIRE(_data);
 
@@ -348,7 +351,7 @@ pylith::faults::TestAdjustTopology::_initialize(void) {
 
 // ------------------------------------------------------------------------------------------------
 // Constructor
-pylith::faults::TestAdjustTopology_Data::TestAdjustTopology_Data(void) :
+pylith::faults::TestTransformTopology_Data::TestTransformTopology_Data(void) :
     filename(NULL),
     numFaults(0),
     faultSurfaceLabels(NULL),
@@ -370,7 +373,7 @@ pylith::faults::TestAdjustTopology_Data::TestAdjustTopology_Data(void) :
 
 // ------------------------------------------------------------------------------------------------
 // Destructor
-pylith::faults::TestAdjustTopology_Data::~TestAdjustTopology_Data(void) {}
+pylith::faults::TestTransformTopology_Data::~TestTransformTopology_Data(void) {}
 
 
 // End of file

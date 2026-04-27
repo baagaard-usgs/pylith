@@ -20,6 +20,7 @@
 #include <iostream> // USES std::cout
 #include <cassert> // USES assert()
 
+#if 0
 // ------------------------------------------------------------------------------------------------
 void
 pylith::faults::TopologyOps::createFault(pylith::topology::Mesh* faultMesh,
@@ -421,6 +422,7 @@ pylith::faults::TopologyOps::classifyCellsDM(PetscDM dmDomain,
     // More checking
     noReplaceCells.insert(vNoReplaceCells.begin(), vNoReplaceCells.end());
 } // classifyCellsDM
+#endif
 
 // ------------------------------------------------------------------------------------------------
 void
