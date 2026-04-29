@@ -154,6 +154,23 @@ pylith::meshio::FieldFactory::setValues(const PylithScalar* values,
                                         const PylithInt numDOF) {
     PYLITH_METHOD_BEGIN;
 
+    /**
+     * DMProjectFunctionLocal(dm, time, funcs, contexts, INSERT_BC_VALUES, localX);
+     *
+     * PetscErrorCode analytical_fn(PetscInt spaceDim, PetscReal t, const PetscReal x[], PetscInt numComponents,
+     *PetscScalar* output, void* context);
+     * PetscDM dmMesh = PEtscDM(context);
+     * PetscInt cell = -1;
+     * err = DMPlexGetActivePoint(dmMesh, &cell);
+     * if (err) { return err; }
+     *
+     * double centroid[3] = { 0.0, 0.0, 0.0 };
+     * err = DMPlexComputeCellGeometryFVM(dmMesh, cell, NULL, centroid, NULL);
+     * if (err) { return err; }
+     *
+     * if (centroid[0] < X_FAULT) {} else {}
+     */
+
     pylith::topology::VecVisitorMesh fieldVisitor(_field);
     PylithScalar* fieldArray = fieldVisitor.localArray();REQUIRE(fieldArray);
     const PylithInt fieldSize = numPoints * numDOF;
