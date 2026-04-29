@@ -8,9 +8,9 @@
  */
 static inline
 void
-traction(const pylith::fekernels::Tensor& stress,
-         const PylithReal n[],
-         PylithReal traction[]) {
+traction(const pylith::fekernels::Tensor2& stress,
+         const pylith::real n[],
+         pylith::real traction[]) {
     assert(traction);
 
     traction[0] = n[0]*stress.xx + n[1]*stress.xy;

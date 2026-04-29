@@ -11,16 +11,13 @@
 
 #include "pylith/utils/types.hh"
 
-#include "pylith/fekernels/common/kernel.hh"
+#include "pylith/fekernels/common/Kernel.hh"
 #include "pylith/fekernels/common/Utils.hh"
-#include "pylith/fekernels/common/ArgFields.hh"
+#include "pylith/fekernels/common/VectorField.hh"
 #include "pylith/fekernels/common/OptionalFields.hh"
 
-#include <cassert>
 #include <cstddef>
 
-
-namespace common = pylith::fekernels::common;
 
 namespace pylith::fekernels::pde::elasticity {
     // Flags for elasticity solution
@@ -30,40 +27,25 @@ namespace pylith::fekernels::pde::elasticity {
         INERTIA=1 << 1,
     }; // SolutionFlags
 
-    PYLITH_KERNEL constexpr SolutionFlags
-    operator|(SolutionFlags a,
-              SolutionFlags b) noexcept {
-        return static_cast<SolutionFlags>(
-            static_cast<size_t>(a) | static_cast<size_t>(b));
-    } // operator|
+    PYLITH_KERNEL constexpr SolutionFlags operator|(SolutionFlags a,
+                                                    SolutionFlags b) noexcept;
 
 
-    PYLITH_KERNEL constexpr SolutionFlags&
-    operator|=(SolutionFlags& a,
-               SolutionFlags b) noexcept {
-        a = a | b;
-        return a;
-    }
+    PYLITH_KERNEL constexpr SolutionFlags&operator|=(SolutionFlags& a,
+                                                     SolutionFlags b) noexcept;
 
 
-    PYLITH_KERNEL constexpr bool
-    operator&(SolutionFlags a,
-              SolutionFlags b) noexcept {
-        return static_cast<size_t>(a) & static_cast<size_t>(b);
-    }
+    PYLITH_KERNEL constexpr bool operator&(SolutionFlags a,
+                                           SolutionFlags b) noexcept;
 
-
-    template<SolutionFlags flags> struct SolutionLayout;
+    template<SolutionFlags flags> class SolutionLayout;
 } // namespace
 
 
 /// Layout of solution field for elasticity
 template<pylith::fekernels::pde::elasticity::SolutionFlags flags>
-struct pylith::fekernels::pde::elasticity::SolutionLayout {
-    // Is a given flag present?
-    static constexpr bool has(SolutionFlags f) {
-        return (flags & f);
-    } // has
+class pylith::fekernels::pde::elasticity::SolutionLayout {
+public:
 
     /// Order of solution subfields
     enum class Fields : uint32_t {
@@ -74,9 +56,14 @@ struct pylith::fekernels::pde::elasticity::SolutionLayout {
                     + pylith::fekernels::common::addIf(has(SolutionFlags::FAULT))
     };
 
+    // Is a given flag present?
+    static constexpr bool has(SolutionFlags f) noexcept;
+
     /// Struct wth names for holding subfields
     template <typename Dim>
-    struct Unpacked {
+    class Unpacked {
+public:
+
         using Layout = pylith::fekernels::pde::elasticity::SolutionLayout<flags>;
 
         pylith::fekernels::common::VectorField<Dim> displacement;
@@ -90,10 +77,7 @@ struct pylith::fekernels::pde::elasticity::SolutionLayout {
 
         // Type-safe accessor — compile error if field not present
         template <SolutionFlags F>
-        PYLITH_KERNEL const auto& get() const noexcept requires(Layout::has(F)) {
-            if constexpr (F == SolutionFlags::INERTIA) { return velocity.member;}
-            if constexpr (F == SolutionFlags::FAULT) { return lagrange_multiplier_fault.member;}
-        } // get()
+        PYLITH_KERNEL const auto& get() const noexcept requires(Layout::has(F));
 
     }; // Unpacked
 
@@ -103,32 +87,9 @@ struct pylith::fekernels::pde::elasticity::SolutionLayout {
                                               const pylith::integer sOff_x[],
                                               const pylith::scalar s[],
                                               const pylith::scalar s_t[],
-                                              const pylith::scalar s_x[]) {
-        Unpacked<Dim> data;
-
-        data.displacement = {
-            &s[sOff[common::toIndex(Fields::DISPLACEMENT)]],
-            s_t ? &s_t[sOff[common::toIndex(Fields::DISPLACEMENT)]] : nullptr,
-            s_x ? &s_x[sOff_x[common::toIndex(Fields::DISPLACEMENT)]] : nullptr,
-        };
-
-        if constexpr (has(SolutionFlags::INERTIA)) {
-            data.velocity = {
-                &s[sOff[common::toIndex(Fields::INERTIA)]],
-                s_t ? &s_t[sOff[common::toIndex(Fields::INERTIA)]] : nullptr,
-                s_x ? &s_x[sOff_x[common::toIndex(Fields::INERTIA)]] : nullptr,
-            };
-        }
-
-        if constexpr (has(SolutionFlags::FAULT)) {
-            data.lagrange_multiplier_fault = {
-                &s[sOff[common::toIndex(Fields::LAGRANGE_MULTIPLIER_FAULT)]],
-                s_t ? &s_t[sOff[common::toIndex(Fields::LAGRANGE_MULTIPLIER_FAULT)]] : nullptr,
-                s_x ? &s_x[sOff_x[common::toIndex(Fields::LAGRANGE_MULTIPLIER_FAULT)]] : nullptr,
-            };
-        }
-
-        return data;
-    } // unpack
+                                              const pylith::scalar s_x[]);
 
 }; // SolutionLayout
+
+
+#include "SolutionLayout.icc"
