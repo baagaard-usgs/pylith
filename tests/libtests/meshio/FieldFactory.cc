@@ -14,7 +14,7 @@
 
 #include "pylith/topology/Mesh.hh" // USES Mesh
 #include "pylith/topology/Field.hh" // USES Field
-#include "pylith/topology/VisitorMesh.hh" // USES VecVisitorMesh
+#include "pylith/utils/error.hh" // USES PylithCallPetscRequire()
 
 #include "catch2/catch_test_macros.hpp"
 
@@ -149,34 +149,15 @@ pylith::meshio::FieldFactory::addOther(const pylith::topology::FieldBase::Discre
 
 // ------------------------------------------------------------------------------------------------
 void
-pylith::meshio::FieldFactory::setValues(const PylithScalar* values,
-                                        const PylithInt numPoints,
-                                        const PylithInt numDOF) {
+pylith::meshio::FieldFactory::setValues(PetscUserFieldFunc fieldFn) {
     PYLITH_METHOD_BEGIN;
 
-    /**
-     * DMProjectFunctionLocal(dm, time, funcs, contexts, INSERT_BC_VALUES, localX);
-     *
-     * PetscErrorCode analytical_fn(PetscInt spaceDim, PetscReal t, const PetscReal x[], PetscInt numComponents,
-     *PetscScalar* output, void* context);
-     * PetscDM dmMesh = PEtscDM(context);
-     * PetscInt cell = -1;
-     * err = DMPlexGetActivePoint(dmMesh, &cell);
-     * if (err) { return err; }
-     *
-     * double centroid[3] = { 0.0, 0.0, 0.0 };
-     * err = DMPlexComputeCellGeometryFVM(dmMesh, cell, NULL, centroid, NULL);
-     * if (err) { return err; }
-     *
-     * if (centroid[0] < X_FAULT) {} else {}
-     */
-
-    pylith::topology::VecVisitorMesh fieldVisitor(_field);
-    PylithScalar* fieldArray = fieldVisitor.localArray();REQUIRE(fieldArray);
-    const PylithInt fieldSize = numPoints * numDOF;
-    REQUIRE(fieldSize == _field.getStorageSize());
-    for (PylithInt i = 0; i < fieldSize; ++i) {
-        fieldArray[i] = values[i];
+    const size_t numFields = _field.getSubfieldNames().size();
+    std::vector<PetscUserFieldFunc> fieldFns(numFields, fieldFn);
+    std::vector<PetscDM> contexts(numFields, _field.getDM());
+    for (size_t iField = 0; iField < numFields; ++iField) {
+        const PylithReal time = 0.0;
+        PylithCallPetscRequire(DMProjectFunctionLocal(_field.getDM(), time, fieldFns.data(), (void**)contexts.data(), INSERT_VALUES, _field.getLocalVector()));
     } // for
 
     PYLITH_METHOD_END;

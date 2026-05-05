@@ -37,7 +37,7 @@ namespace pylith {
 public:
 
                 std::string name;
-                size_t cellDim; // :TODO: Set and check
+                size_t cellDim;
                 std::vector<PylithReal> vertices;
                 std::vector<PylithInt> cells;
                 std::vector<PylithReal> time;
@@ -47,12 +47,10 @@ public:
                     size_t numTimes;
                     size_t numComponents;
                     size_t numPoints;
-                    std::string vectorFieldType; // :TODO: Set and check
+                    std::string vectorFieldType;
                 };
                 std::map<std::string, Field> vertexFields;
                 std::map<std::string, Field> cellFields;
-
-                std::vector<size_t> cellsOrder; // :TODO: Set and use
 
                 size_t numVertices;
                 size_t spaceDim;
@@ -141,7 +139,9 @@ void
 pylith::meshio::_TestDataWriterHDF5::MeshData::_loadTopology(pylith::meshio::HDF5& h5) {
     PYLITH_METHOD_BEGIN;
 
-    REQUIRE(h5.hasDataset("/viz/topology/cells"));
+    const std::string& topologyPath = "/viz/topology/cells";
+
+    REQUIRE(h5.hasDataset(topologyPath.c_str()));
     REQUIRE(sizeof(size_t) == sizeof(uint64_t));
 
     HDF5::Dataset<PylithInt> dataset = h5.readDataset<PylithInt>("/viz/topology", "cells");
@@ -149,6 +149,7 @@ pylith::meshio::_TestDataWriterHDF5::MeshData::_loadTopology(pylith::meshio::HDF
     numCells = dataset.dims[0];
     numCorners = dataset.dims[1];
     cells = dataset.data;
+    cellDim = h5.readAttribute<int>(topologyPath.c_str(), "cell_dim");
 
     PYLITH_METHOD_END;
 } // _loadTopology
@@ -172,7 +173,7 @@ pylith::meshio::_TestDataWriterHDF5::MeshData::_loadTime(pylith::meshio::HDF5& h
     } // if/else
 
     PYLITH_METHOD_END;
-}
+} // _loadTime
 
 
 // ------------------------------------------------------------------------------------------------
@@ -193,9 +194,15 @@ pylith::meshio::_TestDataWriterHDF5::MeshData::_loadFields(pylith::meshio::HDF5&
         HDF5::Dataset<double> dataset = h5.readDataset<double>(group, name.c_str());
 
         Field field;
-        field.numTimes = dataset.dims[0];
-        field.numPoints = dataset.dims[1];
-        field.numComponents = dataset.dims[2];
+        if (dataset.dims.size() == 3) {
+            field.numTimes = dataset.dims[0];
+            field.numPoints = dataset.dims[1];
+            field.numComponents = dataset.dims[2];
+        } else {
+            field.numTimes = 1;
+            field.numPoints = dataset.dims[0];
+            field.numComponents = dataset.dims[1];
+        } // if/else
 
         field.data = dataset.data;
 
@@ -206,7 +213,7 @@ pylith::meshio::_TestDataWriterHDF5::MeshData::_loadFields(pylith::meshio::HDF5&
     } // for
 
     PYLITH_METHOD_RETURN(fields);
-}
+} // _loadFields
 
 
 // ------------------------------------------------------------------------------------------------
@@ -375,6 +382,7 @@ pylith::meshio::_TestDataWriterHDF5::MeshData::_checkTopology(const MeshData& re
     INFO("Checking topology.");
     REQUIRE(reference.numCells == candidate.numCells);
     REQUIRE(reference.numCorners == candidate.numCorners);
+    REQUIRE(reference.cellDim == candidate.cellDim);
 
     // Geometry information used in checking topology
     REQUIRE(reference.numVertices == candidate.numVertices);
@@ -427,7 +435,7 @@ pylith::meshio::_TestDataWriterHDF5::MeshData::_checkTime(const MeshData& refere
     } // for
 
     PYLITH_METHOD_END;
-}
+} // _checkTime
 
 
 // ------------------------------------------------------------------------------------------------
@@ -436,18 +444,19 @@ pylith::meshio::_TestDataWriterHDF5::MeshData::_checkVertexFields(const MeshData
                                                                   const MeshData& candidate) {
     PYLITH_METHOD_BEGIN;
 
-#if 0
+#if 1
     REQUIRE(candidate.vertexFields.size() == reference.vertexFields.size());
 #endif
+    const std::vector<size_t>& referenceOrder = reference._getCellsOrder();
+    const std::vector<size_t>& candidateOrder = candidate._getCellsOrder();
     for (const auto& kv : reference.vertexFields) {
         const std::string& name = kv.first;
         const Field& referenceField = kv.second;
+        INFO("Checking vertex field '" << name << "'.");
 
         const auto& iterC = candidate.vertexFields.find(name);
         REQUIRE(iterC != candidate.vertexFields.end());
         const Field& candidateField = iterC->second;
-
-        INFO("Checking vertex field '" << name << "'.");
 
         REQUIRE(reference.numVertices == candidate.numVertices);
         REQUIRE(reference.spaceDim == candidate.spaceDim);
@@ -455,12 +464,10 @@ pylith::meshio::_TestDataWriterHDF5::MeshData::_checkVertexFields(const MeshData
         REQUIRE(reference.numCorners == candidate.numCorners);
         REQUIRE(referenceField.numPoints == candidateField.numPoints);
         REQUIRE(referenceField.numComponents == candidateField.numComponents);
+        REQUIRE(referenceField.vectorFieldType == candidateField.vectorFieldType);
 
         const size_t numComponents = referenceField.numComponents;
-        const size_t spaceDim = reference.spaceDim;
         const size_t numCorners = reference.numCorners;
-        const std::vector<size_t>& referenceOrder = reference._getCellsOrder();
-        const std::vector<size_t>& candidateOrder = candidate._getCellsOrder();
 
         const PylithScalar tolerance = 1.0e-6;
         for (size_t iCell = 0; iCell < reference.numCells; ++iCell) {
@@ -476,7 +483,7 @@ pylith::meshio::_TestDataWriterHDF5::MeshData::_checkVertexFields(const MeshData
                 INFO("Checking candidate vertex " << iVertexC << " against reference vertex " << iVertexR << ".");
                 for (size_t iComponent = 0; iComponent < numComponents; ++iComponent) {
                     const PylithScalar toleranceV = std::max(tolerance, tolerance*referenceField.data[iVertexR*numComponents+iComponent]);
-#if 0
+#if 1
                     CHECK_THAT(candidateField.data[iVertexC*numComponents+iComponent],
                                Catch::Matchers::WithinAbs(referenceField.data[iVertexR*numComponents+iComponent], toleranceV));
 #endif
@@ -495,9 +502,12 @@ pylith::meshio::_TestDataWriterHDF5::MeshData::_checkCellFields(const MeshData& 
                                                                 const MeshData& candidate) {
     PYLITH_METHOD_BEGIN;
 
-#if 0 // TEMPORARY
+
+#if 1 // TEMPORARY
     REQUIRE(candidate.vertexFields.size() == reference.vertexFields.size());
 #endif
+    const std::vector<size_t>& referenceOrder = reference._getCellsOrder();
+    const std::vector<size_t>& candidateOrder = candidate._getCellsOrder();
     for (const auto& kv : reference.vertexFields) {
         const std::string& name = kv.first;
         const Field& referenceField = kv.second;
@@ -514,12 +524,9 @@ pylith::meshio::_TestDataWriterHDF5::MeshData::_checkCellFields(const MeshData& 
         REQUIRE(reference.numCorners == candidate.numCorners);
         REQUIRE(referenceField.numPoints == candidateField.numPoints);
         REQUIRE(referenceField.numComponents == candidateField.numComponents);
+        REQUIRE(referenceField.vectorFieldType == candidateField.vectorFieldType);
 
         const size_t numComponents = referenceField.numComponents;
-        const size_t spaceDim = reference.spaceDim;
-        const size_t numCorners = reference.numCorners;
-        const std::vector<size_t>& referenceOrder = reference._getCellsOrder();
-        const std::vector<size_t>& candidateOrder = candidate._getCellsOrder();
 
         const PylithScalar tolerance = 1.0e-6;
         for (size_t iCell = 0; iCell < reference.numCells; ++iCell) {
@@ -529,7 +536,7 @@ pylith::meshio::_TestDataWriterHDF5::MeshData::_checkCellFields(const MeshData& 
 
             for (size_t iComponent = 0; iComponent < numComponents; ++iComponent) {
                 const PylithScalar toleranceV = std::max(tolerance, tolerance*referenceField.data[cellReference*numComponents+iComponent]);
-#if 0
+#if 1
                 CHECK_THAT(candidateField.data[cellCandidate*numComponents+iComponent],
                            Catch::Matchers::WithinAbs(referenceField.data[cellReference*numComponents+iComponent], toleranceV));
 #endif
@@ -542,157 +549,6 @@ pylith::meshio::_TestDataWriterHDF5::MeshData::_checkCellFields(const MeshData& 
 
 
 // ------------------------------------------------------------------------------------------------
-herr_t
-pylith_meshio_TestDataWriterHDF5_checkObject(hid_t id,
-                                             const char* name,
-                                             const H5O_info_t* info,
-                                             void* data) {
-    PYLITH_METHOD_BEGIN;
-    REQUIRE(info);
-    REQUIRE(data);
-
-    INFO("Checking dataset '" << name << "'.");
-
-    hid_t* file = (hid_t*) data;REQUIRE(H5Iis_valid(*file));
-    herr_t err = 0;
-
-    switch (info->type) {
-    case H5O_TYPE_GROUP: {
-        hid_t group = H5Gopen2(*file, name, H5P_DEFAULT);REQUIRE(group >= 0);
-        err = H5Gclose(group);REQUIRE(err >= 0);
-        break;
-    } // group
-    case H5O_TYPE_DATASET: {
-        // Get expected dataset.
-        hid_t datasetE = H5Dopen2(id, name, H5P_DEFAULT);REQUIRE(datasetE >= 0);
-        hid_t dataspaceE = H5Dget_space(datasetE);REQUIRE(dataspaceE >= 0);
-        const int ndimsE = H5Sget_simple_extent_ndims(dataspaceE);REQUIRE(ndimsE > 0);
-        hsize_t* dimsE = (ndimsE > 0) ? new hsize_t[ndimsE] : 0;
-        const int ndimsECheck = H5Sget_simple_extent_dims(dataspaceE, dimsE, 0);
-        REQUIRE(ndimsE == ndimsECheck);
-        int sizeE = (ndimsE > 0 && dimsE[0] > 0) ? 1 : 0;
-        for (int i = 0; i < ndimsE; ++i) {
-            sizeE *= dimsE[i];
-        } // for
-
-        // Get dataset
-        hid_t dataset = H5Dopen2(*file, name, H5P_DEFAULT);REQUIRE(dataset >= 0);
-        hid_t dataspace = H5Dget_space(dataset);REQUIRE(dataspace >= 0);
-        const int ndims = H5Sget_simple_extent_ndims(dataspace);REQUIRE(ndims > 0);
-        hsize_t* dims = (ndims > 0) ? new hsize_t[ndims] : 0;
-        const int ndimsCheck = H5Sget_simple_extent_dims(dataspace, dims, 0);
-        REQUIRE(ndims == ndimsCheck);
-        int size = (ndims > 0 && dims[0] > 0) ? 1 : 0;
-        for (int i = 0; i < ndims; ++i) {
-            size *= dims[i];
-        } // for
-
-        // Check dimensions.
-        REQUIRE(ndimsE == ndims);
-        for (int i = 0; i < ndimsE; ++i) {
-            CHECK(dimsE[i] == dims[i]);
-        } // for
-
-        // Check the expected datatype
-        hid_t datatypeE = H5Dget_type(datasetE);REQUIRE(datatypeE >= 0);
-        hid_t dataclassE = H5Tget_class(datatypeE);REQUIRE(dataclassE >= 0);
-
-        hid_t datatype = H5Dget_type(dataset);REQUIRE(datatype >= 0);
-        hid_t dataclass = H5Tget_class(datatype);REQUIRE(dataclass >= 0);
-
-        switch (dataclassE) {
-        case H5T_FLOAT: {
-            double* dataE = (sizeE > 0) ? new double[sizeE] : 0;REQUIRE(sizeE > 0);
-            err = H5Dread(datasetE, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*) dataE);REQUIRE(err >= 0);
-
-            double* data = (size > 0) ? new double[size] : 0;REQUIRE(size > 0);
-            err = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*) data);REQUIRE(err >= 0);
-
-            REQUIRE(sizeE == size);
-
-            // Compare data values.
-            const double tolerance = 1.0e-6;
-            for (int i = 0; i < size; ++i) {
-                const double toleranceV = std::max(tolerance, tolerance*dataE[i]);
-                CHECK_THAT(double(data[i]), Catch::Matchers::WithinAbs(dataE[i], toleranceV));
-            } // for
-
-            delete[] dataE;dataE = 0;
-            delete[] data;data = 0;
-
-            break;
-        } // H5T_DOUBLE
-
-        case H5T_INTEGER: {
-            int* dataE = (sizeE > 0) ? new int[sizeE] : 0;REQUIRE(sizeE > 0);
-            err = H5Dread(datasetE, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*) dataE);REQUIRE(err >= 0);
-
-            int* data = (size > 0) ? new int[size] : 0;REQUIRE(size > 0);
-            err = H5Dread(dataset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*) data);REQUIRE(err >= 0);
-
-            REQUIRE(sizeE == size);
-
-            // Compare data values.
-            for (int i = 0; i < size; ++i) {
-                CHECK(dataE[i] == int(data[i]));
-            } // for
-
-            delete[] dataE;dataE = 0;
-            delete[] data;data = 0;
-
-            break;
-        } // H5T_INTEGER
-
-        case H5T_STRING: {
-            const int slenE = H5Tget_size(datatypeE);REQUIRE(slenE > 0);
-            sizeE *= slenE;
-
-            const int slen = H5Tget_size(datatype);REQUIRE(slen > 0);
-            size *= slen;
-
-            REQUIRE(slenE == slen);
-            REQUIRE(sizeE == size);
-
-            char* dataE = (sizeE > 0) ? new char[sizeE] : 0;REQUIRE(sizeE > 0);
-            err = H5Dread(datasetE, datatypeE, H5S_ALL, H5S_ALL, H5P_DEFAULT, dataE);REQUIRE(err >= 0);
-
-            char* data = (size > 0) ? new char[size] : 0;REQUIRE(size > 0);
-            err = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);REQUIRE(err >= 0);
-
-            for (int i = 0; i < size; ++i) {
-                CHECK(dataE[i] == data[i]);
-            } // for
-
-            delete[] dataE;dataE = 0;
-            delete[] data;data = 0;
-
-            break;
-        } // H5T_C_S1
-
-        default:
-            REQUIRE(false);
-        } // switch
-
-        err = H5Sclose(dataspaceE);REQUIRE(err >= 0);
-        err = H5Dclose(datasetE);REQUIRE(err >= 0);
-
-        err = H5Sclose(dataspace);REQUIRE(err >= 0);
-        err = H5Dclose(dataset);REQUIRE(err >= 0);
-
-        delete[] dimsE;dimsE = 0;
-        delete[] dims;dims = 0;
-
-        break;
-    } // dataset
-    default:
-        REQUIRE(false);
-    } // switch
-
-    PYLITH_METHOD_RETURN(0);
-} // checkObject
-
-
-// ------------------------------------------------------------------------------------------------
 // Check HDF5 file against archived file.
 void
 pylith::meshio::TestDataWriterHDF5::checkFile(const char* filename) {
@@ -700,30 +556,9 @@ pylith::meshio::TestDataWriterHDF5::checkFile(const char* filename) {
 
     const std::string filenameE = "data/" + std::string(filename);
 
-#if 1
     std::unique_ptr<_TestDataWriterHDF5::MeshData> reference(_TestDataWriterHDF5::MeshData::load(filenameE.c_str()));
     std::unique_ptr<_TestDataWriterHDF5::MeshData> candidate(_TestDataWriterHDF5::MeshData::load(filename));
-
     _TestDataWriterHDF5::MeshData::verify(*reference, *candidate);
-#else
-    herr_t err = 0;
-
-    hid_t fileE = H5Fopen(filenameE.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);REQUIRE(fileE >= 0);
-
-    hid_t file = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);REQUIRE(file >= 0);
-#if defined(PYLITH_HDF5_USE_API_112)
-    // Traverse recursively file with expected values.
-    err = H5Ovisit(fileE, H5_INDEX_NAME, H5_ITER_NATIVE, pylith_meshio_TestDataWriterHDF5_checkObject, (void*) &file, H5O_INFO_ALL);REQUIRE(err >= 0);
-#else
-    err = H5Ovisit(fileE, H5_INDEX_NAME, H5_ITER_NATIVE, pylith_meshio_TestDataWriterHDF5_checkObject, (void*) &file);REQUIRE(err >= 0);
-#endif
-    err = H5Fclose(fileE);
-    REQUIRE(err >= 0);
-
-    err = H5Fclose(file);
-    REQUIRE(err >= 0);
-#endif
-
 
     PYLITH_METHOD_END;
 } // checkFile

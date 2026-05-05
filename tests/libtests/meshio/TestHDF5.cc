@@ -437,7 +437,8 @@ pylith::meshio::TestHDF5::testDatasetRawExternal(void) {
     fout.close();
 
     HDF5 h5("test.h5", H5F_ACC_TRUNC);
-    h5.createDatasetRawExternal<int>("/", "data", "test.dat", HDF5::DatasetDims{{{H5S_UNLIMITED, dimsE[1]}}});
+    const hid_t intType = sizeof(int) == 64 ? H5T_NATIVE_INT64 : H5T_NATIVE_INT32;
+    h5.createDatasetRawExternal("/", "data", "test.dat", HDF5::DatasetDims{{{H5S_UNLIMITED, dimsE[1]}}}, intType);
     h5.extendDatasetRawExternal("/", "data", HDF5::DatasetDims{{{dimsE[0], dimsE[1]}}});
     h5.close();
 
