@@ -189,7 +189,7 @@ pylith::topology::TestReverseCuthillMcKee::testReorder(void) {
 
 // ------------------------------------------------------------------------------------------------
 void
-pylith::topology::TestReverseCuthillMcKee::_initialize() {
+pylith::topology::TestReverseCuthillMcKee::_initialize(void) {
     PYLITH_METHOD_BEGIN;
     REQUIRE(_data);
 
