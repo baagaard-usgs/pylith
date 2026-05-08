@@ -1,0 +1,143 @@
+// =================================================================================================
+// This code is part of PyLith, developed through the Computational Infrastructure
+// for Geodynamics (https://github.com/geodynamics/pylith).
+//
+// Copyright (c) 2010-2025, University of California, Davis and the PyLith Development Team.
+// All rights reserved.
+//
+// See https://mit-license.org/ and LICENSE.md and for license information.
+// =================================================================================================
+#pragma once
+
+#include "AuxiliaryLayout.hh"
+
+#include <cassert>
+
+
+PYLITH_KERNEL constexpr pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags
+pylith::fekernels::pde::elasticity::isotropic_linear::operator|(AuxiliaryFlags a,
+                                                                AuxiliaryFlags b) noexcept {
+    return static_cast<AuxiliaryFlags>(
+        static_cast<size_t>(a) | static_cast<size_t>(b));
+} // operator|
+
+
+PYLITH_KERNEL constexpr pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags&
+operator|=(AuxiliaryFlags& a,
+           AuxiliaryFlags b) noexcept {
+    a = a | b;
+    return a;
+}
+
+
+PYLITH_KERNEL constexpr bool
+pylith::fekernels::pde::elasticity::isotropic_linear::operator&(AuxiliaryFlags a,
+                                                                AuxiliaryFlags b) noexcept {
+    return static_cast<size_t>(a) & static_cast<size_t>(b);
+}
+
+
+// Is a given flag present?
+template<pylith::fekernels::momentum::MomentumFlags mflags,
+         pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags flags>
+PYLITH_KERNEL static constexpr bool
+pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, flags>::has(MomentumFlags f) {
+    return (mflags & f);
+} // has
+
+
+// Is a given flag present?
+template<pylith::fekernels::momentum::MomentumFlags mflags,
+         pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags flags>
+PYLITH_KERNEL static constexpr bool
+pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, flags>::has(AuxiliaryFlags f) {
+    return (flags & f);
+} // has
+
+
+// Type-safe accessor — compile error if field not present
+template<pylith::fekernels::momentum::MomentumFlags mflags,
+         pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags flags>
+template <typename Dim>
+template <MomentumFlags F>
+PYLITH_KERNEL auto&
+pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, flags>::Unpacked<Dim>::get() const noexcept requires(Layout::has(F)) {
+    if constexpr (F == MomentumFlags::BODY_FORCE) { return body_force.member;}
+    if constexpr (F == MomentumFlags::GRAVITY) { return gravitational_acceleration.member;}
+} // get()
+
+template<pylith::fekernels::momentum::MomentumFlags mflags,
+         pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags flags>
+template <typename Dim>
+template <AuxiliaryFlags F>
+PYLITH_KERNEL const auto&
+pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, flags>::Unpacked<Dim>::get() const noexcept requires(Layout::has(F)) {
+    if constexpr (F == AuxiliaryFlags::REFERENCE_STRESS) { return reference_stress.member;}
+    if constexpr (F == AuxiliaryFlags::REFERENCE_STRAIN) { return reference_strain.member;}
+} // get()
+
+
+/// Unpack solution fields from array into struct with names.
+template<pylith::fekernels::momentum::MomentumFlags mflags,
+         pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags flags>
+template <typename Dim>
+PYLITH_KERNEL static
+pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, flags>::Unpacked<Dim>::unpack(const pylith::integer sOff[],
+                                                                                                            const pylith::integer sOff_x[],
+                                                                                                            const pylith::scalar s[],
+                                                                                                            const pylith::scalar s_t[],
+                                                                                                            const pylith::scalar s_x[]) {
+    Unpacked<Dim> data;
+
+    data.density = {
+        &s[sOff[common::toIndex(Fields::DENSITY)]],
+        s_t ? &s_t[sOff[common::toIndex(Fields::DENSITY)]] : nullptr,
+        s_x ? &s_x[sOff_x[common::toIndex(Fields::DENSITY)]] : nullptr,
+    };
+
+    data.bulk_modulus = {
+        &s[sOff[common::toIndex(Fields::BULK_MODULUS)]],
+        s_t ? &s_t[sOff[common::toIndex(Fields::BULK_MODULUS)]] : nullptr,
+        s_x ? &s_x[sOff_x[common::toIndex(Fields::BULK_MODULUS)]] : nullptr,
+    };
+
+    data.shear_modulus = {
+        &s[sOff[common::toIndex(Fields::SHEAR_MODULUS)]],
+        s_t ? &s_t[sOff[common::toIndex(Fields::SHEAR_MODULUS)]] : nullptr,
+        s_x ? &s_x[sOff_x[common::toIndex(Fields::SHEAR_MODULUS)]] : nullptr,
+    };
+
+    if constexpr (has(pylith::fekernels::momentum::MomentumFlags::BODY_FORCE)) {
+        data.body_force = {
+            &s[sOff[common::toIndex(Fields::BODY_FORCE)]],
+            s_t ? &s_t[sOff[common::toIndex(Fields::BODY_FORCE)]] : nullptr,
+            s_x ? &s_x[sOff_x[common::toIndex(Fields::BODY_FORCE)]] : nullptr,
+        };
+    }
+
+    if constexpr (has(pylith::fekernels::momentum::MomentumFlags::GRAVITY)) {
+        data.gravitational_acceleration = {
+            &s[sOff[common::toIndex(Fields::GRAVITY)]],
+            s_t ? &s_t[sOff[common::toIndex(Fields::GRAVITY)]] : nullptr,
+            s_x ? &s_x[sOff_x[common::toIndex(Fields::GRAVITY)]] : nullptr,
+        };
+    }
+
+    if constexpr (has(AuxiliaryFlags::REFERENCE_STRESS)) {
+        data.reference_stress = {
+            &s[sOff[common::toIndex(Fields::REFERENCE_STRESS)]],
+            s_t ? &s_t[sOff[common::toIndex(Fields::REFERENCE_STRESS)]] : nullptr,
+            s_x ? &s_x[sOff_x[common::toIndex(Fields::REFERENCE_STRESS)]] : nullptr,
+        };
+    }
+
+    if constexpr (has(AuxiliaryFlags::REFERENCE_STRAIN)) {
+        data.reference_strain = {
+            &s[sOff[common::toIndex(Fields::REFERENCE_STRAIN)]],
+            s_t ? &s_t[sOff[common::toIndex(Fields::REFERENCE_STRAIN)]] : nullptr,
+            s_x ? &s_x[sOff_x[common::toIndex(Fields::REFERENCE_STRAIN)]] : nullptr,
+        };
+    }
+
+    return data;
+} // unpack

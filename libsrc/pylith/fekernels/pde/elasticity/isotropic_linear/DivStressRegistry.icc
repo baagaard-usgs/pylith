@@ -1,0 +1,143 @@
+// =================================================================================================
+// This code is part of PyLith, developed through the Computational Infrastructure
+// for Geodynamics (https://github.com/geodynamics/pylith).
+//
+// Copyright (c) 2010-2025, University of California, Davis and the PyLith Development Team.
+// All rights reserved.
+//
+// See https://mit-license.org/ and LICENSE.md and for license information.
+// =================================================================================================
+#pragma once
+
+#include "DivStressRegistry.hh"
+
+#include <cassert>
+
+
+namespace pylith::fekernels::pde::elasticity::isotropic_linear::_DivStressRegistry {
+    static inline
+    std::string
+    unsupported(const size_t dim,
+                const StrainFlags strainFlags,
+                const SolutionFlags solutionFlags,
+                const MomentumFlags momentumFlags,
+                const AuxiliaryFlags auxiliaryFlags) {
+        return "Unsupported physics combination: "
+               " dim=" + std::to_string(dim)
+               + ", strain flags=" + std::to_string(uint32_t(strainFlags))
+               + ", solution flags=" + std::to_string(uint32_t(solutionFlags))
+               + ", momentum flags=" + std::to_string(uint32_t(momentumFlags))
+               + ", auxiliary flags=" + std::to_string(uint32_t(auxiliaryFlags));
+    } // unsupported
+
+
+} // namespace
+
+
+template<typename Dim, StrainFlags strainFlags, SolutionFlags solutionFlags, MomentumFlags momentumFlags, AuxiliaryFlags auxiliaryFlags>
+inline void
+pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry::_registerKernels(void) {
+    using SolutionLayout = pylith::fekernels::pde::elasticity::SolutionLayout<solutionFlags>;
+    using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<Dim, SolutionLayout>;
+    using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear< Dim, AuxiliaryLayout<momentumFlags, auxiliaryFlags> >;
+    _f1[std::make_tuple(Dim::value, strainFlags, solutionFlags, momentumFlags, auxiliaryFlags)] =
+        pylith::fekernels::momentum::DivStress<Dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout<momentumFlags, auxiliaryFlags> >::f1;
+
+    _Jf3uu[std::make_tuple(Dim::value, strainFlags, solutionFlags, momentumFlags, auxiliaryFlags)] =
+        pylith::fekernels::momentum::DivStress<Dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout<momentumFlags, auxiliaryFlags> >::Jf3uu;
+} // registerKernels
+
+
+public:
+
+pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry::DivStressRegistry(void) {
+    // 2D
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::DEFAULT, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::DEFAULT, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::BODY_FORCE, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::BODY_FORCE, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::DEFAULT, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::DEFAULT, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::BODY_FORCE, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::BODY_FORCE, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::DEFAULT, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::DEFAULT, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::BODY_FORCE, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::BODY_FORCE, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+
+    // 3D
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::DEFAULT, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::DEFAULT, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::BODY_FORCE, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::BODY_FORCE, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::DEFAULT, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::DEFAULT, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::BODY_FORCE, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::BODY_FORCE, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::DEFAULT, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::DEFAULT, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::BODY_FORCE, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::BODY_FORCE, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+
+} // constructor
+
+
+inline
+pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistryResidualFn
+pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry::f1(const size_t dim,
+                                                                            const StrainFlags strainFlags,
+                                                                            const SolutionFlags solutionFlags,
+                                                                            const MomentumFlags momentumFlags,
+                                                                            const AuxiliaryFlags auxiliaryFlags) const {
+    auto iter = _f1.find(std::tuple(dim, strainFlags, solutionFlags, momentumFlags, auxiliaryFlags));
+    if (iter == _f1.end()) {
+        throw std::invalid_argument(_DivStressRegistry::unsupported(dim, strainFlags, solutionFlags, momentumFlags, auxiliaryFlags));
+    } // if
+    return iter->second;
+} // get
+
+
+inline
+pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistryJacobianFn
+pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry::Jf3uu(const size_t dim,
+                                                                               const StrainFlags strainFlags,
+                                                                               const SolutionFlags solutionFlags,
+                                                                               const MomentumFlags momentumFlags,
+                                                                               const AuxiliaryFlags auxiliaryFlags) const {
+    auto iter = _Jf3uu.find(std::tuple(dim, strainFlags, solutionFlags, momentumFlags, auxiliaryFlags));
+    if (iter == _Jf3uu.end()) {
+        throw std::invalid_argument(_DivStressRegistry::unsupported(dim, strainFlags, solutionFlags, momentumFlags, auxiliaryFlags));
+    } // if
+    return iter->second;
+} // get
+
+
+} // DivStressRegistry

@@ -1,0 +1,93 @@
+// =================================================================================================
+// This code is part of PyLith, developed through the Computational Infrastructure
+// for Geodynamics (https://github.com/geodynamics/pylith).
+//
+// Copyright (c) 2010-2025, University of California, Davis and the PyLith Development Team.
+// All rights reserved.
+//
+// See https://mit-license.org/ and LICENSE.md and for license information.
+// =================================================================================================
+#pragma once
+
+#include "SolutionLayout.hh"
+
+#include <cassert>
+
+
+namespace common = pylith::fekernels::common;
+
+PYLITH_KERNEL constexpr pylith::fekernels::pde::elasticity::SolutionFlags
+pylith::fekernels::pde::elasticity::operator|(SolutionFlags a,
+                                              SolutionFlags b) noexcept {
+    return static_cast<SolutionFlags>(
+        static_cast<size_t>(a) | static_cast<size_t>(b));
+} // operator|
+
+
+PYLITH_KERNEL constexpr pylith::fekernels::pde::elasticity::SolutionFlags&
+pylith::fekernels::pde::elasticity::operator|=(SolutionFlags& a,
+                                               SolutionFlags b) noexcept {
+    a = a | b;
+    return a;
+}
+
+
+PYLITH_KERNEL constexpr bool
+pylith::fekernels::pde::elasticity::operator&(SolutionFlags a,
+                                              SolutionFlags b) noexcept {
+    return static_cast<size_t>(a) & static_cast<size_t>(b);
+}
+
+
+// Is a given flag present?
+template<pylith::fekernels::pde::elasticity::SolutionFlags flags>
+static constexpr bool
+pylith::fekernels::pde::elasticity::SolutionLayout<flags>::has(SolutionFlags f) {
+    return (flags & f);
+} // has
+
+
+// Type-safe accessor — compile error if field not present
+template<pylith::fekernels::pde::elasticity::SolutionFlags flags>
+template <SolutionFlags F>
+PYLITH_KERNEL const auto&
+pylith::fekernels::pde::elasticity::SolutionFlags<flags>::Unpacked<Dim>::get() const noexcept requires(Layout::has(F)) {
+    if constexpr (F == SolutionFlags::INERTIA) { return velocity.member;}
+    if constexpr (F == SolutionFlags::FAULT) { return lagrange_multiplier_fault.member;}
+} // get()
+
+
+/// Unpack solution fields from array into struct with names.
+template <typename Dim>
+PYLITH_KERNEL static pylith::fekernels::pde::elasticity::SolutionFlags<flags>::Unpacked<Dim>
+unpack(const pylith::integer sOff[],
+       const pylith::integer sOff_x[],
+       const pylith::scalar s[],
+       const pylith::scalar s_t[],
+       const pylith::scalar s_x[]) {
+    Unpacked<Dim> data;
+
+    data.displacement = {
+        &s[sOff[common::toIndex(Fields::DISPLACEMENT)]],
+        s_t ? &s_t[sOff[common::toIndex(Fields::DISPLACEMENT)]] : nullptr,
+        s_x ? &s_x[sOff_x[common::toIndex(Fields::DISPLACEMENT)]] : nullptr,
+    };
+
+    if constexpr (has(SolutionFlags::INERTIA)) {
+        data.velocity = {
+            &s[sOff[common::toIndex(Fields::INERTIA)]],
+            s_t ? &s_t[sOff[common::toIndex(Fields::INERTIA)]] : nullptr,
+            s_x ? &s_x[sOff_x[common::toIndex(Fields::INERTIA)]] : nullptr,
+        };
+    } // if
+
+    if constexpr (has(SolutionFlags::FAULT)) {
+        data.lagrange_multiplier_fault = {
+            &s[sOff[common::toIndex(Fields::LAGRANGE_MULTIPLIER_FAULT)]],
+            s_t ? &s_t[sOff[common::toIndex(Fields::LAGRANGE_MULTIPLIER_FAULT)]] : nullptr,
+            s_x ? &s_x[sOff_x[common::toIndex(Fields::LAGRANGE_MULTIPLIER_FAULT)]] : nullptr,
+        };
+    } // if
+
+    return data;
+} // unpack

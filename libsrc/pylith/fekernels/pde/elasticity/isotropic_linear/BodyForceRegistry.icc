@@ -1,0 +1,77 @@
+// =================================================================================================
+// This code is part of PyLith, developed through the Computational Infrastructure
+// for Geodynamics (https://github.com/geodynamics/pylith).
+//
+// Copyright (c) 2010-2025, University of California, Davis and the PyLith Development Team.
+// All rights reserved.
+//
+// See https://mit-license.org/ and LICENSE.md and for license information.
+// =================================================================================================
+#pragma once
+
+#include "BodyForceRegistry.hh"
+
+
+#include <cassert>
+
+
+namespace pylith::fekernels::pde::elasticity::isotropic_linear::_BodyForceRegistry {
+    static inline
+    std::string
+    unsupported(const size_t dim,
+                const MomentumFlags momentumFlags,
+                const AuxiliaryFlags auxiliaryFlags) {
+        return "Unsupported physics combination: "
+               " dim=" + std::to_string(dim)
+               + ", momentum flags=" + std::to_string(uint32_t(momentumFlags))
+               + ", auxiliary flags=" + std::to_string(uint32_t(auxiliaryFlags));
+    } // _unsupported
+
+
+} // namespace
+
+template<typename Dim, MomentumFlags momentumFlags, AuxiliaryFlags auxiliaryFlags>
+inline void
+pylith::fekernels::pde::elasticity::isotropic_linear::BodyForceRegistry::_registerKernels(void) {
+    _f0[std::make_tuple(Dim::value, momentumFlags, auxiliaryFlags)] =
+        pylith::fekernels::momentum::BodyForce< Dim, AuxiliaryLayout<momentumFlags, auxiliaryFlags> >::f0;
+}
+
+
+pylith::fekernels::pde::elasticity::isotropic_linear::BodyForceRegistry::BodyForceRegistry(void) {
+    // 2D
+    _registerKernels<Dim2, MomentumFlags::DEFAULT, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim2, MomentumFlags::BODY_FORCE, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim2, MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim2, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
+
+    _registerKernels<Dim2, MomentumFlags::DEFAULT, AuxiliaryFlags::REFERENCE_STRESS>();
+    _registerKernels<Dim2, MomentumFlags::BODY_FORCE, AuxiliaryFlags::REFERENCE_STRESS>();
+    _registerKernels<Dim2, MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS>();
+    _registerKernels<Dim2, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS>();
+
+    // 3D
+    _registerKernels<Dim3, MomentumFlags::DEFAULT, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim3, MomentumFlags::BODY_FORCE, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim3, MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
+    _registerKernels<Dim3, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
+
+    _registerKernels<Dim3, MomentumFlags::DEFAULT, AuxiliaryFlags::REFERENCE_STRESS>();
+    _registerKernels<Dim3, MomentumFlags::BODY_FORCE, AuxiliaryFlags::REFERENCE_STRESS>();
+    _registerKernels<Dim3, MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS>();
+    _registerKernels<Dim3, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS>();
+
+} // constructor
+
+
+inline
+pylith::fekernels::pde::elasticity::isotropic_linear::BodyForceRegistry::ResidualFn
+pylith::fekernels::pde::elasticity::isotropic_linear::BodyForceRegistry::f0(const size_t dim,
+                                                                            const MomentumFlags momentumFlags,
+                                                                            const AuxiliaryFlags auxiliaryFlags) const {
+    auto iter = _f0.find(std::tuple(dim, momentumFlags, auxiliaryFlags));
+    if (iter == _f0.end()) {
+        throw std::invalid_argument(_BodyForceRegistry::unsupported(dim, momentumFlags, auxiliaryFlags));
+    } // if
+    return iter->second;
+} // get
