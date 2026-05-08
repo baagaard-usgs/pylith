@@ -25,3 +25,6 @@ namespace pylith::fekernels {
     class Dim2;
     class Dim3;
 } // namespace
+
+
+#include "Kernel.icc"

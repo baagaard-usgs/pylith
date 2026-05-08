@@ -26,6 +26,10 @@
 #include <tuple>
 #include <string>
 
+namespace pylith::fekernels::pde::elasticity::isotropic_linear {
+    class DivStressRegistry;
+} // namespace
+
 
 class pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry {
 private:

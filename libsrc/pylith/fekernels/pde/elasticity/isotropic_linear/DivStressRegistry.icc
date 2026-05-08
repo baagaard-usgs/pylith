@@ -13,8 +13,12 @@
 
 #include <cassert>
 
-
 namespace pylith::fekernels::pde::elasticity::isotropic_linear::_DivStressRegistry {
+    typedef pylith::fekernels::pde::elasticity::SolutionFlags SolutionFlags;
+    typedef pylith::fekernels::momentum::StrainFlags StrainFlags;
+    typedef pylith::fekernels::momentum::MomentumFlags MomentumFlags;
+    typedef pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags AuxiliaryFlags;
+
     static inline
     std::string
     unsupported(const size_t dim,
@@ -34,7 +38,7 @@ namespace pylith::fekernels::pde::elasticity::isotropic_linear::_DivStressRegist
 } // namespace
 
 
-template<typename Dim, StrainFlags strainFlags, SolutionFlags solutionFlags, MomentumFlags momentumFlags, AuxiliaryFlags auxiliaryFlags>
+template<typename Dim, pylith::fekernels::momentum::StrainFlags strainFlags, pylith::fekernels::pde::elasticity::SolutionFlags solutionFlags, pylith::fekernels::momentum::MomentumFlags momentumFlags, pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags auxiliaryFlags>
 inline void
 pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry::_registerKernels(void) {
     using SolutionLayout = pylith::fekernels::pde::elasticity::SolutionLayout<solutionFlags>;
@@ -48,23 +52,21 @@ pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry::_regist
 } // registerKernels
 
 
-public:
-
 pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry::DivStressRegistry(void) {
     // 2D
     _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::DEFAULT, AuxiliaryFlags::DEFAULT>();
-    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::DEFAULT, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::DEFAULT, AuxiliaryFlags::REFERENCE_STRESS | AuxiliaryFlags::REFERENCE_STRAIN>();
     _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::BODY_FORCE, AuxiliaryFlags::DEFAULT>();
-    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::BODY_FORCE, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::BODY_FORCE, AuxiliaryFlags::REFERENCE_STRESS | AuxiliaryFlags::REFERENCE_STRAIN>();
     _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
-    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS | AuxiliaryFlags::REFERENCE_STRAIN>();
     _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
-    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS | AuxiliaryFlags::REFERENCE_STRAIN>();
 
     _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::DEFAULT, AuxiliaryFlags::DEFAULT>();
-    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::DEFAULT, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::DEFAULT, AuxiliaryFlags::REFERENCE_STRESS |AuxiliaryFlags::REFERENCE_STRAIN>();
     _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::BODY_FORCE, AuxiliaryFlags::DEFAULT>();
-    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::BODY_FORCE, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
+    _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::BODY_FORCE, AuxiliaryFlags::REFERENCE_STRESS |AuxiliaryFlags::REFERENCE_STRAIN>();
     _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
     _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
     _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
@@ -111,7 +113,7 @@ pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry::DivStre
 
 
 inline
-pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistryResidualFn
+pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry::ResidualFn
 pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry::f1(const size_t dim,
                                                                             const StrainFlags strainFlags,
                                                                             const SolutionFlags solutionFlags,
@@ -126,7 +128,7 @@ pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry::f1(cons
 
 
 inline
-pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistryJacobianFn
+pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry::JacobianFn
 pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry::Jf3uu(const size_t dim,
                                                                                const StrainFlags strainFlags,
                                                                                const SolutionFlags solutionFlags,
@@ -138,6 +140,3 @@ pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry::Jf3uu(c
     } // if
     return iter->second;
 } // get
-
-
-} // DivStressRegistry

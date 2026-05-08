@@ -17,9 +17,9 @@
 #include "pylith/fekernels/IsotropicLinearElasticity.hh" // USES IsotropicLinearElasticity kernels
 
 // NEW
-#include "pylith/fekernels/common/kernel.hh"
+#include "pylith/fekernels/common/Kernel.hh"
 #include "pylith/fekernels/pde/elasticity/isotropic_linear/AuxiliaryLayout.hh"
-#include "pylith/fekernels/pde/elasticity/isotropic_linear/KernelRegistry.hh"
+#include "pylith/fekernels/pde/elasticity/isotropic_linear/DivStressRegistry.hh"
 #include "pylith/fekernels/momentum/pde/DivStress.hh"
 #include "pylith/fekernels/momentum/strain/InfinitesimalStrain.hh"
 #include "pylith/fekernels/momentum/stress/elasticity/IsotropicLinear.hh"

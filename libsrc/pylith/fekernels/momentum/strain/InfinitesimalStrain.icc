@@ -15,7 +15,8 @@
 
 
 /// ε_ij = 1/2 (∂u_i/∂x_j + ∂u_j/∂x_i)
-PYLITH_KERNEL static void
+template<typename Dim, class SolutionLayout>
+PYLITH_KERNEL void
 pylith::fekernels::momentum::InfinitesimalStrain<Dim, SolutionLayout>::compute(pylith::fekernels::common::Tensor2<Dim>& strain,
                                                                                const SolutionUnpacked& solution) {
     strain.zero();

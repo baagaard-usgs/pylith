@@ -15,24 +15,24 @@
 
 
 PYLITH_KERNEL constexpr pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags
-pylith::fekernels::pde::elasticity::isotropic_linear::operator|(AuxiliaryFlags a,
-                                                                AuxiliaryFlags b) noexcept {
+pylith::fekernels::pde::elasticity::isotropic_linear::operator|(pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags a,
+                                                                pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags b) noexcept {
     return static_cast<AuxiliaryFlags>(
         static_cast<size_t>(a) | static_cast<size_t>(b));
 } // operator|
 
 
 PYLITH_KERNEL constexpr pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags&
-operator|=(AuxiliaryFlags& a,
-           AuxiliaryFlags b) noexcept {
+pylith::fekernels::pde::elasticity::isotropic_linear::operator|=(pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags& a,
+                                                                 pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags b) noexcept {
     a = a | b;
     return a;
 }
 
 
 PYLITH_KERNEL constexpr bool
-pylith::fekernels::pde::elasticity::isotropic_linear::operator&(AuxiliaryFlags a,
-                                                                AuxiliaryFlags b) noexcept {
+pylith::fekernels::pde::elasticity::isotropic_linear::operator&(pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags a,
+                                                                pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags b) noexcept {
     return static_cast<size_t>(a) & static_cast<size_t>(b);
 }
 
@@ -40,7 +40,7 @@ pylith::fekernels::pde::elasticity::isotropic_linear::operator&(AuxiliaryFlags a
 // Is a given flag present?
 template<pylith::fekernels::momentum::MomentumFlags mflags,
          pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags flags>
-PYLITH_KERNEL static constexpr bool
+PYLITH_KERNEL constexpr bool
 pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, flags>::has(MomentumFlags f) {
     return (mflags & f);
 } // has
@@ -49,7 +49,7 @@ pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, fl
 // Is a given flag present?
 template<pylith::fekernels::momentum::MomentumFlags mflags,
          pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags flags>
-PYLITH_KERNEL static constexpr bool
+PYLITH_KERNEL constexpr bool
 pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, flags>::has(AuxiliaryFlags f) {
     return (flags & f);
 } // has
@@ -59,7 +59,7 @@ pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, fl
 template<pylith::fekernels::momentum::MomentumFlags mflags,
          pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags flags>
 template <typename Dim>
-template <MomentumFlags F>
+template <pylith::fekernels::momentum::MomentumFlags F>
 PYLITH_KERNEL auto&
 pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, flags>::Unpacked<Dim>::get() const noexcept requires(Layout::has(F)) {
     if constexpr (F == MomentumFlags::BODY_FORCE) { return body_force.member;}
@@ -69,7 +69,7 @@ pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, fl
 template<pylith::fekernels::momentum::MomentumFlags mflags,
          pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags flags>
 template <typename Dim>
-template <AuxiliaryFlags F>
+template <pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags F>
 PYLITH_KERNEL const auto&
 pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, flags>::Unpacked<Dim>::get() const noexcept requires(Layout::has(F)) {
     if constexpr (F == AuxiliaryFlags::REFERENCE_STRESS) { return reference_stress.member;}
@@ -81,12 +81,12 @@ pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, fl
 template<pylith::fekernels::momentum::MomentumFlags mflags,
          pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags flags>
 template <typename Dim>
-PYLITH_KERNEL static
-pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, flags>::Unpacked<Dim>::unpack(const pylith::integer sOff[],
-                                                                                                            const pylith::integer sOff_x[],
-                                                                                                            const pylith::scalar s[],
-                                                                                                            const pylith::scalar s_t[],
-                                                                                                            const pylith::scalar s_x[]) {
+PYLITH_KERNEL auto
+pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, flags>::unpack(const pylith::integer sOff[],
+                                                                                             const pylith::integer sOff_x[],
+                                                                                             const pylith::scalar s[],
+                                                                                             const pylith::scalar s_t[],
+                                                                                             const pylith::scalar s_x[]) -> Unpacked<Dim> {
     Unpacked<Dim> data;
 
     data.density = {

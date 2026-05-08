@@ -15,7 +15,7 @@
 #include <cstddef>
 
 namespace pylith::fekernels::momentum {
-    template<typename Dim, class SolutionLayout> struct VolumetricStrain;
+    template<typename Dim, class SolutionLayout> class VolumetricStrain;
 } // namespace
 
 
@@ -28,3 +28,6 @@ public:
     PYLITH_KERNEL static pylith::scalar compute(const pylith::fekernels::common::Tensor2<Dim>& strain);
 
 }; // VolumetricStrain
+
+
+#include "VolumetricStrain.icc"

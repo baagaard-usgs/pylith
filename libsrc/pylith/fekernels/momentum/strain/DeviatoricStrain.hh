@@ -16,7 +16,7 @@
 
 
 namespace pylith::fekernels::momentum {
-    template<typename Dim, class SolutionLayout> struct DeviatoricStrain;
+    template<typename Dim, class SolutionLayout> class DeviatoricStrain;
 } // namespace
 
 
@@ -27,7 +27,7 @@ public:
 
     /// Compute deviatoric strain given total strain.
     PYLITH_KERNEL static void compute(pylith::fekernels::common::Tensor2<Dim>& deviatoricStrain,
-                                      const pylith::fekernels::Tensor2<Dim>& strain);
+                                      const pylith::fekernels::common::Tensor2<Dim>& strain);
 
 }; // DeviatoricStrain
 

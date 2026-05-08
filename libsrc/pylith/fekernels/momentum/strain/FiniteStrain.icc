@@ -14,9 +14,10 @@
 #include <cassert>
 
 
-/// Finite, small strain
-/// strain = 1/2 (F^T F − I) with F = I + ∇
-PYLITH_KERNEL static void
+// Finite, small strain
+// strain = 1/2 (F^T F − I) with F = I + ∇
+template<typename Dim, class SolutionLayout>
+PYLITH_KERNEL void
 pylith::fekernels::momentum::FiniteStrain<Dim, SolutionLayout>::compute(pylith::fekernels::common::Tensor2<Dim>& strain,
                                                                         const SolutionLayout& solution) {
     strain.zero();

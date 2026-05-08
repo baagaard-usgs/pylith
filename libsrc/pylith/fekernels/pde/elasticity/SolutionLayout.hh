@@ -47,6 +47,9 @@ template<pylith::fekernels::pde::elasticity::SolutionFlags flags>
 class pylith::fekernels::pde::elasticity::SolutionLayout {
 public:
 
+    // Is a given flag present?
+    static constexpr bool has(SolutionFlags f) noexcept;
+
     /// Order of solution subfields
     enum class Fields : uint32_t {
         DISPLACEMENT=0,
@@ -55,9 +58,6 @@ public:
         NUM_FIELDS=1 + pylith::fekernels::common::addIf(has(SolutionFlags::INERTIA))
                     + pylith::fekernels::common::addIf(has(SolutionFlags::FAULT))
     };
-
-    // Is a given flag present?
-    static constexpr bool has(SolutionFlags f) noexcept;
 
     /// Struct wth names for holding subfields
     template <typename Dim>

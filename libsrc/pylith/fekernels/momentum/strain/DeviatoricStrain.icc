@@ -15,12 +15,12 @@
 #include <cassert>
 
 
-/// ε_dev = ε − 1/3 (tr ε) I
+// ε_dev = ε − 1/3 (tr ε) I
+// Compute deviatoric strain given total strain.
 template<typename Dim, class SolutionLayout>
-/// Compute deviatoric strain given total strain.
-PYLITH_KERNEL static void
+PYLITH_KERNEL void
 pylith::fekernels::momentum::DeviatoricStrain<Dim, SolutionLayout>::compute(pylith::fekernels::common::Tensor2<Dim>& deviatoricStrain,
-                                                                            const pylith::fekernels::Tensor2<Dim>& strain) {
+                                                                            const pylith::fekernels::common::Tensor2<Dim>& strain) {
     const pylith::scalar volumetricStrain = VolumetricStrain<Dim::value, SolutionLayout>::compute(strain);
     const pylith::scalar h = volumetricStrain / 3.0;
 

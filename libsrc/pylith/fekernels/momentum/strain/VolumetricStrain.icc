@@ -13,7 +13,7 @@
 
 /// ε_vol = tr(ε)
 template<typename Dim, class SolutionLayout>
-PYLITH_KERNEL static pylith::scalar
+PYLITH_KERNEL pylith::scalar
 pylith::fekernels::momentum::VolumetricStrain<Dim, SolutionLayout>::compute(const pylith::fekernels::common::Tensor2<Dim>& strain) {
     return strain.trace();
 } // compute

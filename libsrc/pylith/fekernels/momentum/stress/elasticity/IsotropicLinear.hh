@@ -17,7 +17,7 @@
 
 
 namespace pylith::fekernels::momentum::stress::elasticity {
-    template<typename Dim, class AuxiliaryUnpacked> struct IsotropicLinear;
+    template<typename Dim, class AuxiliaryUnpacked> class IsotropicLinear;
 } // namespace
 
 
@@ -51,3 +51,6 @@ public:
                                                const pylith::fekernels::common::Tensor2<Dim>& strain) noexcept;
 
 }; // IsotropicLinear
+
+
+#include "IsotropicLinear.icc"

@@ -18,7 +18,7 @@
 #pragma once
 
 #include "pylith/utils/types.hh"
-#include "kernel.hh"
+#include "pylith/fekernels/common/Kernel.hh"
 
 #include <cassert>
 #include <cstddef>

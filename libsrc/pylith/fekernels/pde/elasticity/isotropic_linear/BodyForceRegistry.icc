@@ -10,13 +10,17 @@
 #pragma once
 
 #include "BodyForceRegistry.hh"
+#include "pylith/fekernels/momentum/pde/MomentumLayout.hh"
 
 
 #include <cassert>
 
 
 namespace pylith::fekernels::pde::elasticity::isotropic_linear::_BodyForceRegistry {
-    static inline
+    typedef pylith::fekernels::momentum::MomentumFlags MomentumFlags;
+    typedef pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags AuxiliaryFlags;
+
+    inline
     std::string
     unsupported(const size_t dim,
                 const MomentumFlags momentumFlags,
@@ -30,7 +34,7 @@ namespace pylith::fekernels::pde::elasticity::isotropic_linear::_BodyForceRegist
 
 } // namespace
 
-template<typename Dim, MomentumFlags momentumFlags, AuxiliaryFlags auxiliaryFlags>
+template<typename Dim, pylith::fekernels::momentum::MomentumFlags momentumFlags, pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags auxiliaryFlags>
 inline void
 pylith::fekernels::pde::elasticity::isotropic_linear::BodyForceRegistry::_registerKernels(void) {
     _f0[std::make_tuple(Dim::value, momentumFlags, auxiliaryFlags)] =

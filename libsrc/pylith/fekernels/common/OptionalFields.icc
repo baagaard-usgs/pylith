@@ -11,14 +11,8 @@
 
 #include "OptionalFields.hh"
 
-template <typename T>
-class pylith::fekernels::common::OptionalMember<true, T> {
-public:
-
-    T member;
-};
-
+inline
 constexpr int
-addIf(bool condition) noexcept {
+pylith::fekernels::common::addIf(bool condition) noexcept {
     return condition ? 1 : 0;
 } // addIf

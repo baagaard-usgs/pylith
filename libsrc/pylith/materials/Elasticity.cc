@@ -26,6 +26,10 @@
 #include "pylith/fekernels/Elasticity.hh" // USES Elasticity kernels
 #include "pylith/fekernels/DispVel.hh" // USES DispVel kernels
 #include "pylith/fekernels/FaultCohesiveKin.hh" // USES FaultCohesiveKin kernels
+#include "pylith/fekernels/pde/elasticity/SolutionLayout.hh"
+#include "pylith/fekernels/pde/elasticity/isotropic_linear/AuxiliaryLayout.hh"
+#include "pylith/fekernels/momentum/pde/MomentumLayout.hh"
+#include "pylith/fekernels/pde/elasticity/isotropic_linear/BodyForceRegistry.hh"
 
 #include "pylith/utils/error.hh" // USES PYLITH_METHOD_*
 #include "pylith/utils/journals.hh" // USES PYLITH_COMPONENT_*
@@ -441,10 +445,6 @@ pylith::materials::Elasticity::_getDerivedFactory(void) {
 } // _getDerivedFactory
 
 
-#include "pylith/fekernels/pde/elasticity/SolutionLayout.hh"
-#include "pylith/fekernels/pde/elasticity/isotropic_linear/AuxiliaryLayout.hh"
-#include "pylith/fekernels/momentum/pde/MomentumLayout.hh"
-#include "pylith/fekernels/pde/elasticity/isotropic_linear/KernelRegistry.hh"
 // ------------------------------------------------------------------------------------------------
 // Set kernels for residual.
 void

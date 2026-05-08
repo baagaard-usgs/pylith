@@ -16,7 +16,7 @@
 
 
 namespace pylith::fekernels::momentum {
-    template<typename Dim, class SolutionLayout> struct FiniteStrain;
+    template<typename Dim, class SolutionLayout> class FiniteStrain;
 } // namespace
 
 
@@ -33,4 +33,4 @@ public:
 }; // FiniteStrain
 
 
-#include "FiniteStrain.hh"
+#include "FiniteStrain.icc"

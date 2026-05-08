@@ -41,30 +41,32 @@ pylith::fekernels::pde::elasticity::operator&(SolutionFlags a,
 
 // Is a given flag present?
 template<pylith::fekernels::pde::elasticity::SolutionFlags flags>
-static constexpr bool
-pylith::fekernels::pde::elasticity::SolutionLayout<flags>::has(SolutionFlags f) {
+constexpr bool
+pylith::fekernels::pde::elasticity::SolutionLayout<flags>::has(SolutionFlags f) noexcept {
     return (flags & f);
 } // has
 
 
 // Type-safe accessor — compile error if field not present
 template<pylith::fekernels::pde::elasticity::SolutionFlags flags>
-template <SolutionFlags F>
+template<typename Dim>
+template<pylith::fekernels::pde::elasticity::SolutionFlags F>
 PYLITH_KERNEL const auto&
-pylith::fekernels::pde::elasticity::SolutionFlags<flags>::Unpacked<Dim>::get() const noexcept requires(Layout::has(F)) {
+pylith::fekernels::pde::elasticity::SolutionLayout<flags>::Unpacked<Dim>::get() const noexcept requires(SolutionLayout<flags>::has(F)) {
     if constexpr (F == SolutionFlags::INERTIA) { return velocity.member;}
     if constexpr (F == SolutionFlags::FAULT) { return lagrange_multiplier_fault.member;}
 } // get()
 
 
 /// Unpack solution fields from array into struct with names.
-template <typename Dim>
-PYLITH_KERNEL static pylith::fekernels::pde::elasticity::SolutionFlags<flags>::Unpacked<Dim>
-unpack(const pylith::integer sOff[],
-       const pylith::integer sOff_x[],
-       const pylith::scalar s[],
-       const pylith::scalar s_t[],
-       const pylith::scalar s_x[]) {
+template<pylith::fekernels::pde::elasticity::SolutionFlags flags>
+template<typename Dim>
+PYLITH_KERNEL auto
+pylith::fekernels::pde::elasticity::SolutionLayout<flags>::unpack(const pylith::integer sOff[],
+                                                                  const pylith::integer sOff_x[],
+                                                                  const pylith::scalar s[],
+                                                                  const pylith::scalar s_t[],
+                                                                  const pylith::scalar s_x[]) -> Unpacked<Dim> {
     Unpacked<Dim> data;
 
     data.displacement = {

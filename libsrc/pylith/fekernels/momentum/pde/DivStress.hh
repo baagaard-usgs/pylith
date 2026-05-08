@@ -15,8 +15,7 @@
 
 
 namespace pylith::fekernels::momentum {
-    template<typename Dim, class StrainModel, class StressModel, class SolutionLayout, class AuxiliaryLayout>
-    struct DivStress;
+    template<typename Dim, class StrainModel, class StressModel, class SolutionLayout, class AuxiliaryLayout> class DivStress;
 } // pylith::fekernels::momentum
 
 

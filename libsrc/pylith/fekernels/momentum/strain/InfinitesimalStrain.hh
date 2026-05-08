@@ -16,7 +16,7 @@
 
 
 namespace pylith::fekernels::momentum {
-    template<typename Dim, class SolutionLayout> struct InfinitesimalStrain;
+    template<typename Dim, class SolutionLayout> class InfinitesimalStrain;
 } // namespace
 
 
@@ -32,3 +32,6 @@ public:
                                       const SolutionUnpacked& solution);
 
 }; // InfinitesimalStrain
+
+
+#include "InfinitesimalStrain.icc"

@@ -18,7 +18,11 @@ namespace pylith::fekernels::common {
     class OptionalMember {};
 
     template <typename T>
-    class OptionalMember<true, T>;
+    class OptionalMember<true, T> {
+public:
+
+        T member;
+    };
 
     /// Helper to compute field count contribution (0 or 1 based on condition).
     constexpr int addIf(bool condition) noexcept;

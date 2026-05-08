@@ -13,7 +13,9 @@
 
 #include "pylith/fekernels/common/Kernel.hh"
 #include "pylith/fekernels/common/Utils.hh"
+#include "pylith/fekernels/common/ScalarField.hh"
 #include "pylith/fekernels/common/VectorField.hh"
+#include "pylith/fekernels/common/Tensor2Field.hh"
 #include "pylith/fekernels/common/OptionalFields.hh"
 #include "pylith/fekernels/momentum/pde/MomentumLayout.hh"
 
@@ -26,8 +28,8 @@ namespace pylith::fekernels::pde::elasticity::isotropic_linear {
     // Flags for optional subfields in isotropic linear auxiliary field
     enum class AuxiliaryFlags : size_t {
         DEFAULT=0,
-        REFERENCE_STRESS=1 << 2,
-        REFERENCE_STRAIN=1 << 3,
+        REFERENCE_STRESS=1 << 0,
+        REFERENCE_STRAIN=1 << 1,
 
     }; // Flags
 
@@ -156,4 +158,4 @@ public:
 }; // AuxiliaryLayout
 
 
-#include "AuxiliaryLayout.hh"
+#include "AuxiliaryLayout.icc"
