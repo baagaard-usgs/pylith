@@ -149,11 +149,11 @@ public:
 
     /// Unpack solution fields from array into struct with names.
     template <typename Dim>
-    PYLITH_KERNEL static Unpacked<Dim>unpack(const pylith::integer sOff[],
-                                             const pylith::integer sOff_x[],
-                                             const pylith::scalar s[],
-                                             const pylith::scalar s_t[],
-                                             const pylith::scalar s_x[]);
+    PYLITH_KERNEL static Unpacked<Dim>unpack(const pylith::integer aOff[],
+                                             const pylith::integer aOff_x[],
+                                             const pylith::scalar a[],
+                                             const pylith::scalar a_t[],
+                                             const pylith::scalar a_x[]);
 
 }; // AuxiliaryLayout
 

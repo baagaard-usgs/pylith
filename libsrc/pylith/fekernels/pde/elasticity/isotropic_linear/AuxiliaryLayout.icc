@@ -14,32 +14,39 @@
 #include <cassert>
 
 
-PYLITH_KERNEL constexpr pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags
-pylith::fekernels::pde::elasticity::isotropic_linear::operator|(pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags a,
-                                                                pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags b) noexcept {
-    return static_cast<AuxiliaryFlags>(
-        static_cast<size_t>(a) | static_cast<size_t>(b));
-} // operator|
+namespace pylith::fekernels::pde::elasticity::isotropic_linear {
+    PYLITH_KERNEL constexpr AuxiliaryFlags
+    operator|(AuxiliaryFlags a,
+              AuxiliaryFlags b) noexcept {
+        return static_cast<AuxiliaryFlags>(static_cast<size_t>(a) | static_cast<size_t>(b));
+    }
 
 
-PYLITH_KERNEL constexpr pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags&
-pylith::fekernels::pde::elasticity::isotropic_linear::operator|=(pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags& a,
-                                                                 pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags b) noexcept {
-    a = a | b;
-    return a;
-}
+    PYLITH_KERNEL constexpr AuxiliaryFlags&
+    operator|=(AuxiliaryFlags& a,
+               AuxiliaryFlags b) noexcept {
+        a = a | b;
+        return a;
+    }
 
 
-PYLITH_KERNEL constexpr bool
-pylith::fekernels::pde::elasticity::isotropic_linear::operator&(pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags a,
-                                                                pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags b) noexcept {
-    return static_cast<size_t>(a) & static_cast<size_t>(b);
-}
+    PYLITH_KERNEL constexpr bool
+    operator&(AuxiliaryFlags a,
+              AuxiliaryFlags b) noexcept {
+        return static_cast<size_t>(a) & static_cast<size_t>(b);
+    }
+
+
+} // namespace pylith::fekernels::pde::elasticity::isotropic_linear
+
+
+#define AUXILIARY_LAYOUT_TEMPLATE \
+        template<pylith::fekernels::momentum::MomentumFlags mflags, \
+                 pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags flags>
 
 
 // Is a given flag present?
-template<pylith::fekernels::momentum::MomentumFlags mflags,
-         pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags flags>
+AUXILIARY_LAYOUT_TEMPLATE
 PYLITH_KERNEL constexpr bool
 pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, flags>::has(MomentumFlags f) {
     return (mflags & f);
@@ -47,8 +54,7 @@ pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, fl
 
 
 // Is a given flag present?
-template<pylith::fekernels::momentum::MomentumFlags mflags,
-         pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags flags>
+AUXILIARY_LAYOUT_TEMPLATE
 PYLITH_KERNEL constexpr bool
 pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, flags>::has(AuxiliaryFlags f) {
     return (flags & f);
@@ -56,8 +62,7 @@ pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, fl
 
 
 // Type-safe accessor — compile error if field not present
-template<pylith::fekernels::momentum::MomentumFlags mflags,
-         pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags flags>
+AUXILIARY_LAYOUT_TEMPLATE
 template <typename Dim>
 template <pylith::fekernels::momentum::MomentumFlags F>
 PYLITH_KERNEL auto&
@@ -66,8 +71,8 @@ pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, fl
     if constexpr (F == MomentumFlags::GRAVITY) { return gravitational_acceleration.member;}
 } // get()
 
-template<pylith::fekernels::momentum::MomentumFlags mflags,
-         pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags flags>
+
+AUXILIARY_LAYOUT_TEMPLATE
 template <typename Dim>
 template <pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags F>
 PYLITH_KERNEL const auto&
@@ -78,66 +83,44 @@ pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, fl
 
 
 /// Unpack solution fields from array into struct with names.
-template<pylith::fekernels::momentum::MomentumFlags mflags,
-         pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags flags>
+AUXILIARY_LAYOUT_TEMPLATE
 template <typename Dim>
 PYLITH_KERNEL auto
-pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, flags>::unpack(const pylith::integer sOff[],
-                                                                                             const pylith::integer sOff_x[],
-                                                                                             const pylith::scalar s[],
-                                                                                             const pylith::scalar s_t[],
-                                                                                             const pylith::scalar s_x[]) -> Unpacked<Dim> {
+pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, flags>::unpack(const pylith::integer aOff[],
+                                                                                             const pylith::integer aOff_x[],
+                                                                                             const pylith::scalar a[],
+                                                                                             const pylith::scalar a_t[],
+                                                                                             const pylith::scalar a_x[]) -> Unpacked<Dim> {
     Unpacked<Dim> data;
 
-    data.density = {
-        &s[sOff[common::toIndex(Fields::DENSITY)]],
-        s_t ? &s_t[sOff[common::toIndex(Fields::DENSITY)]] : nullptr,
-        s_x ? &s_x[sOff_x[common::toIndex(Fields::DENSITY)]] : nullptr,
-    };
+    auto field = [&](Fields f) {
+                     auto idx = common::toIndex(f);
+                     return FieldData{
+                         &a[aOff[idx]],
+                         a_t ? &a_t[aOff[idx]] : nullptr,
+                         a_x ? &a_x[aOff_x[idx]] : nullptr,
+                     };
+                 };
 
-    data.bulk_modulus = {
-        &s[sOff[common::toIndex(Fields::BULK_MODULUS)]],
-        s_t ? &s_t[sOff[common::toIndex(Fields::BULK_MODULUS)]] : nullptr,
-        s_x ? &s_x[sOff_x[common::toIndex(Fields::BULK_MODULUS)]] : nullptr,
-    };
+    data.density = field(Fields::DENSITY);
+    data.bulk_modulus = field(Fields::BULK_MODULUS);
+    data.shear_modulus = field(Fields::SHEAR_MODULUS);
 
-    data.shear_modulus = {
-        &s[sOff[common::toIndex(Fields::SHEAR_MODULUS)]],
-        s_t ? &s_t[sOff[common::toIndex(Fields::SHEAR_MODULUS)]] : nullptr,
-        s_x ? &s_x[sOff_x[common::toIndex(Fields::SHEAR_MODULUS)]] : nullptr,
-    };
-
-    if constexpr (has(pylith::fekernels::momentum::MomentumFlags::BODY_FORCE)) {
-        data.body_force = {
-            &s[sOff[common::toIndex(Fields::BODY_FORCE)]],
-            s_t ? &s_t[sOff[common::toIndex(Fields::BODY_FORCE)]] : nullptr,
-            s_x ? &s_x[sOff_x[common::toIndex(Fields::BODY_FORCE)]] : nullptr,
-        };
-    }
-
-    if constexpr (has(pylith::fekernels::momentum::MomentumFlags::GRAVITY)) {
-        data.gravitational_acceleration = {
-            &s[sOff[common::toIndex(Fields::GRAVITY)]],
-            s_t ? &s_t[sOff[common::toIndex(Fields::GRAVITY)]] : nullptr,
-            s_x ? &s_x[sOff_x[common::toIndex(Fields::GRAVITY)]] : nullptr,
-        };
-    }
-
+    if constexpr (has(MomentumFlags::BODY_FORCE)) {
+        data.body_force = field(Fields::BODY_FORCE);
+    } // if
+    if constexpr (has(MomentumFlags::GRAVITY)) {
+        data.gravitational_acceleration = field(Fields::GRAVITY);
+    } // if
     if constexpr (has(AuxiliaryFlags::REFERENCE_STRESS)) {
-        data.reference_stress = {
-            &s[sOff[common::toIndex(Fields::REFERENCE_STRESS)]],
-            s_t ? &s_t[sOff[common::toIndex(Fields::REFERENCE_STRESS)]] : nullptr,
-            s_x ? &s_x[sOff_x[common::toIndex(Fields::REFERENCE_STRESS)]] : nullptr,
-        };
-    }
-
+        data.reference_stress = field(Fields::REFERENCE_STRESS);
+    } // if
     if constexpr (has(AuxiliaryFlags::REFERENCE_STRAIN)) {
-        data.reference_strain = {
-            &s[sOff[common::toIndex(Fields::REFERENCE_STRAIN)]],
-            s_t ? &s_t[sOff[common::toIndex(Fields::REFERENCE_STRAIN)]] : nullptr,
-            s_x ? &s_x[sOff_x[common::toIndex(Fields::REFERENCE_STRAIN)]] : nullptr,
-        };
-    }
+        data.reference_strain = field(Fields::REFERENCE_STRAIN);
+    } // if
 
     return data;
 } // unpack
+
+
+#undef AUXILIARY_LAYOUT_TEMPLATE

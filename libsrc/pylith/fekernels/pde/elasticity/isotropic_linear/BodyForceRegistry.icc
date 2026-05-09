@@ -37,12 +37,32 @@ namespace pylith::fekernels::pde::elasticity::isotropic_linear::_BodyForceRegist
 template<typename Dim, pylith::fekernels::momentum::MomentumFlags momentumFlags, pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryFlags auxiliaryFlags>
 inline void
 pylith::fekernels::pde::elasticity::isotropic_linear::BodyForceRegistry::_registerKernels(void) {
-    _f0[std::make_tuple(Dim::value, momentumFlags, auxiliaryFlags)] =
-        pylith::fekernels::momentum::BodyForce< Dim, AuxiliaryLayout<momentumFlags, auxiliaryFlags> >::f0;
+    using Kernel = pylith::fekernels::momentum::BodyForce< Dim, AuxiliaryLayout<momentumFlags, auxiliaryFlags> >;
+    using Key = std::make_tuple(Dim::value, momentumFlags, auxiliaryFlags);
+
+    _f0[Key] = Kernel::f0;
 }
 
 
 pylith::fekernels::pde::elasticity::isotropic_linear::BodyForceRegistry::BodyForceRegistry(void) {
+    static constexpr MomentumFlags momentumCases[] = {
+        MomentumFlags::DEFAULT,
+        MomentumFlags::BODY_FORCE,
+        MomentumFlags::GRAVITY,
+        MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY,
+    };
+    static constexpr AuxiliaryFlags auxiliaryCases[] = {
+        AuxiliaryFlags::DEFAULT,
+        AuxiliaryFlags::REFERENCE_STRESS,
+    };
+    for (const auto mom : momentumCases) {
+        for (const auto aux : auxiliaryCases) {
+            _registerKernels<Dim2, mom, aux>();
+            _registerKernels<Dim3, mom, aux>();
+        } // for
+    } // for
+
+#if 0
     // 2D
     _registerKernels<Dim2, MomentumFlags::DEFAULT, AuxiliaryFlags::DEFAULT>();
     _registerKernels<Dim2, MomentumFlags::BODY_FORCE, AuxiliaryFlags::DEFAULT>();
@@ -64,7 +84,7 @@ pylith::fekernels::pde::elasticity::isotropic_linear::BodyForceRegistry::BodyFor
     _registerKernels<Dim3, MomentumFlags::BODY_FORCE, AuxiliaryFlags::REFERENCE_STRESS>();
     _registerKernels<Dim3, MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS>();
     _registerKernels<Dim3, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS>();
-
+#endif
 } // constructor
 
 

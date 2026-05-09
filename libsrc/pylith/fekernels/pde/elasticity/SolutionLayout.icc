@@ -14,29 +14,30 @@
 #include <cassert>
 
 
-namespace common = pylith::fekernels::common;
-
-PYLITH_KERNEL constexpr pylith::fekernels::pde::elasticity::SolutionFlags
-pylith::fekernels::pde::elasticity::operator|(SolutionFlags a,
-                                              SolutionFlags b) noexcept {
-    return static_cast<SolutionFlags>(
-        static_cast<size_t>(a) | static_cast<size_t>(b));
-} // operator|
+namespace pylith::fekernels::pde::elasticity::{
+    PYLITH_KERNEL constexpr SolutionFlags
+    operator|(SolutionFlags a,
+              SolutionFlags b) noexcept {
+        return static_cast<SolutionFlags>(static_cast<size_t>(a) | static_cast<size_t>(b));
+    } // operator|
 
 
-PYLITH_KERNEL constexpr pylith::fekernels::pde::elasticity::SolutionFlags&
-pylith::fekernels::pde::elasticity::operator|=(SolutionFlags& a,
-                                               SolutionFlags b) noexcept {
-    a = a | b;
-    return a;
-}
+    PYLITH_KERNEL constexpr SolutionFlags&
+    operator|=(SolutionFlags& a,
+               SolutionFlags b) noexcept {
+        a = a | b;
+        return a;
+    }
 
 
-PYLITH_KERNEL constexpr bool
-pylith::fekernels::pde::elasticity::operator&(SolutionFlags a,
-                                              SolutionFlags b) noexcept {
-    return static_cast<size_t>(a) & static_cast<size_t>(b);
-}
+    PYLITH_KERNEL constexpr bool
+    operator&(SolutionFlags a,
+              SolutionFlags b) noexcept {
+        return static_cast<size_t>(a) & static_cast<size_t>(b);
+    }
+
+
+} // namespace pylith::fekernels::pde::elasticity
 
 
 // Is a given flag present?
@@ -69,26 +70,22 @@ pylith::fekernels::pde::elasticity::SolutionLayout<flags>::unpack(const pylith::
                                                                   const pylith::scalar s_x[]) -> Unpacked<Dim> {
     Unpacked<Dim> data;
 
-    data.displacement = {
-        &s[sOff[common::toIndex(Fields::DISPLACEMENT)]],
-        s_t ? &s_t[sOff[common::toIndex(Fields::DISPLACEMENT)]] : nullptr,
-        s_x ? &s_x[sOff_x[common::toIndex(Fields::DISPLACEMENT)]] : nullptr,
-    };
+    auto field = [&](Fields f) {
+                     auto idx = common::toIndex(f);
+                     return FieldData{
+                         &s[sOff[idx]],
+                         s_t ? &s_t[sOff[idx]] : nullptr,
+                         s_x ? &s_x[sOff_x[idx]] : nullptr,
+                     };
+                 };
+
+    data.displacement = field(Fields::DISPLACEMENT);
 
     if constexpr (has(SolutionFlags::INERTIA)) {
-        data.velocity = {
-            &s[sOff[common::toIndex(Fields::INERTIA)]],
-            s_t ? &s_t[sOff[common::toIndex(Fields::INERTIA)]] : nullptr,
-            s_x ? &s_x[sOff_x[common::toIndex(Fields::INERTIA)]] : nullptr,
-        };
+        data.velocity = field(Fields::INERTIA);
     } // if
-
     if constexpr (has(SolutionFlags::FAULT)) {
-        data.lagrange_multiplier_fault = {
-            &s[sOff[common::toIndex(Fields::LAGRANGE_MULTIPLIER_FAULT)]],
-            s_t ? &s_t[sOff[common::toIndex(Fields::LAGRANGE_MULTIPLIER_FAULT)]] : nullptr,
-            s_x ? &s_x[sOff_x[common::toIndex(Fields::LAGRANGE_MULTIPLIER_FAULT)]] : nullptr,
-        };
+        data.lagrange_multiplier_fault = field(Fields::LAGRANGE_MULTIPLIER_FAULT);
     } // if
 
     return data;
