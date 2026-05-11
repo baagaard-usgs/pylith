@@ -45,44 +45,15 @@ pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry::_regist
     using StrainModel = pylith::fekernels::momentum::InfinitesimalStrain<Dim, SolutionLayout>;
     using StressModel = pylith::fekernels::momentum::stress::elasticity::IsotropicLinear< Dim, AuxiliaryLayout<momentumFlags, auxiliaryFlags> >;
     using Kernel = pylith::fekernels::momentum::DivStress<Dim, StrainModel, StressModel, SolutionLayout, AuxiliaryLayout<momentumFlags, auxiliaryFlags> >;
-    using Key = std::make_tuple(Dim::value, strainFlags, solutionFlags, momentumFlags, auxiliaryFlags);
-    _f1[Key] = Kernel::f1;
-    _Jf3uu[Key] = Kernel::Jf3uu;
+    using Key = std::tuple<size_t, StrainFlags, SolutionFlags, MomentumFlags, AuxiliaryFlags>;
+
+    const auto key = Key{Dim::value, strainFlags, solutionFlags, momentumFlags, auxiliaryFlags};
+    _f1[key] = Kernel::f1;
+    _Jf3uu[key] = Kernel::Jf3uu;
 } // registerKernels
 
 
 pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry::DivStressRegistry(void) {
-    static constexpr SolutionFlags solutionCases[] = {
-        SolutionFlags::DEFAULT,
-        SolutionFlags::FAULT,
-        SolutionFlags::FAULT | SolutionFlags::INERTIA,
-    };
-    static constexpr MomentumFlags momentumCases[] = {
-        MomentumFlags::DEFAULT,
-        MomentumFlags::BODY_FORCE,
-        MomentumFlags::GRAVITY,
-        MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY,
-    };
-    static constexpr AuxiliaryFlags auxiliaryCases[] = {
-        AuxiliaryFlags::DEFAULT,
-        AuxiliaryFlags::REFERENCE_STRESS | AuxiliaryFlags::REFERENCE_STRAIN,
-    };
-    static constexpr StrainFlags strainCases[] = {
-        StrainFlags::INFINITESIMAL,
-    };
-
-    for (const auto strain : strainCases) {
-        for (const auto soln : solutionCases) {
-            for (const auto mom : momentumCases) {
-                for (const auto aux : auxiliaryCases) {
-                    _registerKernels<Dim2, strain, soln, mom, aux>();
-                    _registerKernels<Dim3, strain, soln, mom, aux>();
-                } // for
-            } // for
-        } // for
-    } // for
-
-#if 0
     // 2D
     _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::DEFAULT, AuxiliaryFlags::DEFAULT>();
     _registerKernels<Dim2, StrainFlags::INFINITESIMAL, SolutionFlags::DEFAULT, MomentumFlags::DEFAULT, AuxiliaryFlags::REFERENCE_STRESS | AuxiliaryFlags::REFERENCE_STRAIN>();
@@ -138,7 +109,6 @@ pylith::fekernels::pde::elasticity::isotropic_linear::DivStressRegistry::DivStre
     _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
     _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::DEFAULT>();
     _registerKernels<Dim3, StrainFlags::INFINITESIMAL, SolutionFlags::FAULT | SolutionFlags::INERTIA, MomentumFlags::BODY_FORCE | MomentumFlags::GRAVITY, AuxiliaryFlags::REFERENCE_STRESS|AuxiliaryFlags::REFERENCE_STRAIN>();
-#endif
 } // constructor
 
 

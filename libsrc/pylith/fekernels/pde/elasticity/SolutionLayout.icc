@@ -14,7 +14,7 @@
 #include <cassert>
 
 
-namespace pylith::fekernels::pde::elasticity::{
+namespace pylith::fekernels::pde::elasticity {
     PYLITH_KERNEL constexpr SolutionFlags
     operator|(SolutionFlags a,
               SolutionFlags b) noexcept {
@@ -70,22 +70,29 @@ pylith::fekernels::pde::elasticity::SolutionLayout<flags>::unpack(const pylith::
                                                                   const pylith::scalar s_x[]) -> Unpacked<Dim> {
     Unpacked<Dim> data;
 
-    auto field = [&](Fields f) {
-                     auto idx = common::toIndex(f);
-                     return FieldData{
-                         &s[sOff[idx]],
-                         s_t ? &s_t[sOff[idx]] : nullptr,
-                         s_x ? &s_x[sOff_x[idx]] : nullptr,
-                     };
-                 };
-
-    data.displacement = field(Fields::DISPLACEMENT);
+    auto index = common::toIndex(Fields::DISPLACEMENT);
+    data.displacement = {
+        &s[sOff[index]],
+        s_t ? &s_t[sOff[index]] : nullptr,
+        s_x ? &s_x[sOff_x[index]] : nullptr,
+    };
 
     if constexpr (has(SolutionFlags::INERTIA)) {
-        data.velocity = field(Fields::INERTIA);
+        index = common::toIndex(Fields::INERTIA);
+        data.velocity = {
+            &s[sOff[index]],
+            s_t ? &s_t[sOff[index]] : nullptr,
+            s_x ? &s_x[sOff_x[index]] : nullptr,
+        };
     } // if
+
     if constexpr (has(SolutionFlags::FAULT)) {
-        data.lagrange_multiplier_fault = field(Fields::LAGRANGE_MULTIPLIER_FAULT);
+        index = common::toIndex(Fields::LAGRANGE_MULTIPLIER_FAULT);
+        data.lagrange_multiplier_fault = {
+            &s[sOff[index]],
+            s_t ? &s_t[sOff[index]] : nullptr,
+            s_x ? &s_x[sOff_x[index]] : nullptr,
+        };
     } // if
 
     return data;

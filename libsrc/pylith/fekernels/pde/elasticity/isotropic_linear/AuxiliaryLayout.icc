@@ -93,31 +93,55 @@ pylith::fekernels::pde::elasticity::isotropic_linear::AuxiliaryLayout<mflags, fl
                                                                                              const pylith::scalar a_x[]) -> Unpacked<Dim> {
     Unpacked<Dim> data;
 
-    auto field = [&](Fields f) {
-                     auto idx = common::toIndex(f);
-                     return FieldData{
-                         &a[aOff[idx]],
-                         a_t ? &a_t[aOff[idx]] : nullptr,
-                         a_x ? &a_x[aOff_x[idx]] : nullptr,
-                     };
-                 };
+    data.density = {
+        &a[aOff[common::toIndex(Fields::DENSITY)]],
+        a_t ? &a_t[aOff[common::toIndex(Fields::DENSITY)]] : nullptr,
+        a_x ? &a_x[aOff_x[common::toIndex(Fields::DENSITY)]] : nullptr,
+    };
 
-    data.density = field(Fields::DENSITY);
-    data.bulk_modulus = field(Fields::BULK_MODULUS);
-    data.shear_modulus = field(Fields::SHEAR_MODULUS);
+    data.bulk_modulus = {
+        &a[aOff[common::toIndex(Fields::BULK_MODULUS)]],
+        a_t ? &a_t[aOff[common::toIndex(Fields::BULK_MODULUS)]] : nullptr,
+        a_x ? &a_x[aOff_x[common::toIndex(Fields::BULK_MODULUS)]] : nullptr,
+    };
 
-    if constexpr (has(MomentumFlags::BODY_FORCE)) {
-        data.body_force = field(Fields::BODY_FORCE);
-    } // if
-    if constexpr (has(MomentumFlags::GRAVITY)) {
-        data.gravitational_acceleration = field(Fields::GRAVITY);
-    } // if
+    data.shear_modulus = {
+        &a[aOff[common::toIndex(Fields::SHEAR_MODULUS)]],
+        a_t ? &a_t[aOff[common::toIndex(Fields::SHEAR_MODULUS)]] : nullptr,
+        a_x ? &a_x[aOff_x[common::toIndex(Fields::SHEAR_MODULUS)]] : nullptr,
+    };
+
+    if constexpr (has(pylith::fekernels::momentum::MomentumFlags::BODY_FORCE)) {
+        data.body_force = {
+            &a[aOff[common::toIndex(Fields::BODY_FORCE)]],
+            a_t ? &a_t[aOff[common::toIndex(Fields::BODY_FORCE)]] : nullptr,
+            a_x ? &a_x[aOff_x[common::toIndex(Fields::BODY_FORCE)]] : nullptr,
+        };
+    }
+
+    if constexpr (has(pylith::fekernels::momentum::MomentumFlags::GRAVITY)) {
+        data.gravitational_acceleration = {
+            &a[aOff[common::toIndex(Fields::GRAVITY)]],
+            a_t ? &a_t[aOff[common::toIndex(Fields::GRAVITY)]] : nullptr,
+            a_x ? &a_x[aOff_x[common::toIndex(Fields::GRAVITY)]] : nullptr,
+        };
+    }
+
     if constexpr (has(AuxiliaryFlags::REFERENCE_STRESS)) {
-        data.reference_stress = field(Fields::REFERENCE_STRESS);
-    } // if
+        data.reference_stress = {
+            &a[aOff[common::toIndex(Fields::REFERENCE_STRESS)]],
+            a_t ? &a_t[aOff[common::toIndex(Fields::REFERENCE_STRESS)]] : nullptr,
+            a_x ? &a_x[aOff_x[common::toIndex(Fields::REFERENCE_STRESS)]] : nullptr,
+        };
+    }
+
     if constexpr (has(AuxiliaryFlags::REFERENCE_STRAIN)) {
-        data.reference_strain = field(Fields::REFERENCE_STRAIN);
-    } // if
+        data.reference_strain = {
+            &a[aOff[common::toIndex(Fields::REFERENCE_STRAIN)]],
+            a_t ? &a_t[aOff[common::toIndex(Fields::REFERENCE_STRAIN)]] : nullptr,
+            a_x ? &a_x[aOff_x[common::toIndex(Fields::REFERENCE_STRAIN)]] : nullptr,
+        };
+    }
 
     return data;
 } // unpack
