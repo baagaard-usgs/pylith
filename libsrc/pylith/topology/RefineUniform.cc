@@ -176,6 +176,7 @@ pylith::topology::RefineUniform::refine(const pylith::topology::Mesh& mesh) {
 } // refine
 
 
+#include <iostream>
 // ------------------------------------------------------------------------------------------------
 void
 pylith::topology::_RefineUniform::cleanFaceLabels(pylith::topology::Mesh* const mesh,
@@ -192,6 +193,41 @@ pylith::topology::_RefineUniform::cleanFaceLabels(pylith::topology::Mesh* const 
 
     const size_t numFaceGroups = faceGroupNames.size();
     for (size_t iGroup = 0; iGroup < numFaceGroups; ++iGroup) {
+#if 1
+        PetscDMLabel dmLabel = NULL;
+        PylithCallPetsc(DMGetLabel(dmMesh, faceGroupNames[iGroup].c_str(), &dmLabel));
+
+        PetscIS labelValuesIS = nullptr;
+        PylithCallPetsc(DMLabelGetValueIS(dmLabel, &labelValuesIS));
+
+        PetscInt numLabelValues = 0;
+        const PetscInt* labelValues = nullptr;
+        PylithCallPetsc(ISGetLocalSize(labelValuesIS, &numLabelValues));
+        PylithCallPetsc(ISGetIndices(labelValuesIS, &labelValues));
+        for (PetscInt iValue = 0; iValue < numLabelValues; ++iValue) {
+            // Get IS with points matching label value (stratum level = label value).
+            const PetscInt labelValue = labelValues[iValue];
+            PetscIS stratumIS = nullptr;
+            PylithCallPetsc(DMLabelGetStratumIS(dmLabel, labelValue, &stratumIS));
+
+            PetscInt numPoints = 0;
+            const PetscInt* points = nullptr;
+            PylithCallPetsc(ISGetLocalSize(stratumIS, &numPoints));
+            PylithCallPetsc(ISGetIndices(stratumIS, &points));
+
+            for (PetscInt iPoint = 0; iPoint < numPoints; ++iPoint) {
+                const PetscInt point = points[iPoint];
+                if ((point < fStart) || (point >= fEnd)) {
+                    PylithCallPetsc(DMLabelClearValue(dmLabel, points[iPoint], labelValue));
+                } // if
+            } // for
+            PylithCallPetsc(ISRestoreIndices(stratumIS, &points));
+            PylithCallPetsc(ISDestroy(&stratumIS));
+        } // for
+        PylithCallPetsc(ISRestoreIndices(labelValuesIS, &labelValues));
+        PylithCallPetsc(ISDestroy(&labelValuesIS));
+
+#else
         PetscDMLabel dmLabel = NULL;
         PylithCallPetsc(DMGetLabel(dmMesh, faceGroupNames[iGroup].c_str(), &dmLabel));
         PetscInt pStart = -1, pEnd = -1;
@@ -208,6 +244,7 @@ pylith::topology::_RefineUniform::cleanFaceLabels(pylith::topology::Mesh* const 
                 PylithCallPetsc(DMLabelClearValue(dmLabel, point, labelValue));
             } // if
         } // for
+#endif
         PylithCallPetsc(DMLabelDestroyIndex(dmLabel));
     } // for
 
