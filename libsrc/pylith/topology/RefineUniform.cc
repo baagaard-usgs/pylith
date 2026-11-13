@@ -193,7 +193,6 @@ pylith::topology::_RefineUniform::cleanFaceLabels(pylith::topology::Mesh* const 
 
     const size_t numFaceGroups = faceGroupNames.size();
     for (size_t iGroup = 0; iGroup < numFaceGroups; ++iGroup) {
-#if 1
         PetscDMLabel dmLabel = NULL;
         PylithCallPetsc(DMGetLabel(dmMesh, faceGroupNames[iGroup].c_str(), &dmLabel));
 
@@ -226,25 +225,6 @@ pylith::topology::_RefineUniform::cleanFaceLabels(pylith::topology::Mesh* const 
         } // for
         PylithCallPetsc(ISRestoreIndices(labelValuesIS, &labelValues));
         PylithCallPetsc(ISDestroy(&labelValuesIS));
-
-#else
-        PetscDMLabel dmLabel = NULL;
-        PylithCallPetsc(DMGetLabel(dmMesh, faceGroupNames[iGroup].c_str(), &dmLabel));
-        PetscInt pStart = -1, pEnd = -1;
-        PylithCallPetsc(DMLabelGetBounds(dmLabel, &pStart, &pEnd));
-        for (PetscInt point = pStart; point < pEnd; ++point) {
-            if ((point >= fStart) && (point < fEnd)) {
-                continue; // keep faces in label
-            } // if
-            PetscBool hasLabel = PETSC_FALSE;
-            PylithCallPetsc(DMLabelHasPoint(dmLabel, point, &hasLabel));
-            if (hasLabel) {
-                PetscInt labelValue;
-                PylithCallPetsc(DMLabelGetValue(dmLabel, point, &labelValue));
-                PylithCallPetsc(DMLabelClearValue(dmLabel, point, labelValue));
-            } // if
-        } // for
-#endif
         PylithCallPetsc(DMLabelDestroyIndex(dmLabel));
     } // for
 
