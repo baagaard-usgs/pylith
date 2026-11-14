@@ -1,0 +1,30 @@
+commands:
+  - generate_gmsh.py --cell=tri --write --filename=mesh_tet2500.msh
+  - generate_gmsh.py --cell=tri --write --level=1 --filename=mesh_tet1250.msh
+  - generate_gmsh.py --cell=tri --write --level=2 --filename=mesh_tet0625.msh
+  - generate_gmsh.py --cell=tri --write --level=3 --filename=mesh_tet0312.msh
+  - generate_gmsh.py --cell=tri --write --level=4 --filename=mesh_tet0156.msh
+  - generate_gmsh.py --cell=tri --write --level=5 --filename=mesh_tet0078.msh
+
+  - pylith step02_fieldsplit_selfp.cfg >& logs/step02a_fieldsplit_selfp.stdout
+  - pylith step02_fieldsplit_selfp.cfg step02b_fieldsplit_selfp.cfg >& logs/step02b_fieldsplit_selfp.stdout
+  - pylith step02_fieldsplit_selfp.cfg step02c_fieldsplit_selfp.cfg >& logs/step02c_fieldsplit_selfp.stdout
+
+  - pylith step03_vpbjacobi.cfg >& logs/step03a_vpbjacobi.stdout
+  - pylith step03_vpbjacobi.cfg step03b_vpbjacobi.cfg >& logs/step03b_vpbjacobi.stdout
+  - pylith step03_vpbjacobi.cfg step03c_vpbjacobi.cfg >& logs/step03c_vpbjacobi.stdout
+  - pylith step03_vpbjacobi.cfg step03d_vpbjacobi.cfg >& logs/step03d_vpbjacobi.stdout
+
+  - pylith step04_vpbjacobi_tunefine.cfg >& logs/step04a_vpbjacobi_tunefine.stdout
+  - pylith step04_vpbjacobi_tunefine.cfg step04b_vpbjacobi_tunefine.cfg >& logs/step04b_vpbjacobi_tunefine.stdout
+  - pylith step04_vpbjacobi_tunefine.cfg step04c_vpbjacobi_tunefine.cfg >& logs/step04c_vpbjacobi_tunefine.stdout
+  - pylith step04_vpbjacobi_tunefine.cfg step04d_vpbjacobi_tunefine.cfg >& logs/step04d_vpbjacobi_tunefine.stdout
+  - pylith step04_vpbjacobi_tunefine.cfg step04e_vpbjacobi_tunefine.cfg >& logs/step04e_vpbjacobi_tunefine.stdout
+  - pylith step04_vpbjacobi_tunefine.cfg step04f_vpbjacobi_tunefine.cfg >& logs/step04f_vpbjacobi_tunefine.stdout
+
+  - pylith step06_vpbjacobi_dispscale.cfg >& logs/step04a_vpbjacobi_tunefine.stdout
+  - pylith step06_vpbjacobi_dispscale.cfg step06b_vpbjacobi_dispscale.cfg >& logs/step06b_vpbjacobi_dispscale.stdout
+  - pylith step06_vpbjacobi_dispscale.cfg step06c_vpbjacobi_dispscale.cfg >& logs/step06c_vpbjacobi_dispscale.stdout
+  - pylith step06_vpbjacobi_dispscale.cfg step06d_vpbjacobi_dispscale.cfg >& logs/step06d_vpbjacobi_dispscale.stdout
+  - pylith step06_vpbjacobi_dispscale.cfg step06e_vpbjacobi_dispscale.cfg >& logs/step06e_vpbjacobi_dispscale.stdout
+  - pylith step06_vpbjacobi_dispscale.cfg step06f_vpbjacobi_dispscale.cfg >& logs/step06f_vpbjacobi_dispscale.stdout

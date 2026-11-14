@@ -1,0 +1,27 @@
+commands:
+  - ./generate_gmsh.py --cell=tri --write --filename=mesh_tri.msh
+
+  - pylith step02_fieldsplit_selfp.cfg
+  - pylith step02_fieldsplit_selfp.cfg step02b_fieldsplit_selfp.cfg
+  - pylith step02_fieldsplit_selfp.cfg step02c_fieldsplit_selfp.cfg
+
+  - pylith step03_vpbjacobi.cfg
+  - pylith step03_vpbjacobi.cfg step03b_vpbjacobi.cfg
+  - pylith step03_vpbjacobi.cfg step03c_vpbjacobi.cfg
+  - pylith step03_vpbjacobi.cfg step03d_vpbjacobi.cfg
+  - pylith step03_vpbjacobi.cfg step03e_vpbjacobi.cfg
+  - pylith step03_vpbjacobi.cfg step03f_vpbjacobi.cfg
+
+  - pylith step04_vpbjacobi_tunefine.cfg
+  - pylith step04_vpbjacobi_tunefine.cfg step04b_vpbjacobi_tunefine.cfg
+  - pylith step04_vpbjacobi_tunefine.cfg step04c_vpbjacobi_tunefine.cfg
+  - pylith step04_vpbjacobi_tunefine.cfg step04d_vpbjacobi_tunefine.cfg
+  - pylith step04_vpbjacobi_tunefine.cfg step04e_vpbjacobi_tunefine.cfg
+  - pylith step04_vpbjacobi_tunefine.cfg step04f_vpbjacobi_tunefine.cfg
+
+  - pylith step06_vpbjacobi_dispscale.cfg
+  - pylith step06_vpbjacobi_dispscale.cfg step06b_vpbjacobi_dispscale.cfg
+  - pylith step06_vpbjacobi_dispscale.cfg step06c_vpbjacobi_dispscale.cfg
+  - pylith step06_vpbjacobi_dispscale.cfg step06d_vpbjacobi_dispscale.cfg
+  - pylith step06_vpbjacobi_dispscale.cfg step06e_vpbjacobi_dispscale.cfg
+  - pylith step06_vpbjacobi_dispscale.cfg step06f_vpbjacobi_dispscale.cfg
