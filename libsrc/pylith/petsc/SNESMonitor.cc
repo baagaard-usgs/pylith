@@ -12,19 +12,21 @@
 
 #include "pylith/petsc/SNESMonitor.hh" // implementation of class methods
 
-#include "pylith/utils/journals.hh" // USES PYLITH_COMPONENT_*
 #include "pylith/exceptions/error.hh" // USES PYLITH_METHOD_*
+#include "pylith/utils/journals.hh" // USES PYLITH_COMPONENT_*
 
 #include <iomanip> // USES setw()
 
 // ------------------------------------------------------------------------------------------------
 // Constructor
-pylith::petsc::SNESMonitor::SNESMonitor(void) {}
+pylith::petsc::SNESMonitor::SNESMonitor(void) {
+}
 
 
 // ------------------------------------------------------------------------------------------------
 // Destructor
-pylith::petsc::SNESMonitor::~SNESMonitor(void) {}
+pylith::petsc::SNESMonitor::~SNESMonitor(void) {
+}
 
 
 // ------------------------------------------------------------------------------------------------
@@ -56,7 +58,9 @@ pylith::petsc::SNESMonitor::PylithSNESMonitor(PetscSNES snes,
     PYLITH_METHOD_BEGIN;
     PetscErrorCode err = PETSC_SUCCESS;
 
-    PYLITH_INFO_ROOT(pylith::journal::solver, "PETSc SNES: Iteration "<< iteration << ", nondimensional residual norm=" << std::scientific << std::setprecision(6) << std::setw(12) << residualNorm);
+    PYLITH_INFO_ROOT(pylith::journal::solver,
+                     "PETSc SNES: Iteration " << iteration << ", nondimensional residual norm=" << std::scientific
+                                              << std::setprecision(6) << std::setw(12) << residualNorm);
 
     PYLITH_METHOD_RETURN(err);
 }
@@ -75,7 +79,8 @@ pylith::petsc::SNESMonitor::PylithSNESConvergedReason(PetscSNES snes,
 
     PetscInt numIterations = 0;
     PylithCallPetsc(SNESGetIterationNumber(snes, &numIterations));
-    PYLITH_INFO_ROOT(pylith::journal::solver, "PETSc SNES nonlinear solver converged in " << numIterations << " interation due to " << reason);
+    PYLITH_INFO_ROOT(pylith::journal::solver,
+                     "PETSc SNES nonlinear solver converged in " << numIterations << " interation due to " << reason);
 
     PYLITH_METHOD_RETURN(err);
 }
