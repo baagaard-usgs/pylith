@@ -6,7 +6,7 @@ import cubit
 
 cubit.cmd("reset")
 
-DX = 1.0 # mesh size
+DX = 1.0  # mesh size
 
 # Create geometry
 v1 = cubit.brick(2.0, 1.0, 1.0)

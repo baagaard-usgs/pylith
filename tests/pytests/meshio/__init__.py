@@ -53,6 +53,7 @@ def test_modules():
     ]
     if has_netcdf():
         from . import TestMeshIOCubit
+
         modules += [
             TestMeshIOCubit,
         ]
@@ -62,6 +63,7 @@ def test_modules():
             TestDataWriterHDF5Ext,
             TestXdmf,
         )
+
         modules += [
             TestDataWriterHDF5,
             TestDataWriterHDF5Ext,

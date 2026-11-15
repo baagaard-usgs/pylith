@@ -51,13 +51,9 @@ class App(GenerateMesh):
         self.l_xneg = gmsh.model.geo.add_line(p4, p1)
         self.l_fault = gmsh.model.geo.add_line(p5, p6)
 
-        loop = gmsh.model.geo.add_curve_loop(
-            [self.l_yneg0, self.l_fault, self.l_ypos0, self.l_xneg]
-        )
+        loop = gmsh.model.geo.add_curve_loop([self.l_yneg0, self.l_fault, self.l_ypos0, self.l_xneg])
         self.s_xneg = gmsh.model.geo.add_plane_surface([loop])
-        loop = gmsh.model.geo.add_curve_loop(
-            [self.l_yneg1, self.l_xpos, self.l_ypos1, -self.l_fault]
-        )
+        loop = gmsh.model.geo.add_curve_loop([self.l_yneg1, self.l_xpos, self.l_ypos1, -self.l_fault])
         self.s_xpos = gmsh.model.geo.add_plane_surface([loop])
 
         gmsh.model.geo.synchronize()

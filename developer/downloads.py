@@ -12,12 +12,12 @@ for package in packages:
     count = 0
     print("\n%s" % package)
     for release in data:
-        print("    %s" % release['name'])
-        for asset in release['assets']:
-            print("        %s: %d" % (asset['name'], asset['download_count']))
+        print("    %s" % release["name"])
+        for asset in release["assets"]:
+            print("        %s: %d" % (asset["name"], asset["download_count"]))
             if package == "pylith":
-                if not "petsc" in asset['name'] and not "manual" in asset['name'] and not "installer" in asset['name']:
-                    count += asset['download_count']
+                if not "petsc" in asset["name"] and not "manual" in asset["name"] and not "installer" in asset["name"]:
+                    count += asset["download_count"]
             else:
-                count += asset['download_count']
+                count += asset["download_count"]
     print("  Total downloads: %d" % count)

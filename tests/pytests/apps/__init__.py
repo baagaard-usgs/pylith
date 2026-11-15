@@ -1,4 +1,4 @@
-from . import (TestPyLithApp, TestEqInfoApp)
+from . import TestPyLithApp, TestEqInfoApp
 
 
 def test_modules():

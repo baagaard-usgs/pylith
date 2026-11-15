@@ -2,9 +2,9 @@ from . import (
     TestFaultCohesive,
     TestFaultCohesiveKin,
     TestFaultCohesiveImpulses,
-    TestKinSrc, 
+    TestKinSrc,
     TestSingleRupture,
- )
+)
 
 
 def test_modules():

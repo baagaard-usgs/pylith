@@ -1,4 +1,4 @@
-from . import (TestCommunicator, TestReduce)
+from . import TestCommunicator, TestReduce
 
 
 def test_modules():

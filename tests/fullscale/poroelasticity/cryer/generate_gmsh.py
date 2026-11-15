@@ -11,9 +11,9 @@ class App(GenerateMesh):
     Domain is a sphere with radius RADIUS and finest discretization size DX.
     """
 
-    RADIUS = 10.0e+3
-    DX = 1.0e+3
-    
+    RADIUS = 10.0e3
+    DX = 1.0e3
+
     def __init__(self):
         self.cell_choices = {
             "required": False,
@@ -27,7 +27,7 @@ class App(GenerateMesh):
         y0 = 0.0
         z0 = 0.0
 
-        self.v_domain = gmsh.model.occ.add_sphere(x0, y0, z0, radius=self.RADIUS, angle1=0, angle3=math.pi/2)
+        self.v_domain = gmsh.model.occ.add_sphere(x0, y0, z0, radius=self.RADIUS, angle1=0, angle3=math.pi / 2)
         self.s_shell = 1
         self.s_zneg = 2
         self.s_yneg = 3

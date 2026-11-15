@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Application for uploading release assets to GitHub repository.
-"""
+"""Application for uploading release assets to GitHub repository."""
 
 import argparse
 import requests
 import mimetypes
 import os
+
 
 class App:
     BASE_URL = "https://api.github.com/repos/geodynamics/{package}/releases"
@@ -16,11 +16,12 @@ class App:
         token = getpass.getpass(prompt="Enter GitHub personal access token: ")
         os.environ["GITHUB_TOKEN"] = token
 
-    def upload_file(self,
+    def upload_file(
+        self,
         filename: str,
         release: str,
-        package: str="pylith",
-        ):
+        package: str = "pylith",
+    ):
 
         self._get_token()
         self._get_release_info(package, release)
@@ -33,7 +34,7 @@ class App:
             "Authorization": f"token {self.token}",
             "Content-Type": mimetype,
             "Accept": "application/vnd.github.v3+json",
-            }
+        }
         params = (("name", filename),)
         data = open(filename, "rb").read()
         response = requests.post(self.upload_url, headers=headers, params=params, data=data)
@@ -58,13 +59,11 @@ class App:
         for release in releases:
             if release["tag_name"] == tag:
                 self.release_id = release["id"]
-                self.upload_url = release["upload_url"].replace("{?name,label}","")
+                self.upload_url = release["upload_url"].replace("{?name,label}", "")
                 return
         tags = "\n\t".join([release["tag_name"] for release in releases])
-        raise ValueError(
-            f"Could not find release '{tag}' in {package} GitHub repository.\n"
-            f"Releases:\n\t{tags}"
-            )
+        raise ValueError(f"Could not find release '{tag}' in {package} GitHub repository.\n" f"Releases:\n\t{tags}")
+
 
 def cli():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -79,6 +78,7 @@ def cli():
         app.set_token()
     if args.asset:
         app.upload_file(filename=args.asset, release=args.release, package=args.package)
+
 
 if __name__ == "__main__":
     cli()

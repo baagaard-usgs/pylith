@@ -10,6 +10,7 @@ Notes:
 2. This Python script requires the GDAL (https://gdal.org) Python package and
    its underlying C++ library.
 """
+
 import pathlib
 
 from osgeo import gdal

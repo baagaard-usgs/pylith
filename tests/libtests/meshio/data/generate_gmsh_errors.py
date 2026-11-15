@@ -11,7 +11,8 @@ from abc import ABC, abstractmethod
 import gmsh
 import numpy
 
-from pylith.meshio.gmsh_utils import (BoundaryGroup, MaterialGroup)
+from pylith.meshio.gmsh_utils import BoundaryGroup, MaterialGroup
+
 
 class GenerateApp(ABC):
 
@@ -59,8 +60,8 @@ class GenerateNoEmbed2D(GenerateApp):
     p0-------p1
     """
 
-    DOMAIN_X = DOMAIN_Y = 8.0e+3
-    DX = 2.0e+3
+    DOMAIN_X = DOMAIN_Y = 8.0e3
+    DX = 2.0e3
 
     def __init__(self, cell="tri", gui=False):
         super().__init__(cell, gui)
@@ -73,11 +74,11 @@ class GenerateNoEmbed2D(GenerateApp):
         x0 = -0.5 * self.DOMAIN_X
         y0 = -0.5 * self.DOMAIN_Y
         p0 = gmsh.model.geo.add_point(x0, y0, 0)
-        p1 = gmsh.model.geo.add_point(x0+self.DOMAIN_X, y0, 0)
-        p2 = gmsh.model.geo.add_point(x0+self.DOMAIN_X, y0+self.DOMAIN_Y, 0)
-        p3 = gmsh.model.geo.add_point(x0, y0+self.DOMAIN_Y, 0)
-        p4 = gmsh.model.geo.add_point(x0+0.25*self.DOMAIN_X, y0+0.4*self.DOMAIN_Y, 0)
-        p5 = gmsh.model.geo.add_point(x0+0.75*self.DOMAIN_X, y0+0.6*self.DOMAIN_Y, 0)
+        p1 = gmsh.model.geo.add_point(x0 + self.DOMAIN_X, y0, 0)
+        p2 = gmsh.model.geo.add_point(x0 + self.DOMAIN_X, y0 + self.DOMAIN_Y, 0)
+        p3 = gmsh.model.geo.add_point(x0, y0 + self.DOMAIN_Y, 0)
+        p4 = gmsh.model.geo.add_point(x0 + 0.25 * self.DOMAIN_X, y0 + 0.4 * self.DOMAIN_Y, 0)
+        p5 = gmsh.model.geo.add_point(x0 + 0.75 * self.DOMAIN_X, y0 + 0.6 * self.DOMAIN_Y, 0)
 
         self.c_yneg = gmsh.model.geo.add_line(p0, p1)
         self.c_xpos = gmsh.model.geo.add_line(p1, p2)
@@ -91,9 +92,7 @@ class GenerateNoEmbed2D(GenerateApp):
         gmsh.model.geo.synchronize()
 
     def mark(self):
-        materials = (
-            MaterialGroup(tag=1, entities=[self.surface]),
-        )
+        materials = (MaterialGroup(tag=1, entities=[self.surface]),)
         for material in materials:
             material.create_physical_group()
 
@@ -118,11 +117,10 @@ class GenerateNoEmbed2D(GenerateApp):
 
 
 class GenerateNoEmbed3D(GenerateApp):
-    """Fault surface is not embedded in domain.
-    """
+    """Fault surface is not embedded in domain."""
 
-    DOMAIN_X = DOMAIN_Y = DOMAIN_Z = 8.0e+3
-    DX = 2.0e+3
+    DOMAIN_X = DOMAIN_Y = DOMAIN_Z = 8.0e3
+    DX = 2.0e3
 
     def __init__(self, cell="tet", gui=False):
         super().__init__(cell, gui)
@@ -131,13 +129,14 @@ class GenerateNoEmbed3D(GenerateApp):
     def create_geometry(self):
 
         gmsh.initialize()
-        self.v_domain = gmsh.model.occ.add_box(-0.5*self.DOMAIN_X, -0.5*self.DOMAIN_Y, -self.DOMAIN_Z,
-                                    self.DOMAIN_X, self.DOMAIN_Y, self.DOMAIN_Z)
+        self.v_domain = gmsh.model.occ.add_box(
+            -0.5 * self.DOMAIN_X, -0.5 * self.DOMAIN_Y, -self.DOMAIN_Z, self.DOMAIN_X, self.DOMAIN_Y, self.DOMAIN_Z
+        )
 
-        p0 = gmsh.model.occ.add_point(0.0, -0.2*self.DOMAIN_Y, 0)
-        p1 = gmsh.model.occ.add_point(0.0, +0.2*self.DOMAIN_Y, 0)
-        p2 = gmsh.model.occ.add_point(-0.1*self.DOMAIN_X, +0.2*self.DOMAIN_Y, -0.3*self.DOMAIN_Z)
-        p3 = gmsh.model.occ.add_point(-0.1*self.DOMAIN_X, -0.2*self.DOMAIN_Y, -0.3*self.DOMAIN_Z)
+        p0 = gmsh.model.occ.add_point(0.0, -0.2 * self.DOMAIN_Y, 0)
+        p1 = gmsh.model.occ.add_point(0.0, +0.2 * self.DOMAIN_Y, 0)
+        p2 = gmsh.model.occ.add_point(-0.1 * self.DOMAIN_X, +0.2 * self.DOMAIN_Y, -0.3 * self.DOMAIN_Z)
+        p3 = gmsh.model.occ.add_point(-0.1 * self.DOMAIN_X, -0.2 * self.DOMAIN_Y, -0.3 * self.DOMAIN_Z)
         c_top = gmsh.model.occ.add_line(p0, p1)
         c_ypos = gmsh.model.occ.add_line(p1, p2)
         c_bot = gmsh.model.occ.add_line(p2, p3)
@@ -148,15 +147,11 @@ class GenerateNoEmbed3D(GenerateApp):
         gmsh.model.occ.synchronize()
 
     def mark(self):
-        materials = (
-            MaterialGroup(tag=1, entities=[self.v_domain]),
-        )
+        materials = (MaterialGroup(tag=1, entities=[self.v_domain]),)
         for material in materials:
             material.create_physical_group()
 
-        face_groups = (
-            BoundaryGroup(name="fault", tag=20, dim=2, entities=[self.s_fault]),
-        )
+        face_groups = (BoundaryGroup(name="fault", tag=20, dim=2, entities=[self.s_fault]),)
         for group in face_groups:
             group.create_physical_group()
 
@@ -184,8 +179,8 @@ class GenerateNoSplit2D(GenerateApp):
     p0----------p1
     """
 
-    DOMAIN_X = DOMAIN_Y = 8.0e+3
-    DX = 2.0e+3
+    DOMAIN_X = DOMAIN_Y = 8.0e3
+    DX = 2.0e3
 
     def __init__(self, cell="tri", gui=False):
         super().__init__(cell, gui)
@@ -198,9 +193,9 @@ class GenerateNoSplit2D(GenerateApp):
         x0 = -0.5 * self.DOMAIN_X
         y0 = -0.5 * self.DOMAIN_Y
         p0 = gmsh.model.geo.add_point(x0, y0, 0)
-        p1 = gmsh.model.geo.add_point(x0+self.DOMAIN_X, y0, 0)
-        p2 = gmsh.model.geo.add_point(x0+self.DOMAIN_X, y0+self.DOMAIN_Y, 0)
-        p3 = gmsh.model.geo.add_point(x0, y0+self.DOMAIN_Y, 0)
+        p1 = gmsh.model.geo.add_point(x0 + self.DOMAIN_X, y0, 0)
+        p2 = gmsh.model.geo.add_point(x0 + self.DOMAIN_X, y0 + self.DOMAIN_Y, 0)
+        p3 = gmsh.model.geo.add_point(x0, y0 + self.DOMAIN_Y, 0)
 
         self.c_yneg = gmsh.model.geo.add_line(p0, p1)
         self.c_xpos = gmsh.model.geo.add_line(p1, p2)
@@ -209,11 +204,11 @@ class GenerateNoSplit2D(GenerateApp):
         loop = gmsh.model.geo.add_curve_loop([self.c_yneg, self.c_xpos, self.c_ypos, self.c_xneg])
         self.s_domain = gmsh.model.geo.add_plane_surface([loop])
 
-        p4 = gmsh.model.geo.add_point(x0+0.25*self.DOMAIN_X, y0+0.4*self.DOMAIN_Y, 0)
-        p5 = gmsh.model.geo.add_point(x0+0.75*self.DOMAIN_X, y0+0.6*self.DOMAIN_Y, 0)
-        p6 = gmsh.model.geo.add_point(x0+0.4*self.DOMAIN_X, y0+0.52*self.DOMAIN_Y, 0)
-        p7 = gmsh.model.geo.add_point(x0+0.54*self.DOMAIN_X, y0+0.51*self.DOMAIN_Y, 0)
-        p8 = gmsh.model.geo.add_point(x0+0.4*self.DOMAIN_X, y0+0.3*self.DOMAIN_Y, 0)
+        p4 = gmsh.model.geo.add_point(x0 + 0.25 * self.DOMAIN_X, y0 + 0.4 * self.DOMAIN_Y, 0)
+        p5 = gmsh.model.geo.add_point(x0 + 0.75 * self.DOMAIN_X, y0 + 0.6 * self.DOMAIN_Y, 0)
+        p6 = gmsh.model.geo.add_point(x0 + 0.4 * self.DOMAIN_X, y0 + 0.52 * self.DOMAIN_Y, 0)
+        p7 = gmsh.model.geo.add_point(x0 + 0.54 * self.DOMAIN_X, y0 + 0.51 * self.DOMAIN_Y, 0)
+        p8 = gmsh.model.geo.add_point(x0 + 0.4 * self.DOMAIN_X, y0 + 0.3 * self.DOMAIN_Y, 0)
         self.c_main_fault = gmsh.model.geo.add_spline([p4, p6, p7, p5])
         self.c_splay_fault = gmsh.model.geo.add_line(p7, p8)
 
@@ -222,9 +217,7 @@ class GenerateNoSplit2D(GenerateApp):
         gmsh.model.mesh.embed(1, [self.c_splay_fault], 2, self.s_domain)
 
     def mark(self):
-        materials = (
-            MaterialGroup(tag=1, entities=[self.s_domain]),
-        )
+        materials = (MaterialGroup(tag=1, entities=[self.s_domain]),)
         for material in materials:
             material.create_physical_group()
 
@@ -253,8 +246,10 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--geometry", action="store", dest="geometry", required=True, choices=["noembed-2d","noembed-3d","nosplit-2d"])
-    parser.add_argument("--cell", action="store", dest="cell", required=True, choices=["tri","quad","hex","tet"])
+    parser.add_argument(
+        "--geometry", action="store", dest="geometry", required=True, choices=["noembed-2d", "noembed-3d", "nosplit-2d"]
+    )
+    parser.add_argument("--cell", action="store", dest="cell", required=True, choices=["tri", "quad", "hex", "tet"])
     parser.add_argument("--gui", action="store_true", dest="gui")
     args = parser.parse_args()
 

@@ -14,21 +14,21 @@ connectFile = "ruapehu-nzmg-1km.connect"
 facetsOut = "ruapehu-nzmg-1km.fac"
 
 # Triangulate the points to get connectivities.
-os.system('triangulate '+vertexFile+' > '+connectFile)
+os.system("triangulate " + vertexFile + " > " + connectFile)
 
 # Read connectivities and vertices.
-v = open(vertexFile, 'r')
+v = open(vertexFile, "r")
 vertices = v.readlines()
 v.close()
 numVertices = len(vertices)
-c = open(connectFile, 'r')
+c = open(connectFile, "r")
 connect = c.readlines()
 c.close()
 numTriangles = len(connect)
 
 # Create factes file header and write it to facets file.
 header = "%d  %d\n" % (numVertices, numTriangles)
-f = open(facetsOut, 'w')
+f = open(facetsOut, "w")
 f.write(header)
 
 # Write numbered vertices to facets file.

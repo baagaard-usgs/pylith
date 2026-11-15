@@ -6,13 +6,13 @@ import cubit
 
 cubit.cmd("reset")
 
-DX = 1.0 # mesh size
+DX = 1.0  # mesh size
 
 # Create geometry
-v1 = cubit.create_vertex(-1.0,  0.0,  0.0)
-v2 = cubit.create_vertex(+1.0,  0.0,  0.0)
-v3 = cubit.create_vertex(+1.0, +1.0,  0.0)
-v4 = cubit.create_vertex(-1.0, +1.0,  0.0)
+v1 = cubit.create_vertex(-1.0, 0.0, 0.0)
+v2 = cubit.create_vertex(+1.0, 0.0, 0.0)
+v3 = cubit.create_vertex(+1.0, +1.0, 0.0)
+v4 = cubit.create_vertex(-1.0, +1.0, 0.0)
 
 c1 = cubit.create_curve(v1, v2)
 c2 = cubit.create_curve(v2, v3)

@@ -44,9 +44,7 @@ LABELS = (
 )
 
 pyplot.style.use("matplotlib_extras.color-lightbg")
-figure, axes = pyplot.subplots(
-    ncols=2, nrows=1, figsize=(8.5, 4.0), layout="constrained"
-)
+figure, axes = pyplot.subplots(ncols=2, nrows=1, figsize=(8.5, 4.0), layout="constrained")
 
 ax_iters = axes[0]
 ax_iters.spines[["top", "right"]].set_visible(False)

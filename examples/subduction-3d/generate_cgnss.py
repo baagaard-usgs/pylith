@@ -6,9 +6,7 @@ import coordsys
 from scipy.interpolate import griddata
 
 # Load GNSS station coordinates using NumPy
-station_data = numpy.genfromtxt(
-    "cgnss_stations_latlon.txt", dtype=None, names=True, encoding="utf-8"
-)
+station_data = numpy.genfromtxt("cgnss_stations_latlon.txt", dtype=None, names=True, encoding="utf-8")
 station_name = station_data["Site"]
 station_latitude = station_data["Latitude"]
 station_longitude = station_data["Longitude"]

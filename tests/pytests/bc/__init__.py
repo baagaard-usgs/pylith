@@ -4,7 +4,7 @@ from . import (
     TestAbsorbingDampers,
     TestAuxiliarySubfields,
     TestZeroDB,
-    )
+)
 
 
 def test_modules():

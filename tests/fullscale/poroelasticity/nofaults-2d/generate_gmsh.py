@@ -44,9 +44,7 @@ class App(GenerateMesh):
         self.l_ypos = gmsh.model.geo.add_line(p3, p4)
         self.l_xneg = gmsh.model.geo.add_line(p4, p1)
 
-        c1 = gmsh.model.geo.add_curve_loop(
-            [self.l_yneg, self.l_xpos, self.l_ypos, self.l_xneg]
-        )
+        c1 = gmsh.model.geo.add_curve_loop([self.l_yneg, self.l_xpos, self.l_ypos, self.l_xneg])
         self.s_domain = gmsh.model.geo.add_plane_surface([c1])
 
         gmsh.model.geo.synchronize()

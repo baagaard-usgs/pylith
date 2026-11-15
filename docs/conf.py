@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = "PyLith"
-copyright = "2010-2025, University of California, Davis"
+copyright = "2010-2026 All rights reserved."
 author = "Brad T. Aagaard, Matthew G. Knepley, Charles A. Williams"
 
 # The full version, including alpha/beta/rc tags

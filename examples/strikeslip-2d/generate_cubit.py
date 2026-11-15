@@ -7,6 +7,8 @@ PATH_TO_CUBIT/Cubit.app/Contents/Frameworks/Python.framework/Versions/Current/bi
 
 where you replace 'PATH_TO_CUBIT' with the absolute path.
 """
+
+
 # -------------------------------------------------------------------------------------------------
 # Utility functions. No edits should be needed.
 # -------------------------------------------------------------------------------------------------
@@ -14,19 +16,27 @@ def setup_cubit():
     """Detect if we are running outside Cubit. If so, then we parse command line arguments and setup
     Cubit."""
     import sys
+
     if not "cubit" in sys.modules:
         import argparse
         import pathlib
 
         parser = argparse.ArgumentParser()
-        parser.add_argument("--cubit-directory", action="store", dest="cubit_dir", required=True, help="Directory containing cubit executable.")
+        parser.add_argument(
+            "--cubit-directory",
+            action="store",
+            dest="cubit_dir",
+            required=True,
+            help="Directory containing cubit executable.",
+        )
         args = parser.parse_args()
 
         # Initialize cubit
         cubit_absdir = pathlib.Path(args.cubit_dir).expanduser().resolve()
         sys.path.append(str(cubit_absdir))
         import cubit
-        cubit.init(['cubit','-nojournal'])
+
+        cubit.init(["cubit", "-nojournal"])
 
 
 # -------------------------------------------------------------------------------------------------
@@ -36,12 +46,12 @@ def setup_cubit():
 # -50 km <= x <= +50 km
 # -75 km <= y <= +75 km
 km = 1000.0
-BLOCK_WIDTH = 100*km
-BLOCK_LENGTH = 150*km
-BLOCK_HEIGHT = 10*km
+BLOCK_WIDTH = 100 * km
+BLOCK_LENGTH = 150 * km
+BLOCK_HEIGHT = 10 * km
 
-DX_FAULT = 8.0*km # Discretization size on fault
-DX_BIAS = 1.1 # rate of geometric increase in cell size with distance from the fault
+DX_FAULT = 8.0 * km  # Discretization size on fault
+DX_BIAS = 1.1  # rate of geometric increase in cell size with distance from the fault
 cell = "quad"
 
 # -------------------------------------------------------------------------------------------------
@@ -51,7 +61,6 @@ setup_cubit()
 cubit.reset()
 
 import math
-
 
 # -------------------------------------------------------------------------------------------------
 # Geometry
@@ -66,7 +75,9 @@ domain_id = cubit.get_last_id("surface")
 cubit.cmd(f"delete volume {brick.id()}")
 
 # Create fault (yz plane) at x = 0.0
-cubit.cmd(f"split surface {domain_id} across location position 0 {-0.5*BLOCK_LENGTH} 0 location position 0 {+0.5*BLOCK_LENGTH} 0")
+cubit.cmd(
+    f"split surface {domain_id} across location position 0 {-0.5*BLOCK_LENGTH} 0 location position 0 {+0.5*BLOCK_LENGTH} 0"
+)
 cubit.cmd("curve ( at 0 0 0 ordinal 1 ordered ) name 'fault'")
 
 # Name surfaces split by fault interface

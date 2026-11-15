@@ -13,9 +13,9 @@ def replacement(match):
 
 files = pathlib.Path(".").rglob("*.py")
 for filename in files:
-    with open(filename, 'r') as fin:
+    with open(filename, "r") as fin:
         lines = fin.read()
         newlines = re.sub(PATTERN_DEF, replacement, lines)
         newlines = re.sub(PATTERN_CLASS, replacement, newlines)
-    with open(filename, 'w') as fout:
+    with open(filename, "w") as fout:
         fout.write(newlines)

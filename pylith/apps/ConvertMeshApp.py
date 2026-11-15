@@ -21,9 +21,7 @@ class ConvertMeshApp(Application):
 
     from pylith.initializers.Convert import Initializer
 
-    meshInitializer = pythia.pyre.inventory.facility(
-        "mesh_initializer", family="mesh_initializer", factory=Initializer
-    )
+    meshInitializer = pythia.pyre.inventory.facility("mesh_initializer", family="mesh_initializer", factory=Initializer)
     meshInitializer.meta["tip"] = "Mesh initializer."
 
     def __init__(self, name="convertmeshapp"):
