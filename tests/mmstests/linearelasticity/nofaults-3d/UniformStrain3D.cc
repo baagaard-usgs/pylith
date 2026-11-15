@@ -40,7 +40,8 @@ class pylith::_UniformStrain3D {
 
     // Vs
     static double
-    vs(const double x, const double y,
+    vs(const double x,
+       const double y,
        const double z) {
         return 3000.0;
     } // vs
