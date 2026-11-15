@@ -1,4 +1,12 @@
 #!/usr/bin/env nemesis
+# =================================================================================================
+# This code is part of PyLith, developed through the Computational Infrastructure
+# for Geodynamics (https://github.com/geodynamics/pylith).
+#
+# Copyright (c) 2010-2026 All rights reserved.
+#
+# See https://mit-license.org/ and LICENSE.md and for license information.
+# =================================================================================================
 
 from matplotlib import pyplot
 import numpy
@@ -23,3 +31,6 @@ ax.set_ylim(0, 1.1 * numpy.max(slip))
 
 pyplot.savefig("step04-slip.pdf")
 print(f"Mean slip: {numpy.mean(data[:,1]):.2f}")
+
+
+# End of file

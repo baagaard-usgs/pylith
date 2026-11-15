@@ -42,3 +42,6 @@ pylith::petsc::Application::registerCitation(const char* citation) {
     PetscBool set = PetscBool(PETSC_FALSE);
     PylithCallPetsc(PetscCitationsRegister(citation, &set));
 }
+
+
+// End of file

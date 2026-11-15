@@ -87,3 +87,6 @@ class PyLithReader:
 
             data_fields[field_name] = core.Field(values=values, field_type=vector_field_type, basis_order=basis_order)
         return data_fields
+
+
+# End of file

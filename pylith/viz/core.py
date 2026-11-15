@@ -104,3 +104,6 @@ def create_colormap(dataset, field_name, component_name):
         min_value = min(min_value, field_min)
         max_value = max(max_value, field_max)
     return create_component_colormap(min_value, max_value, component_name)
+
+
+# End of file

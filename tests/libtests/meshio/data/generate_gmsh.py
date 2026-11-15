@@ -1,4 +1,12 @@
 #!/usr/bin/env nemesis
+# =================================================================================================
+# This code is part of PyLith, developed through the Computational Infrastructure
+# for Geodynamics (https://github.com/geodynamics/pylith).
+#
+# Copyright (c) 2010-2026 All rights reserved.
+#
+# See https://mit-license.org/ and LICENSE.md and for license information.
+# =================================================================================================
 """
 Physical groups have a name, dimension, and physical tag. We will make a label for each physical group.
 Entities have a dimension, bounding box, and physical tag
@@ -382,3 +390,6 @@ if __name__ == "__main__":
     elif args.geometry == "box-3d":
         app = GenerateBox3D
     app(args.cell, args.mark_vertices, args.dump_mesh, args.gui).main()
+
+
+# End of file

@@ -87,3 +87,6 @@ void
 pylith::petsc::ErrorHandler::clear(void) noexcept {
     _exception = nullptr;
 }
+
+
+// End of file

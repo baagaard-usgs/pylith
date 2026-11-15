@@ -1,3 +1,11 @@
+# =================================================================================================
+# This code is part of PyLith, developed through the Computational Infrastructure
+# for Geodynamics (https://github.com/geodynamics/pylith).
+#
+# Copyright (c) 2010-2026 All rights reserved.
+#
+# See https://mit-license.org/ and LICENSE.md and for license information.
+# =================================================================================================
 from spatialdata.spatialdb.SimpleIOAscii import createWriter
 from spatialdata.geocoords.CSCart import CSCart
 import numpy
@@ -45,3 +53,6 @@ def write_spatialdb_file(vertices, field_names, field_units, field_data, filenam
     #  print(spatialdb_string)
     writer = createWriter(filename)
     writer.write({"points": vertices, "coordsys": cs, "data_dim": 1, "values": spatialdb_string})
+
+
+# End of file

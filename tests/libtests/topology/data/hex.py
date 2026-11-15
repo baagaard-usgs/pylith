@@ -1,3 +1,11 @@
+# =================================================================================================
+# This code is part of PyLith, developed through the Computational Infrastructure
+# for Geodynamics (https://github.com/geodynamics/pylith).
+#
+# Copyright (c) 2010-2026 All rights reserved.
+#
+# See https://mit-license.org/ and LICENSE.md and for license information.
+# =================================================================================================
 from numpy import *
 
 p0 = array([-1.3, -1.4, -0.8], dtype=float64)
@@ -99,3 +107,6 @@ j22 = z4 - z0 + h_xz * x + h_yz * y + h_xyz * x * y
 
 j = array([[j00, j01, j02], [j10, j11, j12], [j20, j21, j22]], dtype=float64)
 print("j\n", j)
+
+
+# End of file

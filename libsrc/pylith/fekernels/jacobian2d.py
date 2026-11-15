@@ -217,3 +217,6 @@ jacobian1 = sympy.tensor.array.derive_by_array(stress, defGrad)
 jacobian2 = sympy.tensor.array.derive_by_array(stress, defGradTranspose)
 jacobian = (jacobian1 + jacobian2) / two
 writeJacobianInfo(fileName, jacobian)
+
+
+# End of file

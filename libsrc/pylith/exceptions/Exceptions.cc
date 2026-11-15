@@ -153,3 +153,6 @@ pylith::exceptions::Error::_formatTraceback() const {
     }
     return oss.str();
 } // formatTraceback
+
+
+// End of file

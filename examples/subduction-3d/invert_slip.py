@@ -327,3 +327,6 @@ class SlipInvert(Application):
 if __name__ == "__main__":
     app = SlipInvert()
     app.run()
+
+
+# End of file

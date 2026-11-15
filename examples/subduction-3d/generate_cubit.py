@@ -1,4 +1,12 @@
 #!python3
+# =================================================================================================
+# This code is part of PyLith, developed through the Computational Infrastructure
+# for Geodynamics (https://github.com/geodynamics/pylith).
+#
+# Copyright (c) 2010-2026 All rights reserved.
+#
+# See https://mit-license.org/ and LICENSE.md and for license information.
+# =================================================================================================
 """WARNING: This script only works with the Python supplied with Cubit.
 
 To run this script outside the Cubit GUI, you will need to run it like:
@@ -558,3 +566,6 @@ cubit.cmd("nodeset 133 name 'fault_splay_edge'")
 
 # Write mesh as ExodusII file
 cubit.cmd(f"export mesh 'input/mesh_{CELL}.exo' dimension 3 overwrite")
+
+
+# End of file

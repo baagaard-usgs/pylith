@@ -84,3 +84,6 @@ pylith::petsc::TSAdaptImpulse::TSAdaptChoose(TSAdapt adapt,
     *wlter = -1; /* Weighted relative local truncation error was not evaluated */
     PetscFunctionReturn(PETSC_SUCCESS);
 }
+
+
+// End of file

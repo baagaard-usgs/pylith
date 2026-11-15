@@ -1,4 +1,12 @@
 #!/usr/bin/env nemesis
+# =================================================================================================
+# This code is part of PyLith, developed through the Computational Infrastructure
+# for Geodynamics (https://github.com/geodynamics/pylith).
+#
+# Copyright (c) 2010-2026 All rights reserved.
+#
+# See https://mit-license.org/ and LICENSE.md and for license information.
+# =================================================================================================
 
 import subprocess
 import pymupdf
@@ -22,3 +30,6 @@ for i_page, page in enumerate(doc):
 
     with open(f"{name}.svg", "w", encoding="utf-8") as svg_out:
         svg_out.write(page.get_svg_image())
+
+
+# End of file

@@ -83,3 +83,6 @@ pylith::petsc::SNESMonitor::PylithSNESConvergedReason(PetscSNES snes,
 
     PYLITH_METHOD_RETURN(err);
 }
+
+
+// End of file

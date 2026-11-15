@@ -1,4 +1,12 @@
 #!/usr/bin/env nemesis
+# =================================================================================================
+# This code is part of PyLith, developed through the Computational Infrastructure
+# for Geodynamics (https://github.com/geodynamics/pylith).
+#
+# Copyright (c) 2010-2026 All rights reserved.
+#
+# See https://mit-license.org/ and LICENSE.md and for license information.
+# =================================================================================================
 """Python application to create spatial databases for a synthetic event with time-varying Gaussian slip.
 
 For simplicity we specify the slip on a horizontal plane in latitude and longitude coordinates.
@@ -89,3 +97,6 @@ writer = createWriter(FILENAME_SPATIALDB)
 writer.write(data)
 
 TimeHistoryIO.write(SLIP_TIME[:, 0], SLIP_TIME[:, 1], SLIP_TIME_UNITS, FILENAME_TIMEDB)
+
+
+# End of file

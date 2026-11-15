@@ -1,3 +1,11 @@
+# =================================================================================================
+# This code is part of PyLith, developed through the Computational Infrastructure
+# for Geodynamics (https://github.com/geodynamics/pylith).
+#
+# Copyright (c) 2010-2026 All rights reserved.
+#
+# See https://mit-license.org/ and LICENSE.md and for license information.
+# =================================================================================================
 from math import *
 
 finalSlip = (2.6, -1.0, 0.4)
@@ -29,3 +37,6 @@ slipNincr = slipNincr1 + slipNincr2
 print("%13.11f, %13.11f, %13.11f" % (slipN1 * finalSlip[0], slipN1 * finalSlip[1], slipN1 * finalSlip[2]))
 
 print("%13.11f, %13.11f, %13.11f" % (slipNincr * finalSlip[0], slipNincr * finalSlip[1], slipNincr * finalSlip[2]))
+
+
+# End of file

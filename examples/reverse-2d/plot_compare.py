@@ -1,4 +1,12 @@
 #!/usr/bin/env nemesis
+# =================================================================================================
+# This code is part of PyLith, developed through the Computational Infrastructure
+# for Geodynamics (https://github.com/geodynamics/pylith).
+#
+# Copyright (c) 2010-2026 All rights reserved.
+#
+# See https://mit-license.org/ and LICENSE.md and for license information.
+# =================================================================================================
 """
 This script generates a plot comparing the displacement and pressure
 time histories for uniform and adaptive time stepping in Step 1.
@@ -131,3 +139,6 @@ class PlotApp:
 
 if __name__ == "__main__":
     cli()
+
+
+# End of file

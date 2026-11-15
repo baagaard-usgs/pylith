@@ -1,4 +1,12 @@
 #!/usr/bin/env nemesis
+# =================================================================================================
+# This code is part of PyLith, developed through the Computational Infrastructure
+# for Geodynamics (https://github.com/geodynamics/pylith).
+#
+# Copyright (c) 2010-2026 All rights reserved.
+#
+# See https://mit-license.org/ and LICENSE.md and for license information.
+# =================================================================================================
 
 from matplotlib import pyplot
 import numpy
@@ -103,3 +111,6 @@ for i_solver, sim_values in enumerate(STATS.values()):
 
     ax_time.legend(loc="upper left", fontsize="small")
     figure.savefig(f"solver-performance-{i_solver}.pdf")
+
+
+# End of file

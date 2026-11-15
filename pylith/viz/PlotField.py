@@ -82,3 +82,6 @@ def add_args(parser):
         "--hide-edges", action="store_false", help="Hide cell edges of deformed domain.", dest="show_edges"
     )
     parser.set_defaults(func=cli)
+
+
+# End of file

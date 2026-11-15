@@ -85,3 +85,6 @@ pylith::bc::TimeDependentOps::updateAuxiliaryField(
 
     PYLITH_METHOD_END;
 } // updateAuxiliaryField
+
+
+// End of file

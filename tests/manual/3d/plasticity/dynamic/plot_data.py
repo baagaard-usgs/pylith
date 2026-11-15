@@ -1,4 +1,12 @@
 #!/usr/bin/env nemesis
+# =================================================================================================
+# This code is part of PyLith, developed through the Computational Infrastructure
+# for Geodynamics (https://github.com/geodynamics/pylith).
+#
+# Copyright (c) 2010-2026 All rights reserved.
+#
+# See https://mit-license.org/ and LICENSE.md and for license information.
+# =================================================================================================
 import numpy
 import pylab
 import tables
@@ -149,3 +157,6 @@ ax.set_xlabel("Time (usec)")
 ax.set_ylabel("Stress (MPa)")
 
 pylab.show()
+
+
+# End of file

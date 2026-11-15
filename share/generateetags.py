@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+# =================================================================================================
+# This code is part of PyLith, developed through the Computational Infrastructure
+# for Geodynamics (https://github.com/geodynamics/pylith).
+#
+# Copyright (c) 2010-2026 All rights reserved.
+#
+# See https://mit-license.org/ and LICENSE.md and for license information.
+# =================================================================================================
 #
 #    Generates etag files.
 #    Adds file names to list of tags in a TAGS file
@@ -205,3 +213,6 @@ def main():
 #
 if __name__ == "__main__":
     main()
+
+
+# End of file

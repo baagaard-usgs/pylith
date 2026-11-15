@@ -1,4 +1,12 @@
 #!python
+# =================================================================================================
+# This code is part of PyLith, developed through the Computational Infrastructure
+# for Geodynamics (https://github.com/geodynamics/pylith).
+#
+# Copyright (c) 2010-2026 All rights reserved.
+#
+# See https://mit-license.org/ and LICENSE.md and for license information.
+# =================================================================================================
 # CUBIT script to generate simple Exodus files for testing ExodusII
 # and MeshIOCubit.
 
@@ -54,3 +62,6 @@ cubit.cmd("sideset 21 name 'boundary_yneg'")
 version = cubit.get_version().split(".")[0]
 filename = f"smallquad_v{version}.exo"
 cubit.cmd(f"export mesh '{filename}' dimension 2 overwrite")
+
+
+# End of file

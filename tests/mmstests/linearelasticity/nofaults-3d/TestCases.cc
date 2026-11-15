@@ -324,3 +324,6 @@ TEST_CASE("BodyForce3D::HexQ2::testJacobianFiniteDiff",
           "[BodyForce3D][HexQ2][Jacobian finite difference]") {
     pylith::TestLinearElasticity(pylith::BodyForce3D::HexQ2()).testJacobianFiniteDiff();
 }
+
+
+// End of file

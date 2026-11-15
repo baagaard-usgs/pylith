@@ -1,4 +1,12 @@
 #!/usr/bin/env nemesis
+# =================================================================================================
+# This code is part of PyLith, developed through the Computational Infrastructure
+# for Geodynamics (https://github.com/geodynamics/pylith).
+#
+# Copyright (c) 2010-2026 All rights reserved.
+#
+# See https://mit-license.org/ and LICENSE.md and for license information.
+# =================================================================================================
 # Python script to create a triangulated surface in Facets format from a
 # set of points. The Facets file can be read by Cubit.
 # This script uses the GMT triangulate command, which invokes the triangle
@@ -43,3 +51,6 @@ for triangle in range(numTriangles):
     outLine = connectFormat % (triangle, connect[triangle])
     f.write(outLine)
 f.close()
+
+
+# End of file

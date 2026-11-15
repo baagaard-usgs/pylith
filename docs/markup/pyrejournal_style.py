@@ -1,3 +1,11 @@
+# =================================================================================================
+# This code is part of PyLith, developed through the Computational Infrastructure
+# for Geodynamics (https://github.com/geodynamics/pylith).
+#
+# Copyright (c) 2010-2026 All rights reserved.
+#
+# See https://mit-license.org/ and LICENSE.md and for license information.
+# =================================================================================================
 """Pygments style for PyLith output, matching the terminal color scheme."""
 
 from pygments.style import Style
@@ -17,3 +25,6 @@ class PyreJournalStyle(Style):
         Token.Generic.Path: "#bbbbbb",  # paths / signatures
         Token.Text: "#000000",  # default text
     }
+
+
+# End of file

@@ -32,3 +32,6 @@ class PropertyList(Component):
 
 def property_list():
     return PropertyList()
+
+
+# End of file

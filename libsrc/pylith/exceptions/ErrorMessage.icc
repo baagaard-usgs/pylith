@@ -48,3 +48,6 @@ pylith::exceptions::ErrorMessage::
 operator std::string() const {
     return _buffer.str();
 }
+
+
+// End of file

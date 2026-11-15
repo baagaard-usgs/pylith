@@ -1,3 +1,11 @@
+# =================================================================================================
+# This code is part of PyLith, developed through the Computational Infrastructure
+# for Geodynamics (https://github.com/geodynamics/pylith).
+#
+# Copyright (c) 2010-2026 All rights reserved.
+#
+# See https://mit-license.org/ and LICENSE.md and for license information.
+# =================================================================================================
 from spatialdata.spatialdb.SimpleGridAscii import createWriter
 from spatialdata.geocoords.CSCart import CSCart
 
@@ -39,3 +47,6 @@ def write_spatialgrid_file(
 
 
 # End File
+
+
+# End of file

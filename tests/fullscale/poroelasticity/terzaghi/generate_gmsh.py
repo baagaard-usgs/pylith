@@ -1,4 +1,12 @@
 #!/usr/bin/env nemesis
+# =================================================================================================
+# This code is part of PyLith, developed through the Computational Infrastructure
+# for Geodynamics (https://github.com/geodynamics/pylith).
+#
+# Copyright (c) 2010-2026 All rights reserved.
+#
+# See https://mit-license.org/ and LICENSE.md and for license information.
+# =================================================================================================
 
 import gmsh
 from pylith.meshio.gmsh_utils import BoundaryGroup, MaterialGroup, GenerateMesh
@@ -102,3 +110,6 @@ class App(GenerateMesh):
 
 if __name__ == "__main__":
     App().main()
+
+
+# End of file

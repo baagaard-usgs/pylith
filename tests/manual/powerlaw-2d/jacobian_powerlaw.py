@@ -106,3 +106,6 @@ jacobian = jacobianDev + jacobianVol
 jc.writeJacobianInfo(fileName, jacobian)
 if checkJacobianSymmetry:
     jc.checkSymmetry(jacobian, "powerlaw2d_jacobian_symmetry.txt")
+
+
+# End of file
