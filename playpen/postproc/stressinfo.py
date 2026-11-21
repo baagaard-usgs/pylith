@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file postproc/stressinfo
 
 # @brief Python application to compute several stress-related quantities

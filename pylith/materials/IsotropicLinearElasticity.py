@@ -7,6 +7,7 @@
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
 
+
 from .RheologyElasticity import RheologyElasticity
 from .materials import IsotropicLinearElasticity as ModuleLinearElasticity
 

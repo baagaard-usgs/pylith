@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """Create spatial database for power law bulk rheology for axial traction
 problem with n=1 that is consistent with the analytical solution for the
 linear Maxwell bulk rheology.

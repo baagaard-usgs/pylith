@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # PREREQUISITES: numpy, netCDF4, spatialdata (PyLith)
 
 import netCDF4

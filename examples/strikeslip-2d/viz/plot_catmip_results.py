@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """
 This script generates a plot comparing the predicted solutions to
 the true solution for Step 7 (CATMIP inversions).

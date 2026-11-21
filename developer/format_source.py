@@ -8,6 +8,7 @@
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
 
+
 """Format C++ and Python to match coding style conventions used in the PyLith projectself.
 
 Uses uncrustify to format C++ code and autopep8 to format Python code.

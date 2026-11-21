@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file tests/fullscale/linearelasticity/nofaults-3d/TestGravity.py
 #
 # @brief Test suite for testing pylith with 3-D gravitational body forces (no initial stress).

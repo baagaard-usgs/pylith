@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """Simple inversion script that uses PyLith-generated Green's functions.
 
 This script is used as part of example step07. To perform the inversion you

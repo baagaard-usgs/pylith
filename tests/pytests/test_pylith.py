@@ -8,6 +8,7 @@
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
 
+
 """Script to run pylith Python test suite.
 
 Run `coverage report` to generate a report (included).

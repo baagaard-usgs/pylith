@@ -6,6 +6,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 from numpy import *
 
 p0 = array([-1.3, -1.4, -0.8], dtype=float64)

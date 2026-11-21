@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file tests/fullscale/viscoelasticity/nofaults-2d/TestAxialTractionMaxwell.py
 #
 # @brief Test suite for testing Maxwell material with 2-D axial extension (Neumann BC).

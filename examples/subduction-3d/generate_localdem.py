@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """Python script to pre-process bathymetry and topography data in region around the Cascadia subduction zone
 using rasterio.
 

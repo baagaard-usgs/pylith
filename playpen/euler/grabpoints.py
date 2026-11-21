@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file grabpoints/grabpoints
 
 # @brief Python application to grab a set of points specified in a pset

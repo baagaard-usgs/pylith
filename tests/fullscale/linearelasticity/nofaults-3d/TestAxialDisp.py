@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file tests/fullscale/linearelasticity/nofaults/TestAxialDisp.py
 #
 # @brief Test suite for testing pylith with 2-D axial extension.

@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """Python application to create spatial databases for a synthetic event with time-varying Gaussian slip.
 
 For simplicity we specify the slip on a horizontal plane in latitude and longitude coordinates.

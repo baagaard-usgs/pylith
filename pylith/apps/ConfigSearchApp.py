@@ -6,6 +6,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # Application for searching PyLith .cfg files.
 
 import sys

@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file tests/pytests/materials/TestAuxiliarySubfields.py
 #
 # @brief Unit testing of Python TestAuxiliarySubfields object.

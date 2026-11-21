@@ -7,6 +7,7 @@
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
 
+
 __version__ = "5.0.2"
 
 __all__ = [

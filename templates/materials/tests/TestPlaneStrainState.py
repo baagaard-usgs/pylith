@@ -7,6 +7,7 @@
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
 
+
 # We cannot test the low-level functionality of the PlaneStrainState
 # object because it is not exposed to Python. You should really setup
 # C++ unit tests using CppUnit as is done for PyLith in addition to

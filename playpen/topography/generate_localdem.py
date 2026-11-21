@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """Python script to extract elevation data in region around the Cascadia subduction zone
 using the GDAL Python API.
 

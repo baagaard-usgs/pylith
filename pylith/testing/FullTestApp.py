@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file pylith/testing/FullTestApp.py
 
 # @brief Python application for Python full-scale tests.

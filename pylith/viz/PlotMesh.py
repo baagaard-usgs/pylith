@@ -6,6 +6,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """Module for plotting mesh and mesh quality from PyLith output."""
 
 

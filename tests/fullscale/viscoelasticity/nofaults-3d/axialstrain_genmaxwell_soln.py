@@ -6,6 +6,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file tests/fullscale/viscoelasticity/nofaults-3d/axialstrain_genmaxwell_soln.py
 #
 # @brief Analytical solution to axial strain relaxation problem for a generalized Maxwell viscoelastic material.

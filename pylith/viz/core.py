@@ -6,6 +6,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """Module with core functionality for visualizing PyLith output using PyVista."""
 
 from sys import float_info

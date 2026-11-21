@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file postproc/vtkcff
 
 # @brief Python application to compute the Coulomb Failure Function difference

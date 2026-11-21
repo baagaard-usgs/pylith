@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file tests/libtests/materials/data/IsotropicLinearMaxwellPlaneStrain_VarStrain.py
 
 # @brief Python application for generating spatial database files for

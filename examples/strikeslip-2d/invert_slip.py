@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """This is an extremely simple example showing how to set up an inversion
 using PyLith-generated Green's functions. In this simple example,
 there are no data uncertainties, and we use the minimum moment for a penalty function.

@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """Python script for generating slip profile.
 
 REQUIRES: scipy (not included in PyLith binary distribution)

@@ -6,6 +6,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file tests/fullscale/viscoelasticity/nofaults-2d/axialstrainrate_genmaxwell_soln.py
 #
 # @brief Analytical solution to axial strain rate relaxation problem for a

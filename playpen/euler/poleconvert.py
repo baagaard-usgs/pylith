@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file euler/poleconvert
 
 # @brief Python application to convert Euler poles from geographic to

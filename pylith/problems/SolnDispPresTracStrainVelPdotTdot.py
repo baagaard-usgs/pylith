@@ -6,6 +6,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file pylith/problems/SolnDispPresTracStrainVelTdotPdot.py
 #
 # @brief Python subfields container with displacement, pore pressure, and trace strain subfields, along with their time derivatives.

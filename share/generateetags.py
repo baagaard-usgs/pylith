@@ -7,7 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
-#
+
+
 #    Generates etag files.
 #    Adds file names to list of tags in a TAGS file
 #

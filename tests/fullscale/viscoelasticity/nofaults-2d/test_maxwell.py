@@ -8,6 +8,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file tests/fullscale/viscoelasticity/nofaults-2d/axialtraction_maxwell_soln.py
 #
 # @brief Analytical solution to axial traction problem for a Maxwell viscoelastic material.

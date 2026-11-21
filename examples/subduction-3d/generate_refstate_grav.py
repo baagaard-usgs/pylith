@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # This script creates a spatial database with reference stresses for
 # Step08c using the PyLith output from Step08b.
 

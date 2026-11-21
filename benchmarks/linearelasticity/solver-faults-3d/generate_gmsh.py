@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """Generate a tet mesh of 3 strike-slip faults using Gmsh, making use of the
 Open Cascade geometry engine.
 

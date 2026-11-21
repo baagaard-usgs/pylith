@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """Generate text file with list of fake GNSS stations for Steps 4 and 5.
 
 Command line arguments control the number of stations, distance, and random distribution.

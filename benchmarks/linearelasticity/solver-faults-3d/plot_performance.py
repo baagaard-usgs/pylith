@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """Plot solver performance for 3D elasticity with faults benchmark."""
 
 from matplotlib import pyplot

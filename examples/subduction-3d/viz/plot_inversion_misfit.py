@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """This script creates a log-log plot of weighted data misfit vs. penalty misfit.
 
 The code requires the numpy and matplotlib packages.

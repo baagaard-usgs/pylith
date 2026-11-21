@@ -6,6 +6,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file pylith/faults/KinSrcLiuCos.py
 #
 # @brief Python object for a Liu () cosine-sine slip time function.

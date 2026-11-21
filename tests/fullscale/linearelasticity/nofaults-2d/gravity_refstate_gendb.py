@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file tests/fullscale/linearelasticity/nofaults-2d/gravity_refstate_gendb.py
 #
 # @brief Python script to generate spatial database with auxiliary

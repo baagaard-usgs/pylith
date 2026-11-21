@@ -8,6 +8,7 @@
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
 
+
 # @file dem2lines.py
 
 # @brief Python application to read an ASCII (x,y,z) representation of a DEM

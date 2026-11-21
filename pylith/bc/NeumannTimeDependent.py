@@ -6,6 +6,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file pylith/bc/NeumannTimeDependent.py
 #
 # @brief Python object for managing a time-dependent Neumann (natural) boundary condition.

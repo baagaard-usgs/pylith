@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file tests/fullscale/viscoelasticity/nofaults-2d/TestAxialStrainRateGenMaxwell.py
 #
 # @brief Test suite for testing generalized Maxwell material with 2-D axial strain rate (Dirichlet BC).

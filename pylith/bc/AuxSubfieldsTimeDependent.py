@@ -6,6 +6,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file pylith/materials/AuxSubfieldsTimeDependent.py
 #
 # @brief Python subfields container for isotropic, linear elasticity

@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """Generate a tri or quad mesh of a reverse fault with a splay fault using Gmsh, making
 use of the built-in geometry engine.
 

@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """
 We use the `gmsh_utils` module provided with PyLith. This module has helper functions
 and classes for marking materials and boundaries compatible with PyLith. We also use the

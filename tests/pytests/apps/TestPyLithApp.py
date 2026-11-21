@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file tests/pytests/apps/TestPyLithApp.py
 #
 # @brief Unit testing of Python PyLithApp object.

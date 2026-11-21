@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """
 This script generates a plot comparing the displacement and pressure
 time histories for uniform and adaptive time stepping in Step 1.

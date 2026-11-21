@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """Verify that a gzipped tarball from `make dist` contains all tracked files in the repository.
 
 The repository file list comes from `git ls-files` run in the current

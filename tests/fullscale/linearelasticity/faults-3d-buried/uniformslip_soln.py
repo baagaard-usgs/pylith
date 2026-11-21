@@ -6,6 +6,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @brief Uniform slip on a buried fault (no analytical solution).
 #
 # We just check info fields.

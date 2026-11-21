@@ -367,6 +367,9 @@ class SourceFixer:
             existing = self.template.render(self.language, span.year or year, license)
             standard = self._text(shown) == self._text(existing)
             if not standard:
+                import pdb
+
+                pdb.set_trace()
                 middle = current
                 fix.errors.append("non-standard preamble text; preamble left unchanged")
             elif shown != preamble or len(shown) != len(current):

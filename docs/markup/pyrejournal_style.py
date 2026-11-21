@@ -6,6 +6,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """Pygments style for PyLith output, matching the terminal color scheme."""
 
 from pygments.style import Style

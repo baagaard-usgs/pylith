@@ -6,6 +6,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """2-D axial traction solution for linear Maxwell viscoelastic material.
 
             Ty=T0

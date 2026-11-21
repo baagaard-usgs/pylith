@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """Generate a hex or tet mesh using Gmsh, making use of the OpenCascade geometry engine.
 
 We use the `gmsh_utils` module provided with PyLith. This module has helper functions

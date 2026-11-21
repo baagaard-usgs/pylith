@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """Run commands listed in a (YAML) file.
 
 This script is primarily used to run an example suite or a benchmark, including pre- and post-processing scripts.

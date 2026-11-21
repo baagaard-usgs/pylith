@@ -7,6 +7,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 """
 Python script to generate spatial database with displacement
 boundary conditions for the shear test. The traction boundary

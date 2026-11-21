@@ -6,6 +6,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file tests/fullscale/linearelasticity/nofaults-3d/gravity_refstate)soln.py
 #
 # @brief Analytical solution to gravitational body foces with initial stress.

@@ -6,6 +6,8 @@
 #
 # Copyright (c) 2010-2026 The PyLith authors and contributors
 # SPDX-License-Identifier: MIT
+
+
 # @file tests/fullscale/eqinfo/TestEqInfo.py
 #
 # @brief Generic tests for pylith_eqinfo.

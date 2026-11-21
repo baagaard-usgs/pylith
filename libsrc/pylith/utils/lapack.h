@@ -6,6 +6,8 @@
 //
 // Copyright (c) 2010-2026 The PyLith authors and contributors
 // SPDX-License-Identifier: MIT
+
+
 #pragma once
 
 /*
@@ -15,5 +17,6 @@
 
 #include <petscblaslapack.h>
 #define lapack_dgesvd LAPACKgesvd_
+
 
 // End of file
