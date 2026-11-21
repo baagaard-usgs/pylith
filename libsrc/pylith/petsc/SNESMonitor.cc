@@ -79,7 +79,7 @@ pylith::petsc::SNESMonitor::PylithSNESConvergedReason(PetscSNES snes,
     PetscInt numIterations = 0;
     PylithCallPetsc(SNESGetIterationNumber(snes, &numIterations));
     PYLITH_INFO_ROOT(pylith::journal::solver,
-                     "PETSc SNES nonlinear solver converged in " << numIterations << " interation due to " << reason);
+                     "PETSc SNES nonlinear solver converged in " << numIterations << " iteration due to " << reason);
 
     PYLITH_METHOD_RETURN(err);
 }

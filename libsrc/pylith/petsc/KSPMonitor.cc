@@ -80,7 +80,7 @@ pylith::petsc::KSPMonitor::PylithKSPConvergedReason(PetscKSP KSP,
     PetscInt numIterations = 0;
     PylithCallPetsc(KSPGetIterationNumber(KSP, &numIterations));
     PYLITH_INFO_ROOT(pylith::journal::solver,
-                     "PETSc KSP linear solver converged in " << numIterations << " interation due to " << reason);
+                     "PETSc KSP linear solver converged in " << numIterations << " iteration due to " << reason);
 
     PYLITH_METHOD_RETURN(err);
 }
