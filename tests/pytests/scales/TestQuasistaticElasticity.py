@@ -1,5 +1,4 @@
 #!/usr/bin/env nemesis
-#
 # -*- python -*-
 # -*- coding: utf-8 -*-
 #
